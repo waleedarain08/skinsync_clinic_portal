@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/extentions.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
@@ -8,7 +9,6 @@ import 'package:skinsync_clinic_portal/widgets/treatment_list_tile.dart';
 
 import '../../utils/responsive.dart';
 import '../../view_models/treatment_view_model.dart';
-import '../../widgets/dailog box/add_treatment_dailogbox.dart';
 
 class TreatmentScreen extends ConsumerStatefulWidget {
   const TreatmentScreen({super.key});
@@ -45,15 +45,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle create staff
-                    // ref
-                    //     .read(treatmentViewModelProvider.notifier)
-                    //     .getTreatments();
-                    // context.push(AddTreatmentScreen.routeName);
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AddTreatmentDialog(),
-                    );
+                    context.push('/clinic-add-treatment');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
