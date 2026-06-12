@@ -100,6 +100,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     final appointmentState = ref.watch(appointmentProvider);
 
     return Scaffold(
+
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),
