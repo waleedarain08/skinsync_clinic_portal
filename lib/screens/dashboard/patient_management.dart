@@ -19,22 +19,25 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.w(20)),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(28),
+          vertical: context.h(20),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: context.h(20)),
-            Text('Patient Management', style: CustomFonts.black20w600),
-            SizedBox(height: context.h(14)),
-            const Divider(color: CustomColors.border),
-            SizedBox(height: context.h(50)),
+            Text('Patient Management', style: CustomFonts.black26w700),
+            SizedBox(height: context.h(16)),
+            const Divider(color: CustomColors.border, thickness: 1),
+            SizedBox(height: context.h(32)),
             context.isLandscape
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       patientSelection(context),
-                      SizedBox(width: context.w(28.9)),
+                      SizedBox(width: context.w(24)),
                       const Expanded(
                         child: PatientMangementWidget(),
                       ),
@@ -43,7 +46,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                 : Column(
                     children: [
                       patientSelection(context),
-                      SizedBox(height: context.w(28.9)),
+                      SizedBox(height: context.h(24)),
                       const PatientMangementWidget(),
                     ],
                   ),
@@ -57,17 +60,27 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     return SizedBox(
       width: context.isLandscape ? context.w(386) : double.infinity,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
-          SizedBox(height: context.h(14)),
+          CupertinoSearchTextField(
+            backgroundColor: CustomColors.softGrey,
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(12),
+              vertical: context.h(12),
+            ),
+            placeholderStyle: CustomFonts.grey14w400,
+          ),
+          SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: 6,
             itemBuilder: (context, index) {
-              return const PatientSelectionTile(
+              return PatientSelectionTile(
                 title: "Sarah Johnson",
                 subTitle: "sarah.johnson@email.com",
+                isSelected: index == 0,
               );
             },
           ),

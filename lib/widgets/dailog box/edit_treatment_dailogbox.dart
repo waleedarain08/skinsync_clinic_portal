@@ -173,7 +173,7 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                   },
                   label: '${_selectedTreatment?.name ?? "N/A"} Treatment Price',
                   controller: _treatmentPriceControllers,
-                  hintText: '$200',
+                  hintText: '\$200',
                 ),
               ),
               Text("Select Areas", style: CustomFonts.black14w500),
@@ -286,7 +286,7 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                               },
                               label: '${area.name} Per Syringe Price',
                               controller: _areaPriceControllers[ctrlIndex],
-                              hintText: '$200',
+                              hintText: '\$200',
                             ),
                           );
                         }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:skinsync_clinic_portal/route_generator.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
 
@@ -19,8 +18,8 @@ class AppInit extends StatelessWidget {
       ..indicatorSize = 40.0
       ..radius = 12.0
       ..progressColor = CustomColors.white
-      ..backgroundColor = CustomColors.purple
-      ..indicatorColor = CustomColors.white
+      ..backgroundColor = CustomColors.white
+      ..indicatorColor = CustomColors.green
       ..textColor = CustomColors.white
       ..maskColor = CustomColors.black.withValues(alpha: 0.4)
       ..userInteractions = true
@@ -40,7 +39,7 @@ class AppInit extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          title: 'SkinSync Admin',
+          title: 'SkinSync Clinic',
           routerConfig: RouteGenerator.router,
           themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,
