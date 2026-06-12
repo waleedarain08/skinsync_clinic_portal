@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../widgets/build_textfield.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class AddTreatmentScreen extends StatefulWidget {
@@ -221,8 +223,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
+          child: CustomPrimaryButton(
+            onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Treatment created successfully!'),
@@ -230,22 +232,16 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-            ),
-            child: Text('Create', style: context.fonts.white14w600),
+            label: 'Create',
           ),
         ),
         SizedBox(width: context.w(16)),
         Expanded(
-          child: OutlinedButton(
-            onPressed: () {
+          child: CustomOutlinedButton(
+            onTap: () {
               Navigator.pop(context);
             },
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: CustomColors.border),
-            ),
-            child: Text('Cancel', style: context.fonts.black14w500),
+            label: 'Cancel',
           ),
         ),
       ],

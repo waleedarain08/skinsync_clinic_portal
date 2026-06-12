@@ -11,6 +11,8 @@ import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
 import '../../utils/extentions.dart';
 import '../../view_models/treatment_view_model.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
 
 class SelectTreatmentDialog extends ConsumerStatefulWidget {
   const SelectTreatmentDialog({super.key});
@@ -168,8 +170,8 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: CustomPrimaryButton(
+                    onTap: () {
                       if (_loadingTreatments) {
                         EasyLoading.showError('Please wait while we load');
                         return;
@@ -194,23 +196,14 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                           );
                       Navigator.pop(context);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: CustomColors.black,
-                    ),
-                    child: Text(
-                      'Add Treatment',
-                      style: CustomFonts.white14w600,
-                    ),
+                    label: 'Add Treatment',
                   ),
                 ),
                 SizedBox(width: context.w(16)),
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: CustomColors.black),
-                    ),
-                    child: Text('Cancel', style: CustomFonts.black14w500),
+                  child: CustomOutlinedButton(
+                    onTap: () => Navigator.of(context).pop(),
+                    label: 'Cancel',
                   ),
                 ),
               ],

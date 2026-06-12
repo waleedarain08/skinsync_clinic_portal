@@ -8,6 +8,8 @@ import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
 import 'package:skinsync_clinic_portal/utils/clinic_dummy_data.dart';
 import 'package:skinsync_clinic_portal/view_models/clinic_add_treatment_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../utils/responsive.dart';
 
@@ -691,15 +693,11 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           children: [
             Text("Sessions Structure", style: context.fonts.black20w600),
             if (!isDefault)
-              ElevatedButton.icon(
-                onPressed: () => notifier.addSession(),
-                icon: Icon(Icons.add, size: context.r(16), color: CustomColors.white),
-                label: Text("Add Session", style: TextStyle(fontSize: context.sp(12), color: CustomColors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.black,
-                  padding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(8)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(6))),
-                ),
+              CustomPrimaryButton(
+                onTap: () => notifier.addSession(),
+                icon: Icons.add,
+                label: "Add Session",
+                height: context.h(40),
               ),
           ],
         ),
@@ -819,10 +817,11 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                       children: [
                         Text("Session ${session.number} Follow-ups", style: context.fonts.black16w600),
                         if (!isDefault)
-                          TextButton.icon(
-                            onPressed: () => notifier.addFollowUp(sIdx),
-                            icon: Icon(Icons.add_circle_outline, size: context.r(16), color: CustomColors.black),
-                            label: Text("Add Follow-up", style: TextStyle(fontSize: context.sp(12), color: CustomColors.black, fontWeight: FontWeight.bold)),
+                          CustomOutlinedButton(
+                            onTap: () => notifier.addFollowUp(sIdx),
+                            icon: Icons.add_circle_outline,
+                            label: "Add Follow-up",
+                            height: context.h(36),
                           ),
                       ],
                     ),
@@ -1796,22 +1795,17 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Row(
       children: [
         if (!isFirst) ...[
-          OutlinedButton(
-            onPressed: () => notifier.prevStep(),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: CustomColors.black,
-              padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(16)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
-              side: const BorderSide(color: Colors.grey),
-            ),
-            child: Text("Previous", style: context.fonts.black14w600),
+          CustomOutlinedButton(
+            onTap: () => notifier.prevStep(),
+            label: "Previous",
+            width: context.w(120),
           ),
           SizedBox(width: context.w(12)),
         ],
         const Spacer(),
         if (!isLast)
-          ElevatedButton(
-            onPressed: state.selectedTemplate == null
+          CustomPrimaryButton(
+            onTap: state.selectedTemplate == null
                 ? null
                 : () {
                     // Custom validation rules per step if required
@@ -1819,42 +1813,20 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                       notifier.nextStep();
                     }
                   },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-              foregroundColor: CustomColors.white,
-              padding: EdgeInsets.symmetric(horizontal: context.w(30), vertical: context.h(16)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Next Step", style: context.fonts.white14w600),
-                SizedBox(width: context.w(8)),
-                const Icon(Icons.arrow_forward, size: 16, color: CustomColors.white),
-              ],
-            ),
+            label: "Next Step",
+            width: context.w(150),
           )
         else ...[
-          OutlinedButton(
-            onPressed: () => _handleSave(isDraft: true),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: CustomColors.black,
-              padding: EdgeInsets.symmetric(horizontal: context.w(20), vertical: context.h(16)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
-              side: const BorderSide(color: Colors.grey),
-            ),
-            child: Text("Save Draft", style: context.fonts.black14w600),
+          CustomOutlinedButton(
+            onTap: () => _handleSave(isDraft: true),
+            label: "Save Draft",
+            width: context.w(130),
           ),
           SizedBox(width: context.w(12)),
-          ElevatedButton(
-            onPressed: () => _handleSave(isDraft: false),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-              foregroundColor: CustomColors.white,
-              padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(16)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
-            ),
-            child: Text("Save Treatment", style: context.fonts.white14w600),
+          CustomPrimaryButton(
+            onTap: () => _handleSave(isDraft: false),
+            label: "Save Treatment",
+            width: context.w(160),
           ),
         ]
       ],
@@ -1901,19 +1873,13 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 SizedBox(height: context.h(24)),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: CustomPrimaryButton(
+                    onTap: () {
                       Navigator.of(ctx).pop(); // Dismiss success dialog
                       ref.read(clinicAddTreatmentViewModelProvider.notifier).reset();
                       context.pop(); // Navigate back to treatments screen
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: CustomColors.black,
-                      foregroundColor: CustomColors.white,
-                      padding: EdgeInsets.symmetric(vertical: context.h(14)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
-                    ),
-                    child: Text("Return to Catalog", style: context.fonts.white14w600),
+                    label: "Return to Catalog",
                   ),
                 ),
               ],

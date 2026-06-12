@@ -8,6 +8,7 @@ import 'package:skinsync_clinic_portal/models/requests/login_request_model.dart'
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../utils/assets.dart';
 import '../utils/enums.dart';
@@ -354,7 +355,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ),
             ),
             SizedBox(height: context.h(30)),
-            GestureDetector(
+            CustomPrimaryButton(
               onTap: () {
                 if (!_formKey.currentState!.validate()) return;
                 ref
@@ -371,32 +372,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   }
                 });
               },
-              child: Container(
-                width: context.w(215),
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(20),
-                  vertical: context.h(8),
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Sign In",
-                      style: context.fonts.white16w400,
-                    ),
-                    SizedBox(width: context.w(8)),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: CustomColors.white,
-                      size: context.sp(20),
-                    ),
-                  ],
-                ),
-              ),
+              label: "Sign In",
+              width: context.w(215),
+              isLoading: ref.watch(authViewModelProvider).loading,
             ),
           ],
         ),
@@ -466,7 +444,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   const InputDecoration(hintText: "Enter Your Email Address"),
             ),
             SizedBox(height: context.h(30)),
-            GestureDetector(
+            CustomPrimaryButton(
               onTap: () {
                 if (!_formKeyForgetPassword.currentState!.validate()) return;
                 ref
@@ -478,32 +456,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   }
                 });
               },
-              child: Container(
-                width: context.w(215),
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(20),
-                  vertical: context.h(8),
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Send Code",
-                      style: context.fonts.white16w400,
-                    ),
-                    SizedBox(width: context.w(8)),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: CustomColors.white,
-                      size: context.sp(20),
-                    ),
-                  ],
-                ),
-              ),
+              label: "Send Code",
+              width: context.w(215),
+              isLoading: ref.watch(authViewModelProvider).loading,
             ),
           ],
         ),
@@ -656,7 +611,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               },
             ),
             SizedBox(height: context.h(30)),
-            GestureDetector(
+            CustomPrimaryButton(
               onTap: () {
                 if (!_formKeyVerifyOtp.currentState!.validate()) return;
                 ref
@@ -675,32 +630,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   }
                 });
               },
-              child: Container(
-                width: context.w(215),
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(20),
-                  vertical: context.h(8),
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Verify Email",
-                      style: context.fonts.white16w400,
-                    ),
-                    SizedBox(width: context.w(8)),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: CustomColors.white,
-                      size: context.sp(20),
-                    ),
-                  ],
-                ),
-              ),
+              label: "Verify Email",
+              width: context.w(215),
+              isLoading: ref.watch(authViewModelProvider).loading,
             ),
           ],
         ),
@@ -834,7 +766,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
             SizedBox(height: context.h(30)),
 
-            GestureDetector(
+            CustomPrimaryButton(
               onTap: () {
                 if (!_formKeyCreateNewPassword.currentState!.validate()) return;
                 ref
@@ -849,32 +781,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   }
                 });
               },
-              child: Container(
-                width: context.w(215),
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(20),
-                  vertical: context.h(8),
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Save Password",
-                      style: context.fonts.white16w400,
-                    ),
-                    SizedBox(width: context.w(8)),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: CustomColors.white,
-                      size: context.sp(20),
-                    ),
-                  ],
-                ),
-              ),
+              label: "Save Password",
+              width: context.w(215),
+              isLoading: ref.watch(authViewModelProvider).loading,
             ),
           ],
         ),

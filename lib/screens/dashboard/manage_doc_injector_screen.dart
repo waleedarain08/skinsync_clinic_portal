@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/string_utils.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
 
@@ -55,22 +56,12 @@ class _MangeDoctorsInjectorsScreenState
                   "Manage Doctors / Injectors",
                   style: context.fonts.black20w600,
                 ),
-                ElevatedButton.icon(
-                  onPressed: () =>
+                CustomPrimaryButton(
+                  onTap: () =>
                       context.push(AddDoctorInjectorScreen.routeName),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.black,
-                    foregroundColor: CustomColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(context.r(8)),
-                    ),
-                    elevation: 0,
-                  ),
-                  icon: Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-                  label: Text(
-                    'Add Doctor / Injector',
-                    style: context.fonts.white14w600,
-                  ),
+                  label: 'Add Doctor / Injector',
+                  icon: Icons.add,
+                  height: context.h(45),
                 ),
               ],
             ),

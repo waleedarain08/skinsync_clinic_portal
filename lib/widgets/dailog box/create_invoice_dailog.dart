@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
 
 import '../../utils/theme.dart';
@@ -155,7 +157,7 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                 Consumer(
                   builder: (context, ref, _) {
                     return Expanded(
-                      child: GestureDetector(
+                      child: CustomPrimaryButton(
                         onTap: () {
                           ref
                               .read(authViewModelProvider.notifier)
@@ -167,39 +169,16 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                             builder: (context) => const AppointmentReadyDailog(),
                           );
                         },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: context.h(16),
-                          ),
-                          decoration: BoxDecoration(
-                            color: CustomColors.black,
-                            borderRadius: BorderRadius.circular(context.r(8)),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Send Invoice & Consent',
-                              style: CustomFonts.white14w600,
-                            ),
-                          ),
-                        ),
+                        label: 'Send Invoice & Consent',
                       ),
                     );
                   },
                 ),
                 SizedBox(width: context.w(12)),
                 Expanded(
-                  child: GestureDetector(
+                  child: CustomOutlinedButton(
                     onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: context.h(16)),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(context.r(8)),
-                        border: Border.all(color: CustomColors.border),
-                      ),
-                      child: Center(
-                        child: Text('Cancel', style: CustomFonts.black14w500),
-                      ),
-                    ),
+                    label: 'Cancel',
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../widgets/header__with_back_btn.dart';
 
@@ -158,37 +159,14 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
               SizedBox(height: context.h(38)),
 
               // Edit Button
-              GestureDetector(
+              CustomPrimaryButton(
                 onTap: () {
                   // TODO: Edit treatment
                 },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(12),
-                    vertical: context.h(6),
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF4081),
-                    borderRadius: BorderRadius.circular(context.r(20)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.edit_outlined,
-                        size: context.r(14),
-                        color: CustomColors.white,
-                      ),
-                      SizedBox(width: context.w(4)),
-                      Text(
-                        'Edit',
-                        style: context.fonts.black12w600.copyWith(
-                          color: CustomColors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                label: 'Edit',
+                icon: Icons.edit_outlined,
+                height: context.h(32),
+                width: context.w(80),
               ),
             ],
           ),

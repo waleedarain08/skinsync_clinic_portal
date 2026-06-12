@@ -1,5 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 
 import '../utils/theme.dart';
@@ -258,39 +260,16 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
       child: Row(
         children: [
           Expanded(
-            child: ElevatedButton(
-              onPressed: _onDone,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: CustomColors.black,
-                foregroundColor: CustomColors.white,
-                padding: EdgeInsets.symmetric(vertical: context.h(14)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Done',
-                style: CustomFonts.white14w600,
-              ),
+            child: CustomPrimaryButton(
+              onTap: _onDone,
+              label: 'Done',
             ),
           ),
           SizedBox(width: context.w(12)),
           Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.pop(context, null),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: CustomColors.black,
-                padding: EdgeInsets.symmetric(vertical: context.h(14)),
-                side: const BorderSide(color: CustomColors.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                ),
-              ),
-              child: Text(
-                'Cancel',
-                style: CustomFonts.black14w500,
-              ),
+            child: CustomOutlinedButton(
+              onTap: () => Navigator.pop(context, null),
+              label: 'Cancel',
             ),
           ),
         ],

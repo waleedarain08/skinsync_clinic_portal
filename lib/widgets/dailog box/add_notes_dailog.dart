@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_dropdown_widget.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../utils/theme.dart';
 
@@ -103,14 +104,12 @@ class _AddNotesDailogState extends State<AddNotesDailog> {
               ),
             ),
             SizedBox(height: context.h(30)),
-            SizedBox(
+            CustomPrimaryButton(
+              label: "Save Note",
+              onTap: () {
+                context.pop();
+              },
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
-                child: const Text("Save Note"),
-              ),
             ),
           ],
         ),

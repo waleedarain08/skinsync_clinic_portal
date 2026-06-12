@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/successfully_withdrawal_dailbox.dart';
 
 import '../../utils/theme.dart';
@@ -148,21 +149,19 @@ class PaymentWithDrawalDailogBox extends StatelessWidget {
                     ),
                     SizedBox(height: context.h(75)),
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: context.w(50)),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            showDialog(
-                              context: context,
-                              builder: (context) =>
-                                  const SuccessfullyWithdrawalDailogBox(),
-                            );
-                          },
-                          child: const Text("Withdraw Funds"),
-                        ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: context.w(50)),
+                      child: CustomPrimaryButton(
+                        onTap: () {
+                          Navigator.pop(context);
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                const SuccessfullyWithdrawalDailogBox(),
+                          );
+                        },
+                        label: "Withdraw Funds",
+                        width: double.infinity,
                       ),
                     ),
                   ],

@@ -10,6 +10,8 @@ import '../../models/treatment_model.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../utils/theme.dart';
 import '../build_textfield.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
 
 class AddTreatmentDialog extends ConsumerStatefulWidget {
   const AddTreatmentDialog({super.key});
@@ -275,8 +277,8 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
+                    child: CustomPrimaryButton(
+                      onTap: () {
                         if (_loadingAreas || _loadingTreatments) {
                           EasyLoading.showError('Please wait while we load');
                           return;
@@ -317,21 +319,15 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                               }
                             });
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.black,
-                      ),
-                      child: Text('Create', style: CustomFonts.white14w600),
+                      label: 'Create',
                     ),
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () =>
+                    child: CustomOutlinedButton(
+                      onTap: () =>
                           Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: CustomColors.black),
-                      ),
-                      child: Text('Cancel', style: CustomFonts.black14w500),
+                      label: 'Cancel',
                     ),
                   ),
                 ],

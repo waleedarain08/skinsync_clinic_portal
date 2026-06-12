@@ -7,6 +7,7 @@ import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../widgets/dailog box/add_product_dailog.dart';
 
@@ -74,27 +75,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
       children: [
         Text("Inventory", style: context.fonts.black20w600),
         const Spacer(),
-        ElevatedButton(
-          onPressed: _showAddProductDialog,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: CustomColors.black,
-            foregroundColor: CustomColors.white,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.w(20),
-              vertical: context.h(12),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(context.r(8)),
-            ),
-            elevation: 0,
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-              SizedBox(width: context.w(8)),
-              Text('Add Item', style: context.fonts.white14w600),
-            ],
-          ),
+        CustomPrimaryButton(
+          onTap: _showAddProductDialog,
+          label: 'Add Item',
+          icon: Icons.add,
+          height: context.h(45),
         ),
       ],
     );

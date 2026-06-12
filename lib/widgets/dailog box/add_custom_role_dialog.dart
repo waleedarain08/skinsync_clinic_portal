@@ -3,6 +3,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skinsync_clinic_portal/models/responses/get_feature_response.dart';
 import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
@@ -154,18 +156,14 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                   builder: (context, ref, _) {
                     final loading = ref.watch(roleProvider).createRoleLoading;
                     final state = ref.read(roleProvider);
-                    if (loading) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: CustomColors.purple,
-                        ),
-                      );
-                    }
+
                     return Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
+                          child: CustomPrimaryButton(
+                            label: 'Create Role',
+                            isLoading: loading,
+                            onTap: () async {
                               if (_formKey.currentState!.validate()) {
                                 if (state.selectedFeatures.isEmpty) {
                                   EasyLoading.showToast(
@@ -183,32 +181,13 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                                 }
                               }
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: CustomColors.black,
-                              padding: EdgeInsets.symmetric(
-                                vertical: context.h(12),
-                              ),
-                            ),
-                            child: Text(
-                              'Create Role',
-                              style: CustomFonts.white14w600,
-                            ),
                           ),
                         ),
                         SizedBox(width: context.w(16)),
                         Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(
-                                vertical: context.h(12),
-                              ),
-                              side: const BorderSide(color: CustomColors.black),
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: CustomFonts.black14w500,
-                            ),
+                          child: CustomOutlinedButton(
+                            label: 'Cancel',
+                            onTap: () => Navigator.pop(context),
                           ),
                         ),
                       ],

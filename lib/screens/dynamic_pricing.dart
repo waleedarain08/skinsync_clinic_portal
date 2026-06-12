@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_app_bar.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 class DynamicPricing extends StatefulWidget {
   static const String routeName = '/dynamic-pricing';
@@ -300,22 +302,16 @@ class _DynamicPricingState extends State<DynamicPricing> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => pickTime(true),
-                        child: Text(
-                          formatTime(startTime),
-                          style: context.fonts.black16w400,
-                        ),
+                      child: CustomOutlinedButton(
+                        onTap: () => pickTime(true),
+                        label: formatTime(startTime),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => pickTime(false),
-                        child: Text(
-                          formatTime(endTime),
-                          style: context.fonts.black16w400,
-                        ),
+                      child: CustomOutlinedButton(
+                        onTap: () => pickTime(false),
+                        label: formatTime(endTime),
                       ),
                     ),
                   ],
@@ -356,12 +352,10 @@ class _DynamicPricingState extends State<DynamicPricing> {
 
                 const Spacer(),
 
-                SizedBox(
+                CustomPrimaryButton(
+                  onTap: saveChanges,
+                  label: 'Save Changes',
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: saveChanges,
-                    child: const Text('Save Changes'),
-                  ),
                 ),
               ],
             ),

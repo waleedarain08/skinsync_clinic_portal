@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_custom_role_dialog.dart';
 
 class RolesScreen extends ConsumerStatefulWidget {
@@ -46,27 +47,11 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Roles Management", style: context.fonts.black20w600),
-                ElevatedButton(
-                  onPressed: _showAddRoleDialog,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.black,
-                    foregroundColor: CustomColors.white,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.w(20),
-                      vertical: context.h(12),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(context.r(8)),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-                      SizedBox(width: context.w(8)),
-                      Text('Add Custom Role', style: context.fonts.white14w600),
-                    ],
-                  ),
+                CustomPrimaryButton(
+                  onTap: _showAddRoleDialog,
+                  label: 'Add Custom Role',
+                  icon: Icons.add,
+                  height: context.h(45),
                 ),
               ],
             ),
@@ -149,17 +134,12 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("Permission Matrix", style: context.fonts.black16w700),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.save_outlined, size: context.r(16)),
-                label: Text("Save", style: context.fonts.white14w600),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.black,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(16),
-                    vertical: context.h(8),
-                  ),
-                ),
+              CustomPrimaryButton(
+                onTap: () {},
+                label: "Save",
+                icon: Icons.save_outlined,
+                height: context.h(40),
+                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../utils/assets.dart';
 import '../widgets/phone_widget.dart';
@@ -220,40 +221,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         SizedBox(height: context.h(30)),
 
                         // Create Account Button
-                        GestureDetector(
+                        CustomPrimaryButton(
                           onTap: () {
                             if (_formKey.currentState!.validate()) {
                               // Perform signup
                             }
                           },
-                          child: Container(
-                            width: context.w(215),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: context.w(20),
-                              vertical: context.h(14),
-                            ),
-                            decoration: BoxDecoration(
-                              color: CustomColors.black,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(context.r(30)),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Create Account",
-                                  style: context.fonts.white16w400,
-                                ),
-                                SizedBox(width: context.w(8)),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: CustomColors.white,
-                                  size: context.sp(20),
-                                ),
-                              ],
-                            ),
-                          ),
+                          label: "Create Account",
+                          width: context.w(215),
                         ),
                         SizedBox(height: context.h(20)),
 

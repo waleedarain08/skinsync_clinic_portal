@@ -5,6 +5,7 @@ import 'package:skinsync_clinic_portal/models/responses/catalog_response.dart';
 import 'package:skinsync_clinic_portal/utils/enums.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
@@ -305,37 +306,18 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                 ),
 
                 SizedBox(height: context.h(32)),
-                SizedBox(
-                  width: double.infinity,
-                  height: context.h(50),
-                  child: Consumer(
-                    builder: (_, ref, _) {
-                      final loading = ref.watch(
-                        inventoryProvider.select((s) => s.addProductLoading),
-                      );
-                      if (loading) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: CustomColors.purple,
-                          ),
-                        );
-                      }
-                      return ElevatedButton(
-                        onPressed: _onAddToInventory,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: CustomColors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(8)),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          "Add to Inventory",
-                          style: CustomFonts.white14w600,
-                        ),
-                      );
-                    },
-                  ),
+                Consumer(
+                  builder: (_, ref, _) {
+                    final loading = ref.watch(
+                      inventoryProvider.select((s) => s.addProductLoading),
+                    );
+                    return CustomPrimaryButton(
+                      onTap: _onAddToInventory,
+                      label: "Add to Inventory",
+                      isLoading: loading,
+                      width: double.infinity,
+                    );
+                  },
                 ),
               ],
             ),

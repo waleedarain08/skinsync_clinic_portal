@@ -8,6 +8,8 @@ import '../utils/custom_fonts.dart';
 import '../utils/responsive.dart';
 import '../utils/validators.dart';
 import '../view_models/auth_view_model.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class ChangePasswordScreen extends ConsumerWidget {
@@ -225,39 +227,18 @@ class ChangePasswordScreen extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton(
-            onPressed: isLoading ? null : () => _onUpdatePassword(context, ref),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.purple,
-              foregroundColor: CustomColors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              elevation: 0,
-            ),
-            child: isLoading
-                ? SizedBox(
-                    height: context.h(20),
-                    width: context.h(20),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: CustomColors.white,
-                    ),
-                  )
-                : Text('Update Password', style: context.fonts.white14w600),
+          child: CustomPrimaryButton(
+            onTap: () => _onUpdatePassword(context, ref),
+            label: 'Update Password',
+            isLoading: isLoading,
           ),
         ),
         SizedBox(width: context.w(16)),
         Expanded(
-          child: OutlinedButton(
-            onPressed: isLoading ? null : () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              side: BorderSide(color: CustomColors.border, width: 1),
-            ),
-            child: Text('Cancel', style: context.fonts.black14w500),
+          child: CustomOutlinedButton(
+            onTap: () => Navigator.pop(context),
+            label: 'Cancel',
+            isLoading: isLoading,
           ),
         ),
       ],

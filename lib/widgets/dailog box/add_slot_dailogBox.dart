@@ -6,6 +6,8 @@ import 'package:material_duration_picker/material_duration_picker.dart';
 import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
 import 'package:skinsync_clinic_portal/view_models/doctor_view_model.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 class AddSlotDialog extends StatefulWidget {
   const AddSlotDialog({super.key});
@@ -273,18 +275,17 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    "Cancel",
-                    style: context.fonts.purple14w600,
-                  ),
+                CustomOutlinedButton(
+                  onTap: () => Navigator.pop(context),
+                  label: "Cancel",
+                  width: context.w(100),
+                  height: context.h(42),
                 ),
                 SizedBox(width: context.w(10)),
                 Consumer(
                   builder: (_, ref, _) {
-                    return ElevatedButton(
-                      onPressed: () {
+                    return CustomPrimaryButton(
+                      onTap: () {
                         if (startTime == null || endTime == null) {
                           EasyLoading.showError('Select start and end time!');
                           return;
@@ -324,10 +325,9 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                         );
                         Navigator.pop(context, availability);
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.black,
-                      ),
-                      child: Text("Save", style: context.fonts.white14w600),
+                      label: "Save",
+                      width: context.w(100),
+                      height: context.h(42),
                     );
                   },
                 ),

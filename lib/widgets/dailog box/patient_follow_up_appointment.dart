@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/follow_up_later_dailog.dart';
 
 import '../../utils/theme.dart';
@@ -47,7 +49,7 @@ class PatientFollowUpAppointment extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: GestureDetector(
+                  child: CustomPrimaryButton(
                     onTap: () {
                       context.pop();
                       showDialog(
@@ -55,32 +57,16 @@ class PatientFollowUpAppointment extends StatelessWidget {
                         builder: (context) => const FollowUpLater(),
                       );
                     },
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(vertical: context.h(13)),
-                      decoration: BoxDecoration(
-                        color: CustomColors.black,
-                        borderRadius: BorderRadius.circular(context.r(30)),
-                      ),
-                      child: Text("Yes", style: CustomFonts.white14w600),
-                    ),
+                    label: "Yes",
                   ),
                 ),
                 SizedBox(width: context.w(10)),
                 Expanded(
-                  child: GestureDetector(
+                  child: CustomOutlinedButton(
                     onTap: () {
                       context.pop();
                     },
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(vertical: context.h(13)),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: CustomColors.border),
-                        borderRadius: BorderRadius.circular(context.r(30)),
-                      ),
-                      child: Text("No", style: CustomFonts.black14w600),
-                    ),
+                    label: "No",
                   ),
                 ),
               ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/extentions.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/treatment_list_tile.dart';
 
@@ -44,25 +45,13 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               children: [
                 Text("Treatments", style: context.fonts.black20w600),
                 const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
+                CustomPrimaryButton(
+                  onTap: () {
                     context.push('/clinic-add-treatment');
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.black,
-                    foregroundColor: CustomColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(context.r(8)),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-                      SizedBox(width: context.w(10)),
-                      Text('Add Treatment', style: context.fonts.white14w600),
-                    ],
-                  ),
+                  label: 'Add Treatment',
+                  icon: Icons.add,
+                  height: context.h(45),
                 ),
               ],
             ),

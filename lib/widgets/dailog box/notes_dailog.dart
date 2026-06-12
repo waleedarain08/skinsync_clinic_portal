@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../utils/theme.dart';
 
@@ -74,13 +75,11 @@ class NotesDailog extends StatelessWidget {
               ),
             ),
             SizedBox(height: context.h(30)),
-            SizedBox(
+            CustomPrimaryButton(
+              onTap: () {},
+              label: "Save Note",
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text("Save Note"),
-              ),
-            )
+            ),
           ],
         ),
       ),

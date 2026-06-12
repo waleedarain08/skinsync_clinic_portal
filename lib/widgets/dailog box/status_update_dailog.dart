@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/patient_follow_up_appointment.dart';
 
 import '../../utils/theme.dart';
@@ -43,7 +44,7 @@ class StatusUpdateDailog extends StatelessWidget {
               ),
             ),
             SizedBox(height: context.h(30)),
-            GestureDetector(
+            CustomPrimaryButton(
               onTap: () {
                 context.pop();
                 showDialog(
@@ -51,27 +52,9 @@ class StatusUpdateDailog extends StatelessWidget {
                   builder: (context) => const PatientFollowUpAppointment(),
                 );
               },
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: context.h(13)),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.circular(context.r(30)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("OK", style: CustomFonts.white14w600),
-                    SizedBox(width: context.w(10)),
-                    Icon(
-                      CupertinoIcons.arrow_right,
-                      color: CustomColors.white,
-                      size: context.r(24),
-                    )
-                  ],
-                ),
-              ),
-            )
+              label: "OK",
+              width: double.infinity,
+            ),
           ],
         ),
       ),

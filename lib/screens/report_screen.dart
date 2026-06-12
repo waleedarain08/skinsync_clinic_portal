@@ -1,6 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
 
 import '../utils/responsive.dart';
@@ -155,42 +157,16 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: ElevatedButton(
-                                onPressed: _submitReport,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: CustomColors.black,
-                                  foregroundColor: CustomColors.white,
-                                  padding: EdgeInsets.symmetric(vertical: context.h(20)),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(context.r(8)),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: Text(
-                                  'Submit Report',
-                                  style: context.fonts.white16w400,
-                                ),
+                              child: CustomPrimaryButton(
+                                onTap: _submitReport,
+                                label: 'Submit Report',
                               ),
                             ),
                             SizedBox(width: context.w(12)),
                             Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: CustomColors.black,
-                                  padding: EdgeInsets.symmetric(vertical: context.h(20)),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(context.r(8)),
-                                  ),
-                                  side: const BorderSide(
-                                    color: CustomColors.border,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cancel',
-                                  style: context.fonts.black18w600,
-                                ),
+                              child: CustomOutlinedButton(
+                                onTap: () => Navigator.pop(context),
+                                label: 'Cancel',
                               ),
                             ),
                           ],

@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../utils/responsive.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
 import '../widgets/header__with_back_btn.dart';
 import '../widgets/phone_widget.dart';
 
@@ -422,8 +424,8 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
       children: [
         // Save Changes Button
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
+          child: CustomPrimaryButton(
+            onTap: () {
               // Handle save changes
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -432,35 +434,18 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-              foregroundColor: CustomColors.white,
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              elevation: 0,
-            ),
-            child: Text('Save Changes', style: context.fonts.white14w600),
+            label: 'Save Changes',
           ),
         ),
         SizedBox(width: context.w(16)),
         // Cancel Button
         Expanded(
-          child: OutlinedButton(
-            onPressed: () {
+          child: CustomOutlinedButton(
+            onTap: () {
               // Handle cancel
               Navigator.pop(context);
             },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: CustomColors.black,
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              side: const BorderSide(color: CustomColors.border, width: 1),
-            ),
-            child: Text('Cancel', style: context.fonts.black14w500),
+            label: 'Cancel',
           ),
         ),
       ],

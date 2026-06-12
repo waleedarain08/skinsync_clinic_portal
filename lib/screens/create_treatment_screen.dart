@@ -4,6 +4,8 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class CreateTreatmentScreen extends StatefulWidget {
@@ -256,8 +258,8 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
       children: [
         // Create Treatment Button
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
+          child: CustomPrimaryButton(
+            onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Treatment created successfully!'),
@@ -265,34 +267,17 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-              foregroundColor: CustomColors.white,
-              padding: EdgeInsets.symmetric(vertical: context.h(16)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              elevation: 0,
-            ),
-            child: Text('Create Treatment', style: context.fonts.white14w600),
+            label: 'Create Treatment',
           ),
         ),
         SizedBox(width: context.w(16)),
         // Cancel Button
         Expanded(
-          child: OutlinedButton(
-            onPressed: () {
+          child: CustomOutlinedButton(
+            onTap: () {
               Navigator.pop(context);
             },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: CustomColors.black,
-              padding: EdgeInsets.symmetric(vertical: context.h(16)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(8)),
-              ),
-              side: const BorderSide(color: CustomColors.border, width: 1),
-            ),
-            child: Text('Cancel', style: context.fonts.black14w500),
+            label: 'Cancel',
           ),
         ),
       ],

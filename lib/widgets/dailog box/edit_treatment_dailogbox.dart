@@ -9,6 +9,8 @@ import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../build_textfield.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
 
 class EditTreatmentDialog extends ConsumerStatefulWidget {
   const EditTreatmentDialog({super.key});
@@ -300,8 +302,8 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
+                    child: CustomPrimaryButton(
+                      onTap: () {
                         if (_loadingAreas) {
                           EasyLoading.showError('Please wait while we load');
                           return;
@@ -338,22 +340,14 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                               }
                             });
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.black,
-                        padding: EdgeInsets.symmetric(vertical: context.h(20)),
-                      ),
-                      child: Text('Update', style: CustomFonts.white14w600),
+                      label: 'Update',
                     ),
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: CustomColors.black),
-                      ),
-                      child: Text('Cancel', style: CustomFonts.black14w500),
+                    child: CustomOutlinedButton(
+                      onTap: () => Navigator.of(context).pop(),
+                      label: 'Cancel',
                     ),
                   ),
                 ],

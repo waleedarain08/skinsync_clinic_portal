@@ -10,6 +10,8 @@ import 'package:skinsync_clinic_portal/models/responses/register_doctor_response
 import 'package:skinsync_clinic_portal/models/treatment_model.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dailogBox.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_treatment_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/phone_widget.dart';
@@ -171,30 +173,20 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     children: [
                       Text('Details', style: context.fonts.black20w600),
                       const Spacer(),
-                      ElevatedButton.icon(
-                        onPressed: () {
+                      CustomPrimaryButton(
+                        onTap: () {
                           showDialog(
                             context: context,
                             builder: (context) => const SelectTreatmentDialog(),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: CustomColors.black,
-                          foregroundColor: CustomColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(8)),
-                          ),
-                          elevation: 0,
-                        ),
-                        icon: Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-                        label: Text(
-                          'Add Treatment',
-                          style: context.fonts.white14w600,
-                        ),
+                        label: 'Add Treatment',
+                        icon: Icons.add,
+                        height: context.h(42),
                       ),
                       SizedBox(width: context.w(10)),
-                      ElevatedButton.icon(
-                        onPressed: () async {
+                      CustomPrimaryButton(
+                        onTap: () async {
                           final availability = await showDialog<Availability>(
                             context: context,
                             builder: (context) => const AddSlotDialog(),
@@ -203,16 +195,9 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                               .read(doctorProvider.notifier)
                               .setAvailability(availability);
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: CustomColors.black,
-                          foregroundColor: CustomColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(8)),
-                          ),
-                          elevation: 0,
-                        ),
-                        icon: Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
-                        label: Text('Add Slot', style: context.fonts.white14w600),
+                        label: 'Add Slot',
+                        icon: Icons.add,
+                        height: context.h(42),
                       ),
                     ],
                   ),
@@ -498,8 +483,8 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
+          child: CustomPrimaryButton(
+            onTap: () {
               if (!_formKey.currentState!.validate()) {
                 return;
               }
@@ -527,23 +512,15 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.black,
-            ),
-            child: Text(
-              widget.doctor == null ? 'Create' : 'Update',
-              style: context.fonts.white14w600,
-            ),
+            label: widget.doctor == null ? 'Create' : 'Update',
+            isLoading: ref.watch(doctorProvider).loading,
           ),
         ),
         SizedBox(width: context.w(16)),
         Expanded(
-          child: OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: CustomColors.border),
-            ),
-            child: Text('Cancel', style: context.fonts.black14w500),
+          child: CustomOutlinedButton(
+            onTap: () => Navigator.pop(context),
+            label: 'Cancel',
           ),
         ),
       ],

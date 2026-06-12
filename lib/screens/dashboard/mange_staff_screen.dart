@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:skinsync_clinic_portal/screens/create_staff_screen.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
 
 import '../../../utils/assets.dart';
@@ -205,12 +206,10 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
           SizedBox(height: context.h(20)),
           if (isSchedule) scheduleTap(),
           if (!isSchedule) timeOffTap(),
-          SizedBox(
+          CustomPrimaryButton(
+            onTap: () {},
+            label: "Save Schedule",
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              child: const Text("Save Schedule"),
-            ),
           ),
           SizedBox(height: context.h(20)),
         ],
