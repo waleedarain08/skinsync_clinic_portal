@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:skinsync_clinic_portal/route_generator.dart';
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
@@ -38,7 +39,7 @@ class AppInit extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          title: 'SkinSync Clinic',
+          title: 'SkinSync Admin',
           routerConfig: RouteGenerator.router,
           themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,
