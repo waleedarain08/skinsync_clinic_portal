@@ -41,7 +41,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             SizedBox(height: 20.h),
             Row(
               children: [
-                Text("Treatments", style: CustomFonts.black22w600),
+                Text("Treatments", style: CustomFonts.black20w600),
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {
@@ -61,7 +61,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                         child: Icon(Icons.add, color: Colors.white, size: 20.r),
                       ),
                       SizedBox(width: 10.w),
-                      Text('Add Treatment', style: CustomFonts.white14w500),
+                      Text('Add Treatment', style: CustomFonts.white14w600),
                     ],
                   ),
                 ),

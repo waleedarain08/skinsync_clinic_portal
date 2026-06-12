@@ -109,11 +109,11 @@ class _DynamicPricingState extends State<DynamicPricing> {
                     icon: Icon(
                       Icons.arrow_back,
                       size: 24.sp,
-                      color: CustomColors.blackColor,
+                      color: CustomColors.black,
                     ),
                   ),
                   SizedBox(width: 15.w),
-                  Text('Dynamic pricing', style: CustomFonts.black22w600),
+                  Text('Dynamic pricing', style: CustomFonts.black20w600),
                   Spacer(),
                   IconButton(
                     onPressed: () {},
@@ -124,7 +124,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
               SizedBox(height: 15.h),
               Divider(
                 height: 0,
-                color: CustomColors.blackColor.withValues(alpha: 0.1),
+                color: CustomColors.black.withValues(alpha: 0.1),
               ),
               SizedBox(height: 24.h),
               Expanded(child: _buildBody()),
@@ -162,11 +162,11 @@ class _DynamicPricingState extends State<DynamicPricing> {
                       child: Container(
                         margin: EdgeInsets.only(bottom: 16.h),
                         decoration: BoxDecoration(
-                          color: CustomColors.whiteColor,
+                          color: CustomColors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: selected
-                                ? CustomColors.purpleColor
+                                ? CustomColors.purple
                                 : Colors.transparent,
                             width: 2,
                           ),
@@ -186,7 +186,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                                     width: 50.w,
                                     height: 50.w,
                                     decoration: BoxDecoration(
-                                      color: CustomColors.lightBlueColor
+                                      color: CustomColors.blue
                                           .withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(14.r),
                                     ),
@@ -308,7 +308,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                         onPressed: () => pickTime(true),
                         child: Text(
                           formatTime(startTime),
-                          style: CustomFonts.black18w400,
+                          style: CustomFonts.black16w400,
                         ),
                       ),
                     ),
@@ -318,7 +318,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                         onPressed: () => pickTime(false),
                         child: Text(
                           formatTime(endTime),
-                          style: CustomFonts.black18w400,
+                          style: CustomFonts.black16w400,
                         ),
                       ),
                     ),
@@ -403,7 +403,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
         hintText: 'Search Campaign',
         hintStyle: CustomFonts.grey16w400,
         prefixIcon: Icon(Icons.search),
-        fillColor: CustomColors.fillColor,
+        fillColor: CustomColors.softGrey,
         filled: true,
         contentPadding: EdgeInsets.zero,
       ),

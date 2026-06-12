@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
 
 import '../utils/responsive.dart';
+import '../utils/theme.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -22,62 +21,62 @@ class _AboutScreenState extends State<AboutScreen> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button and title
-              BuildHeader(title: 'About'),
+              const BuildHeader(title: 'About'),
               // Divider
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
 
-              Divider(height: 1.h, thickness: 1, color: Colors.grey.shade200),
+              const Divider(height: 1, thickness: 1, color: CustomColors.border),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
 
               // Tab Row
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
                 child: Container(
-                  padding: EdgeInsets.all(10.w),
+                  padding: EdgeInsets.all(context.w(10)),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8.r),
+                    color: CustomColors.softGrey,
+                    borderRadius: BorderRadius.circular(context.r(8)),
                   ),
-                  child: Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildTab(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildTab(
                           title: 'Terms & Conditions',
                           isSelected: selectedTab == 0,
                           onTap: () => setState(() => selectedTab = 0),
                         ),
-                        _buildTab(
+                      ),
+                      Expanded(
+                        child: _buildTab(
                           title: 'Privacy Policy',
                           isSelected: selectedTab == 1,
                           onTap: () => setState(() => selectedTab = 1),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.h(24)),
 
               // Content based on selected tab
               Expanded(
                 child: SingleChildScrollView(
                   child: Container(
-                    padding: EdgeInsets.all(16.w),
+                    padding: EdgeInsets.all(context.w(16)),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.r),
-                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(context.r(12)),
+                      color: CustomColors.white,
                     ),
-
                     child: selectedTab == 0
                         ? _buildTermsAndConditions()
                         : _buildPrivacyPolicy(),
@@ -100,27 +99,31 @@ class _AboutScreenState extends State<AboutScreen> {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: context.isLandscape ? 16.w : 6.w,
-          vertical: 10.h,
+          horizontal: context.isLandscape ? context.w(16) : context.w(6),
+          vertical: context.h(10),
         ),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? Colors.black87 : Colors.grey.shade200,
-            width: 1.r,
+            color: isSelected ? CustomColors.black : Colors.transparent,
+            width: context.r(1),
           ),
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(6.r),
+          color: isSelected ? CustomColors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(context.r(6)),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    color: CustomColors.black.withValues(alpha: 0.05),
+                    blurRadius: context.r(4),
+                    offset: Offset(0, context.h(2)),
                   ),
                 ]
               : null,
         ),
-        child: Text(title, style: CustomFonts.black18w600),
+        child: Text(
+          title,
+          style: CustomFonts.black14w600,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
@@ -129,8 +132,8 @@ class _AboutScreenState extends State<AboutScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Terms & Conditions', style: CustomFonts.black22w600),
-        SizedBox(height: 20.h),
+        Text('Terms & Conditions', style: CustomFonts.black20w600),
+        SizedBox(height: context.h(20)),
         _buildSection(
           number: '1',
           title: 'Acceptance of Terms',
@@ -167,7 +170,7 @@ class _AboutScreenState extends State<AboutScreen> {
           content:
               'SkinSync AI may revise these terms at any time without notice. By using this application, you are agreeing to be bound by the current version of these terms.',
         ),
-        SizedBox(height: 24.h),
+        SizedBox(height: context.h(24)),
       ],
     );
   }
@@ -176,8 +179,8 @@ class _AboutScreenState extends State<AboutScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Privacy Policy', style: CustomFonts.black22w600),
-        SizedBox(height: 20.h),
+        Text('Privacy Policy', style: CustomFonts.black20w600),
+        SizedBox(height: context.h(20)),
         _buildSection(
           number: '1',
           title: 'Information Collection',
@@ -214,7 +217,7 @@ class _AboutScreenState extends State<AboutScreen> {
           content:
               'If you have any questions about this Privacy Policy, please contact us through the app or via email at support@skinsync.ai.',
         ),
-        SizedBox(height: 24.h),
+        SizedBox(height: context.h(24)),
       ],
     );
   }
@@ -225,12 +228,12 @@ class _AboutScreenState extends State<AboutScreen> {
     required String content,
   }) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 20.h),
+      padding: EdgeInsets.only(bottom: context.h(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('$number. $title', style: CustomFonts.black16w600),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.h(8)),
           Text(content, style: CustomFonts.grey16w400),
         ],
       ),

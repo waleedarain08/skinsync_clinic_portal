@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../utils/custom_fonts.dart';
+import '../../utils/theme.dart';
 
 class SuccessDialog extends StatelessWidget {
   final String title;
@@ -39,11 +38,14 @@ class SuccessDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.3,
-        padding: EdgeInsets.symmetric(vertical: 28.h, horizontal: 24.w),
+        width: MediaQuery.sizeOf(context).width * 0.3,
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(28),
+          horizontal: context.w(24),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -54,35 +56,34 @@ class SuccessDialog extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  height: 32.w,
-                  width: 32.w,
+                  height: context.w(32),
+                  width: context.w(32),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black26),
+                    border: Border.all(color: CustomColors.border),
                   ),
-                  child: Icon(Icons.close, size: 16.sp),
+                  child: Icon(Icons.close, size: context.r(16), color: CustomColors.grey),
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
 
             /// Icon
             Container(
-              width: 90.w,
-              height: 90.w,
-              decoration: BoxDecoration(
+              width: context.w(90),
+              height: context.w(90),
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.grey.shade100,
+                color: CustomColors.softGrey,
               ),
-              child:
-                  icon ??
+              child: icon ??
                   Icon(
                     Icons.calendar_month_rounded,
-                    size: 48.sp,
-                    color: Colors.blueAccent,
+                    size: context.r(48),
+                    color: CustomColors.blue,
                   ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
 
             /// Title
             Text(
@@ -90,7 +91,7 @@ class SuccessDialog extends StatelessWidget {
               style: CustomFonts.black20w600,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 10.h),
+            SizedBox(height: context.h(10)),
 
             /// Description
             Text(
@@ -98,7 +99,7 @@ class SuccessDialog extends StatelessWidget {
               style: CustomFonts.grey14w400,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
           ],
         ),
       ),

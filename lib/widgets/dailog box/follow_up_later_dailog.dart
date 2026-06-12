@@ -1,14 +1,9 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/scheduled_next_appointment.dart';
 
+import '../../utils/theme.dart';
 
 class FollowUpLater extends StatelessWidget {
   const FollowUpLater({super.key});
@@ -17,71 +12,81 @@ class FollowUpLater extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 360.w,
-        padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 20.w),
+        width: context.w(360),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(30),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            /// Header
-      
-             Center(child: Image.asset(PngAssets.appointmentCalendar,height: 66.h,width: 60.w,)),
-            SizedBox(height: 30.h,),
-          Center(child: Text("Do you want to schedule follow-up appointment now or do it later ?",
-          textAlign: TextAlign.center,
-          style: CustomFonts.black18w500,)),
-            SizedBox(height: 30,),
-           Row(
-             children: [
-               Expanded(
-                 child: GestureDetector(
-                  onTap :() {
-                     context.pop();
-                    showDialog(
+            Center(
+              child: Image.asset(
+                PngAssets.appointmentCalendar,
+                height: context.h(66),
+                width: context.w(60),
+              ),
+            ),
+            SizedBox(height: context.h(30)),
+            Center(
+              child: Text(
+                "Do you want to schedule follow-up appointment now or do it later ?",
+                textAlign: TextAlign.center,
+                style: CustomFonts.black16w500,
+              ),
+            ),
+            SizedBox(height: context.h(30)),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      context.pop();
+                      showDialog(
                         context: context,
-                        builder: (context) => ScheduledNextAppointment(),
+                        builder: (context) => const ScheduledNextAppointment(),
                       );
-                  },
-                   child: Container(
-                   alignment: .center,
-                    padding: EdgeInsets.symmetric(vertical: 13.h),
-                    decoration: BoxDecoration(
-                      color: CustomColors.blackColor,
-                      borderRadius: BorderRadius.circular(30.r)
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(vertical: context.h(13)),
+                      decoration: BoxDecoration(
+                        color: CustomColors.black,
+                        borderRadius: BorderRadius.circular(context.r(30)),
+                      ),
+                      child: Text("Yes", style: CustomFonts.white14w600),
                     ),
-                    child: Text("Yes",style: CustomFonts.white18w600,),
-                   ),
-                 ),
-               ),
-               SizedBox(width: 10.w,),
-               Expanded(
-                 child: GestureDetector(
-                  onTap :() {
-                    context.pop();
-                  },
-                   child: Container(
-                   alignment: .center,
-                    padding: EdgeInsets.symmetric(vertical: 13.h),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(30.r)
+                  ),
+                ),
+                SizedBox(width: context.w(10)),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      context.pop();
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(vertical: context.h(13)),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: CustomColors.border),
+                        borderRadius: BorderRadius.circular(context.r(30)),
+                      ),
+                      child: Text("No", style: CustomFonts.black14w600),
                     ),
-                    child: Text("No",style: CustomFonts.black18w600,),
-                   ),
-                 ),
-               ),
-             ],
-           )
-             ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
-
 }

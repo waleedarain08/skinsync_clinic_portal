@@ -35,7 +35,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.dashboardBackgroundColor,
+      backgroundColor: CustomColors.whiteGrey,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Column(
@@ -45,7 +45,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Roles Management", style: CustomFonts.black22w600),
+                Text("Roles Management", style: CustomFonts.black20w600),
                 ElevatedButton(
                   onPressed: _showAddRoleDialog,
                   style: ElevatedButton.styleFrom(
@@ -64,7 +64,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     children: [
                       Icon(Icons.add, color: Colors.white, size: 20.r),
                       SizedBox(width: 8.w),
-                      Text('Add Custom Role', style: CustomFonts.white14w500),
+                      Text('Add Custom Role', style: CustomFonts.white14w600),
                     ],
                   ),
                 ),
@@ -107,12 +107,12 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                             side: BorderSide.none,
                           ),
                           leading: CircleAvatar(
-                            backgroundColor: CustomColors.blueColor.withValues(
+                            backgroundColor: CustomColors.blue.withValues(
                               alpha: 0.1,
                             ),
                             child: Icon(
                               Icons.person_outline,
-                              color: CustomColors.blueColor,
+                              color: CustomColors.blue,
                               size: 20.sp,
                             ),
                           ),
@@ -151,9 +151,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               ElevatedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.save_outlined, size: 16),
-                label: Text("Save", style: CustomFonts.white14w500),
+                label: Text("Save", style: CustomFonts.white14w600),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.blackColor,
+                  backgroundColor: CustomColors.black,
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
                     vertical: 8.h,
@@ -175,7 +175,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                   width: double.infinity,
                   padding: EdgeInsets.all(10.w),
                   decoration: BoxDecoration(
-                    border: Border.all(color: CustomColors.borderColor),
+                    border: Border.all(color: CustomColors.border),
                     borderRadius: BorderRadius.circular(12.r),
                     color: Colors.white,
                   ),
@@ -247,7 +247,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
       width: double.infinity,
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
-        border: Border.all(color: CustomColors.borderColor),
+        border: Border.all(color: CustomColors.border),
         borderRadius: BorderRadius.circular(12.r),
         color: Colors.white,
       ),

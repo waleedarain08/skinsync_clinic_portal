@@ -1,12 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_mangement_widget.dart';
+
+import '../../utils/theme.dart';
 
 class PatientDetailDailog extends StatelessWidget {
   const PatientDetailDailog({super.key});
@@ -15,13 +10,15 @@ class PatientDetailDailog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-      
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,76 +28,81 @@ class PatientDetailDailog extends StatelessWidget {
             Row(
               children: [
                 Text("Patient Profile", style: CustomFonts.black16w600),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 32.w,
-                    width: 32.w,
+                    height: context.w(32),
+                    width: context.w(32),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(color: CustomColors.border),
                     ),
-                    child: const Icon(Icons.close, size: 18),
+                    child: Icon(Icons.close, size: context.r(18), color: CustomColors.grey),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20.h,),
+            SizedBox(height: context.h(20)),
             SizedBox(
-              height: MediaQuery.of(context).size.height*0.7,
-              child: SingleChildScrollView(child: PatientMangementWidget(),
-              )),
-              Padding(
-                padding:  EdgeInsets.only(top:  20.h),
-                child: Row(
-                 children: [
+              height: MediaQuery.sizeOf(context).height * 0.7,
+              child: const SingleChildScrollView(
+                child: PatientMangementWidget(),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: context.h(20)),
+              child: Row(
+                children: [
                   Expanded(
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-                        decoration: BoxDecoration(
-                          color: CustomColors.blackColor,
-                          borderRadius: BorderRadius.circular(8.r),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(12),
+                          vertical: context.h(16),
                         ),
-                        child: Center(child: Text("Continue", style: CustomFonts.white18w500),),
+                        decoration: BoxDecoration(
+                          color: CustomColors.black,
+                          borderRadius: BorderRadius.circular(context.r(8)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Continue",
+                            style: CustomFonts.white14w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                   SizedBox(width: 15.w,),
+                  SizedBox(width: context.w(15)),
                   Expanded(
-                    child:GestureDetector(
+                    child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: CustomColors.greyColor),
-                          borderRadius: BorderRadius.circular(8.r),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(12),
+                          vertical: context.h(16),
                         ),
-                        child: Center(child: Text("Cancel", style: CustomFonts.black18w500),),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: CustomColors.border),
+                          borderRadius: BorderRadius.circular(context.r(8)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Cancel",
+                            style: CustomFonts.black14w500,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                 // Expanded(child: ElevatedButton( onPressed: () => Navigator.pop(context), child: Text("End Appointment"),)),
-                 
-                  // Expanded(child: OutlinedButton(
-                  //   style: OutlinedButton.styleFrom(
-                  //     shape: RoundedRectangleBorder(
-                  //       borderRadius: BorderRadius.circular(8.r),
-                  //     ),
-                  //     side: BorderSide(color: CustomColors.greyColor),
-                      
-                  //   ),
-                  //   onPressed:() => Navigator.pop(context) , child: Text("Cancel")))
-                 ],
-                ),
-              )
-           
-        ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-
 }

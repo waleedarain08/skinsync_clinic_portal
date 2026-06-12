@@ -167,7 +167,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                 children: [
                   Row(
                     children: [
-                      Text('Details', style: CustomFonts.black22w600),
+                      Text('Details', style: CustomFonts.black20w600),
                       Spacer(),
                       ElevatedButton.icon(
                         onPressed: () {
@@ -188,7 +188,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                         icon: Icon(Icons.add, color: Colors.white, size: 20.r),
                         label: Text(
                           'Add Treatment',
-                          style: CustomFonts.white14w500,
+                          style: CustomFonts.white14w600,
                         ),
                       ),
                       SizedBox(width: 10.w),
@@ -212,7 +212,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                           elevation: 0,
                         ),
                         icon: Icon(Icons.add, color: Colors.white, size: 20.r),
-                        label: Text('Add Slot', style: CustomFonts.white14w500),
+                        label: Text('Add Slot', style: CustomFonts.white14w600),
                       ),
                     ],
                   ),
@@ -236,7 +236,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                               child: Icon(
                                 Icons.person_outline,
                                 size: 30.sp,
-                                color: CustomColors.whiteColor,
+                                color: CustomColors.white,
                               ),
                             ),
                             fit: BoxFit.cover,
@@ -393,7 +393,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                       showCheckmark: false,
                       checkmarkColor: Colors.white,
                       labelStyle: TextStyle(
-                        color: CustomColors.whiteColor,
+                        color: CustomColors.white,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -458,7 +458,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                         showCheckmark: false,
                         checkmarkColor: Colors.white,
                         labelStyle: TextStyle(
-                          color: CustomColors.whiteColor,
+                          color: CustomColors.white,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                         ),
@@ -542,7 +542,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
             ),
             child: Text(
               widget.doctor == null ? 'Create' : 'Update',
-              style: CustomFonts.white14w500,
+              style: CustomFonts.white14w600,
             ),
           ),
         ),

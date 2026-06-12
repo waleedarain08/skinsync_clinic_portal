@@ -1,11 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../../utils/theme.dart';
 
 class ChatDailog extends StatelessWidget {
   const ChatDailog({super.key});
@@ -14,13 +13,16 @@ class ChatDailog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 752.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(752),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,173 +34,245 @@ class ChatDailog extends StatelessWidget {
                 ClipOval(
                   child: Image.asset(
                     PngAssets.person,
-                    height: 52.w,
-                    width: 52.w,
+                    height: context.w(52),
+                    width: context.w(52),
                   ),
                 ),
-                SizedBox(width: 14.w),
+                SizedBox(width: context.w(14)),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Sarah Jhonson", style: CustomFonts.black18w500),
-                    Text("Patient ID: 1", style: CustomFonts.grey16w400),
+                    Text("Sarah Jhonson", style: CustomFonts.black16w600),
+                    Text("Patient ID: 1", style: CustomFonts.grey14w400),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 32.w,
-                    width: 32.w,
+                    height: context.w(32),
+                    width: context.w(32),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(color: CustomColors.border),
                     ),
-                    child: const Icon(Icons.close, size: 18),
+                    child: Icon(
+                      Icons.close,
+                      size: context.r(18),
+                      color: CustomColors.grey,
+                    ),
                   ),
                 ),
               ],
             ),
 
-            SizedBox(height: 35.h),
+            SizedBox(height: context.h(35)),
             Center(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 11.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(35.r),
-                  color: Color(0xFFD8D8D8),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(22),
+                  vertical: context.h(11),
                 ),
-                child: Text("Today", style: CustomFonts.grey13w700),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(context.r(35)),
+                  color: CustomColors.softGrey,
+                ),
+                child: Text("Today", style: CustomFonts.grey13w600),
               ),
             ),
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildRightContainer(text: "The class was very interesting"),
-                  _buildLeftContainer(
-                    text: "Thankyou so much looking forward to next class",
-                  ),
-                  _buildRightContainer(text: "Kindly share Notes for reading"),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Column(
-                      crossAxisAlignment: .end,
-                      children: [
-                        Text("Sarah Johnson, 11:35 PM"),
-                        SizedBox(height: 4.h),
-                        Container(
-                          width: 292.w,
-                          padding: EdgeInsets.symmetric( horizontal: 18.w,vertical: 14.h),
-                          decoration: BoxDecoration(
-                            color: CustomColors.greyColor,
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(24.r),
-                              bottomRight: Radius.circular(24.r),
-                              bottomLeft: Radius.circular(24.r),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildRightContainer(
+                      context: context,
+                      text: "The class was very interesting",
+                    ),
+                    _buildLeftContainer(
+                      context: context,
+                      text: "Thankyou so much looking forward to next class",
+                    ),
+                    _buildRightContainer(
+                      context: context,
+                      text: "Kindly share Notes for reading",
+                    ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Sarah Johnson, 11:35 PM",
+                            style: CustomFonts.grey12w400,
+                          ),
+                          SizedBox(height: context.h(4)),
+                          Container(
+                            width: context.w(292),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.w(18),
+                              vertical: context.h(14),
+                            ),
+                            decoration: BoxDecoration(
+                              color: CustomColors.softGrey,
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(context.r(24)),
+                                bottomRight: Radius.circular(context.r(24)),
+                                bottomLeft: Radius.circular(context.r(24)),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  SvgAssets.arrowDownCircle,
+                                  height: context.w(36),
+                                  width: context.w(29),
+                                ),
+                                SizedBox(width: context.w(13)),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "notes.pdf",
+                                      style: CustomFonts.black14w600,
+                                    ),
+                                    Text(
+                                      "867 Kb",
+                                      style: CustomFonts.grey12w400,
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                SvgPicture.asset(
+                                  SvgAssets.arrowDownCircle,
+                                  height: context.w(31),
+                                  width: context.w(31),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              SvgPicture.asset(
-                                SvgAssets.arrowDownCircle,
-                                height: 36.w,
-                                width: 29.w,
-                              ),
-                              SizedBox(width: 13.w),
-                              Column(
-                                crossAxisAlignment: .start,
-                                children: [
-                                  Text(
-                                    "notes.pdf",
-                                    style: CustomFonts.grey14w500,
-                                  ),
-                                  Text("867 Kb", style: CustomFonts.grey14w400),
-                                ],
-                              ),
-                              Spacer(),
-                              SvgPicture.asset(
-                                SvgAssets.arrowDownCircle,
-                                height: 31.w,
-                                width: 31.w,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            SizedBox(height: 24.h,),
+            SizedBox(height: context.h(24)),
             TextField(
+              style: CustomFonts.black14w400,
               decoration: InputDecoration(
                 hintText: "Write a message...",
+                hintStyle: CustomFonts.grey14w400,
                 suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: EdgeInsets.only(right: context.w(8)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Transform.rotate(
-                        angle: pi /2,
-                        child: Icon(Icons.attachment,size: 24.sp,)),
-                     Transform.rotate(
-                        angle: -pi /4,child: Icon(Icons.send_outlined,size: 20.sp)),
+                        angle: pi / 2,
+                        child: Icon(
+                          Icons.attachment,
+                          size: context.r(24),
+                          color: CustomColors.grey,
+                        ),
+                      ),
+                      SizedBox(width: context.w(8)),
+                      Transform.rotate(
+                        angle: -pi / 4,
+                        child: Icon(
+                          Icons.send_outlined,
+                          size: context.r(20),
+                          color: CustomColors.purple,
+                        ),
+                      ),
                     ],
                   ),
-                )
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: context.w(16),
+                  vertical: context.h(14),
+                ),
+                filled: true,
+                fillColor: CustomColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.purple),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRightContainer({required String text}) {
+  Widget _buildRightContainer({
+    required BuildContext context,
+    required String text,
+  }) {
     return Align(
       alignment: Alignment.topRight,
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text("You, 11:30 PM"),
-          SizedBox(height: 4.h),
+          Text("You, 11:30 PM", style: CustomFonts.grey12w400),
+          SizedBox(height: context.h(4)),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(18),
+              vertical: context.h(14),
+            ),
             decoration: BoxDecoration(
-              color: CustomColors.purpleColor,
+              color: CustomColors.lightPurple,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24.r),
-                bottomRight: Radius.circular(24.r),
-                bottomLeft: Radius.circular(24.r),
+                topLeft: Radius.circular(context.r(24)),
+                bottomRight: Radius.circular(context.r(24)),
+                bottomLeft: Radius.circular(context.r(24)),
               ),
             ),
             child: Text(text, style: CustomFonts.black14w500),
           ),
+          SizedBox(height: context.h(12)),
         ],
       ),
     );
   }
 
-  Widget _buildLeftContainer({required String text}) {
+  Widget _buildLeftContainer({
+    required BuildContext context,
+    required String text,
+  }) {
     return Align(
       alignment: Alignment.topLeft,
       child: Column(
-        crossAxisAlignment: .end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Sarah Johnson, 11:35 PM"),
-          SizedBox(height: 4.h),
+          Text("Sarah Johnson, 11:35 PM", style: CustomFonts.grey12w400),
+          SizedBox(height: context.h(4)),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(18),
+              vertical: context.h(14),
+            ),
             decoration: BoxDecoration(
-              color: CustomColors.greyColor,
+              color: CustomColors.softGrey,
               borderRadius: BorderRadius.only(
-                topRight: Radius.circular(24.r),
-                bottomRight: Radius.circular(24.r),
-                bottomLeft: Radius.circular(24.r),
+                topRight: Radius.circular(context.r(24)),
+                bottomRight: Radius.circular(context.r(24)),
+                bottomLeft: Radius.circular(context.r(24)),
               ),
             ),
             child: Text(text, style: CustomFonts.black14w500),
           ),
+          SizedBox(height: context.h(12)),
         ],
       ),
     );

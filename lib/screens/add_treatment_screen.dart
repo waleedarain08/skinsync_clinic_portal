@@ -107,7 +107,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Treatment Details', style: CustomFonts.black22w600),
+          Text('Treatment Details', style: CustomFonts.black20w600),
           SizedBox(height: 24.h),
 
           // BuildTextField(
@@ -277,7 +277,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               backgroundColor: Colors.black,
               // padding: EdgeInsets.symmetric(vertical: 20.h),
             ),
-            child: Text('Create', style: CustomFonts.white14w500),
+            child: Text('Create', style: CustomFonts.white14w600),
           ),
         ),
         SizedBox(width: 16.w),

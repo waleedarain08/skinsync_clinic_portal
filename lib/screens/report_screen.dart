@@ -170,7 +170,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
                               ),
                               child: Text(
                                 'Submit Report',
-                                style: CustomFonts.white18w600,
+                                style: CustomFonts.white16w400,
                               ),
                             ),
                           ),

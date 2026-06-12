@@ -165,7 +165,7 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Verification Method', style: CustomFonts.black22w600),
+        Text('Verification Method', style: CustomFonts.black20w600),
         SizedBox(height: 16.h),
         // SMS Verification Option
         _buildVerificationOption(

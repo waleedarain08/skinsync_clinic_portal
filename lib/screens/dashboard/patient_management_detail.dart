@@ -32,7 +32,7 @@ class PatientManagementDetailScreen extends StatelessWidget {
                   child: Icon(Icons.arrow_back, size: 24.sp),
                 ),
                 SizedBox(width: 10.w),
-                Text("Patient Management", style: CustomFonts.black22w600),
+                Text("Patient Management", style: CustomFonts.black20w600),
               ],
             ),
             SizedBox(height: 14.h),
@@ -128,7 +128,7 @@ class PatientManagementDetailScreen extends StatelessWidget {
           SizedBox(height: 11.h),
           Text(
             "Enhance your natural beauty by adding volume, smoothing wrinkles, and contouring areas like cheeks, lips, and under-eyes for a youthful, refreshed look.",
-            style: CustomFonts.black18w400,
+            style: CustomFonts.black16w400,
           ),
         ],
       ),
@@ -191,7 +191,7 @@ class TreatmentJourneyStepper extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Your Treatment Journey", style: CustomFonts.black22w600),
+          Text("Your Treatment Journey", style: CustomFonts.black20w600),
           SizedBox(height: 20.h),
           ListView.builder(
             shrinkWrap: true,
@@ -210,7 +210,7 @@ class TreatmentJourneyStepper extends StatelessWidget {
                         height: 27.h,
                         decoration: BoxDecoration(
                           color: steps[index].isCompleted
-                              ? CustomColors.purpleColor
+                              ? CustomColors.purple
                               : Colors.grey.shade300,
                           shape: BoxShape.circle,
                         ),

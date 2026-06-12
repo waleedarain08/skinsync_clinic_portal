@@ -70,7 +70,7 @@ class _NotificationSettingsScreenState
           // Manage Notifications Title
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.w),
-            child: Text('Manage Notifications', style: CustomFonts.black22w600),
+            child: Text('Manage Notifications', style: CustomFonts.black20w600),
           ),
           // Notification Options
           _buildNotificationOption(

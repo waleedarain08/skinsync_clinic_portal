@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -121,10 +120,10 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(),
-        const SizedBox(height: 16),
+        SizedBox(height: context.h(16)),
         if (_viewMode == CalendarViewMode.month) ...[
           _weekHeader(),
-          const SizedBox(height: 8),
+          SizedBox(height: context.h(8)),
           Expanded(child: _calendar()),
         ] else
           Expanded(child: _timetable()),
@@ -135,15 +134,18 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
   Widget _buildHeader() {
     return Row(
       children: [
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(19)),
         Container(
-          margin: EdgeInsets.only(right: 24.w),
+          margin: EdgeInsets.only(right: context.w(24)),
           decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.primaryColor, width: 0.5),
-            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: CustomColors.purple, width: 0.5),
+            color: CustomColors.lightPurple.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(context.r(12)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 19, vertical: 9),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(19),
+            vertical: context.h(9),
+          ),
           child: Text(
             _monthLabel(_focusedDay),
             style: const TextStyle(fontWeight: FontWeight.w600),
@@ -154,13 +156,13 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
           onPressed: () {
             setState(() {
               if (_viewMode == CalendarViewMode.day) {
-                _focusedDay = _focusedDay.subtract(Duration(days: 1));
+                _focusedDay = _focusedDay.subtract(const Duration(days: 1));
                 _dateController.animateTo(
                   _focusedDay.copyWith(isUtc: true),
                   vsync: this,
                 );
               } else if (_viewMode == CalendarViewMode.week) {
-                _focusedDay = _focusedDay.subtract(Duration(days: 7));
+                _focusedDay = _focusedDay.subtract(const Duration(days: 7));
                 _dateController.animateTo(
                   _focusedDay.copyWith(isUtc: true),
                   vsync: this,
@@ -181,13 +183,13 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
           onPressed: () {
             setState(() {
               if (_viewMode == CalendarViewMode.day) {
-                _focusedDay = _focusedDay.add(Duration(days: 1));
+                _focusedDay = _focusedDay.add(const Duration(days: 1));
                 _dateController.animateTo(
                   _focusedDay.copyWith(isUtc: true),
                   vsync: this,
                 );
               } else if (_viewMode == CalendarViewMode.week) {
-                _focusedDay = _focusedDay.add(Duration(days: 7));
+                _focusedDay = _focusedDay.add(const Duration(days: 7));
                 _dateController.animateTo(
                   _focusedDay.copyWith(isUtc: true),
                   vsync: this,
@@ -205,18 +207,18 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
         ),
         const Spacer(),
         SegmentedButton<CalendarViewMode>(
-          segments: const [
+          segments: [
             ButtonSegment(
               value: CalendarViewMode.month,
-              label: Text('Month', style: TextStyle(fontSize: 12)),
+              label: Text('Month', style: TextStyle(fontSize: context.sp(12))),
             ),
             ButtonSegment(
               value: CalendarViewMode.week,
-              label: Text('Week', style: TextStyle(fontSize: 12)),
+              label: Text('Week', style: TextStyle(fontSize: context.sp(12))),
             ),
             ButtonSegment(
               value: CalendarViewMode.day,
-              label: Text('Day', style: TextStyle(fontSize: 12)),
+              label: Text('Day', style: TextStyle(fontSize: context.sp(12))),
             ),
           ],
           selected: {_viewMode},
@@ -230,7 +232,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
               _dateController.visibleRange = VisibleDateRange.week();
             }
           },
-          style: ButtonStyle(
+          style: const ButtonStyle(
             visualDensity: VisualDensity.compact,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
@@ -316,11 +318,11 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: context.w(8)),
       decoration: BoxDecoration(
-        color: isToday ? const Color(0xFFE8FBF4) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        color: isToday ? const Color(0xFFE8FBF4) : CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,10 +331,10 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
             '${day.day}',
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: isOutside ? Colors.grey : Colors.black,
+              color: isOutside ? Colors.grey : CustomColors.black,
             ),
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: context.h(6)),
           ...events.map(_appointmentCard),
         ],
       ),
@@ -349,16 +351,16 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
                 .navigateDailogIndexToNext(0);
             showDialog(
               context: context,
-              builder: (_) => AppointmentReadyDailog(),
+              builder: (_) => const AppointmentReadyDailog(),
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(context.w(8)),
             decoration: BoxDecoration(
               color: a.highlighted
                   ? const Color(0xFFA7F3D0)
-                  : const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(8),
+                  : CustomColors.softGrey,
+              borderRadius: BorderRadius.circular(context.r(8)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,18 +368,24 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
                 Text(
                   a.clinic,
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: context.sp(10),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: context.h(4)),
                 Text(
                   a.service,
-                  style: TextStyle(fontSize: 9.sp, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: context.sp(9),
+                    color: Colors.black54,
+                  ),
                 ),
                 Text(
                   a.time,
-                  style: TextStyle(fontSize: 9.sp, color: Colors.black45),
+                  style: TextStyle(
+                    fontSize: context.sp(9),
+                    color: Colors.black45,
+                  ),
                 ),
               ],
             ),

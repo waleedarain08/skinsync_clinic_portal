@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/app_init.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_mangement_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
+
+import '../../utils/theme.dart';
 
 class PatientManagementScreen extends StatefulWidget {
   static const String routeName = '/patient-management';
@@ -21,29 +20,31 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h),
-            Text('Patient Management', style: CustomFonts.black22w600),
-            SizedBox(height: 14.h),
-            Divider(color: Colors.grey.shade300),
-            SizedBox(height: 50.h),
+            SizedBox(height: context.h(20)),
+            Text('Patient Management', style: CustomFonts.black20w600),
+            SizedBox(height: context.h(14)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(50)),
             context.isLandscape
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      patientSelection(),
-                      SizedBox(width: 28.9.w),
-                      Expanded(child: PatientMangementWidget()),
+                      patientSelection(context),
+                      SizedBox(width: context.w(28.9)),
+                      const Expanded(
+                        child: PatientMangementWidget(),
+                      ),
                     ],
                   )
                 : Column(
                     children: [
-                      patientSelection(),
-                      SizedBox(height: 28.9.w),
-                      PatientMangementWidget(),
+                      patientSelection(context),
+                      SizedBox(height: context.w(28.9)),
+                      const PatientMangementWidget(),
                     ],
                   ),
           ],
@@ -52,22 +53,23 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget patientSelection() {
+  Widget patientSelection(BuildContext context) {
     return SizedBox(
-      width: navigatorKey.currentContext!.isLandscape ? 386.w : double.infinity,
+      width: context.isLandscape ? context.w(386) : double.infinity,
       child: Column(
         children: [
-          CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
-          SizedBox(height: 14.h),
-          AdaptiveLayoutListInverse(
-            isScrollVertical: true,
-            horizontalHeight: 100.h,
-            children: List.generate(6, (index) {
-              return PatientSelectionTile(
+          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          SizedBox(height: context.h(14)),
+          ListView.separated(
+            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
+            shrinkWrap: true,
+            itemCount: 6,
+            itemBuilder: (context, index) {
+              return const PatientSelectionTile(
                 title: "Sarah Johnson",
                 subTitle: "sarah.johnson@email.com",
               );
-            }),
+            },
           ),
         ],
       ),

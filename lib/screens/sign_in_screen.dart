@@ -233,7 +233,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           width: 36.w,
           height: 36.w,
           decoration: BoxDecoration(
-            color: CustomColors.fillColor,
+            color: CustomColors.softGrey,
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.arrow_back, size: 18.sp, color: Colors.black),
@@ -615,11 +615,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         width: 60.w,
                         height: 48.h,
                         decoration: BoxDecoration(
-                          color: CustomColors.fillColor,
+                          color: CustomColors.softGrey,
                           border: Border.all(
                             color: field.hasError
                                 ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                : CustomColors.border,
                           ),
                           borderRadius: BorderRadius.circular(15.r),
                         ),
@@ -629,11 +629,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         width: 60.5.w,
                         height: 48.h,
                         decoration: BoxDecoration(
-                          color: CustomColors.fillColor,
+                          color: CustomColors.softGrey,
                           border: Border.all(
                             color: field.hasError
                                 ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                : CustomColors.border,
                           ),
                           borderRadius: BorderRadius.circular(15.r),
                         ),
@@ -643,11 +643,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         width: 60.5.w,
                         height: 48.h,
                         decoration: BoxDecoration(
-                          color: CustomColors.whiteColor,
+                          color: CustomColors.white,
                           border: Border.all(
                             color: field.hasError
                                 ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                : CustomColors.border,
                           ),
                           borderRadius: BorderRadius.circular(15.r),
                         ),

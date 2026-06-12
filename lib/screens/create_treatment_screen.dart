@@ -98,7 +98,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Profile Picture Section
-          Text('Treatment Details', style: CustomFonts.black22w600),
+          Text('Treatment Details', style: CustomFonts.black20w600),
           SizedBox(height: 24.h),
           // Treatment Name
           BuildTextField(
@@ -281,7 +281,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
               ),
               elevation: 0,
             ),
-            child: Text('Create Treatment', style: CustomFonts.white18w500),
+            child: Text('Create Treatment', style: CustomFonts.white14w600),
           ),
         ),
         SizedBox(width: 16.w),
@@ -300,7 +300,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
               ),
               side: BorderSide(color: Colors.grey[300]!, width: 1),
             ),
-            child: Text('Cancel', style: CustomFonts.black18w500),
+            child: Text('Cancel', style: CustomFonts.black14w500),
           ),
         ),
       ],

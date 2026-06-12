@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../../utils/theme.dart';
 
 class ReceiptDialog extends StatelessWidget {
   const ReceiptDialog({super.key});
@@ -10,13 +9,16 @@ class ReceiptDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 374.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(374),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -25,97 +27,96 @@ class ReceiptDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(width: 24),
+                SizedBox(width: context.w(24)),
                 Text(
                   "Receipt Details",
-                  style:CustomFonts.black24w600,
+                  style: CustomFonts.black20w600,
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 32.w,
-                    width: 32.w,
+                    height: context.w(32),
+                    width: context.w(32),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(color: CustomColors.border),
                     ),
-                    child: const Icon(Icons.close, size: 18),
+                    child: Icon(
+                      Icons.close,
+                      size: context.r(18),
+                      color: CustomColors.grey,
+                    ),
                   ),
                 ),
               ],
             ),
 
-            SizedBox(height: 15.h),
-            Divider(color: Colors.grey.shade200),
-
-            SizedBox(height: 15.h),
+            SizedBox(height: context.h(15)),
+            Divider(color: CustomColors.border),
+            SizedBox(height: context.h(15)),
 
             /// Receipt Card
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.r),
-                        topRight: Radius.circular(20.r),
-                      ),
-              color: CustomColors.purpleColor.withValues(alpha: 0.4)
+                  topLeft: Radius.circular(context.r(20)),
+                  topRight: Radius.circular(context.r(20)),
+                ),
+                color: CustomColors.lightPurple.withValues(alpha: 0.4),
               ),
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(16.w),
+                    padding: EdgeInsets.all(context.w(16)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Invoice ID #587456",
-                          style: CustomFonts.black15w600
+                          style: CustomFonts.black14w600,
                         ),
-                        SizedBox(height: 10.h),
+                        SizedBox(height: context.h(10)),
                         Text(
                           "25 Dec, 08:00PM",
-                          style: CustomFonts.grey14w400
+                          style: CustomFonts.grey14w400,
                         ),
-
-                        SizedBox(height: 78.h),
-
+                        SizedBox(height: context.h(78)),
                         Text(
                           "Payment Details",
-                          style: CustomFonts.black15w600
+                          style: CustomFonts.black14w600,
                         ),
-                        SizedBox(height: 16.h),
-
+                        SizedBox(height: context.h(16)),
                         _row("Botox", "\$ 58.96"),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: context.h(16)),
                         _row("Subtotal", "\$ 58.96"),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: context.h(16)),
                         _row("Platform Fee", "\$ 58.96"),
                       ],
                     ),
                   ),
-
-                  /// Bottom Total Bar
-               ],
+                ],
               ),
             ),
-                Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 18.w, vertical: 16.h),
-                    decoration: BoxDecoration(
-                      color:CustomColors.purpleColor,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20.r),
-                        bottomRight: Radius.circular(20.r),
-                      ),
-                    ),
-                    child: _row(
-                      "Total",
-                      "\$ 58.96",
-                      isBold: true,
-                    ),
-                  ),
-               
-              SizedBox(height: 10.h,)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(18),
+                vertical: context.h(16),
+              ),
+              decoration: BoxDecoration(
+                color: CustomColors.purple,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(context.r(20)),
+                  bottomRight: Radius.circular(context.r(20)),
+                ),
+              ),
+              child: _row(
+                "Total",
+                "\$ 58.96",
+                isBold: true,
+              ),
+            ),
+            SizedBox(height: context.h(10)),
           ],
         ),
       ),
@@ -128,11 +129,15 @@ class ReceiptDialog extends StatelessWidget {
       children: [
         Text(
           left,
-          style: isBold? CustomFonts.black16w700 : CustomFonts.black14w400
+          style: isBold
+              ? CustomFonts.white14w600
+              : CustomFonts.black14w400,
         ),
         Text(
           right,
-         style: isBold? CustomFonts.black16w700 : CustomFonts.black14w400
+          style: isBold
+              ? CustomFonts.white14w600
+              : CustomFonts.black14w400,
         ),
       ],
     );

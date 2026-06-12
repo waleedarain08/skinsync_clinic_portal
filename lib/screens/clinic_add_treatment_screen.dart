@@ -123,7 +123,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     final isLandscape = context.isLandscape;
 
     return Scaffold(
-      backgroundColor: CustomColors.dashboardBackgroundColor,
+      backgroundColor: CustomColors.whiteGrey,
       body: SafeArea(
         child: Column(
           children: [
@@ -161,7 +161,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 onTap: () => notifier.setStep(idx),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                  color: isActive ? CustomColors.navigationRailBackground : Colors.transparent,
+                  color: isActive ? CustomColors.palePurple : Colors.transparent,
                   child: Row(
                     children: [
                       Container(
@@ -1154,13 +1154,13 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 themeColor = CustomColors.green;
                 break;
               case 'Low':
-                themeColor = CustomColors.blueColor;
+                themeColor = CustomColors.blue;
                 break;
               case 'Moderate':
                 themeColor = Colors.orange;
                 break;
               case 'High':
-                themeColor = CustomColors.errorColor;
+                themeColor = CustomColors.red;
                 break;
               default:
                 themeColor = Colors.grey;
@@ -1889,7 +1889,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 SizedBox(height: 24.h),
                 Text(
                   isDraft ? "Draft Saved Successfully!" : "Treatment Added Successfully!",
-                  style: CustomFonts.black20w700,
+                  style: CustomFonts.black20w600,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12.h),

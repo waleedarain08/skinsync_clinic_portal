@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../utils/theme.dart';
 
 class EmptyWidget extends StatelessWidget {
   const EmptyWidget({
@@ -19,12 +19,11 @@ class EmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      padding: padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Column(
         children: [
-          Image.asset(PngAssets.empty, height: height ?? 500.h, width: width),
-          Center(child: Text(text, style: CustomFonts.black21w600)),
+          Image.asset(PngAssets.empty, height: height ?? context.h(500), width: width),
+          Center(child: Text(text, style: CustomFonts.black20w600)),
         ],
       ),
     );

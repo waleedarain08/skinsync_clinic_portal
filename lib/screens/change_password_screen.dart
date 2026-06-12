@@ -237,7 +237,7 @@ class ChangePasswordScreen extends ConsumerWidget {
                       color: Colors.white,
                     ),
                   )
-                : Text('Update Password', style: CustomFonts.white18w500),
+                : Text('Update Password', style: CustomFonts.white14w600),
           ),
         ),
         SizedBox(width: 16.w),
@@ -250,7 +250,7 @@ class ChangePasswordScreen extends ConsumerWidget {
               ),
               side: BorderSide(color: Colors.grey[300]!, width: 1),
             ),
-            child: Text('Cancel', style: CustomFonts.black18w500),
+            child: Text('Cancel', style: CustomFonts.black14w500),
           ),
         ),
       ],

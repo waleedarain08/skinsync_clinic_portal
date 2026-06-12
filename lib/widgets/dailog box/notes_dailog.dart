@@ -1,11 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../../utils/theme.dart';
 
 class NotesDailog extends StatelessWidget {
   const NotesDailog({super.key});
@@ -14,13 +9,16 @@ class NotesDailog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 354.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(354),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,33 +30,60 @@ class NotesDailog extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  height: 32.w,
-                  width: 32.w,
+                  height: context.w(32),
+                  width: context.w(32),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black12),
+                    border: Border.all(color: CustomColors.border),
                   ),
-                  child: const Icon(Icons.close, size: 18),
+                  child: Icon(
+                    Icons.close,
+                    size: context.r(18),
+                    color: CustomColors.grey,
+                  ),
                 ),
               ),
             ),
 
-           
             Text("Notes", style: CustomFonts.black18w600),
-            SizedBox(height: 5.h,),
+            SizedBox(height: context.h(5)),
             TextField(
               maxLines: 2,
+              style: CustomFonts.black14w400,
               decoration: InputDecoration(
                 hintText: "Write your note here",
-                
+                hintStyle: CustomFonts.grey14w400,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: context.w(16),
+                  vertical: context.h(14),
+                ),
+                filled: true,
+                fillColor: CustomColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.purple),
+                ),
               ),
             ),
-            SizedBox(height: 30,),
-            SizedBox(width: double.infinity, child: ElevatedButton(onPressed: (){}, child: Text("Save Note")))
-             ],
+            SizedBox(height: context.h(30)),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                child: const Text("Save Note"),
+              ),
+            )
+          ],
         ),
       ),
     );
   }
-
 }

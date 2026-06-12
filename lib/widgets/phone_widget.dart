@@ -1,12 +1,9 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 
-import '../utils/color_constant.dart';
+import '../utils/theme.dart';
 
 class PhoneWidget extends ConsumerWidget {
   final TextEditingController controller;
@@ -37,7 +34,6 @@ class PhoneWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10.h,
       children: [
         TextFormField(
           readOnly: isEditable,
@@ -56,22 +52,16 @@ class PhoneWidget extends ConsumerWidget {
             }
             return null;
           },
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge!.copyWith(fontFamily: "General Sans"),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontFamily: "General Sans"),
           onTapOutside: (_) {
             _focusNode.unfocus();
           },
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
             filled: filled,
-            fillColor: CustomColors.textGreyColor,
+            fillColor: CustomColors.softGrey,
             hintText: '921 - 2341 -99908',
-            hintStyle: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
+            hintStyle: CustomFonts.grey14w400,
             prefixIcon: _buildPhoneNumberPicker(context: context, ref: ref),
           ),
         ),
@@ -79,7 +69,7 @@ class PhoneWidget extends ConsumerWidget {
     );
   }
 
-  IntrinsicHeight _buildPhoneNumberPicker({
+  Widget _buildPhoneNumberPicker({
     required BuildContext context,
     required WidgetRef ref,
   }) {
@@ -91,7 +81,7 @@ class PhoneWidget extends ConsumerWidget {
             onTap: () {},
             child: CountryCodePicker(
               onChanged: onCountryChanged,
-              dialogSize: Size(400.w, 600.w),
+              dialogSize: Size(context.w(400), context.w(600)),
               textStyle: CustomFonts.black14w500,
               initialSelection: initialCountryCode ?? "GB",
               showCountryOnly: false,
@@ -100,7 +90,7 @@ class PhoneWidget extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 14.3.h),
+            padding: EdgeInsets.symmetric(vertical: context.h(14.3)),
             child: const VerticalDivider(
               color: Color(0xffE2E5E8),
               thickness: 1,

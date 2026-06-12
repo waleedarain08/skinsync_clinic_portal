@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/receipt_details.dart';
 
@@ -15,89 +13,92 @@ class TranscationTileWidget extends StatelessWidget {
       onTap: () {
         showDialog<bool>(
           context: context,
-          builder: (context) => ReceiptDialog(),
+          builder: (context) => const ReceiptDialog(),
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(15),
+          vertical: context.h(15),
+        ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15.r),
-          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(context.r(15)),
+          border: Border.all(color: CustomColors.border),
         ),
         child: AdaptiveLayoutRowColumn(
-          crossAxisAlignment: CrossAxisAlignment.center,
           alignment: MainAxisAlignment.spaceBetween,
           widthBetween: 0,
           children: [
             Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
+              padding: EdgeInsets.all(context.w(12)),
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFE0E7FF),
+                color: CustomColors.lightPurple,
               ),
               child: Icon(
                 Icons.article_rounded,
-                size: 24.sp,
-                color: AppTheme.purpleColor,
+                size: context.r(24),
+                color: CustomColors.purple,
               ),
             ),
-            SizedBox(width: 30.r),
+            SizedBox(width: context.r(30)),
             Column(
-              crossAxisAlignment: context.isLandscape? CrossAxisAlignment.start : .center,
-              mainAxisAlignment: .center,
+              crossAxisAlignment:
+                  context.isLandscape ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Sarah Johnson", style: CustomFonts.black18w500),
-                Text("Botox", style: CustomFonts.grey18w500),
+                Text("Sarah Johnson", style: CustomFonts.black16w600),
+                Text("Botox", style: CustomFonts.grey14w400),
                 Row(
-                  crossAxisAlignment: .center,
-                  mainAxisAlignment: .center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.calendar_today,
-                      size: 16.sp,
-                      color: AppTheme.textSecondary,
+                      size: context.r(16),
+                      color: CustomColors.grey,
                     ),
-                    SizedBox(width: 10.r),
-                    Text("10/29/2025", style: CustomFonts.grey18w500),
-                    SizedBox(width: 20.r),
+                    SizedBox(width: context.r(10)),
+                    Text("10/29/2025", style: CustomFonts.grey14w400),
+                    SizedBox(width: context.r(20)),
                     Icon(
                       Icons.access_time,
-                      size: 16.sp,
-                      color: AppTheme.textSecondary,
+                      size: context.r(16),
+                      color: CustomColors.grey,
                     ),
-                    SizedBox(width: 10.r),
-                    Text("3:00 PM", style: CustomFonts.grey18w500),
+                    SizedBox(width: context.r(10)),
+                    Text("3:00 PM", style: CustomFonts.grey14w400),
                   ],
                 ),
               ],
             ),
-            context.isLandscape ? Spacer() : SizedBox.shrink(),
+            context.isLandscape ? const Spacer() : const SizedBox.shrink(),
             Row(
-              crossAxisAlignment: .center,
-              mainAxisAlignment: .center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "\$350",
+                  "AED 350",
                   style: TextStyle(
-                    fontSize: 22.sp,
+                    fontSize: context.sp(22),
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF312C85),
+                    color: CustomColors.purple,
                     fontFamily: 'Degular',
                   ),
                 ),
-                SizedBox(width: 10.r),
+                SizedBox(width: context.r(10)),
                 GestureDetector(
                   onTap: () {},
                   child: Container(
-                    padding: EdgeInsets.all(7.w),
+                    padding: EdgeInsets.all(context.w(7)),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(color: AppTheme.fillCOlor),
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                      border: Border.all(color: CustomColors.border),
                     ),
                     child: Icon(
                       Icons.file_download_outlined,
-                      size: 16.sp,
-                      color: AppTheme.textPrimary,
+                      size: context.r(16),
+                      color: CustomColors.black,
                     ),
                   ),
                 ),

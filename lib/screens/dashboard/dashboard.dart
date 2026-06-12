@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/appointment_screen.dart';
@@ -9,7 +8,7 @@ import 'package:skinsync_clinic_portal/screens/dashboard/roles_screen.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 
 import '../../utils/assets.dart';
-import '../../utils/color_constant.dart';
+import '../../utils/theme.dart';
 import '../../widgets/custom_app_bar.dart';
 import 'home_screen.dart';
 import 'manage_doc_injector_screen.dart';
@@ -27,16 +26,15 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.dashboardBackgroundColor,
-      // appBar: CustomAppBar(),
-      drawer: context.isLandscape ? SizedBox.shrink() : _buildDrawer(),
+      backgroundColor: CustomColors.whiteGrey,
+      drawer: context.isLandscape ? const SizedBox.shrink() : _buildDrawer(context),
       body: Row(
         children: [
-          context.isLandscape ? _buildDrawer() : SizedBox.shrink(),
+          context.isLandscape ? _buildDrawer(context) : const SizedBox.shrink(),
           Expanded(
             child: Column(
               children: [
-                CustomAppBar(),
+                const CustomAppBar(),
                 Expanded(child: child),
               ],
             ),
@@ -46,31 +44,29 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(BuildContext context) {
     return Builder(
       builder: (context) {
         return Container(
-          width: 270.w,
+          width: context.w(270),
           height: double.infinity,
-          padding: EdgeInsets.only(top: 38.h, bottom: 20.h),
-          margin: EdgeInsets.all(10.w),
+          padding: EdgeInsets.only(top: context.h(38), bottom: context.h(20)),
+          margin: EdgeInsets.all(context.w(10)),
           decoration: BoxDecoration(
-            color: CustomColors.navigationRailBackground,
-            borderRadius: BorderRadiusGeometry.circular(10.r),
+            color: CustomColors.lightPurple2,
+            borderRadius: BorderRadius.circular(context.r(10)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 10.h,
             children: [
-              Image.asset(PngAssets.splashLogo, width: 48.r, height: 48.r),
-              SizedBox(width: 5.w),
-              Image.asset(PngAssets.logo, height: 20.r),
+              Image.asset(PngAssets.splashLogo, width: context.r(48), height: context.r(48)),
+              SizedBox(width: context.w(5)),
+              Image.asset(PngAssets.logo, height: context.r(20)),
+              SizedBox(height: context.h(20)),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(width: 40.w),
-
                       _buildRailItem(
                         context: context,
                         title: 'Home',
@@ -83,12 +79,6 @@ class Dashboard extends StatelessWidget {
                         chipIcon: Iconsax.profile_2user,
                         routeName: PatientManagementScreen.routeName,
                       ),
-                      // _buildRailItem(
-                      //   context: context,
-                      //   title: 'Patient AI Management',
-                      //   chipIcon: Iconsax.chart_34,
-                      //   routeName: PatientAiManagementScreen.routeName,
-                      // ),
                       _buildRailItem(
                         context: context,
                         title: 'Appointments',
@@ -166,38 +156,27 @@ class Dashboard extends StatelessWidget {
       label: Text(
         title,
         style: TextStyle(
-          fontSize: 15.sp,
+          fontSize: context.sp(15),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           color: isSelected
-              ? CustomColors.blackColor
-              : CustomColors.textGreyColor,
+              ? CustomColors.black
+              : CustomColors.grey,
         ),
       ),
       icon: Icon(
         chipIcon,
-        size: 20.r,
-        color: isSelected ? CustomColors.purpleColor : CustomColors.blueColor,
+        size: context.r(20),
+        color: isSelected ? CustomColors.purple : CustomColors.blue,
       ),
-      // icon: SvgPicture.asset(
-      //   icon,
-      //   width: 20.w,
-      //   height: 20.w,
-      //   color: isSelected
-      //       ?
-      //   // context.isLandscape ?
-      //    CustomColors.blueColor
-      //             // : Colors.black
-      //       : CustomColors.purpleColor,
-      // ),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
-        minimumSize: Size(double.infinity, 22.h),
+        minimumSize: Size(double.infinity, context.h(22)),
         alignment: Alignment.centerLeft,
         elevation: 0,
         shadowColor: Colors.transparent,
-        padding: EdgeInsets.all(15.w),
+        padding: EdgeInsets.all(context.w(15)),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(15.r),
+          borderRadius: BorderRadius.circular(context.r(15)),
         ),
       ),
     );

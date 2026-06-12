@@ -2,15 +2,13 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/extentions.dart';
 
 import '../../models/requests/add_treatment_req_model.dart';
 import '../../models/treatment_model.dart';
 import '../../view_models/treatment_view_model.dart';
+import '../../utils/theme.dart';
 import '../build_textfield.dart';
 
 class AddTreatmentDialog extends ConsumerStatefulWidget {
@@ -42,8 +40,8 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
 
   TreatmentModel? _selectedTreatment;
   late List<TreatmentModel> _adminTreatments;
-  late List<SideAreaModel> _sideAreas;
-  late List<SideAreaModel> _selectedAreas;
+  List<SideAreaModel> _sideAreas = [];
+  List<SideAreaModel> _selectedAreas = [];
   final List<TextEditingController> _areaPriceControllers = [];
   final TextEditingController _treatmentPriceControllers =
       TextEditingController();
@@ -53,45 +51,49 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
     for (final c in _areaPriceControllers) {
       c.dispose();
     }
+    _treatmentPriceControllers.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 50.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(50),
+        vertical: context.h(50),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.r(12)),
+      ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.all(context.r(24)),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: .spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Add Treatment', style: CustomFonts.black22w600),
+                  Text('Add Treatment', style: CustomFonts.black20w600),
                   IconButton(
                     onPressed: () {
                       context.pop();
                     },
-                    icon: Icon(Icons.close, color: Colors.black),
+                    icon: const Icon(Icons.close, color: CustomColors.black),
                   ),
                 ],
               ),
-              // SizedBox(height: 24.h),
-              // Text('Treatment Details', style: CustomFonts.black22w600),
-              SizedBox(height: 40.h),
+              SizedBox(height: context.h(40)),
 
               Text("Select Treatment", style: CustomFonts.black14w500),
-              SizedBox(height: 8.h),
+              SizedBox(height: context.h(8)),
               _loadingTreatments
                   ? Container(
-                      height: 48.h,
+                      height: context.h(48),
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.r),
+                        color: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(8)),
                       ),
                     ).withShimmer()
                   : DropdownButtonHideUnderline(
@@ -99,7 +101,10 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                         isExpanded: true,
                         hint: Text(
                           "Select Treatment",
-                          style: TextStyle(color: Colors.grey[400]),
+                          style: TextStyle(
+                            color: CustomColors.lightGrey,
+                            fontSize: context.sp(14),
+                          ),
                         ),
                         value: _selectedTreatment,
                         items: _adminTreatments
@@ -136,25 +141,27 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                           }
                         },
                         buttonStyleData: ButtonStyleData(
-                          height: 48.h,
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          height: context.h(48),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.w(16),
+                          ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            border: Border.all(color: CustomColors.border),
                           ),
                         ),
                       ),
                     ),
-              SizedBox(height: 30.h),
+              SizedBox(height: context.h(30)),
               _selectedTreatment == null
-                  ? SizedBox()
+                  ? const SizedBox()
                   : Padding(
-                      padding: EdgeInsets.only(bottom: 30.h),
+                      padding: EdgeInsets.only(bottom: context.h(30)),
                       child: BuildTextField(
                         prefixIcon: Icon(
                           Icons.attach_money,
-                          color: CustomColors.blueColor,
-                          size: 20.sp,
+                          color: CustomColors.blue,
+                          size: context.r(20),
                         ),
                         validator: (value) {
                           if (value == null ||
@@ -164,7 +171,6 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                           }
                           return null;
                         },
-
                         label:
                             '${_selectedTreatment?.name ?? "N/A"} Treatment Price',
                         controller: _treatmentPriceControllers,
@@ -174,17 +180,17 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
               Text("Select Areas", style: CustomFonts.black14w500),
 
               if (_selectedTreatment?.isArea == true && _loadingAreas) ...[
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
+                  spacing: context.w(8),
+                  runSpacing: context.h(8),
                   children: List.generate(8, (index) {
                     return Container(
-                      height: 48.h,
-                      width: 150.w,
+                      height: context.h(48),
+                      width: context.w(150),
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.r),
+                        color: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(8)),
                       ),
                     ).withShimmer();
                   }).toList(),
@@ -192,20 +198,20 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
               ],
 
               if (_selectedTreatment?.isArea == true && !_loadingAreas) ...[
-                SizedBox(height: 16.h),
+                SizedBox(height: context.h(16)),
                 Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
-                  children: (_sideAreas).map((area) {
+                  spacing: context.w(8),
+                  runSpacing: context.h(8),
+                  children: _sideAreas.map((area) {
                     final isSelected = _selectedAreas.contains(area);
                     return ChoiceChip(
                       label: Text(area.name ?? "N/A"),
                       selected: isSelected,
-                      selectedColor: Colors.black,
-                      checkmarkColor: Colors.white,
+                      selectedColor: CustomColors.black,
+                      checkmarkColor: CustomColors.white,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontSize: 14.sp,
+                        color: isSelected ? CustomColors.white : CustomColors.black,
+                        fontSize: context.sp(14),
                         fontWeight: FontWeight.w500,
                       ),
                       onSelected: (selected) {
@@ -214,35 +220,36 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                             _selectedAreas.add(area);
                             _areaPriceControllers.add(TextEditingController());
                           } else {
-                            _selectedAreas.remove(area);
                             final index = _selectedAreas.indexOf(area);
                             if (index != -1) {
                               _areaPriceControllers[index].dispose();
                               _areaPriceControllers.removeAt(index);
                             }
+                            _selectedAreas.remove(area);
                           }
                         });
                       },
                     );
                   }).toList(),
                 ),
-                SizedBox(height: 30.h),
+                SizedBox(height: context.h(30)),
                 Column(
                   children: _selectedAreas.map((area) {
                     return area.maxSyringe != 0
                         ? Padding(
-                            padding: EdgeInsets.only(bottom: 20.h),
+                            padding: EdgeInsets.only(bottom: context.h(20)),
                             child: BuildTextField(
                               prefixIcon: Icon(
                                 Icons.attach_money,
-                                color: CustomColors.blueColor,
-                                size: 20.sp,
+                                color: CustomColors.blue,
+                                size: context.r(20),
                               ),
                               onChanged: (value) {
-                                _selectedAreas[_selectedAreas.indexOf(area)]
-                                    .perSyringePrice = double.tryParse(
-                                  value ?? '0',
-                                );
+                                final index = _selectedAreas.indexOf(area);
+                                if (index != -1) {
+                                  _selectedAreas[index].perSyringePrice =
+                                      double.tryParse(value) ?? 0;
+                                }
                               },
                               validator: (value) {
                                 if (value == null ||
@@ -252,37 +259,32 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                                 }
                                 return null;
                               },
-
                               label: '${area.name} Per Syringe Price',
                               controller:
                                   _areaPriceControllers[_selectedAreas.indexOf(
-                                    area,
-                                  )],
+                                area,
+                              )],
                               hintText: '200',
                             ),
                           )
-                        : SizedBox.shrink();
+                        : const SizedBox.shrink();
                   }).toList(),
                 ),
               ],
-              SizedBox(height: 32.h),
+              SizedBox(height: context.h(32)),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // 2️⃣ If treatments or side areas are loading
                         if (_loadingAreas || _loadingTreatments) {
                           EasyLoading.showError('Please wait while we load');
                           return;
                         }
-                        // 1️⃣ Treatment must be selected
                         if (_selectedTreatment == null) {
                           EasyLoading.showError('Please select a treatment');
                           return;
                         }
-
-                        // 2️⃣ If treatment has areas → at least one area required
                         if (_selectedTreatment!.isArea == true &&
                             _selectedAreas.isEmpty) {
                           EasyLoading.showError(
@@ -291,7 +293,6 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                           return;
                         }
 
-                        // 3️⃣ Validate form (prices)
                         final isValid =
                             _formKey.currentState?.validate() ?? false;
                         if (!isValid) {
@@ -317,17 +318,20 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                             });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: CustomColors.black,
                       ),
-                      child: Text('Create', style: CustomFonts.white14w500),
+                      child: Text('Create', style: CustomFonts.white14w600),
                     ),
                   ),
-                  SizedBox(width: 16.w),
+                  SizedBox(width: context.w(16)),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () =>
-                          Navigator.of(context).pop(), // close dialog
-                      child: Text('Cancel', style: CustomFonts.black18w500),
+                          Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: CustomColors.black),
+                      ),
+                      child: Text('Cancel', style: CustomFonts.black14w500),
                     ),
                   ),
                 ],

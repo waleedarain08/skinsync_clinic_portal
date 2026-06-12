@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../../utils/theme.dart';
 
 class SuccessfullyWithdrawalDailogBox extends StatelessWidget {
   const SuccessfullyWithdrawalDailogBox({super.key});
@@ -9,16 +9,19 @@ class SuccessfullyWithdrawalDailogBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 360.w),
+          constraints: BoxConstraints(maxWidth: context.w(360)),
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 24.w),
+            padding: EdgeInsets.symmetric(
+              vertical: context.h(24),
+              horizontal: context.w(24),
+            ),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24.r),
+              color: CustomColors.white,
+              borderRadius: BorderRadius.circular(context.r(24)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -29,36 +32,45 @@ class SuccessfullyWithdrawalDailogBox extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      height: 32.w,
-                      width: 32.w,
+                      height: context.w(32),
+                      width: context.w(32),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black12),
+                        border: Border.all(color: CustomColors.border),
                       ),
-                      child: const Icon(Icons.close, size: 18),
+                      child: Icon(
+                        Icons.close,
+                        size: context.r(18),
+                        color: CustomColors.grey,
+                      ),
                     ),
                   ),
                 ),
                 ClipOval(
                   child: Container(
-                    height: 125.w,
-                    width: 125.w,
-                    color: Colors.grey.shade300,
+                    height: context.w(125),
+                    width: context.w(125),
+                    color: CustomColors.softGrey,
+                    child: const Icon(
+                      Icons.check,
+                      color: CustomColors.green,
+                      size: 60,
+                    ),
                   ),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 Text(
                   "Successfully Withdrawal!",
                   style: CustomFonts.black30w600,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: context.h(10)),
                 Text(
                   "Lorem ipsum dolor sit amet consectetur. Ut consectetur mauris tellus ultricies.",
-                  style: CustomFonts.black18w400,
+                  style: CustomFonts.black16w400,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
               ],
             ),
           ),

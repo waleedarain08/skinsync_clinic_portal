@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 
+import '../utils/theme.dart';
 import 'analytics_card_widget.dart';
 
 class AnalyticsGridWidget extends StatelessWidget {
@@ -11,7 +11,7 @@ class AnalyticsGridWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AdaptiveLayoutRowColumn(
+        const AdaptiveLayoutRowColumn(
           expandedWidget: true,
           children: [
             AnalyticsCardWidget(
@@ -37,8 +37,8 @@ class AnalyticsGridWidget extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 20.h),
-        AdaptiveLayoutRowColumn(
+        SizedBox(height: context.h(20)),
+        const AdaptiveLayoutRowColumn(
           expandedWidget: true,
           children: [
             AnalyticsCardWidget(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import '../utils/assets.dart';
+import '../utils/theme.dart';
 import 'treatment_card_widget.dart';
 
 class AppointmentsListWidget extends StatelessWidget {
@@ -13,32 +13,32 @@ class AppointmentsListWidget extends StatelessWidget {
       {
         'title': 'Botox Treatment',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': '\$240',
+        'price': 'AED 240',
         'image': PngAssets.treatmentImage,
       },
       {
         'title': 'Laser Treatment',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': '\$240',
+        'price': 'AED 240',
         'image': PngAssets.treatmentImage,
       },
       {
         'title': 'Chemical Peels',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': '\$240',
+        'price': 'AED 240',
         'image': PngAssets.treatmentImage,
       },
     ];
     return AdaptiveLayoutList(
       isScrollVertical: false,
-      horizontalHeight: 268.r,
-      spaceWidth: 20.w,
-      spaceHeight: 20.h,
+      horizontalHeight: context.r(268),
+      spaceWidth: context.w(20),
+      spaceHeight: context.h(20),
       children: List.generate(appointments.length, (index) {
         return TreatmentCardWidget(
           title: appointments[index]['title']!,
           date: appointments[index]['date']!,
-          price: appointments[index]['price']!, // Added price pass-through
+          price: appointments[index]['price']!,
           image: appointments[index]['image']!,
         );
       }),

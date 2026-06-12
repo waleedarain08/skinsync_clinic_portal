@@ -88,7 +88,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
             Row(
               mainAxisAlignment: .spaceBetween,
               children: [
-                Text("Manage Staff", style: CustomFonts.black22w600),
+                Text("Manage Staff", style: CustomFonts.black20w600),
                 IconButton(
                   onPressed: () {
                     context.pushNamed(CreateStaffScreen.routeName);
@@ -161,7 +161,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         "Schedule",
                         style: isSchedule
                             ? CustomFonts.black20w600
-                            : CustomFonts.grey20w600,
+                            : CustomFonts.grey18w400,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -186,7 +186,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         "Time Off",
                         style: !isSchedule
                             ? CustomFonts.black20w600
-                            : CustomFonts.grey20w600,
+                            : CustomFonts.grey18w400,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -220,14 +220,14 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       children: [
         Row(
           children: [
-            Text("18 Dec, 2020", style: CustomFonts.black20w700),
+            Text("18 Dec, 2020", style: CustomFonts.black20w600),
             SizedBox(width: 24.w),
             Expanded(child: Divider(color: Colors.grey.shade300)),
             SizedBox(width: 9.w),
             Icon(
               Icons.delete_outline_rounded,
               size: 31.sp,
-              color: CustomColors.silverColor,
+              color: CustomColors.border,
             ),
           ],
         ),
@@ -248,7 +248,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                       : formatDateTime(timeOffStartDateTime),
                   style: timeOffStartDateTime == null
                       ? CustomFonts.grey18w400
-                      : CustomFonts.black18w500,
+                      : CustomFonts.black14w500,
                 ),
               ),
             ),
@@ -270,7 +270,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                       : formatDateTime(timeOffEndDateTime),
                   style: timeOffEndDateTime == null
                       ? CustomFonts.grey18w400
-                      : CustomFonts.black18w500,
+                      : CustomFonts.black14w500,
                 ),
               ),
             ),
@@ -290,9 +290,9 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
             data: Theme.of(context).copyWith(
               textTheme: Theme.of(
                 context,
-              ).textTheme.copyWith(bodyLarge: CustomFonts.black22w600),
+              ).textTheme.copyWith(bodyLarge: CustomFonts.black20w600),
               colorScheme: ColorScheme.light(
-                primary: CustomColors.purpleColor,
+                primary: CustomColors.purple,
                 onPrimary: Colors.white,
                 onSurface: Colors.black,
               ),
@@ -347,7 +347,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         : formatDateTime(scheduleStartDateTime),
                     style: scheduleStartDateTime == null
                         ? CustomFonts.grey18w400
-                        : CustomFonts.black18w500,
+                        : CustomFonts.black14w500,
                   ),
                 ),
               ),
@@ -372,7 +372,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                         : formatDateTime(scheduleEndDateTime),
                     style: scheduleEndDateTime == null
                         ? CustomFonts.grey18w400
-                        : CustomFonts.black18w500,
+                        : CustomFonts.black14w500,
                   ),
                 ),
               ),
@@ -394,7 +394,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Services", style: CustomFonts.black22w600),
+          Text("Services", style: CustomFonts.black20w600),
           SizedBox(height: 20.h),
           Wrap(
             spacing: 10.w,
@@ -403,7 +403,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 14.h),
                 decoration: BoxDecoration(
-                  color: CustomColors.iconColor,
+                  color: CustomColors.softGrey,
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Row(
@@ -452,7 +452,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                 ],
               ),
               Spacer(),
-              Text("Remove", style: CustomFonts.pinkunderlined20w600),
+              Text("Remove", style: CustomFonts.black14w600.copyWith(color: CustomColors.purple, decoration: TextDecoration.underline)),
             ],
           ),
         ],

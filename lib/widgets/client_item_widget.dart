@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/assets.dart';
+import '../utils/theme.dart';
 
 class ClientItemWidget extends StatelessWidget {
   const ClientItemWidget({super.key});
@@ -8,26 +8,25 @@ class ClientItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(12),
+        vertical: context.h(10),
+      ),
       decoration: BoxDecoration(
-        color: Color(0xFFECFEFF),
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.softGrey,
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
-            radius: 45.r,
-            backgroundImage: AssetImage(PngAssets.person),
+            radius: context.r(45),
+            backgroundImage: const AssetImage(PngAssets.person),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: context.w(8)),
           Text(
             "John Smith",
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+            style: CustomFonts.black16w600,
           ),
         ],
       ),

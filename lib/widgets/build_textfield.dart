@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../utils/custom_fonts.dart';
+import '../utils/theme.dart';
 
 class BuildTextField extends StatelessWidget {
   final String label;
@@ -41,40 +40,38 @@ class BuildTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: labelStyle ?? CustomFonts.black14w500),
-        SizedBox(height: 10.h),
+        SizedBox(height: context.h(10)),
         TextFormField(
           inputFormatters: inputFormatters,
           controller: controller,
           maxLines: maxLines,
           readOnly: readOnly,
           enabled: enabled,
-          style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+          style: CustomFonts.black14w400,
           keyboardType: keyboardType,
           validator: validator,
           onChanged: onChanged,
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
             hintText: hintText,
-            hintStyle:
-                hintStyle ??
-                TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
+            hintStyle: hintStyle ?? CustomFonts.grey14w400,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: CustomColors.white,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
+              horizontal: context.w(16),
+              vertical: context.h(14),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: const BorderSide(color: CustomColors.border, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: const BorderSide(color: CustomColors.border, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: const BorderSide(color: CustomColors.purple, width: 1),
             ),
           ),
         ),

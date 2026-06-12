@@ -141,7 +141,7 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
                 children: [
                   Text(
                     '\$${treatment.originalPrice}',
-                    style: CustomFonts.grey14w400LineThrough,
+                    style: CustomFonts.grey14w400.copyWith(decoration: TextDecoration.lineThrough),
                   ),
                   SizedBox(width: 6.w),
                   Text(

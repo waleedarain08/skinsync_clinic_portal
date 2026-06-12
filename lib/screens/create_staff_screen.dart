@@ -472,7 +472,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
               ),
               elevation: 0,
             ),
-            child: Text('Create Staff', style: CustomFonts.white14w500),
+            child: Text('Create Staff', style: CustomFonts.white14w600),
           ),
         ),
         SizedBox(width: 16.w),

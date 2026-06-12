@@ -1,142 +1,156 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../../utils/theme.dart';
 
 class AppointmentCompletedDailog extends StatefulWidget {
   const AppointmentCompletedDailog({super.key});
 
   @override
-  State<AppointmentCompletedDailog> createState() => _AppointmentCompletedDailogState();
+  State<AppointmentCompletedDailog> createState() =>
+      _AppointmentCompletedDailogState();
 }
 
-class _AppointmentCompletedDailogState extends State<AppointmentCompletedDailog> {
+class _AppointmentCompletedDailogState
+    extends State<AppointmentCompletedDailog> {
   @override
-
-
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 520.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(520),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10.h),
+              SizedBox(height: context.h(10)),
               Text(
                 "Your Treatment Appointment is Completed",
                 style: CustomFonts.black30w600,
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.h(12)),
               Container(
-                padding: EdgeInsets.all(6.w),
+                padding: EdgeInsets.all(context.w(6)),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.r),
-                  border: Border.all(color: CustomColors.blackColor),
+                  borderRadius: BorderRadius.circular(context.r(15)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Row(
                   children: [
                     Image.asset(
                       PngAssets.image,
                       fit: BoxFit.fill,
-                      height: 105.h,
-                      width: 151.w,
+                      height: context.h(105),
+                      width: context.w(151),
                     ),
-                    SizedBox(width: 21.w),
-                    Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          "Monday, Feb 03 - 11:00 AM",
-                          style: CustomFonts.black14w500,
-                        ),
-                        Text(
-                          "Derma Fillers - Cheeks",
-                          style: CustomFonts.black14w600,
-                        ),
-                        Text(
-                          "Glow Skin Clinic",
-                          style: CustomFonts.black14w400,
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.attach_file,
-                              size: 12.sp,
-                              color: CustomColors.blackColor,
-                            ),
-                            Text(
-                              " Derma Fillers Cheeks Model",
-                              style: CustomFonts.black14w400.copyWith(
-                                decoration: TextDecoration.underline,
+                    SizedBox(width: context.w(21)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Monday, Feb 03 - 11:00 AM",
+                            style: CustomFonts.black14w500,
+                          ),
+                          Text(
+                            "Derma Fillers - Cheeks",
+                            style: CustomFonts.black14w600,
+                          ),
+                          Text(
+                            "Glow Skin Clinic",
+                            style: CustomFonts.black14w400,
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.attach_file,
+                                size: context.r(12),
+                                color: CustomColors.grey,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Expanded(
+                                child: Text(
+                                  " Derma Fillers Cheeks Model",
+                                  style: CustomFonts.black14w400.copyWith(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20.h),
-              Divider(height: 0, color: Colors.grey.shade300),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
+              Divider(height: 0, color: CustomColors.border),
+              SizedBox(height: context.h(20)),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(20),
+                  vertical: context.h(18),
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(context.r(16)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Row(
                   children: [
                     ClipOval(
                       child: Image.asset(
                         PngAssets.person,
-                        height: 60.w,
-                        width: 60.w,
+                        height: context.w(60),
+                        width: context.w(60),
                       ),
                     ),
-                    SizedBox(width: 18.w),
-                    Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text("Tiana Botosh", style: CustomFonts.black22w600),
-                        Text("@tianabotosh", style: CustomFonts.grey16w400),
-                      ],
+                    SizedBox(width: context.w(18)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Tiana Botosh", style: CustomFonts.black20w600),
+                          Text("@tianabotosh", style: CustomFonts.grey16w400),
+                        ],
+                      ),
                     ),
-                    Spacer(),
                     Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
+                      padding: EdgeInsets.all(context.r(10)),
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: CustomColors.greyColor,
+                        color: CustomColors.softGrey,
                       ),
                       child: SvgPicture.asset(
                         SvgAssets.scan,
-                        height: 20.h,
-                        width: 24.w,
+                        height: context.h(20),
+                        width: context.w(24),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20.h),
-              Text("Payment Details", style: CustomFonts.black22w600),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
+              Text("Payment Details", style: CustomFonts.black20w600),
+              SizedBox(height: context.h(20)),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 18.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(17),
+                  vertical: context.h(18),
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.r),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(context.r(15)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Column(
                   children: [
@@ -144,81 +158,76 @@ class _AppointmentCompletedDailogState extends State<AppointmentCompletedDailog>
                       children: [
                         Image.asset(
                           PngAssets.masterLogo,
-                          height: 62.h,
-                          width: 62.w,
+                          height: context.h(62),
+                          width: context.w(62),
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: context.w(12)),
                         Column(
-                          spacing: 4.h,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Master Card", style: CustomFonts.black15w600),
+                            Text("Master Card", style: CustomFonts.black14w600),
+                            SizedBox(height: context.h(4)),
                             Text(
                               "5689470025899658",
-                              style: CustomFonts.black15w600,
+                              style: CustomFonts.black14w600,
                             ),
                           ],
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 31.w,
-                            vertical: 3.h,
+                            horizontal: context.w(24),
+                            vertical: context.h(6),
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50.r),
+                            borderRadius: BorderRadius.circular(context.r(50)),
                             color: CustomColors.green.withValues(alpha: 0.2),
                           ),
                           child: Text(
                             "Paid",
-                            style: CustomFonts.black15w600.copyWith(
+                            style: CustomFonts.purple14w600.copyWith(
                               color: CustomColors.green,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 22.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Subtotal", style: CustomFonts.grey17w500),
-                        Text("AED 65.00", style: CustomFonts.grey18w500),
+                        Text("Subtotal", style: CustomFonts.grey14w500),
+                        Text("AED 65.00", style: CustomFonts.black14w500),
                       ],
                     ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Platform Fee", style: CustomFonts.grey17w500),
-                        Text("AED 1.00", style: CustomFonts.grey18w500),
+                        Text("Platform Fee", style: CustomFonts.grey14w500),
+                        Text("AED 1.00", style: CustomFonts.black14w500),
                       ],
                     ),
-
-                    SizedBox(height: 9.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 14.h),
-
+                    SizedBox(height: context.h(9)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(14)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Total Amount", style: CustomFonts.black20w700),
-                        Text("AED 61.45", style: CustomFonts.black20w700),
+                        Text("Total Amount", style: CustomFonts.black20w600),
+                        Text("AED 61.45", style: CustomFonts.black20w600),
                       ],
                     ),
                   ],
                 ),
               ),
-
-              SizedBox(height: 24.h),
+              SizedBox(height: context.h(24)),
             ],
           ),
         ),
       ),
     );
   }
-
 }
-
-

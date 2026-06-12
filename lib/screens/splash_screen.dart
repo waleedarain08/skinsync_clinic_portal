@@ -60,8 +60,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              gradient: CustomColors.purpleBlueGradient,
+            decoration: const BoxDecoration(
+              gradient: CustomColors.purpleWhiteStateBlueLightGradient,
             ),
           ),
 
@@ -84,7 +84,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             left: _animate ? screenWidth : -362.r,
             child: CircleAvatar(
               radius: 362.r,
-              backgroundColor: CustomColors.lightBlueColor,
+              backgroundColor: CustomColors.paleBlue,
             ),
           ),
 
@@ -94,7 +94,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             right: _animate ? screenWidth : -362.r,
             child: CircleAvatar(
               radius: 362.r,
-              backgroundColor: CustomColors.lightPurpleColor,
+              backgroundColor: CustomColors.lightPurple,
             ),
           ),
         ],

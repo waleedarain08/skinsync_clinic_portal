@@ -2,13 +2,11 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/extentions.dart';
 import '../../models/requests/add_treatment_req_model.dart';
 import '../../models/treatment_model.dart';
-import '../../utils/color_constant.dart';
+import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../build_textfield.dart';
 
@@ -57,13 +55,13 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
       _loadingAreas = true;
       // One controller per selected side area, in the same order
       for (var e in _selectedTreatment!.sideAreas!) {
-        e.maxSyringe != 0
-            ? _areaPriceControllers.add(
-                TextEditingController(
-                  text: e.perSyringePrice?.toString() ?? '',
-                ),
-              )
-            : null;
+        if (e.maxSyringe != 0) {
+          _areaPriceControllers.add(
+            TextEditingController(
+              text: e.perSyringePrice?.toString() ?? '',
+            ),
+          );
+        }
       }
       // Fetch full list of side areas once (outside the loop)
       ref
@@ -87,7 +85,6 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
   TreatmentModel? _selectedTreatment;
   final List<TextEditingController> _areaPriceControllers = [];
   late List<SideAreaModel> _sideAreas;
-  // late List<SideAreaModel> _selectedSideAreas;
   bool _loadingAreas = false;
   late TextEditingController _treatmentPriceControllers;
 
@@ -96,16 +93,22 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
     for (final c in _areaPriceControllers) {
       c.dispose();
     }
+    _treatmentPriceControllers.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 50.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(50),
+        vertical: context.h(50),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.r(12)),
+      ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.all(context.r(24)),
         child: Form(
           key: _formKey,
           child: Column(
@@ -114,50 +117,51 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Edit Treatment', style: CustomFonts.black22w600),
+                  Text('Edit Treatment', style: CustomFonts.black20w600),
                   IconButton(
                     onPressed: () {
                       context.pop();
                     },
-                    icon: Icon(Icons.close, color: Colors.black),
+                    icon: const Icon(Icons.close, color: CustomColors.black),
                   ),
                 ],
               ),
-              SizedBox(height: 40.h),
+              SizedBox(height: context.h(40)),
 
-              // Text("Select Treatment", style: CustomFonts.black14w500),
-              // SizedBox(height: 8.h),
               AbsorbPointer(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton2<TreatmentModel>(
                     isExpanded: true,
                     hint: Text(
                       _selectedTreatment?.name ?? "N/A",
-                      style: TextStyle(color: Colors.grey[400]),
+                      style: TextStyle(
+                        color: CustomColors.lightGrey,
+                        fontSize: context.sp(14),
+                      ),
                     ),
                     value: _selectedTreatment,
-                    items: [],
+                    items: const [],
                     onChanged: (value) {},
                     buttonStyleData: ButtonStyleData(
-                      height: 48.h,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      height: context.h(48),
+                      padding: EdgeInsets.symmetric(horizontal: context.w(16)),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Colors.grey[100]!),
+                        borderRadius: BorderRadius.circular(context.r(8)),
+                        border: Border.all(color: CustomColors.border),
                       ),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: context.h(30)),
 
               Padding(
-                padding: EdgeInsets.only(bottom: 20.h),
+                padding: EdgeInsets.only(bottom: context.h(20)),
                 child: BuildTextField(
                   prefixIcon: Icon(
                     Icons.attach_money,
-                    color: CustomColors.blueColor,
-                    size: 20.sp,
+                    color: CustomColors.blue,
+                    size: context.r(20),
                   ),
                   validator: (value) {
                     if (value == null ||
@@ -167,27 +171,25 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                     }
                     return null;
                   },
-
                   label: '${_selectedTreatment?.name ?? "N/A"} Treatment Price',
                   controller: _treatmentPriceControllers,
-                  hintText: '\$200',
+                  hintText: '$200',
                 ),
               ),
               Text("Select Areas", style: CustomFonts.black14w500),
 
               if ((_selectedTreatment?.isArea ?? false) && _loadingAreas) ...[
-                SizedBox(height: 16.h),
-
+                SizedBox(height: context.h(16)),
                 Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
+                  spacing: context.w(8),
+                  runSpacing: context.h(8),
                   children: List.generate(8, (index) {
                     return Container(
-                      height: 48.h,
-                      width: 150.w,
+                      height: context.h(48),
+                      width: context.w(150),
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.r),
+                        color: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(8)),
                       ),
                     ).withShimmer();
                   }).toList(),
@@ -195,23 +197,22 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
               ],
 
               if ((_selectedTreatment?.isArea ?? false) && !_loadingAreas) ...[
-                SizedBox(height: 16.h),
-
+                SizedBox(height: context.h(16)),
                 Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
-                  children: (_sideAreas).map((area) {
+                  spacing: context.w(8),
+                  runSpacing: context.h(8),
+                  children: _sideAreas.map((area) {
                     final isSelected = _selectedTreatment!.sideAreas!.any(
                       (e) => e.id == area.id,
                     );
                     return ChoiceChip(
                       label: Text(area.name ?? "N/A"),
                       selected: isSelected,
-                      selectedColor: Colors.black,
-                      checkmarkColor: Colors.white,
+                      selectedColor: CustomColors.black,
+                      checkmarkColor: CustomColors.white,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontSize: 14.sp,
+                        color: isSelected ? CustomColors.white : CustomColors.black,
+                        fontSize: context.sp(14),
                         fontWeight: FontWeight.w500,
                       ),
                       onSelected: (selected) {
@@ -251,7 +252,7 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                     );
                   }).toList(),
                 ),
-                SizedBox(height: 30.h),
+                SizedBox(height: context.h(30)),
                 Column(
                   // _areaPriceControllers has one entry per area with maxSyringe != 0; use controllerIndex for that list
                   children: () {
@@ -263,14 +264,17 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                         if (area.maxSyringe != 0) {
                           final ctrlIndex = controllerIndex++;
                           return Padding(
-                            padding: EdgeInsets.only(bottom: 20.h),
+                            padding: EdgeInsets.only(bottom: context.h(20)),
                             child: BuildTextField(
                               onChanged: (value) {
-                                _selectedTreatment!
-                                    .sideAreas![index]
-                                    .perSyringePrice = double.tryParse(
-                                  value ?? '0',
-                                );
+                                final currentIdx = _selectedTreatment!.sideAreas!
+                                    .indexWhere((e) => e.id == area.id);
+                                if (currentIdx != -1) {
+                                  _selectedTreatment!
+                                      .sideAreas![currentIdx]
+                                      .perSyringePrice =
+                                      double.tryParse(value) ?? 0;
+                                }
                               },
                               validator: (value) {
                                 if (value == null ||
@@ -282,29 +286,27 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                               },
                               label: '${area.name} Per Syringe Price',
                               controller: _areaPriceControllers[ctrlIndex],
-                              hintText: '\$200',
+                              hintText: '$200',
                             ),
                           );
                         }
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       },
                     );
                   }(),
                 ),
               ],
-              SizedBox(height: 32.h),
+              SizedBox(height: context.h(32)),
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // 2️⃣ If treatments or side areas are loading
                         if (_loadingAreas) {
                           EasyLoading.showError('Please wait while we load');
                           return;
                         }
 
-                        // 2️⃣ If treatment has areas → at least one area required
                         if (_selectedTreatment!.isArea == true &&
                             _selectedTreatment!.sideAreas!.isEmpty) {
                           EasyLoading.showError(
@@ -337,18 +339,21 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                             });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        backgroundColor: CustomColors.black,
+                        padding: EdgeInsets.symmetric(vertical: context.h(20)),
                       ),
-                      child: Text('Update', style: CustomFonts.white14w500),
+                      child: Text('Update', style: CustomFonts.white14w600),
                     ),
                   ),
-                  SizedBox(width: 16.w),
+                  SizedBox(width: context.w(16)),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () =>
-                          Navigator.of(context).pop(), // close dialog
-                      child: Text('Cancel', style: CustomFonts.black18w500),
+                          Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: CustomColors.black),
+                      ),
+                      child: Text('Cancel', style: CustomFonts.black14w500),
                     ),
                   ),
                 ],

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/models/responses/catalog_response.dart';
 import 'package:skinsync_clinic_portal/utils/enums.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
 
-import '../../utils/custom_fonts.dart';
 import '../../utils/responsive.dart';
+import '../../utils/theme.dart';
 import '../build_textfield.dart';
 import '../custom_dropdown_widget.dart';
 
@@ -42,6 +41,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     }
     if (_selectedProduct == null) {
       EasyLoading.showError('Please select a product!');
+      return;
     }
     ref
         .read(inventoryProvider.notifier)
@@ -110,15 +110,15 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isLandscape ? 100.w : 20.w,
-        vertical: 40.h,
+        horizontal: isLandscape ? context.w(100) : context.w(20),
+        vertical: context.h(40),
       ),
       child: Container(
-        width: isLandscape ? 500.w : double.infinity,
-        padding: EdgeInsets.all(24.w),
+        width: isLandscape ? context.w(500) : double.infinity,
+        padding: EdgeInsets.all(context.r(24)),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: SingleChildScrollView(
           child: Form(
@@ -130,28 +130,28 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Add Inventory Item", style: CustomFonts.black22w600),
+                    Text("Add Inventory Item", style: CustomFonts.black20w600),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: EdgeInsets.all(4.r),
+                        padding: EdgeInsets.all(context.r(4)),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: CustomColors.border),
                         ),
                         child: Icon(
                           Icons.close,
-                          size: 20.r,
-                          color: Colors.black,
+                          size: context.r(20),
+                          color: CustomColors.black,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: context.h(24)),
 
                 Text("Product", style: CustomFonts.black14w500),
-                SizedBox(height: 10.h),
+                SizedBox(height: context.h(10)),
                 Consumer(
                   builder: (_, ref, _) {
                     final catalog = ref.read(
@@ -173,16 +173,17 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                     );
                   },
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 Text("Quantity", style: CustomFonts.black14w500),
-                SizedBox(height: 10.h),
+                SizedBox(height: context.h(10)),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildQtyBtn(Icons.remove, _decrement),
-                    SizedBox(width: 15.w),
+                    SizedBox(width: context.w(15)),
                     Expanded(
                       child: TextFormField(
+                        style: CustomFonts.black14w400,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Quantity is required!';
@@ -200,24 +201,32 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                           _quantity = int.tryParse(val) ?? 1;
                         },
                         decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: context.h(14),
+                          ),
+                          filled: true,
+                          fillColor: CustomColors.white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.border),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.purple),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 15.w),
+                    SizedBox(width: context.w(15)),
                     _buildQtyBtn(Icons.add, _increment),
                   ],
                 ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 BuildTextField(
                   label: 'Original Price',
                   controller: _priceController,
@@ -229,7 +238,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                   onChanged: (_) => _calculateDiscountedPrice(),
                 ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 Row(
                   children: [
                     Expanded(
@@ -244,19 +253,22 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                         onChanged: (_) => _calculateDiscountedPrice(),
                       ),
                     ),
-                    SizedBox(width: 15.w),
+                    SizedBox(width: context.w(15)),
                     Expanded(
                       flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("Type", style: CustomFonts.black14w500),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: context.h(10)),
                           CustomDropdown<DiscountType>(
-                            builder: (type) => Text(switch (type) {
-                              DiscountType.per => 'Percentage',
-                              DiscountType.flat => 'Flat',
-                            }, style: CustomFonts.black14w500),
+                            builder: (type) => Text(
+                              switch (type) {
+                                DiscountType.per => 'Percentage',
+                                DiscountType.flat => 'Flat',
+                              },
+                              style: CustomFonts.black14w500,
+                            ),
                             hint: 'Select Type',
                             value: _discountType,
                             items: DiscountType.values,
@@ -275,7 +287,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                   ],
                 ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 BuildTextField(
                   label: 'Discounted Price',
                   validator: (value) {
@@ -292,30 +304,34 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                   readOnly: true,
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: context.h(32)),
                 SizedBox(
                   width: double.infinity,
-                  height: 50.h,
+                  height: context.h(50),
                   child: Consumer(
                     builder: (_, ref, _) {
                       final loading = ref.watch(
                         inventoryProvider.select((s) => s.addProductLoading),
                       );
                       if (loading) {
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: CustomColors.purple,
+                          ),
+                        );
                       }
                       return ElevatedButton(
                         onPressed: _onAddToInventory,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: CustomColors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
+                            borderRadius: BorderRadius.circular(context.r(8)),
                           ),
                           elevation: 0,
                         ),
                         child: Text(
                           "Add to Inventory",
-                          style: CustomFonts.white14w500,
+                          style: CustomFonts.white14w600,
                         ),
                       );
                     },
@@ -332,16 +348,16 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
   Widget _buildQtyBtn(IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: BorderRadius.circular(context.r(8)),
       child: Container(
-        height: 48.h,
-        width: 48.h,
+        height: context.h(48),
+        width: context.h(48),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8.r),
-          color: Colors.white,
+          border: Border.all(color: CustomColors.border),
+          borderRadius: BorderRadius.circular(context.r(8)),
+          color: CustomColors.white,
         ),
-        child: Icon(icon, size: 20.r, color: Colors.black),
+        child: Icon(icon, size: context.r(20), color: CustomColors.black),
       ),
     );
   }

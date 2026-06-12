@@ -107,7 +107,7 @@ class _MangeDoctorsInjectorsScreenState
               children: [
                 Text(
                   "Manage Doctors / Injectors",
-                  style: CustomFonts.black22w600,
+                  style: CustomFonts.black20w600,
                 ),
                 ElevatedButton.icon(
                   onPressed: () =>
@@ -124,7 +124,7 @@ class _MangeDoctorsInjectorsScreenState
                   icon: Icon(Icons.add, color: Colors.white, size: 20.r),
                   label: Text(
                     'Add Doctor / Injector',
-                    style: CustomFonts.white14w500,
+                    style: CustomFonts.white14w600,
                   ),
                 ),
               ],
@@ -208,7 +208,7 @@ class _MangeDoctorsInjectorsScreenState
                         "Schedule",
                         style: isSchedule
                             ? CustomFonts.black20w600
-                            : CustomFonts.grey20w600,
+                            : CustomFonts.grey18w400,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -233,7 +233,7 @@ class _MangeDoctorsInjectorsScreenState
                         "Time Off",
                         style: !isSchedule
                             ? CustomFonts.black20w600
-                            : CustomFonts.grey20w600,
+                            : CustomFonts.grey18w400,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -267,14 +267,14 @@ class _MangeDoctorsInjectorsScreenState
       children: [
         Row(
           children: [
-            Text("18 Dec, 2020", style: CustomFonts.black20w700),
+            Text("18 Dec, 2020", style: CustomFonts.black20w600),
             SizedBox(width: 24.w),
             Expanded(child: Divider(color: Colors.grey.shade300)),
             SizedBox(width: 9.w),
             Icon(
               Icons.delete_outline_rounded,
               size: 31.sp,
-              color: CustomColors.silverColor,
+              color: CustomColors.border,
             ),
           ],
         ),
@@ -295,7 +295,7 @@ class _MangeDoctorsInjectorsScreenState
                       : formatDateTime(timeOffStartDateTime),
                   style: timeOffStartDateTime == null
                       ? CustomFonts.grey18w400
-                      : CustomFonts.black18w500,
+                      : CustomFonts.black14w500,
                 ),
               ),
             ),
@@ -317,7 +317,7 @@ class _MangeDoctorsInjectorsScreenState
                       : formatDateTime(timeOffEndDateTime),
                   style: timeOffEndDateTime == null
                       ? CustomFonts.grey18w400
-                      : CustomFonts.black18w500,
+                      : CustomFonts.black14w500,
                 ),
               ),
             ),
@@ -337,9 +337,9 @@ class _MangeDoctorsInjectorsScreenState
             data: Theme.of(context).copyWith(
               textTheme: Theme.of(
                 context,
-              ).textTheme.copyWith(bodyLarge: CustomFonts.black22w600),
+              ).textTheme.copyWith(bodyLarge: CustomFonts.black20w600),
               colorScheme: ColorScheme.light(
-                primary: CustomColors.purpleColor,
+                primary: CustomColors.purple,
                 onPrimary: Colors.white,
                 onSurface: Colors.black,
               ),
@@ -394,7 +394,7 @@ class _MangeDoctorsInjectorsScreenState
                         : formatDateTime(scheduleStartDateTime),
                     style: scheduleStartDateTime == null
                         ? CustomFonts.grey18w400
-                        : CustomFonts.black18w500,
+                        : CustomFonts.black14w500,
                   ),
                 ),
               ),
@@ -419,7 +419,7 @@ class _MangeDoctorsInjectorsScreenState
                         : formatDateTime(scheduleEndDateTime),
                     style: scheduleEndDateTime == null
                         ? CustomFonts.grey18w400
-                        : CustomFonts.black18w500,
+                        : CustomFonts.black14w500,
                   ),
                 ),
               ),
@@ -444,7 +444,7 @@ class _MangeDoctorsInjectorsScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Services", style: CustomFonts.black22w600),
+          Text("Services", style: CustomFonts.black20w600),
           SizedBox(height: 20.h),
           Wrap(
             spacing: 10.w,
@@ -483,7 +483,7 @@ class _MangeDoctorsInjectorsScreenState
                               vertical: 12.h,
                             ),
                             decoration: BoxDecoration(
-                              color: CustomColors.iconColor,
+                              color: CustomColors.softGrey,
                               borderRadius: BorderRadius.circular(15.r),
                             ),
                             child: Row(
@@ -533,7 +533,7 @@ class _MangeDoctorsInjectorsScreenState
           ),
           if (selectedDoctor.availability?.isNotEmpty ?? false) ...{
             SizedBox(height: 20.h),
-            Text("Availability", style: CustomFonts.black22w600),
+            Text("Availability", style: CustomFonts.black20w600),
             SizedBox(height: 20.h),
             Container(
               padding: EdgeInsets.all(16.w),
@@ -558,7 +558,7 @@ class _MangeDoctorsInjectorsScreenState
                               vertical: 12.h,
                             ),
                             decoration: BoxDecoration(
-                              color: CustomColors.iconColor,
+                              color: CustomColors.softGrey,
                               borderRadius: BorderRadius.circular(15.r),
                             ),
                             child: Text(day, style: CustomFonts.black14w500),
@@ -639,11 +639,11 @@ class _MangeDoctorsInjectorsScreenState
                   children: [
                     Icon(
                       Icons.edit,
-                      color: CustomColors.purpleColor,
+                      color: CustomColors.purple,
                       size: 20.sp,
                     ),
                     SizedBox(width: 5.w),
-                    Text("Edit", style: CustomFonts.pinkunderlined20w600),
+                    Text("Edit", style: CustomFonts.black14w600.copyWith(color: CustomColors.purple, decoration: TextDecoration.underline)),
                   ],
                 ),
               ),

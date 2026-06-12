@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/models/user_model.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/assets.dart';
 import '../utils/responsive.dart';
+import '../utils/theme.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showLogo;
@@ -20,7 +18,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   State<CustomAppBar> createState() => _CustomAppBarState();
 
   @override
-  Size get preferredSize => Size(double.infinity, 101.h);
+  Size get preferredSize => const Size(double.infinity, 101);
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
@@ -34,94 +32,92 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   Future<void> _init() async {
     user = await locator<SecureStorageService>().getUser();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
       setState(() {});
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 101.h,
-      color: CustomColors.whiteColor,
-      constraints: BoxConstraints(minHeight: 101.h),
-      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      height: context.h(101),
+      color: CustomColors.white,
+      constraints: BoxConstraints(minHeight: context.h(101)),
+      padding: EdgeInsets.symmetric(horizontal: context.w(30)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.showLogo)
             Row(
               children: [
-                Image.asset(PngAssets.splashLogo, width: 40.w),
-                SizedBox(width: 10.w),
+                Image.asset(PngAssets.splashLogo, width: context.w(40)),
+                SizedBox(width: context.w(10)),
                 Image.asset(PngAssets.logo),
-                SizedBox(width: 15.w),
+                SizedBox(width: context.w(15)),
               ],
             ),
           context.isLandscape
               ? SizedBox(
-                  width: 380.r,
-                  child: CupertinoSearchTextField(
-                    backgroundColor: Color(0xFFF3F3F5),
+                  width: context.r(380),
+                  child: const CupertinoSearchTextField(
+                    backgroundColor: CustomColors.softGrey,
                   ),
                 )
               : _buildMobileActions(context),
-          Spacer(),
+          const Spacer(),
           IconButton(
             onPressed: () {},
-            icon: Icon(CupertinoIcons.bell, size: 24.r),
+            icon: Icon(CupertinoIcons.bell, size: context.r(24)),
           ),
-          context.isLandscape ? SizedBox(width: 30.r) : SizedBox.shrink(),
+          context.isLandscape ? SizedBox(width: context.r(30)) : const SizedBox.shrink(),
           context.isLandscape
               ? ClipOval(
                   child: Image.network(
                     user?.clinic?.logo ?? "",
-                    width: 44.r,
-                    height: 44.r,
+                    width: context.r(44),
+                    height: context.r(44),
                     errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.broken_image, size: 22.sp);
+                      return Icon(Icons.broken_image, size: context.r(22));
                     },
                   ),
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
 
           context.isLandscape
               ? Row(
                   children: [
-                    SizedBox(width: 20.w),
+                    SizedBox(width: context.w(20)),
                     Text(user?.name ?? "N/A", style: CustomFonts.black16w600),
-                    SizedBox(width: 20.w),
+                    SizedBox(width: context.w(20)),
                     PopupMenuButton(
-                      offset: Offset(0, 40.h),
+                      offset: Offset(0, context.h(40)),
                       icon: Icon(
                         Icons.arrow_drop_down_circle_outlined,
-                        size: 18.sp,
-                        color: CustomColors.blackColor,
+                        size: context.r(18),
+                        color: CustomColors.black,
                       ),
                       itemBuilder: (context) => [
                         PopupMenuItem(
-                          height: 40.h,
+                          height: context.h(40),
                           onTap: () async {
-                            final _secureStorage =
-                                locator<SecureStorageService>();
-                            await _secureStorage.clearToken();
+                            final secureStorage = locator<SecureStorageService>();
+                            await secureStorage.clearToken();
                             if (!context.mounted) return;
                             context.goNamed(SignInScreen.routeName);
                           },
-
                           child: Row(
                             children: [
                               Icon(
                                 Icons.logout_rounded,
-                                color: Colors.red,
-                                size: 18.sp,
+                                color: CustomColors.red,
+                                size: context.r(18),
                               ),
-                              SizedBox(width: 8.w),
+                              SizedBox(width: context.w(8)),
                               Text(
                                 'Logout',
                                 style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14.sp,
+                                  color: CustomColors.red,
+                                  fontSize: context.sp(14),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -132,7 +128,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     ),
                   ],
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -143,37 +139,37 @@ class _CustomAppBarState extends State<CustomAppBar> {
       children: [
         IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
         ),
-        SizedBox(width: 10.w),
+        SizedBox(width: context.w(10)),
         context.isLandscape
-            ? Image.asset(PngAssets.splashLogo, width: 48.r, height: 48.r)
+            ? Image.asset(PngAssets.splashLogo, width: context.r(48), height: context.r(48))
             : ClipOval(
-                child: Image.asset(PngAssets.person, width: 44.r, height: 44.r),
+                child: Image.asset(PngAssets.person, width: context.r(44), height: context.r(44)),
               ),
-        SizedBox(width: 5.w),
-        Text("Scarlet Fox", style: CustomFonts.black22w600),
-        SizedBox(width: 40.w),
+        SizedBox(width: context.w(5)),
+        Text("Scarlet Fox", style: CustomFonts.black20w600),
+        SizedBox(width: context.w(40)),
         PopupMenuButton(
-          offset: Offset(0, 40.h),
+          offset: Offset(0, context.h(40)),
           icon: Icon(
             Icons.arrow_drop_down_circle_outlined,
-            size: 18.sp,
-            color: CustomColors.blackColor,
+            size: context.r(18),
+            color: CustomColors.black,
           ),
           itemBuilder: (context) => [
             PopupMenuItem(
-              height: 40.h,
+              height: context.h(40),
               onTap: () {},
               child: Row(
                 children: [
-                  Icon(Icons.logout_rounded, color: Colors.red, size: 18.sp),
-                  SizedBox(width: 8.w),
+                  Icon(Icons.logout_rounded, color: CustomColors.red, size: context.r(18)),
+                  SizedBox(width: context.w(8)),
                   Text(
                     'Logout',
                     style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14.sp,
+                      color: CustomColors.red,
+                      fontSize: context.sp(14),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

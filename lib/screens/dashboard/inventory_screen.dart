@@ -74,7 +74,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text("Inventory", style: CustomFonts.black22w600),
+        Text("Inventory", style: CustomFonts.black20w600),
         const Spacer(),
         ElevatedButton(
           onPressed: _showAddProductDialog,
@@ -91,7 +91,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             children: [
               Icon(Icons.add, color: Colors.white, size: 20.r),
               SizedBox(width: 8.w),
-              Text('Add Item', style: CustomFonts.white14w500),
+              Text('Add Item', style: CustomFonts.white14w600),
             ],
           ),
         ),
@@ -146,12 +146,12 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: CustomColors.lightBlueColor.withValues(alpha: 0.2),
+            color: CustomColors.paleBlue.withValues(alpha: 0.2),
             blurRadius: 8.r,
             offset: Offset(0, 2.h),
           ),
           BoxShadow(
-            color: CustomColors.lightPurpleColor.withValues(alpha: 0.1),
+            color: CustomColors.lightPurple.withValues(alpha: 0.1),
             blurRadius: 10.r,
             offset: Offset(2.h, 0),
           ),
@@ -196,8 +196,8 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                         'Qty: ${item.totalQuantity}',
                         style: CustomFonts.black12w600.copyWith(
                           color: item.totalQuantity < 20
-                              ? CustomColors.errorColor
-                              : CustomColors.silverColor,
+                              ? CustomColors.red
+                              : CustomColors.grey,
                         ),
                       ),
                     ),
@@ -223,7 +223,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                     Text(
                       '\$${item.originalPrice.toStringAsFixed(2)}',
                       style: CustomFonts.black14w600.copyWith(
-                        color: CustomColors.purpleColor,
+                        color: CustomColors.purple,
                       ),
                     ),
                     if (item.discountedPrice > 0 &&
@@ -232,7 +232,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                       Text(
                         '\$${item.originalPrice.toStringAsFixed(2)}',
                         style: CustomFonts.black12w400.copyWith(
-                          color: CustomColors.purpleColor,
+                          color: CustomColors.purple,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
