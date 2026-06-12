@@ -266,7 +266,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                 Text('Treatments', style: context.fonts.black18w600),
                 SizedBox(height: context.h(5)),
                 DropdownButtonFormField<String>(
-                  value: selectedTreatment,
+                  initialValue: selectedTreatment,
                   hint: const Text('Select'),
                   items: treatments
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -283,7 +283,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                 Text('Days of the Week', style: context.fonts.black18w600),
                 SizedBox(height: context.h(5)),
                 DropdownButtonFormField<String>(
-                  value: selectedDay,
+                  initialValue: selectedDay,
                   hint: const Text('Select'),
                   items: weekDays
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))

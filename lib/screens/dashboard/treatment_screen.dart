@@ -77,7 +77,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   if (state.loading) {
                     return ListView.separated(
                       itemCount: 4,
-                      separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
+                      separatorBuilder: (context, index) => SizedBox(height: context.h(20)),
                       itemBuilder: (context, index) {
                         return Container(
                           height: context.isLandscape ? context.h(300) : context.h(100),
@@ -98,7 +98,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
 
                   return ListView.separated(
                     itemCount: state.treatments.length,
-                    separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
+                    separatorBuilder: (context, index) => SizedBox(height: context.h(20)),
                     itemBuilder: (context, index) {
                       final treatment = state.treatments[index];
                       return TreatmentListTile(treatment: treatment);

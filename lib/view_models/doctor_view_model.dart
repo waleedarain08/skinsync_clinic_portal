@@ -248,7 +248,7 @@ class DoctorState {
       availability: availability ?? this.availability,
       country: country ?? this.country,
       cc: cc ?? this.cc,
-      countryCode: countryIso ?? this.countryCode,
+      countryCode: countryIso ?? countryCode,
     );
   }
 

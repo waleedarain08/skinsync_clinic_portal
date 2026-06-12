@@ -65,6 +65,7 @@ dependencies:
   syncfusion_flutter_signaturepad: ^33.1.49
   country_code_picker: ^3.4.1
   timetable: ^1.0.0-alpha.15
+  sidebarx: ^0.17.2
 
 dev_dependencies:
   flutter_test:

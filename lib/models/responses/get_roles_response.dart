@@ -30,7 +30,7 @@ class Roles {
     if (json['features'] != null) {
       features = <Features>[];
       json['features'].forEach((v) {
-        features!.add(new Features.fromJson(v));
+        features!.add(Features.fromJson(v));
       });
     }
   }
@@ -56,7 +56,7 @@ class Features {
     if (json['permissions'] != null) {
       permissions = <Permissions>[];
       json['permissions'].forEach((v) {
-        permissions!.add(new Permissions.fromJson(v));
+        permissions!.add(Permissions.fromJson(v));
       });
     }
   }

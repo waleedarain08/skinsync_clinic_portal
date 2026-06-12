@@ -1,4 +1,3 @@
-import 'package:http/http.dart';
 import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
 import 'package:skinsync_clinic_portal/utils/enums.dart';
 
@@ -80,24 +79,24 @@ class AppointmentData {
     appointmentId = json['appointment_id'];
     patientName = json['patient_name'];
     clinic =
-        json['clinic'] != null ? new Clinic.fromJson(json['clinic']) : null;
+        json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
     doctor =
-        json['doctor'] != null ? new Clinic.fromJson(json['doctor']) : null;
+        json['doctor'] != null ? Clinic.fromJson(json['doctor']) : null;
     date = json['date'];
     startTime = json['start_time'];
     endTime = json['end_time'];
     treatment = json['treatment'] != null
-        ? new Treatment.fromJson(json['treatment'])
+        ? Treatment.fromJson(json['treatment'])
         : null;
     if (json['treatment_subsection'] != null) {
       treatmentSubsection = <TreatmentSubsection>[];
       json['treatment_subsection'].forEach((v) {
-        treatmentSubsection!.add(new TreatmentSubsection.fromJson(v));
+        treatmentSubsection!.add(TreatmentSubsection.fromJson(v));
       });
     }
     treatmentTotal = json['treatment_total'];
     paymentType = json['payment_type'] != null
-        ? new PaymentType.fromJson(json['payment_type'])
+        ? PaymentType.fromJson(json['payment_type'])
         : null;
     discount = json['discount'];
     discountType = json['discount_type'];

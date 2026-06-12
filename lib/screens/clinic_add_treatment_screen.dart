@@ -510,7 +510,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: ClinicDummyData.templates.length,
-          separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
+          separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
           itemBuilder: (context, index) {
             final temp = ClinicDummyData.templates[index];
             final isSelected = state.selectedTemplate?.id == temp.id;
@@ -722,7 +722,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: list.length,
-            separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
             itemBuilder: (context, idx) {
               final s = list[idx];
               return Container(
@@ -801,7 +801,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: sessions.length,
-            separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(20)),
             itemBuilder: (context, sIdx) {
               final session = sessions[sIdx];
               return Container(
@@ -840,7 +840,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: session.followUps.length,
-                        separatorBuilder: (_, __) => const Divider(height: 24),
+                        separatorBuilder: (context, index) => const Divider(height: 24),
                         itemBuilder: (context, fIdx) {
                           final f = session.followUps[fIdx];
                           return Column(
@@ -914,7 +914,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                               SizedBox(height: context.h(12)),
                               SwitchListTile(
                                 contentPadding: EdgeInsets.zero,
-                                activeColor: CustomColors.black,
+                                activeThumbColor: CustomColors.black,
                                 title: Text("Image Upload Mandatory", style: context.fonts.black14w500),
                                 subtitle: Text("Patient must take and upload high-res target area photos before booking.", style: context.fonts.grey12w400),
                                 value: f.isImageUploadMandatory,
@@ -1296,7 +1296,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: productsList.length,
-            separatorBuilder: (_, __) => SizedBox(height: context.h(16)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(16)),
             itemBuilder: (context, idx) {
               final usage = productsList[idx];
               final p = usage.product;
@@ -1402,11 +1402,10 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                       ],
                     ),
                     SizedBox(height: context.h(12)),
-
                     // Allow Substitution
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      activeColor: CustomColors.black,
+                      activeThumbColor: CustomColors.black,
                       title: Text("Allow Clinic Substitutions", style: context.fonts.black14w500),
                       subtitle: Text("Clinicians can select equivalent brands if this item is out of stock.", style: context.fonts.grey12w400),
                       value: usage.allowSubstitution,
@@ -1550,7 +1549,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: uniqueUoms.length,
-            separatorBuilder: (_, __) => SizedBox(height: context.h(14)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(14)),
             itemBuilder: (context, idx) {
               final uom = uniqueUoms[idx];
               final ctrl = _uomControllers[uom];
