@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import '../utils/theme.dart';
 import 'client_item_widget.dart';
@@ -31,7 +30,7 @@ class RecentClientsWidget extends StatelessWidget {
             children: [
               Text(
                 "Recent Clients",
-                style: CustomFonts.black20w600,
+                style: context.fonts.black20w600,
               ),
               GestureDetector(
                 onTap: () {},
@@ -39,7 +38,7 @@ class RecentClientsWidget extends StatelessWidget {
                   children: [
                     Text(
                       "View All",
-                      style: CustomFonts.black14w500,
+                      style: context.fonts.black14w500,
                     ),
                     SizedBox(width: context.w(6)),
                     Icon(

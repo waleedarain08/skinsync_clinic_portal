@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:material_duration_picker/material_duration_picker.dart';
 import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
 import 'package:skinsync_clinic_portal/view_models/doctor_view_model.dart';
-
-import '../../utils/theme.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 class AddSlotDialog extends StatefulWidget {
   const AddSlotDialog({super.key});
@@ -39,7 +38,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
       return;
     }
     if (endTime != null) {
-      if (picked.isAfter(endTime!)) {
+      if (picked.hour > endTime!.hour || (picked.hour == endTime!.hour && picked.minute >= endTime!.minute)) {
         EasyLoading.showError('Start time should be before end time');
         return;
       }
@@ -61,7 +60,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
     if (picked == null) {
       return;
     }
-    if (picked.isBefore(startTime!)) {
+    if (picked.hour < startTime!.hour || (picked.hour == startTime!.hour && picked.minute <= startTime!.minute)) {
       EasyLoading.showError('End time should be after start time');
       return;
     }
@@ -86,9 +85,10 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = context.screenWidth;
 
     return Dialog(
+      backgroundColor: CustomColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(context.r(12)),
       ),
@@ -104,7 +104,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             /// Title
-            Text("Add Slot", style: CustomFonts.black18w600),
+            Text("Add Slot", style: context.fonts.black18w600),
 
             SizedBox(height: context.h(20)),
 
@@ -116,7 +116,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Start Time", style: CustomFonts.black14w400),
+                      Text("Start Time", style: context.fonts.black14w400),
                       SizedBox(height: context.h(5)),
                       GestureDetector(
                         onTap: pickStartTime,
@@ -135,8 +135,8 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                                 ? "Select Start Time"
                                 : formatTime(startTime),
                             style: startTime == null
-                                ? CustomFonts.grey18w400
-                                : CustomFonts.black16w500,
+                                ? context.fonts.grey18w400
+                                : context.fonts.black16w500,
                           ),
                         ),
                       ),
@@ -151,7 +151,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("End Time", style: CustomFonts.black14w400),
+                      Text("End Time", style: context.fonts.black14w400),
                       SizedBox(height: context.h(5)),
                       GestureDetector(
                         onTap: pickEndTime,
@@ -170,8 +170,8 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                                 ? "Select End Time"
                                 : formatTime(endTime),
                             style: endTime == null
-                                ? CustomFonts.grey18w400
-                                : CustomFonts.black16w500,
+                                ? context.fonts.grey18w400
+                                : context.fonts.black16w500,
                           ),
                         ),
                       ),
@@ -184,7 +184,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Gap Between Appointment', style: CustomFonts.black14w500),
+                Text('Gap Between Appointment', style: context.fonts.black14w500),
                 SizedBox(height: context.h(8)),
                 InkWell(
                   onTap: () async {
@@ -214,7 +214,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                       children: [
                         Text(
                           _formatDuration(_selectedDuration),
-                          style: CustomFonts.black14w500,
+                          style: context.fonts.black14w500,
                         ),
                         Icon(
                           Icons.timer_outlined,
@@ -277,7 +277,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     "Cancel",
-                    style: CustomFonts.purple14w600,
+                    style: context.fonts.purple14w600,
                   ),
                 ),
                 SizedBox(width: context.w(10)),
@@ -324,7 +324,10 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                         );
                         Navigator.pop(context, availability);
                       },
-                      child: const Text("Save"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: CustomColors.black,
+                      ),
+                      child: Text("Save", style: context.fonts.white14w600),
                     );
                   },
                 ),

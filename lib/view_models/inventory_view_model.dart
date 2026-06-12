@@ -8,12 +8,20 @@ import '../services/locator.dart';
 import '../utils/enums.dart';
 import 'base_view_model.dart';
 
-final inventoryProvider = NotifierProvider.autoDispose(
+final inventoryProvider =
+    NotifierProvider.autoDispose<InventoryViewModel, InventoryState>(
   () => InventoryViewModel(),
 );
 
 class InventoryViewModel extends BaseViewModel<InventoryState> {
-  InventoryViewModel() : super(InventoryState());
+  InventoryViewModel();
+
+  @override
+  InventoryState build() {
+    init();
+    ref.onDispose(dispose);
+    return const InventoryState();
+  }
 
   Future<void> getData() async {
     return await runSafely(showLoading: false, () async {

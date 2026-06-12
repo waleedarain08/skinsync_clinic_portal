@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../utils/assets.dart';
 import '../widgets/phone_widget.dart';
@@ -57,21 +56,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.red,
+      backgroundColor: CustomColors.white,
       body: Row(
         children: [
           // Left Side - Branding
           Expanded(
             child: Container(
-              color: Colors.white,
+              color: CustomColors.white,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 200.w,
-                      height: 200.h,
-                      decoration: BoxDecoration(
+                      width: context.w(200),
+                      height: context.h(200),
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [Color(0xFF9BA7D4), Color(0xFF7DD3D3)],
@@ -81,18 +80,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       child: Image.asset(
                         PngAssets.splashLogo,
-                        height: 100.w,
-                        width: 100.w,
+                        height: context.w(100),
+                        width: context.w(100),
                       ),
                     ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: context.h(30)),
                     Text(
                       "SkinSync AI",
-                      style: TextStyle(
-                        fontSize: 48.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF6B7BA8),
+                      style: context.fonts.black50w600.copyWith(
+                        color: const Color(0xFF6B7BA8),
                         letterSpacing: 4,
+                        fontSize: context.sp(48),
                       ),
                     ),
                   ],
@@ -103,30 +101,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
           // Vertical Divider
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 100.h),
-            child: Container(width: 1.w, color: Colors.grey.shade300),
+            padding: EdgeInsets.symmetric(vertical: context.h(100)),
+            child: Container(width: 1, color: CustomColors.border),
           ),
 
           // Right Side - Sign Up Form
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(left: 140.w, right: 50, top: 50),
+              padding: EdgeInsets.only(
+                left: context.w(140),
+                right: context.w(50),
+                top: context.h(50),
+              ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(12.r)),
+                  color: CustomColors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(context.r(12))),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: CustomColors.black.withValues(alpha: 0.15),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 60.w,
-                    vertical: 40.h,
+                    horizontal: context.w(60),
+                    vertical: context.h(40),
                   ),
                   child: Form(
                     key: _formKey,
@@ -136,22 +138,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       children: [
                         Text(
                           "Sign Up",
-                          style: TextStyle(
-                            fontSize: 32.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
+                          style: context.fonts.black32w700,
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: context.h(8)),
                         Text(
                           "Create an account to continue",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: context.fonts.grey14w400,
                         ),
-                        SizedBox(height: 40.h),
+                        SizedBox(height: context.h(40)),
 
                         // Full Name Field
                         _buildTextField(
@@ -160,7 +154,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           controller: _fullNameController,
                           isRequired: true,
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.h(20)),
                         // Email Field
                         _buildTextField(
                           label: "Email Address",
@@ -169,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           isRequired: true,
                           keyboardType: TextInputType.emailAddress,
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.h(20)),
 
                         // Phone Number Field
                         Column(
@@ -177,20 +171,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: [
                             Text(
                               'Phone Number',
-                              style: CustomFonts.black14w400,
+                              style: context.fonts.black14w400,
                             ),
-                            SizedBox(height: 8.h),
+                            SizedBox(height: context.h(8)),
                             PhoneWidget(controller: _phoneController),
                           ],
                         ),
-                        //_buildTextField(
-                        //   label: "Phone Number",
-                        //   hintText: "+1 (555) 123-4567",
-                        //   controller: _phoneController,
-                        //   isRequired: true,
-                        //   keyboardType: TextInputType.phone,
-                        // ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.h(20)),
 
                         // Password Field
                         _buildPasswordField(
@@ -202,7 +189,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             () => _obscurePassword = !_obscurePassword,
                           ),
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.h(20)),
 
                         // Confirm Password Field
                         _buildPasswordField(
@@ -215,36 +202,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 !_obscureConfirmPassword,
                           ),
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: context.h(16)),
 
                         // Password Requirements
                         _buildPasswordRequirement(
                           text: "At least one lowercase letter",
                           isValid: _hasLowercase,
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: context.h(8)),
                         _buildPasswordRequirement(
                           text: "At least one unique character",
                           isValid: _hasUniqueChar,
                         ),
 
-                        SizedBox(height: 24.h),
+                        SizedBox(height: context.h(24)),
                         _rowWidget(),
-                        SizedBox(height: 30.h),
+                        SizedBox(height: context.h(30)),
 
                         // Create Account Button
                         GestureDetector(
+                          onTap: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Perform signup
+                            }
+                          },
                           child: Container(
-                            width: 215.w,
-                            // height: 50.h,
+                            width: context.w(215),
                             padding: EdgeInsets.symmetric(
-                              horizontal: 20.w,
-                              vertical: 14.h,
+                              horizontal: context.w(20),
+                              vertical: context.h(14),
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black,
+                              color: CustomColors.black,
                               borderRadius: BorderRadius.all(
-                                Radius.circular(30.r),
+                                Radius.circular(context.r(30)),
                               ),
                             ),
                             child: Row(
@@ -252,23 +243,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               children: [
                                 Text(
                                   "Create Account",
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
+                                  style: context.fonts.white16w400,
                                 ),
-                                SizedBox(width: 8.w),
+                                SizedBox(width: context.w(8)),
                                 Icon(
                                   Icons.arrow_forward,
-                                  color: Colors.white,
-                                  size: 20.sp,
+                                  color: CustomColors.white,
+                                  size: context.sp(20),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: context.h(20)),
 
                         // Sign In Link
                         Row(
@@ -276,21 +263,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: [
                             Text(
                               "Have an account already? ",
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: Colors.black87,
-                              ),
+                              style: context.fonts.black14w400.copyWith(color: Colors.black87),
                             ),
                             GestureDetector(
                               onTap: () {
-                                // Navigate to sign in
+                                Navigator.pop(context);
                               },
                               child: Text(
                                 "Sign In",
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Color(0xFF5B9FD8),
-                                  fontWeight: FontWeight.w600,
+                                style: context.fonts.black14w600.copyWith(
+                                  color: const Color(0xFF5B9FD8),
                                 ),
                               ),
                             ),
@@ -321,46 +303,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
         RichText(
           text: TextSpan(
             text: label,
-            style: TextStyle(
-              fontSize: 14.sp,
-              height: 0,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+            style: context.fonts.black14w600,
             children: [
               if (isRequired)
                 TextSpan(
-                  text: "*",
-                  style: TextStyle(height: 0, color: Colors.red),
+                  text: " *",
+                  style: context.fonts.red14w600,
                 ),
             ],
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.h(8)),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hintText,
-            // hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey.shade400),
-            // filled: true,
-            // fillColor: Colors.white,
-            // border: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.grey.shade300),
-            // ),
-            // enabledBorder: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.grey.shade300),
-            // ),
-            // focusedBorder: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.blue, width: 1.5),
-            // ),
-            // contentPadding: EdgeInsets.symmetric(
-            //   horizontal: 16.w,
-            //   vertical: 14.h,
-            // ),
           ),
         ),
       ],
@@ -380,57 +338,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
         RichText(
           text: TextSpan(
             text: label,
-            style: TextStyle(
-              fontSize: 14.sp,
-              height: 0,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+            style: context.fonts.black14w600,
             children: [
               TextSpan(
-                text: "*",
-                style: TextStyle(color: Colors.red),
+                text: " *",
+                style: context.fonts.red14w600,
               ),
             ],
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.h(8)),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(
-              height: 0,
-
-              fontSize: 14.sp,
-              color: Colors.grey.shade400,
-            ),
-            // filled: true,
-            // fillColor: Colors.white,
-            // border: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.grey.shade300),
-            // ),
-            // enabledBorder: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.grey.shade300),
-            // ),
-            // focusedBorder: OutlineInputBorder(
-            //   borderRadius: BorderRadius.circular(8.r),
-            //   borderSide: BorderSide(color: Colors.blue, width: 1.5),
-            // ),
-            // contentPadding: EdgeInsets.symmetric(
-            //   horizontal: 16.w,
-            //   vertical: 14.h,
-            // ),
             suffixIcon: IconButton(
               icon: Icon(
                 obscureText
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: Colors.grey.shade600,
-                size: 20.sp,
+                color: CustomColors.grey,
+                size: context.sp(20),
               ),
               onPressed: onToggle,
             ),
@@ -442,12 +371,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget _rowWidget() {
     return Row(
-      crossAxisAlignment: .center,
-      mainAxisAlignment: .center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: 20.w,
-          height: 20.h,
+          width: context.w(20),
+          height: context.h(20),
           child: Checkbox(
             value: _acceptTerms,
             onChanged: (value) {
@@ -456,35 +385,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
               });
             },
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(context.r(4)),
             ),
           ),
         ),
-        SizedBox(width: 10.w),
+        SizedBox(width: context.w(10)),
         Column(
-          crossAxisAlignment: .center,
-
-          // crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             RichText(
               text: TextSpan(
                 text: "I accept the ",
-                style: TextStyle(fontSize: 13.sp, color: Colors.black87),
+                style: context.fonts.black13w400.copyWith(color: Colors.black87),
                 children: [
                   TextSpan(
                     text: "Terms & Conditions",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+                    style: context.fonts.black13w600,
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: context.h(2)),
             Text(
               "Secured with Profile Verification API",
-              style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
+              style: context.fonts.grey11w400,
             ),
           ],
         ),
@@ -497,22 +421,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
     required bool isValid,
   }) {
     return Row(
-      crossAxisAlignment: .center,
-      mainAxisAlignment: .center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(
           isValid ? Icons.check_circle : Icons.radio_button_unchecked,
-          size: 18.sp,
-          color: isValid ? Colors.green : Colors.grey.shade400,
+          size: context.sp(18),
+          color: isValid ? CustomColors.green : CustomColors.lightGrey,
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: context.w(8)),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 13.sp,
-            height: 0,
-
-            color: isValid ? Colors.green : Colors.grey.shade600,
+          style: context.fonts.black13w400.copyWith(
+            color: isValid ? CustomColors.green : CustomColors.grey,
           ),
         ),
       ],

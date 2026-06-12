@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/extentions.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/treatment_list_tile.dart';
 
@@ -31,45 +30,45 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final state = ref.watch(treatmentViewModelProvider);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(20),
+          vertical: context.h(16),
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             Row(
               children: [
-                Text("Treatments", style: CustomFonts.black20w600),
-                Spacer(),
+                Text("Treatments", style: context.fonts.black20w600),
+                const Spacer(),
                 ElevatedButton(
                   onPressed: () {
                     context.push('/clinic-add-treatment');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+                    backgroundColor: CustomColors.black,
+                    foregroundColor: CustomColors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(context.r(8)),
                     ),
                     elevation: 0,
                   ),
                   child: Row(
                     children: [
-                      Center(
-                        child: Icon(Icons.add, color: Colors.white, size: 20.r),
-                      ),
-                      SizedBox(width: 10.w),
-                      Text('Add Treatment', style: CustomFonts.white14w600),
+                      Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
+                      SizedBox(width: context.w(10)),
+                      Text('Add Treatment', style: context.fonts.white14w600),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 14.h),
-            Divider(color: Colors.grey.shade300),
-            SizedBox(height: 50.h),
+            SizedBox(height: context.h(14)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(50)),
             Expanded(
               child: Consumer(
                 builder: (context, ref, _) {
@@ -78,27 +77,28 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   if (state.loading) {
                     return ListView.separated(
                       itemCount: 4,
-                      separatorBuilder: (_, __) => SizedBox(height: 20.h),
+                      separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
                       itemBuilder: (context, index) {
                         return Container(
-                          height: context.isLandscape ? 300.h : 100.h,
-                          margin: EdgeInsets.all(20.w),
-                          padding: EdgeInsets.all(20.w),
+                          height: context.isLandscape ? context.h(300) : context.h(100),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: context.w(20),
+                            vertical: context.h(10),
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-
-                            borderRadius: BorderRadius.circular(15.r),
+                            color: CustomColors.white,
+                            borderRadius: BorderRadius.circular(context.r(15)),
                           ),
                         );
                       },
                     ).withShimmer();
                   } else if (state.treatments.isEmpty) {
-                    return EmptyWidget();
+                    return const EmptyWidget();
                   }
 
                   return ListView.separated(
                     itemCount: state.treatments.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 20.h),
+                    separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
                     itemBuilder: (context, index) {
                       final treatment = state.treatments[index];
                       return TreatmentListTile(treatment: treatment);

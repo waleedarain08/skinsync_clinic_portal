@@ -5,12 +5,20 @@ import 'package:skinsync_clinic_portal/services/locator.dart';
 import 'package:skinsync_clinic_portal/utils/enums.dart';
 import 'package:skinsync_clinic_portal/view_models/base_view_model.dart';
 
-final appointmentProvider = NotifierProvider.autoDispose(
+final appointmentProvider =
+    NotifierProvider.autoDispose<AppointmentViewModel, AppointmentState>(
   () => AppointmentViewModel._(),
 );
 
 class AppointmentViewModel extends BaseViewModel<AppointmentState> {
-  AppointmentViewModel._() : super(const AppointmentState());
+  AppointmentViewModel._();
+
+  @override
+  AppointmentState build() {
+    init();
+    ref.onDispose(dispose);
+    return const AppointmentState();
+  }
 
   void setPageNumber(int page) {
     state = state.copyWith(page: page);
@@ -19,7 +27,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
 
   void setFilter(AppointmentFilter? filter) {
     state = state.copyWith(filter: filter);
-   
+
     getAppointments(initialCall: true);
   }
 
@@ -38,7 +46,6 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
         page: state.page,
         filter: state.filter,
         status: state.status,
-         
       );
       state = state.copyWith(
         loading: false,
@@ -81,24 +88,6 @@ class AppointmentState {
       appointmentList: appointmentList ?? this.appointmentList,
       filter: filter ?? this.filter,
       status: status ?? this.status,
-    );
-  }
-
-  AppointmentState copyWithNull({
-    bool? loading,
-    int? page,
-    int? totalPage,
-    List<AppointmentData>? appointmentList,
-    AppointmentStatus? status,
-    AppointmentFilter? filter,
-  }) {
-    return AppointmentState(
-      loading: loading ?? this.loading,
-      page: page ?? this.page,
-      totalPage: totalPage ?? this.totalPage,
-      appointmentList: appointmentList ?? this.appointmentList,
-      status: status ?? this.status,
-      filter: filter ?? this.filter,
     );
   }
 }

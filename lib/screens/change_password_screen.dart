@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
+import '../utils/color_constant.dart';
 import '../utils/custom_fonts.dart';
 import '../utils/responsive.dart';
 import '../utils/validators.dart';
@@ -38,14 +39,14 @@ class ChangePasswordScreen extends ConsumerWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BuildHeader(title: 'Password & Security'),
-              SizedBox(height: 24.h),
+              SizedBox(height: context.h(24)),
               _buildCardContainer(context, ref, authState, viewModel),
             ],
           ),
@@ -62,15 +63,15 @@ class ChangePasswordScreen extends ConsumerWidget {
   ) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(context.w(24)),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: CustomColors.black.withValues(alpha: 0.05),
+            blurRadius: context.r(10),
+            offset: Offset(0, context.h(2)),
           ),
         ],
       ),
@@ -79,25 +80,28 @@ class ChangePasswordScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildChangePasswordHeader(),
-            SizedBox(height: 24.h),
+            _buildChangePasswordHeader(context),
+            SizedBox(height: context.h(24)),
             _buildPasswordField(
+              context: context,
               label: 'Current Password',
               controller: viewModel.currentPasswordController,
               obscureText: authState.obscureCurrent,
               onToggle: viewModel.toggleObscureCurrent,
               validator: Validators.password,
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             _buildPasswordField(
+              context: context,
               label: 'New Password',
               controller: viewModel.newPasswordController,
               obscureText: authState.obscureNew,
               onToggle: viewModel.toggleObscureNew,
               validator: Validators.password,
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             _buildPasswordField(
+              context: context,
               label: 'Confirm New Password',
               controller: viewModel.confirmPasswordController,
               obscureText: authState.obscureConfirm,
@@ -112,7 +116,7 @@ class ChangePasswordScreen extends ConsumerWidget {
                 return null;
               },
             ),
-            SizedBox(height: 32.h),
+            SizedBox(height: context.h(32)),
             _buildButtonsRow(context, ref, authState.loading),
           ],
         ),
@@ -120,34 +124,34 @@ class ChangePasswordScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChangePasswordHeader() {
+  Widget _buildChangePasswordHeader(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 44.w,
-          height: 44.w,
-          decoration: const BoxDecoration(
-            color: Color(0xFFEEEBFF),
+          width: context.w(44),
+          height: context.w(44),
+          decoration: BoxDecoration(
+            color: CustomColors.purple.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
             child: Icon(
               Icons.lock_outline_rounded,
-              size: 22.sp,
-              color: const Color(0xFF6B5DD3),
+              size: context.sp(22),
+              color: CustomColors.purple,
             ),
           ),
         ),
-        SizedBox(width: 14.w),
+        SizedBox(width: context.w(14)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Change Password', style: CustomFonts.black16w600),
-              SizedBox(height: 4.h),
+              Text('Change Password', style: context.fonts.black16w600),
+              SizedBox(height: context.h(4)),
               Text(
                 'Keep your account secure with a strong password',
-                style: CustomFonts.grey16w400,
+                style: context.fonts.grey16w400,
               ),
             ],
           ),
@@ -157,6 +161,7 @@ class ChangePasswordScreen extends ConsumerWidget {
   }
 
   Widget _buildPasswordField({
+    required BuildContext context,
     required String label,
     required TextEditingController controller,
     required bool obscureText,
@@ -166,39 +171,39 @@ class ChangePasswordScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black18w600),
-        SizedBox(height: 8.h),
+        Text(label, style: context.fonts.black18w600),
+        SizedBox(height: context.h(8)),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
           validator: validator,
-          style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+          style: context.fonts.black14w400.copyWith(color: CustomColors.black.withValues(alpha: 0.87)),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: CustomColors.white,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
+              horizontal: context.w(16),
+              vertical: context.h(14),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: BorderSide(color: CustomColors.border, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: BorderSide(color: CustomColors.border, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: BorderSide(color: CustomColors.purple, width: 1),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: BorderSide(color: CustomColors.red, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
+              borderRadius: BorderRadius.circular(context.r(8)),
+              borderSide: BorderSide(color: CustomColors.red, width: 1),
             ),
             suffixIcon: GestureDetector(
               onTap: onToggle,
@@ -206,8 +211,8 @@ class ChangePasswordScreen extends ConsumerWidget {
                 obscureText
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: Colors.grey[400],
-                size: 20.sp,
+                color: CustomColors.grey,
+                size: context.sp(20),
               ),
             ),
           ),
@@ -223,34 +228,36 @@ class ChangePasswordScreen extends ConsumerWidget {
           child: ElevatedButton(
             onPressed: isLoading ? null : () => _onUpdatePassword(context, ref),
             style: ElevatedButton.styleFrom(
+              backgroundColor: CustomColors.purple,
+              foregroundColor: CustomColors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
               elevation: 0,
             ),
             child: isLoading
                 ? SizedBox(
-                    height: 20.h,
-                    width: 20.h,
-                    child: const CircularProgressIndicator(
+                    height: context.h(20),
+                    width: context.h(20),
+                    child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: CustomColors.white,
                     ),
                   )
-                : Text('Update Password', style: CustomFonts.white14w600),
+                : Text('Update Password', style: context.fonts.white14w600),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: context.w(16)),
         Expanded(
           child: OutlinedButton(
             onPressed: isLoading ? null : () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
-              side: BorderSide(color: Colors.grey[300]!, width: 1),
+              side: BorderSide(color: CustomColors.border, width: 1),
             ),
-            child: Text('Cancel', style: CustomFonts.black14w500),
+            child: Text('Cancel', style: context.fonts.black14w500),
           ),
         ),
       ],

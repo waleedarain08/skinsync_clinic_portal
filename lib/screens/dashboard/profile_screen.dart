@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/about_screen.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/mange_staff_screen.dart';
 import 'package:skinsync_clinic_portal/screens/dynamic_pricing.dart';
 import 'package:skinsync_clinic_portal/screens/notification_screen.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 
 import '../business_info_screen.dart';
@@ -21,40 +21,36 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(20),
+                vertical: context.h(16),
+              ),
               child: Text(
                 "Profile",
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
+                style: context.fonts.black24w700,
               ),
             ),
-
-            Divider(color: Colors.grey.shade300, height: 1),
-
-            SizedBox(height: 20.h),
-
+            const Divider(color: CustomColors.border, height: 1),
+            SizedBox(height: context.h(20)),
             // Profile Info
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: _buildProfileInfoContainer(),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+              child: _buildProfileInfoContainer(context),
             ),
-
-            SizedBox(height: 20.h),
-
+            SizedBox(height: context.h(20)),
             // Clinic Settings
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
+                context: context,
                 title: "Clinic Settings",
                 items: [
                   _SettingItemData(
@@ -84,12 +80,11 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            SizedBox(height: 20.h),
-
+            SizedBox(height: context.h(20)),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
+                context: context,
                 title: "Treatment Management",
                 items: [
                   _SettingItemData(
@@ -111,12 +106,12 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
-
+            SizedBox(height: context.h(20)),
             // password security
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
+                context: context,
                 title: "Security",
                 items: [
                   _SettingItemData(
@@ -138,12 +133,12 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
-
+            SizedBox(height: context.h(20)),
             // preference
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
+                context: context,
                 title: "Preferences",
                 items: [
                   _SettingItemData(
@@ -157,12 +152,12 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
-
-            // preference
+            SizedBox(height: context.h(20)),
+            // help
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
+                context: context,
                 title: "Help & Support",
                 items: [
                   _SettingItemData(
@@ -176,8 +171,7 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
           ],
         ),
       ),
@@ -185,15 +179,15 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // Profile Info Container
-  Widget _buildProfileInfoContainer() {
+  Widget _buildProfileInfoContainer(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(context.w(20)),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFB8A5D8), Color(0xFF7B94C4)],
         ),
-        borderRadius: BorderRadius.circular(15.r),
+        borderRadius: BorderRadius.circular(context.r(15)),
       ),
       child: Consumer(
         builder: (context, ref, _) {
@@ -203,38 +197,34 @@ class ProfileScreen extends StatelessWidget {
           return Column(
             children: [
               Container(
-                width: 70.w,
-                height: 70.w,
+                width: context.w(70),
+                height: context.w(70),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey.shade300,
-                  border: Border.all(color: Colors.white, width: 3.w),
+                  color: CustomColors.softGrey,
+                  border: Border.all(color: CustomColors.white, width: context.w(3)),
                 ),
                 child: ClipOval(
                   child: Image.network(
                     image ?? '',
-                    height: 80.r,
-                    width: 80.r,
+                    height: context.r(80),
+                    width: context.r(80),
+                    fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.broken_image, size: 40.sp);
+                      return Icon(Icons.broken_image, size: context.r(40));
                     },
                   ),
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.h(12)),
               Text(
                 name ?? "N/A",
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
+                style: context.fonts.black18w600.copyWith(color: Colors.black87),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: context.h(4)),
               Text(
                 email ?? 'N/A',
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: context.fonts.black13w400.copyWith(
                   color: Colors.black.withValues(alpha: 0.7),
                 ),
               ),
@@ -247,39 +237,37 @@ class ProfileScreen extends StatelessWidget {
 
   // Reusable Settings Section
   Widget _buildSettingsSection({
+    required BuildContext context,
     required String title,
     required List<_SettingItemData> items,
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(context.w(20)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CustomColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
+            color: CustomColors.black.withValues(alpha: 0.12),
+            blurRadius: context.r(8),
+            offset: Offset(0, context.h(2)),
           ),
         ],
-        borderRadius: BorderRadius.circular(15.r),
+        borderRadius: BorderRadius.circular(context.r(15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+            style: context.fonts.black16w600,
           ),
-          SizedBox(height: 14.h),
+          SizedBox(height: context.h(14)),
           ...items.map(
             (item) => Padding(
-              padding: EdgeInsets.only(bottom: 10.h),
+              padding: EdgeInsets.only(bottom: context.h(10)),
               child: _buildSettingItem(
+                context: context,
                 icon: item.icon,
                 title: item.title,
                 subtitle: item.subtitle,
@@ -294,6 +282,7 @@ class ProfileScreen extends StatelessWidget {
 
   // Setting Item Row
   Widget _buildSettingItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -304,35 +293,28 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
+            padding: EdgeInsets.all(context.w(8)),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 18.sp),
+            child: Icon(icon, size: context.r(18), color: CustomColors.black),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: context.fonts.black14w600.copyWith(color: Colors.black87),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: context.h(2)),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: context.fonts.grey12w400.copyWith(color: Colors.grey.shade600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -341,7 +323,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           Icon(
             CupertinoIcons.chevron_right,
-            size: 16.sp,
+            size: context.r(16),
             color: Colors.grey.shade600,
           ),
         ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/sign_in_screen.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
@@ -8,7 +7,7 @@ import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/assets.dart';
-import '../utils/color_constant.dart';
+import '../utils/theme.dart';
 import 'dashboard/home_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -29,15 +28,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(Duration(milliseconds: _duration));
-      setState(() {
-        _animate = true;
-      });
+      if (mounted) {
+        setState(() {
+          _animate = true;
+        });
+      }
 
       await Future.delayed(Duration(milliseconds: _duration - 800));
 
       if (mounted) {
         if (locator<SecureStorageService>().isLoggedIn) {
-          await ref.read(authViewModelProvider.notifier).callGetMe().then((value) {
+          await ref
+              .read(authViewModelProvider.notifier)
+              .callGetMe()
+              .then((value) {
             if (value) {
               context.goNamed(HomeScreen.routeName);
             } else {
@@ -64,36 +68,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               gradient: CustomColors.purpleWhiteStateBlueLightGradient,
             ),
           ),
-
           AnimatedOpacity(
             opacity: _animate ? 0.0 : 1.0,
-            duration: Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOut,
             child: Center(
               child: Image.asset(
                 PngAssets.splashLogo,
-                height: 169.h,
-                width: 169.w,
+                height: context.h(169),
+                width: context.w(169),
               ),
             ),
           ),
-
           AnimatedPositioned(
             duration: Duration(milliseconds: _duration),
             top: _animate ? screenHeight : -screenHeight,
-            left: _animate ? screenWidth : -362.r,
+            left: _animate ? screenWidth : -context.r(362),
             child: CircleAvatar(
-              radius: 362.r,
+              radius: context.r(362),
               backgroundColor: CustomColors.paleBlue,
             ),
           ),
-
           AnimatedPositioned(
             duration: Duration(milliseconds: _duration),
             bottom: _animate ? screenHeight : -screenHeight,
-            right: _animate ? screenWidth : -362.r,
+            right: _animate ? screenWidth : -context.r(362),
             child: CircleAvatar(
-              radius: 362.r,
+              radius: context.r(362),
               backgroundColor: CustomColors.lightPurple,
             ),
           ),

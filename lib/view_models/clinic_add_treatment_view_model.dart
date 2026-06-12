@@ -156,7 +156,14 @@ class ClinicAddTreatmentState {
 }
 
 class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState> {
-  ClinicAddTreatmentViewModel._() : super(ClinicAddTreatmentState());
+  ClinicAddTreatmentViewModel._();
+
+  @override
+  ClinicAddTreatmentState build() {
+    init();
+    ref.onDispose(dispose);
+    return ClinicAddTreatmentState();
+  }
 
   void selectTemplate(ClinicDummyTreatmentTemplate template) {
     // When selecting a template, pre-populate all local custom variables as well

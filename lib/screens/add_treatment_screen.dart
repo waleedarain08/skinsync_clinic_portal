@@ -1,8 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../widgets/build_textfield.dart';
 import '../widgets/header__with_back_btn.dart';
@@ -20,28 +18,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  final ImagePicker _imagePicker = ImagePicker();
-  XFile? _selectedImage;
-
   // Dropdown values
   String? _selectedCategory;
-  String? _selectedSubcategory;
 
   // Dropdown lists
   final List<String> _categories = ['Botox', 'Dermal Filler'];
 
-  // final List<String> _subcategories = [
-  //   'Anti-Aging',
-  //   'Hydration',
-  //   'Acne Treatment',
-  //   'Brightening',
-  //   'Relaxation',
-  //   'Deep Tissue',
-  // ];
-
   // Areas per category
   final Map<String, List<String>> _categoryAreas = {
-    // 'Facial Treatments': ['Eye', 'Lip', 'Forehead', 'Cheeks'],
     'Dermal Filler': ['Temples', 'TearTough', 'Cheeks / Middle face volume'],
     'Botox': [
       'Forehead',
@@ -50,10 +34,6 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       'Crows Feet',
       "Bunny Line",
     ],
-    // 'Skin Care': ['Face', 'Neck', 'Hands'],
-    // 'Hair Treatments': ['Scalp', 'Beard', 'Eyebrows'],
-    // 'Massage Therapy': ['Full Body', 'Upper Body', 'Lower Body'],
-    // 'Wellness': ['Relaxation', 'Detox', 'Rejuvenation'],
   };
 
   // Selected areas + prices
@@ -73,14 +53,18 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 250.w),
+          padding: EdgeInsets.symmetric(
+            vertical: context.h(20),
+            horizontal: context.w(250),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BuildHeader(title: 'Add Treatment'),
-              SizedBox(height: 24.h),
+              const BuildHeader(title: 'Add Treatment'),
+              SizedBox(height: context.h(24)),
               _buildFormContainer(),
             ],
           ),
@@ -92,13 +76,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   Widget _buildFormContainer() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(context.w(24)),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: CustomColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -107,16 +91,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Treatment Details', style: CustomFonts.black20w600),
-          SizedBox(height: 24.h),
-
-          // BuildTextField(
-          //   label: 'Treatment Name',
-          //   controller: _treatmentNameController,
-          //   hintText: 'e.g., Botox, Dermal Fillers',
-          // ),
-          SizedBox(height: 20.h),
-
+          Text('Treatment Details', style: context.fonts.black20w600),
+          SizedBox(height: context.h(24)),
           _buildDropdownField(
             label: 'Select Treatment',
             hintText: 'Select Treatment',
@@ -133,27 +109,13 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
           // ===== AREA CHIPS =====
           if (_selectedCategory != null) ...[
-            SizedBox(height: 16.h),
+            SizedBox(height: context.h(16)),
             _buildAreaChips(),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.h(16)),
             _buildAreaPriceFields(),
           ],
 
-          // SizedBox(height: 20.h),
-
-          // _buildDropdownField(
-          //   label: 'Subcategory',
-          //   hintText: 'Select subcategory',
-          //   value: _selectedSubcategory,
-          //   items: _subcategories,
-          //   onChanged: (value) {
-          //     setState(() {
-          //       _selectedSubcategory = value;
-          //     });
-          //   },
-          // ),
-          // SizedBox(height: 20.h),
-          SizedBox(height: 32.h),
+          SizedBox(height: context.h(32)),
 
           _buildButtonsRow(),
         ],
@@ -166,20 +128,19 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     final areas = _categoryAreas[_selectedCategory] ?? [];
 
     return Wrap(
-      spacing: 8.w,
-      runSpacing: 8.h,
+      spacing: context.w(8),
+      runSpacing: context.h(8),
       children: areas.map((area) {
         final isSelected = _selectedAreas.contains(area);
 
         return ChoiceChip(
           label: Text(area),
           selected: isSelected,
-          selectedColor: Colors.black,
-          // showCheckmark: false,
-          checkmarkColor: Colors.white,
+          selectedColor: CustomColors.black,
+          checkmarkColor: CustomColors.white,
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontSize: 14.sp,
+            color: isSelected ? CustomColors.white : CustomColors.black,
+            fontSize: context.sp(14),
             fontWeight: FontWeight.w500,
           ),
           onSelected: (selected) {
@@ -204,11 +165,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Column(
       children: _selectedAreas.map((area) {
         return Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.only(bottom: context.h(12)),
           child: BuildTextField(
             label: '$area Per Syringe Price',
             controller: _areaPriceControllers[area]!,
-            hintText: '\$200',
+            hintText: 'AED 200',
           ),
         );
       }).toList(),
@@ -225,12 +186,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black14w500),
-        SizedBox(height: 8.h),
+        Text(label, style: context.fonts.black14w500),
+        SizedBox(height: context.h(8)),
         DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
             isExpanded: true,
-            hint: Text(hintText, style: TextStyle(color: Colors.grey[400])),
+            hint: Text(
+              hintText,
+              style: context.fonts.grey14w400.copyWith(color: CustomColors.grey),
+            ),
             value: value,
             items: items
                 .map(
@@ -240,11 +204,11 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                 .toList(),
             onChanged: onChanged,
             buttonStyleData: ButtonStyleData(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              height: context.h(48),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(context.r(8)),
+                border: Border.all(color: CustomColors.border),
               ),
             ),
           ),
@@ -259,32 +223,29 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              final Map<String, String> areaPrices = {
-                for (var area in _selectedAreas)
-                  area: _areaPriceControllers[area]!.text,
-              };
-
-              debugPrint(areaPrices.toString());
-
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Treatment created successfully!'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: CustomColors.green,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              // padding: EdgeInsets.symmetric(vertical: 20.h),
+              backgroundColor: CustomColors.black,
             ),
-            child: Text('Create', style: CustomFonts.white14w600),
+            child: Text('Create', style: context.fonts.white14w600),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: context.w(16)),
         Expanded(
           child: OutlinedButton(
-            onPressed: () {},
-            child: Text('Cancel', style: CustomFonts.black14w500),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: CustomColors.border),
+            ),
+            child: Text('Cancel', style: context.fonts.black14w500),
           ),
         ),
       ],

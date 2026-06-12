@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/transcation_tile_widget.dart';
-
-import '../../utils/theme.dart';
 
 class PaymentHistoryScreen extends StatelessWidget {
   static const String routeName = '/payment-history';
@@ -14,6 +13,7 @@ class PaymentHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CustomColors.whiteGrey,
       body: Padding(
         padding: EdgeInsets.all(context.w(20)),
         child: SingleChildScrollView(
@@ -29,7 +29,7 @@ class PaymentHistoryScreen extends StatelessWidget {
                     child: Icon(Icons.arrow_back, size: context.r(24)),
                   ),
                   SizedBox(width: context.w(10)),
-                  Text("Transaction History", style: CustomFonts.black20w600),
+                  Text("Transaction History", style: context.fonts.black20w600),
                 ],
               ),
               SizedBox(height: context.h(18)),
@@ -37,7 +37,7 @@ class PaymentHistoryScreen extends StatelessWidget {
               SizedBox(height: context.h(17)),
               searchAndFilter(context),
               SizedBox(height: context.h(20)),
-              Text("Transactions", style: CustomFonts.black20w600),
+              Text("Transactions", style: context.fonts.black20w600),
               SizedBox(height: context.h(20)),
               ListView.builder(
                 shrinkWrap: true,
@@ -78,15 +78,15 @@ class PaymentHistoryScreen extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 SvgAssets.filter,
-                height: context.h(12.7),
-                width: context.w(13.3),
+                height: context.h(13),
+                width: context.w(13),
                 colorFilter: const ColorFilter.mode(
                   CustomColors.grey,
                   BlendMode.srcIn,
                 ),
               ),
               SizedBox(width: context.w(10)),
-              Text("All Status", style: CustomFonts.grey14w500),
+              Text("All Status", style: context.fonts.grey14w500),
               SizedBox(width: context.w(10)),
               Icon(
                 CupertinoIcons.chevron_down,

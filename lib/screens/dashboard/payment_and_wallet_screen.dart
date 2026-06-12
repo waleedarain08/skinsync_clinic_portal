@@ -17,13 +17,14 @@ class PaymentAndWalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: context.h(20)),
-            Text('Payment and Wallet', style: CustomFonts.black20w600),
+            Text('Payment and Wallet', style: context.fonts.black20w600),
             SizedBox(height: context.h(14)),
             const Divider(color: CustomColors.border),
             SizedBox(height: context.h(20)),
@@ -31,7 +32,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
             SizedBox(height: context.h(10)),
             Text(
               "Payments are processed securely through Stripe. All transactions are encrypted and compliant with PCI DSS and HIPAA standards.",
-              style: CustomFonts.grey14w400,
+              style: context.fonts.grey14w400,
             ),
             SizedBox(height: context.h(20)),
             totalEarnings(context),
@@ -43,7 +44,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
               children: [
                 Text(
                   "Transactions",
-                  style: CustomFonts.black20w600,
+                  style: context.fonts.black20w600,
                 ),
                 GestureDetector(
                   onTap: () {
@@ -51,7 +52,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
                   },
                   child: Text(
                     "View All",
-                    style: CustomFonts.purple14w600.copyWith(
+                    style: context.fonts.purple14w600.copyWith(
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -100,15 +101,16 @@ class PaymentAndWalletScreen extends StatelessWidget {
             children: [
               Text(
                 "Available Balance",
-                style: CustomFonts.white16w400.copyWith(
+                style: context.fonts.white16w400.copyWith(
                   fontSize: context.sp(22),
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 "AED 228,565",
-                style: CustomFonts.black40w700.copyWith(
+                style: context.fonts.black40w700.copyWith(
                   color: CustomColors.white,
+                  fontSize: context.sp(40),
                 ),
               ),
             ],
@@ -130,13 +132,13 @@ class PaymentAndWalletScreen extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: "AED 20,600 ",
-                      style: CustomFonts.green14w600.copyWith(
+                      style: context.fonts.green14w600.copyWith(
                         fontSize: context.sp(16),
                       ),
                     ),
                     TextSpan(
                       text: "Last Week ",
-                      style: CustomFonts.white14w600.copyWith(
+                      style: context.fonts.white14w600.copyWith(
                         fontSize: context.sp(16),
                       ),
                     ),
@@ -179,7 +181,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
                   Center(
                     child: Text(
                       "Withdraw Balance",
-                      style: CustomFonts.purple14w600,
+                      style: context.fonts.purple14w600,
                     ),
                   ),
                 ],
@@ -206,16 +208,16 @@ class PaymentAndWalletScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("AED 4,500", style: CustomFonts.black30w600),
-              Text("Today’s Earnings", style: CustomFonts.grey14w500),
+              Text("AED 4,500", style: context.fonts.black30w600),
+              Text("Today’s Earnings", style: context.fonts.grey14w500),
             ],
           ),
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text("Next Deposit Will Be", style: CustomFonts.grey14w500),
-              Text("Added After 12:00 am", style: CustomFonts.grey14w500),
+              Text("Next Deposit Will Be", style: context.fonts.grey14w500),
+              Text("Added After 12:00 am", style: context.fonts.grey14w500),
             ],
           ),
         ],
@@ -244,15 +246,15 @@ class PaymentAndWalletScreen extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 SvgAssets.filter,
-                height: context.h(12.7),
-                width: context.w(13.3),
+                height: context.h(13),
+                width: context.w(13),
                 colorFilter: const ColorFilter.mode(
                   CustomColors.grey,
                   BlendMode.srcIn,
                 ),
               ),
               SizedBox(width: context.w(10)),
-              Text("All Status", style: CustomFonts.grey14w500),
+              Text("All Status", style: context.fonts.grey14w500),
               SizedBox(width: context.w(10)),
               Icon(
                 CupertinoIcons.chevron_down,

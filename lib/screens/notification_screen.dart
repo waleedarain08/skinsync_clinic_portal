@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
@@ -31,7 +30,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       iconColor: const Color(0xFF4CAF50),
       title: 'Payment Received',
       description:
-          'A payment of \$450 has been successfully processed for treatments.',
+          'A payment of AED 450 has been successfully processed for treatments.',
       dateTime: '10/28/2025, 7:25:00 PM',
       isNew: true,
     ),
@@ -78,23 +77,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button
-              BuildHeader(title: 'Notifications'),
-              SizedBox(height: 16.h),
+              const BuildHeader(title: 'Notifications'),
+              SizedBox(height: context.h(16)),
 
               // Divider
-              Divider(height: 1.h, thickness: 1, color: Colors.grey.shade200),
+              const Divider(height: 1, thickness: 1, color: CustomColors.border),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
 
               // Mark all read button
               Row(
@@ -104,23 +104,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     onTap: _markAllAsRead,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 8.h,
+                        horizontal: context.w(12),
+                        vertical: context.h(8),
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.r),
+                        color: CustomColors.white,
+                        borderRadius: BorderRadius.circular(context.r(10)),
                       ),
-
                       child: Row(
                         children: [
                           Icon(
                             Icons.check_circle_outline,
-                            size: 20.sp,
+                            size: context.r(20),
                             color: Colors.black87,
                           ),
-                          SizedBox(width: 6.w),
-                          Text('Mark all read', style: CustomFonts.black18w600),
+                          SizedBox(width: context.w(6)),
+                          Text('Mark all read', style: context.fonts.black18w600),
                         ],
                       ),
                     ),
@@ -128,24 +127,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ],
               ),
 
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
 
               // Notifications Container
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(16.r),
+                  padding: EdgeInsets.all(context.r(16)),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Colors.grey.shade200, width: 1),
+                    color: CustomColors.white,
+                    borderRadius: BorderRadius.circular(context.r(8)),
+                    border: Border.all(color: CustomColors.border, width: 1),
                   ),
                   child: ListView.separated(
                     itemCount: notifications.length,
                     separatorBuilder: (context, index) => Divider(
-                      height: 24.h,
+                      height: context.h(24),
                       thickness: 1,
-                      color: Colors.grey.shade100,
+                      color: CustomColors.softGrey,
                     ),
                     itemBuilder: (context, index) {
                       return _buildNotificationItem(notifications[index]);
@@ -162,17 +161,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildNotificationItem(NotificationModel notification) {
     return Container(
-      padding: EdgeInsets.all(10.w),
+      padding: EdgeInsets.all(context.w(10)),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200, width: 1),
+        color: CustomColors.softGrey,
+        borderRadius: BorderRadius.circular(context.r(16)),
+        border: Border.all(color: CustomColors.border, width: 1),
       ),
       child: Row(
         children: [
           // Icon
           Container(
-            padding: EdgeInsets.all(10.r),
+            padding: EdgeInsets.all(context.r(10)),
             decoration: BoxDecoration(
               color: notification.iconBgColor,
               shape: BoxShape.circle,
@@ -180,42 +179,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: Icon(
               notification.icon,
               color: notification.iconColor,
-              size: 20.sp,
+              size: context.r(20),
             ),
           ),
 
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
 
           // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(notification.title, style: CustomFonts.black16w600),
-                SizedBox(height: 4.h),
-                Text(notification.description, style: CustomFonts.grey16w400),
-                SizedBox(height: 4.h),
-                Text(notification.dateTime, style: CustomFonts.grey16w400),
+                Text(notification.title, style: context.fonts.black16w600),
+                SizedBox(height: context.h(4)),
+                Text(notification.description, style: context.fonts.grey16w400),
+                SizedBox(height: context.h(4)),
+                Text(notification.dateTime, style: context.fonts.grey16w400),
               ],
             ),
           ),
 
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
 
           // New Badge
           if (notification.isNew)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              padding: EdgeInsets.symmetric(horizontal: context.w(10), vertical: context.h(4)),
               decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(4.r),
+                color: CustomColors.black,
+                borderRadius: BorderRadius.circular(context.r(4)),
               ),
               child: Text(
                 'New',
-                style: TextStyle(
-                  fontSize: 11.sp,
+                style: context.fonts.white10w600.copyWith(
+                  fontSize: context.sp(11),
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
                 ),
               ),
             ),

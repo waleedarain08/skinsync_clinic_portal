@@ -24,10 +24,11 @@ class PatientSelectionTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
+        color: CustomColors.white,
         borderRadius: BorderRadius.circular(context.r(15)),
         border: Border.all(
           color: isSelected ? CustomColors.purple : CustomColors.border,
-          width: isSelected ? context.r(2) : context.r(1),
+          width: isSelected ? 2 : 1,
         ),
       ),
       child: Row(
@@ -55,9 +56,9 @@ class PatientSelectionTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SelectableText(title, style: CustomFonts.black20w600),
+                SelectableText(title, style: context.fonts.black20w600),
                 if (subTitle != null)
-                  SelectableText(subTitle ?? "", style: CustomFonts.black13w400),
+                  SelectableText(subTitle ?? "", style: context.fonts.black13w400),
               ],
             ),
           ),
@@ -70,7 +71,11 @@ class PatientSelectionTile extends StatelessWidget {
     return CircleAvatar(
       radius: context.w(63) / 2,
       backgroundColor: CustomColors.softGrey,
-      child: Icon(Icons.person, size: context.r(30), color: CustomColors.grey),
+      child: Icon(
+        Icons.person,
+        size: context.r(30),
+        color: CustomColors.grey,
+      ),
     );
   }
 }

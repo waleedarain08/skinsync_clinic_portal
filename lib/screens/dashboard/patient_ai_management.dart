@@ -19,13 +19,14 @@ class _PatientAiManagementScreenState extends State<PatientAiManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: context.h(20)),
-            Text('Patient Management', style: CustomFonts.black20w600),
+            Text('Patient Management', style: context.fonts.black20w600),
             SizedBox(height: context.h(14)),
             const Divider(color: CustomColors.border),
             SizedBox(height: context.h(50)),
@@ -34,7 +35,7 @@ class _PatientAiManagementScreenState extends State<PatientAiManagementScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       patientSelection(context),
-                      SizedBox(width: context.w(28.9)),
+                      SizedBox(width: context.w(24)),
                       const Expanded(
                         child: PatientMangementWidget(),
                       ),
@@ -43,7 +44,7 @@ class _PatientAiManagementScreenState extends State<PatientAiManagementScreen> {
                 : Column(
                     children: [
                       patientSelection(context),
-                      SizedBox(height: context.w(28.9)),
+                      SizedBox(height: context.h(24)),
                       const PatientMangementWidget(),
                     ],
                   ),
@@ -59,9 +60,9 @@ class _PatientAiManagementScreenState extends State<PatientAiManagementScreen> {
       child: Column(
         children: [
           const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
-          SizedBox(height: context.h(14)),
+          SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
             shrinkWrap: true,
             itemCount: 6,
             itemBuilder: (context, index) {

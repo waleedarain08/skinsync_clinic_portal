@@ -6,7 +6,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skinsync_clinic_portal/models/requests/reset_password_request.dart';
 import 'package:skinsync_clinic_portal/models/requests/verify_otp_request.dart';
-import 'package:skinsync_clinic_portal/models/responses/login_response_model.dart';
 import 'package:skinsync_clinic_portal/models/user_model.dart';
 import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
@@ -21,10 +20,17 @@ final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
 );
 
 class AuthViewModel extends BaseViewModel<AuthState> {
-  AuthViewModel._() : super(AuthState());
+  AuthViewModel._();
+
+  @override
+  AuthState build() {
+    init();
+    ref.onDispose(dispose);
+    return AuthState();
+  }
 
   final AuthRepository _authRepository = locator<AuthRepository>();
-  final SecureStorageService _storageServices = SecureStorageService();
+  final SecureStorageService _storageServices = locator<SecureStorageService>();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController currentPasswordController =
@@ -34,6 +40,8 @@ class AuthViewModel extends BaseViewModel<AuthState> {
       TextEditingController();
 
   Future<void> initialize() async {
+    // Ensure state is available
+    await Future.delayed(Duration.zero);
     final token = _storageServices.token;
 
     if (token != null && token.isNotEmpty) {

@@ -3,10 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
-import '../utils/custom_fonts.dart';
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
 import '../widgets/phone_widget.dart';
@@ -54,66 +53,60 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
   Future<void> _pickImage() async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: CustomColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(context.r(16))),
       ),
       builder: (context) => SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(context.w(16)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'Select Image',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                style: context.fonts.black18w600,
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
               ListTile(
                 leading: Container(
-                  padding: EdgeInsets.all(10.w),
+                  padding: EdgeInsets.all(context.w(10)),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8.r),
+                    color: CustomColors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(context.r(8)),
                   ),
                   child: Icon(
                     Icons.photo_library_outlined,
-                    color: Colors.blue,
-                    size: 24.sp,
+                    color: CustomColors.blue,
+                    size: context.r(24),
                   ),
                 ),
                 title: Text(
                   'Choose from Gallery',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: context.fonts.black14w500,
                 ),
                 onTap: () {
                   Navigator.pop(context);
                   _pickFromGallery();
                 },
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: context.h(8)),
               ListTile(
                 leading: Container(
-                  padding: EdgeInsets.all(10.w),
+                  padding: EdgeInsets.all(context.w(10)),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8.r),
+                    color: CustomColors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(context.r(8)),
                   ),
                   child: Icon(
                     Icons.camera_alt_outlined,
-                    color: Colors.green,
-                    size: 24.sp,
+                    color: CustomColors.green,
+                    size: context.r(24),
                   ),
                 ),
                 title: Text(
                   'Take a Photo',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: context.fonts.black14w500,
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -121,26 +114,24 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
                 },
               ),
               if (_selectedImage != null) ...[
-                SizedBox(height: 8.h),
+                SizedBox(height: context.h(8)),
                 ListTile(
                   leading: Container(
-                    padding: EdgeInsets.all(10.w),
+                    padding: EdgeInsets.all(context.w(10)),
                     decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8.r),
+                      color: CustomColors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(context.r(8)),
                     ),
                     child: Icon(
                       Icons.delete_outline,
-                      color: Colors.red,
-                      size: 24.sp,
+                      color: CustomColors.red,
+                      size: context.r(24),
                     ),
                   ),
                   title: Text(
                     'Remove Photo',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red,
+                    style: context.fonts.black14w500.copyWith(
+                      color: CustomColors.red,
                     ),
                   ),
                   onTap: () {
@@ -151,7 +142,7 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
                   },
                 ),
               ],
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
             ],
           ),
         ),
@@ -198,19 +189,19 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFBDBDBD),
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button
-              BuildHeader(title: 'Business Information'),
-              SizedBox(height: 24.h),
+              const BuildHeader(title: 'Business Information'),
+              SizedBox(height: context.h(24)),
               // Main Form Container
               _buildFormContainer(),
             ],
@@ -223,13 +214,13 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
   Widget _buildFormContainer() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(context.w(24)),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: CustomColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -240,45 +231,45 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
         children: [
           // Profile Picture Section
           _buildProfilePictureSection(),
-          SizedBox(height: 24.h),
+          SizedBox(height: context.h(24)),
           // Clinic Name
-          BuildTextField(
+          _buildFormTextField(
             label: 'Clinic Name',
             controller: _clinicNameController,
             hintText: 'Skin Sync Aesthetics',
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Street Address
-          BuildTextField(
+          _buildFormTextField(
             label: 'Street Address',
             controller: _streetAddressController,
             hintText: '123 Medical Plaza, Suite 100',
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // City, State, ZIP Code Row
           Row(
             children: [
               Expanded(
                 flex: 3,
-                child: BuildTextField(
+                child: _buildFormTextField(
                   label: 'City',
                   controller: _cityController,
                   hintText: 'Los Angeles',
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: context.w(16)),
               Expanded(
                 flex: 2,
-                child: BuildTextField(
+                child: _buildFormTextField(
                   label: 'State',
                   controller: _stateController,
                   hintText: 'CA',
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: context.w(16)),
               Expanded(
                 flex: 2,
-                child: BuildTextField(
+                child: _buildFormTextField(
                   label: 'ZIP Code',
                   controller: _zipCodeController,
                   hintText: '90001',
@@ -286,7 +277,7 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
               ),
             ],
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Phone Number, Email Address Row
           Row(
             children: [
@@ -294,15 +285,15 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Phone Number", style: CustomFonts.black18w600),
-                    SizedBox(height: 8.h),
+                    Text("Phone Number", style: context.fonts.black18w600),
+                    SizedBox(height: context.h(8)),
                     PhoneWidget(controller: _phoneNumberController),
                   ],
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: context.w(16)),
               Expanded(
-                child: BuildTextField(
+                child: _buildFormTextField(
                   label: 'Email Address',
                   controller: _emailAddressController,
                   hintText: 'info@skinsyncclinic.com',
@@ -310,23 +301,23 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
               ),
             ],
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Operating Hours
-          BuildTextField(
+          _buildFormTextField(
             label: 'Operating Hours',
             controller: _operatingHoursController,
             hintText: 'Mon-Fri: 9AM-6PM, Sat: 10AM-4PM',
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Clinic Description
-          BuildTextField(
+          _buildFormTextField(
             label: 'Clinic Description',
             controller: _clinicDescriptionController,
             hintText:
                 'Premier aesthetic clinic specializing in non-surgical facial treatments',
             maxLines: 4,
           ),
-          SizedBox(height: 32.h),
+          SizedBox(height: context.h(32)),
           // Buttons Row
           _buildButtonsRow(),
         ],
@@ -348,34 +339,34 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
               gapLength: 4,
             ),
             child: Container(
-              width: 68.w,
-              height: 68.w,
-              padding: EdgeInsets.all(2.w),
+              width: context.w(68),
+              height: context.w(68),
+              padding: EdgeInsets.all(context.w(2)),
               child: Container(
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: CustomColors.white,
                 ),
                 child: _selectedImage != null
                     ? ClipOval(
                         child: kIsWeb
                             ? Image.network(
                                 _selectedImage!.path,
-                                width: 64.w,
-                                height: 64.w,
+                                width: context.w(64),
+                                height: context.w(64),
                                 fit: BoxFit.cover,
                               )
                             : Image.file(
                                 File(_selectedImage!.path),
-                                width: 64.w,
-                                height: 64.w,
+                                width: context.w(64),
+                                height: context.w(64),
                                 fit: BoxFit.cover,
                               ),
                       )
                     : Center(
                         child: Icon(
                           Icons.camera_alt_outlined,
-                          size: 24.sp,
+                          size: context.r(24),
                           color: Colors.black87,
                         ),
                       ),
@@ -383,23 +374,19 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
             ),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: context.w(16)),
         // Text Column
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Profile Picture',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
+              style: context.fonts.black14w600,
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: context.h(4)),
             Text(
               'Upload your profile picture',
-              style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
+              style: context.fonts.grey12w400,
             ),
           ],
         ),
@@ -407,7 +394,7 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
     );
   }
 
-  Widget BuildTextField({
+  Widget _buildFormTextField({
     required String label,
     required TextEditingController controller,
     required String hintText,
@@ -416,33 +403,14 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black18w600),
-        SizedBox(height: 8.h),
+        Text(label, style: context.fonts.black18w600),
+        SizedBox(height: context.h(8)),
         TextFormField(
           controller: controller,
           maxLines: maxLines,
-          style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+          style: context.fonts.black14w400,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-            ),
           ),
         ),
       ],
@@ -460,23 +428,23 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Changes saved successfully!'),
-                  backgroundColor: Colors.green,
+                  backgroundColor: CustomColors.green,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
+              backgroundColor: CustomColors.black,
+              foregroundColor: CustomColors.white,
               padding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
               elevation: 0,
             ),
-            child: Text('Save Changes', style: CustomFonts.white14w600),
+            child: Text('Save Changes', style: context.fonts.white14w600),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: context.w(16)),
         // Cancel Button
         Expanded(
           child: OutlinedButton(
@@ -485,14 +453,14 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
               Navigator.pop(context);
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
+              foregroundColor: CustomColors.black,
               padding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
-              side: BorderSide(color: Colors.grey[300]!, width: 1),
+              side: const BorderSide(color: CustomColors.border, width: 1),
             ),
-            child: Text('Cancel', style: CustomFonts.black14w500),
+            child: Text('Cancel', style: context.fonts.black14w500),
           ),
         ),
       ],

@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:skinsync_clinic_portal/screens/create_staff_screen.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
 
 import '../../../utils/assets.dart';
@@ -79,37 +77,41 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(20),
+          vertical: context.h(16),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Manage Staff", style: CustomFonts.black20w600),
+                Text("Manage Staff", style: context.fonts.black20w600),
                 IconButton(
                   onPressed: () {
                     context.pushNamed(CreateStaffScreen.routeName);
                   },
                   icon: SvgPicture.asset(
                     SvgAssets.plus,
-                    width: 30.h,
-                    height: 30.h,
+                    width: context.h(30),
+                    height: context.h(30),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 14.h),
-            Divider(color: Colors.grey.shade300),
-            SizedBox(height: 50.h),
+            SizedBox(height: context.h(14)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(50)),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 patientSelection(),
-                SizedBox(width: 28.9.w),
+                SizedBox(width: context.w(24)),
                 Expanded(child: rightSideContent()),
               ],
             ),
@@ -125,11 +127,11 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         patientInfo(context: context),
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(20)),
         medicalInfo(context: context),
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(20)),
         calendarAndTimeOffTap(),
-        SizedBox(height: 20.h),
+        SizedBox(height: context.h(20)),
       ],
     );
   }
@@ -137,10 +139,11 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
   Widget calendarAndTimeOffTap() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,19 +163,19 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                       child: Text(
                         "Schedule",
                         style: isSchedule
-                            ? CustomFonts.black20w600
-                            : CustomFonts.grey18w400,
+                            ? context.fonts.black20w600
+                            : context.fonts.grey18w400,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: context.h(4)),
                     Divider(
-                      height: 2.h,
-                      color: isSchedule ? Colors.black : Colors.grey.shade500,
+                      height: context.h(2),
+                      color: isSchedule ? CustomColors.black : CustomColors.grey,
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 20.w),
+              SizedBox(width: context.w(20)),
               Expanded(
                 child: Column(
                   children: [
@@ -185,31 +188,31 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
                       child: Text(
                         "Time Off",
                         style: !isSchedule
-                            ? CustomFonts.black20w600
-                            : CustomFonts.grey18w400,
+                            ? context.fonts.black20w600
+                            : context.fonts.grey18w400,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: context.h(4)),
                     Divider(
-                      height: 2.h,
-                      color: !isSchedule ? Colors.black : Colors.grey.shade500,
+                      height: context.h(2),
+                      color: !isSchedule ? CustomColors.black : CustomColors.grey,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           if (isSchedule) scheduleTap(),
           if (!isSchedule) timeOffTap(),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {},
-              child: Text("Save Schedule"),
+              child: const Text("Save Schedule"),
             ),
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
         ],
       ),
     );
@@ -220,63 +223,70 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
       children: [
         Row(
           children: [
-            Text("18 Dec, 2020", style: CustomFonts.black20w600),
-            SizedBox(width: 24.w),
-            Expanded(child: Divider(color: Colors.grey.shade300)),
-            SizedBox(width: 9.w),
+            Text("18 Dec, 2020", style: context.fonts.black20w600),
+            SizedBox(width: context.w(24)),
+            const Expanded(child: Divider(color: CustomColors.border)),
+            SizedBox(width: context.w(9)),
             Icon(
               Icons.delete_outline_rounded,
-              size: 31.sp,
-              color: CustomColors.border,
+              size: context.sp(31),
+              color: CustomColors.red,
             ),
           ],
         ),
+        SizedBox(height: context.h(16)),
         Row(
           children: [
-            GestureDetector(
-              onTap: () => pickTime(isStart: true, isScheduleTab: false),
-              child: Container(
-                width: 182.w,
-                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Text(
-                  timeOffStartDateTime == null
-                      ? "Select Start Time"
-                      : formatDateTime(timeOffStartDateTime),
-                  style: timeOffStartDateTime == null
-                      ? CustomFonts.grey18w400
-                      : CustomFonts.black14w500,
+            Expanded(
+              child: GestureDetector(
+                onTap: () => pickTime(isStart: true, isScheduleTab: false),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.w(18),
+                    vertical: context.h(14),
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(context.r(10)),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                  child: Text(
+                    timeOffStartDateTime == null
+                        ? "Select Start Time"
+                        : formatDateTime(timeOffStartDateTime),
+                    style: timeOffStartDateTime == null
+                        ? context.fonts.grey18w400
+                        : context.fonts.black14w500,
+                  ),
                 ),
               ),
             ),
-
-            SizedBox(width: 10.w),
-
-            GestureDetector(
-              onTap: () => pickTime(isStart: false, isScheduleTab: false),
-              child: Container(
-                width: 182.w,
-                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Text(
-                  timeOffEndDateTime == null
-                      ? "Select End Time"
-                      : formatDateTime(timeOffEndDateTime),
-                  style: timeOffEndDateTime == null
-                      ? CustomFonts.grey18w400
-                      : CustomFonts.black14w500,
+            SizedBox(width: context.w(10)),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => pickTime(isStart: false, isScheduleTab: false),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.w(18),
+                    vertical: context.h(14),
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(context.r(10)),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                  child: Text(
+                    timeOffEndDateTime == null
+                        ? "Select End Time"
+                        : formatDateTime(timeOffEndDateTime),
+                    style: timeOffEndDateTime == null
+                        ? context.fonts.grey18w400
+                        : context.fonts.black14w500,
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: context.h(20)),
       ],
     );
   }
@@ -288,22 +298,22 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
         Expanded(
           child: Theme(
             data: Theme.of(context).copyWith(
-              textTheme: Theme.of(
-                context,
-              ).textTheme.copyWith(bodyLarge: CustomFonts.black20w600),
-              colorScheme: ColorScheme.light(
+              textTheme: Theme.of(context).textTheme.copyWith(
+                    bodyLarge: context.fonts.black20w600,
+                  ),
+              colorScheme: const ColorScheme.light(
                 primary: CustomColors.purple,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
+                onPrimary: CustomColors.white,
+                onSurface: CustomColors.black,
               ),
               textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(foregroundColor: Colors.black),
+                style: TextButton.styleFrom(foregroundColor: CustomColors.black),
               ),
             ),
             child: ClipRect(
               child: Align(
                 alignment: Alignment.topCenter,
-                heightFactor: 0.80, // 🔥 trims bottom internal padding
+                heightFactor: 0.80,
                 child: CalendarDatePicker(
                   initialDate: DateTime.now(),
                   firstDate: DateTime.now(),
@@ -319,60 +329,58 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
             ),
           ),
         ),
-
+        SizedBox(width: context.w(20)),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(getSelectedDayName(), style: CustomFonts.black20w600),
-              SizedBox(height: 4.h),
-              Divider(color: Colors.grey.shade300),
-              SizedBox(height: 20.h),
+              Text(getSelectedDayName(), style: context.fonts.black20w600),
+              SizedBox(height: context.h(4)),
+              const Divider(color: CustomColors.border),
+              SizedBox(height: context.h(20)),
               // START TIME
               GestureDetector(
                 onTap: () => pickTime(isStart: true, isScheduleTab: true),
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(
-                    horizontal: 18.w,
-                    vertical: 14.h,
+                    horizontal: context.w(18),
+                    vertical: context.h(14),
                   ),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(context.r(10)),
+                    border: Border.all(color: CustomColors.border),
                   ),
                   child: Text(
                     scheduleStartDateTime == null
                         ? "Select Start Time"
                         : formatDateTime(scheduleStartDateTime),
                     style: scheduleStartDateTime == null
-                        ? CustomFonts.grey18w400
-                        : CustomFonts.black14w500,
+                        ? context.fonts.grey18w400
+                        : context.fonts.black14w500,
                   ),
                 ),
               ),
-
-              SizedBox(height: 10.h),
-
+              SizedBox(height: context.h(10)),
               GestureDetector(
                 onTap: () => pickTime(isStart: false, isScheduleTab: true),
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(
-                    horizontal: 18.w,
-                    vertical: 14.h,
+                    horizontal: context.w(18),
+                    vertical: context.h(14),
                   ),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(context.r(10)),
+                    border: Border.all(color: CustomColors.border),
                   ),
                   child: Text(
                     scheduleEndDateTime == null
                         ? "Select End Time"
                         : formatDateTime(scheduleEndDateTime),
                     style: scheduleEndDateTime == null
-                        ? CustomFonts.grey18w400
-                        : CustomFonts.black14w500,
+                        ? context.fonts.grey18w400
+                        : context.fonts.black14w500,
                   ),
                 ),
               ),
@@ -386,37 +394,44 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
   Widget medicalInfo({required BuildContext context}) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Services", style: CustomFonts.black20w600),
-          SizedBox(height: 20.h),
+          Text("Services", style: context.fonts.black20w600),
+          SizedBox(height: context.h(20)),
           Wrap(
-            spacing: 10.w,
-            runSpacing: 10.h,
+            spacing: context.w(10),
+            runSpacing: context.h(10),
             children: List.generate(7, (index) {
               return Container(
-                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 14.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(12),
+                  vertical: context.h(10),
+                ),
                 decoration: BoxDecoration(
                   color: CustomColors.softGrey,
-                  borderRadius: BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(context.r(10)),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min, // 👈 important
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     SvgPicture.asset(
                       SvgAssets.stethoscope,
-                      height: 17.h,
-                      width: 17.w,
-                      color: Colors.black,
+                      height: context.h(17),
+                      width: context.w(17),
+                      colorFilter: const ColorFilter.mode(
+                        CustomColors.black,
+                        BlendMode.srcIn,
+                      ),
                     ),
-                    SizedBox(width: 6.w),
-                    Text("Laser Treatments", style: CustomFonts.black14w500),
+                    SizedBox(width: context.w(6)),
+                    Text("Laser Treatments", style: context.fonts.black14w500),
                   ],
                 ),
               );
@@ -429,31 +444,39 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
 
   Widget patientInfo({required BuildContext context}) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
+      child: Row(
         children: [
-          Row(
-            children: [
-              ClipOval(
-                child: Image.asset(PngAssets.person, height: 96.w, width: 96.w),
-              ),
-              SizedBox(width: 15.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Charmaine Arnaud", style: CustomFonts.black18w600),
-                  Text("Doctor", style: CustomFonts.grey16w400),
-                ],
-              ),
-              Spacer(),
-              Text("Remove", style: CustomFonts.black14w600.copyWith(color: CustomColors.purple, decoration: TextDecoration.underline)),
-            ],
+          ClipOval(
+            child: Image.asset(
+              PngAssets.person,
+              height: context.r(80),
+              width: context.r(80),
+              fit: BoxFit.cover,
+            ),
+          ),
+          SizedBox(width: context.w(15)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Charmaine Arnaud", style: context.fonts.black18w600),
+                SizedBox(height: context.h(4)),
+                Text("Doctor", style: context.fonts.grey14w400),
+              ],
+            ),
+          ),
+          Text(
+            "Remove",
+            style: context.fonts.black14w600.copyWith(
+              color: CustomColors.purple,
+              decoration: TextDecoration.underline,
+            ),
           ),
         ],
       ),
@@ -462,17 +485,17 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
 
   Widget patientSelection() {
     return SizedBox(
-      width: 386.w,
+      width: context.w(386),
       child: Column(
         children: [
-          CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
-          SizedBox(height: 14.h),
+          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: 15.h),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
             shrinkWrap: true,
             itemCount: 4,
             itemBuilder: (context, index) {
-              return PatientSelectionTile(title: "Sarah Johnson");
+              return const PatientSelectionTile(title: "Sarah Johnson");
             },
           ),
         ],

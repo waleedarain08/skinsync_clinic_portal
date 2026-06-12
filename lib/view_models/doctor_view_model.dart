@@ -14,10 +14,20 @@ import '../services/doctor_service.dart';
 import '../utils/enums.dart';
 import 'base_view_model.dart';
 
-final doctorProvider = NotifierProvider.autoDispose(() => DoctorViewModel._());
+final doctorProvider =
+    NotifierProvider.autoDispose<DoctorViewModel, DoctorState>(
+  () => DoctorViewModel._(),
+);
 
 class DoctorViewModel extends BaseViewModel<DoctorState> {
-  DoctorViewModel._() : super(const DoctorState());
+  DoctorViewModel._();
+
+  @override
+  DoctorState build() {
+    init();
+    ref.onDispose(dispose);
+    return const DoctorState();
+  }
 
   void changeRole(DoctorRole? role) {
     if (state.role == role) {

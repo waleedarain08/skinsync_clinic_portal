@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
 import 'package:skinsync_clinic_portal/utils/clinic_dummy_data.dart';
 import 'package:skinsync_clinic_portal/view_models/clinic_add_treatment_view_model.dart';
+
+import '../utils/responsive.dart';
 
 class ClinicAddTreatmentScreen extends ConsumerStatefulWidget {
   const ClinicAddTreatmentScreen({super.key});
@@ -129,7 +128,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           children: [
             // Top Header Bar
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              padding: EdgeInsets.symmetric(horizontal: context.w(20), vertical: context.h(16)),
               child: const BuildHeader(title: 'Add Treatment'),
             ),
             
@@ -150,8 +149,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
       children: [
         // Left Sidebar Stepper
         Container(
-          width: 260.w,
-          color: Colors.white,
+          width: context.w(260),
+          color: CustomColors.white,
           child: ListView.builder(
             itemCount: _steps.length,
             itemBuilder: (context, idx) {
@@ -160,16 +159,16 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
               return InkWell(
                 onTap: () => notifier.setStep(idx),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(horizontal: context.w(20), vertical: context.h(16)),
                   color: isActive ? CustomColors.palePurple : Colors.transparent,
                   child: Row(
                     children: [
                       Container(
-                        width: 24.r,
-                        height: 24.r,
+                        width: context.r(24),
+                        height: context.r(24),
                         decoration: BoxDecoration(
                           color: isActive
-                              ? Colors.black
+                              ? CustomColors.black
                               : isCompleted
                                   ? CustomColors.green
                                   : Colors.grey.shade200,
@@ -177,25 +176,25 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         ),
                         child: Center(
                           child: isCompleted
-                              ? Icon(Icons.check, color: Colors.white, size: 14.r)
+                              ? Icon(Icons.check, color: CustomColors.white, size: context.r(14))
                               : Text(
                                   "${idx + 1}",
                                   style: TextStyle(
-                                    color: isActive ? Colors.white : Colors.grey.shade700,
-                                    fontSize: 11.sp,
+                                    color: isActive ? CustomColors.white : Colors.grey.shade700,
+                                    fontSize: context.sp(11),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                         ),
                       ),
-                      SizedBox(width: 12.w),
+                      SizedBox(width: context.w(12)),
                       Expanded(
                         child: Text(
                           _steps[idx],
                           style: TextStyle(
-                            color: isActive ? Colors.black : Colors.grey.shade600,
+                            color: isActive ? CustomColors.black : Colors.grey.shade600,
                             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 13.sp,
+                            fontSize: context.sp(13),
                           ),
                         ),
                       ),
@@ -210,14 +209,14 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         // Right Active Form View
         Expanded(
           child: Container(
-            margin: EdgeInsets.all(24.w),
-            padding: EdgeInsets.all(24.w),
+            margin: EdgeInsets.all(context.w(24)),
+            padding: EdgeInsets.all(context.w(24)),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
+              color: CustomColors.white,
+              borderRadius: BorderRadius.circular(context.r(12)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: CustomColors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -250,8 +249,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
       children: [
         // Horizontal scrollable step list for Mobile
         Container(
-          height: 60.h,
-          color: Colors.white,
+          height: context.h(60),
+          color: CustomColors.white,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _steps.length,
@@ -261,24 +260,24 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
               return GestureDetector(
                 onTap: () => notifier.setStep(idx),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  padding: EdgeInsets.symmetric(horizontal: context.w(16)),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: isActive ? Colors.black : Colors.transparent,
-                        width: 2.h,
+                        color: isActive ? CustomColors.black : Colors.transparent,
+                        width: context.h(2),
                       ),
                     ),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 20.r,
-                        height: 20.r,
+                        width: context.r(20),
+                        height: context.r(20),
                         decoration: BoxDecoration(
                           color: isActive
-                              ? Colors.black
+                              ? CustomColors.black
                               : isCompleted
                                   ? CustomColors.green
                                   : Colors.grey.shade200,
@@ -286,24 +285,24 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         ),
                         child: Center(
                           child: isCompleted
-                              ? Icon(Icons.check, color: Colors.white, size: 12.r)
+                              ? Icon(Icons.check, color: CustomColors.white, size: context.r(12))
                               : Text(
                                   "${idx + 1}",
                                   style: TextStyle(
-                                    color: isActive ? Colors.white : Colors.grey.shade700,
-                                    fontSize: 10.sp,
+                                    color: isActive ? CustomColors.white : Colors.grey.shade700,
+                                    fontSize: context.sp(10),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: context.w(8)),
                       Text(
                         _steps[idx],
                         style: TextStyle(
-                          color: isActive ? Colors.black : Colors.grey.shade600,
+                          color: isActive ? CustomColors.black : Colors.grey.shade600,
                           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 12.sp,
+                          fontSize: context.sp(12),
                         ),
                       ),
                     ],
@@ -317,14 +316,14 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         // Scrollable content area below steps
         Expanded(
           child: Container(
-            margin: EdgeInsets.all(16.w),
-            padding: EdgeInsets.all(16.w),
+            margin: EdgeInsets.all(context.w(16)),
+            padding: EdgeInsets.all(context.w(16)),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
+              color: CustomColors.white,
+              borderRadius: BorderRadius.circular(context.r(12)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: CustomColors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -389,7 +388,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     final isDefault = state.stepIsDefault[stepIndex] ?? true;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 24.h),
+      padding: EdgeInsets.only(bottom: context.h(24)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -398,27 +397,27 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             children: [
               Text(
                 "Configuration Mode",
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: Colors.grey.shade500),
+                style: TextStyle(fontSize: context.sp(12), fontWeight: FontWeight.bold, color: Colors.grey.shade500),
               ),
               if (isDefault)
                 Row(
                   children: [
-                    Icon(Icons.lock, color: Colors.grey.shade400, size: 14.r),
-                    SizedBox(width: 4.w),
+                    Icon(Icons.lock, color: Colors.grey.shade400, size: context.r(14)),
+                    SizedBox(width: context.w(4)),
                     Text(
                       "Inherited from Admin Default",
-                      style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
+                      style: TextStyle(fontSize: context.sp(11), color: Colors.grey.shade500),
                     )
                   ],
                 ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.h(8)),
           Container(
-            padding: EdgeInsets.all(4.r),
+            padding: EdgeInsets.all(context.r(4)),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(context.r(8)),
               border: Border.all(color: Colors.grey.shade200),
             ),
             child: Row(
@@ -427,14 +426,14 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                   child: InkWell(
                     onTap: () => notifier.setStepIsDefault(stepIndex, true),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      padding: EdgeInsets.symmetric(vertical: context.h(8)),
                       decoration: BoxDecoration(
-                        color: isDefault ? Colors.white : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6.r),
+                        color: isDefault ? CustomColors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(context.r(6)),
                         boxShadow: isDefault
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: CustomColors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                   offset: const Offset(0, 1),
                                 )
@@ -445,9 +444,9 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         child: Text(
                           "Use Admin Default",
                           style: TextStyle(
-                            color: isDefault ? Colors.black : Colors.grey.shade600,
+                            color: isDefault ? CustomColors.black : Colors.grey.shade600,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12.sp,
+                            fontSize: context.sp(12),
                           ),
                         ),
                       ),
@@ -458,14 +457,14 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                   child: InkWell(
                     onTap: () => notifier.setStepIsDefault(stepIndex, false),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      padding: EdgeInsets.symmetric(vertical: context.h(8)),
                       decoration: BoxDecoration(
-                        color: !isDefault ? Colors.white : Colors.transparent,
-                        borderRadius: BorderRadius.circular(6.r),
+                        color: !isDefault ? CustomColors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(context.r(6)),
                         boxShadow: !isDefault
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: CustomColors.black.withValues(alpha: 0.05),
                                   blurRadius: 4,
                                   offset: const Offset(0, 1),
                                 )
@@ -476,9 +475,9 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         child: Text(
                           "Custom Configuration",
                           style: TextStyle(
-                            color: !isDefault ? Colors.black : Colors.grey.shade600,
+                            color: !isDefault ? CustomColors.black : Colors.grey.shade600,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12.sp,
+                            fontSize: context.sp(12),
                           ),
                         ),
                       ),
@@ -499,19 +498,19 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Select Treatment Template", style: CustomFonts.black20w600),
-        SizedBox(height: 8.h),
+        Text("Select Treatment Template", style: context.fonts.black20w600),
+        SizedBox(height: context.h(8)),
         Text(
           "Choose a baseline medical treatment. This will import standard settings which can then be customized.",
-          style: CustomFonts.grey14w400,
+          style: context.fonts.grey14w400,
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: context.h(20)),
 
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: ClinicDummyData.templates.length,
-          separatorBuilder: (_, __) => SizedBox(height: 12.h),
+          separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
           itemBuilder: (context, index) {
             final temp = ClinicDummyData.templates[index];
             final isSelected = state.selectedTemplate?.id == temp.id;
@@ -519,12 +518,12 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             return InkWell(
               onTap: () => notifier.selectTemplate(temp),
               child: Container(
-                padding: EdgeInsets.all(16.r),
+                padding: EdgeInsets.all(context.r(16)),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.black.withOpacity(0.02) : Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
+                  color: isSelected ? CustomColors.black.withValues(alpha: 0.02) : CustomColors.white,
+                  borderRadius: BorderRadius.circular(context.r(10)),
                   border: Border.all(
-                    color: isSelected ? Colors.black : Colors.grey.shade300,
+                    color: isSelected ? CustomColors.black : Colors.grey.shade300,
                     width: isSelected ? 1.5 : 1.0,
                   ),
                 ),
@@ -537,40 +536,40 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         children: [
                           Row(
                             children: [
-                              Text(temp.name, style: CustomFonts.black16w600),
-                              SizedBox(width: 8.w),
+                              Text(temp.name, style: context.fonts.black16w600),
+                              SizedBox(width: context.w(8)),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                                padding: EdgeInsets.symmetric(horizontal: context.w(8), vertical: context.h(2)),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(4.r),
+                                  borderRadius: BorderRadius.circular(context.r(4)),
                                 ),
                                 child: Text(
                                   temp.category,
-                                  style: TextStyle(fontSize: 10.sp, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+                                  style: TextStyle(fontSize: context.sp(10), color: Colors.grey.shade700, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 6.h),
-                          Text(temp.description, style: CustomFonts.grey12w400),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: context.h(6)),
+                          Text(temp.description, style: context.fonts.grey12w400),
+                          SizedBox(height: context.h(8)),
                           Row(
                             children: [
-                              Text("UOM: ", style: TextStyle(fontSize: 11.sp, color: Colors.grey, fontWeight: FontWeight.bold)),
-                              Text(temp.products.firstOrNull?.product.uom ?? "Unit", style: TextStyle(fontSize: 11.sp, color: Colors.black)),
-                              SizedBox(width: 16.w),
-                              Text("Base price: ", style: TextStyle(fontSize: 11.sp, color: Colors.grey, fontWeight: FontWeight.bold)),
-                              Text("\$${temp.basePrice.toStringAsFixed(2)}", style: TextStyle(fontSize: 11.sp, color: Colors.black)),
+                              Text("UOM: ", style: TextStyle(fontSize: context.sp(11), color: Colors.grey, fontWeight: FontWeight.bold)),
+                              Text(temp.products.firstOrNull?.product.uom ?? "Unit", style: TextStyle(fontSize: context.sp(11), color: CustomColors.black)),
+                              SizedBox(width: context.w(16)),
+                              Text("Base price: ", style: TextStyle(fontSize: context.sp(11), color: Colors.grey, fontWeight: FontWeight.bold)),
+                              Text("\$${temp.basePrice.toStringAsFixed(2)}", style: TextStyle(fontSize: context.sp(11), color: CustomColors.black)),
                             ],
                           ),
                         ],
                       ),
                     ),
                     if (isSelected)
-                      Icon(Icons.check_circle, color: Colors.black, size: 24.r)
+                      Icon(Icons.check_circle, color: CustomColors.black, size: context.r(24))
                     else
-                      Icon(Icons.circle_outlined, color: Colors.grey.shade300, size: 24.r),
+                      Icon(Icons.circle_outlined, color: Colors.grey.shade300, size: context.r(24)),
                   ],
                 ),
               ),
@@ -579,23 +578,23 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         ),
 
         if (state.selectedTemplate != null) ...[
-          SizedBox(height: 24.h),
+          SizedBox(height: context.h(24)),
           const Divider(),
-          SizedBox(height: 16.h),
-          Text("Inherited Structural Metadata", style: CustomFonts.black16w600),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.h(16)),
+          Text("Inherited Structural Metadata", style: context.fonts.black16w600),
+          SizedBox(height: context.h(12)),
           Row(
             children: [
               Expanded(
                 child: _buildReadonlyLabelValue("Category", state.selectedTemplate!.category),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: context.w(16)),
               Expanded(
                 child: _buildReadonlyLabelValue("Subcategory", state.selectedTemplate!.subcategory),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: context.h(12)),
           _buildReadonlyLabelValue("Global SKU Identifier", state.selectedTemplate!.sku),
         ],
       ],
@@ -604,18 +603,18 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
 
   Widget _buildReadonlyLabelValue(String label, String value) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(10)),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(6.r),
+        borderRadius: BorderRadius.circular(context.r(6)),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 10.sp, color: Colors.grey, fontWeight: FontWeight.bold)),
-          SizedBox(height: 4.h),
-          Text(value, style: TextStyle(fontSize: 13.sp, color: Colors.black87, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(fontSize: context.sp(10), color: Colors.grey, fontWeight: FontWeight.bold)),
+          SizedBox(height: context.h(4)),
+          Text(value, style: TextStyle(fontSize: context.sp(13), color: Colors.black87, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -630,8 +629,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Basic Information", style: CustomFonts.black20w600),
-        SizedBox(height: 16.h),
+        Text("Basic Information", style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(1, state),
         
         BuildTextField(
@@ -643,7 +642,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updateBasicInfo(name: val),
           validator: (val) => val == null || val.isEmpty ? "Name is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         BuildTextField(
           label: 'Patient-Facing Display Name',
           controller: _displayNameController,
@@ -653,7 +652,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updateBasicInfo(patientDisplayName: val),
           validator: (val) => val == null || val.isEmpty ? "Display name is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         BuildTextField(
           label: 'Description',
           controller: _descController,
@@ -663,7 +662,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           enabled: !isDefault,
           onChanged: (val) => notifier.updateBasicInfo(description: val),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildDropdownSelector(
           label: "Status",
           value: state.effectiveStatus,
@@ -690,69 +689,69 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Sessions Structure", style: CustomFonts.black20w600),
+            Text("Sessions Structure", style: context.fonts.black20w600),
             if (!isDefault)
               ElevatedButton.icon(
                 onPressed: () => notifier.addSession(),
-                icon: Icon(Icons.add, size: 16.r, color: Colors.white),
-                label: Text("Add Session", style: TextStyle(fontSize: 12.sp, color: Colors.white)),
+                icon: Icon(Icons.add, size: context.r(16), color: CustomColors.white),
+                label: Text("Add Session", style: TextStyle(fontSize: context.sp(12), color: CustomColors.white)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.r)),
+                  backgroundColor: CustomColors.black,
+                  padding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(8)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(6))),
                 ),
               ),
           ],
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(2, state),
 
         if (list.isEmpty)
           Container(
-            padding: EdgeInsets.all(24.r),
+            padding: EdgeInsets.all(context.r(24)),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(context.r(8)),
               border: Border.all(color: Colors.grey.shade200),
             ),
-            child: Text("No sessions configured.", style: CustomFonts.grey14w400),
+            child: Text("No sessions configured.", style: context.fonts.grey14w400),
           )
         else
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: list.length,
-            separatorBuilder: (_, __) => SizedBox(height: 12.h),
+            separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
             itemBuilder: (context, idx) {
               final s = list[idx];
               return Container(
-                padding: EdgeInsets.all(16.r),
+                padding: EdgeInsets.all(context.r(16)),
                 decoration: BoxDecoration(
-                  color: isDefault ? Colors.grey.shade50 : Colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
+                  color: isDefault ? Colors.grey.shade50 : CustomColors.white,
+                  borderRadius: BorderRadius.circular(context.r(8)),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(10.r),
-                      decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+                      padding: EdgeInsets.all(context.r(10)),
+                      decoration: const BoxDecoration(color: CustomColors.black, shape: BoxShape.circle),
                       child: Text(
                         "${s.number}",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.sp),
+                        style: TextStyle(color: CustomColors.white, fontWeight: FontWeight.bold, fontSize: context.sp(13)),
                       ),
                     ),
-                    SizedBox(width: 16.w),
+                    SizedBox(width: context.w(16)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Session ${s.number}", style: CustomFonts.black16w600),
-                          SizedBox(height: 4.h),
+                          Text("Session ${s.number}", style: context.fonts.black16w600),
+                          SizedBox(height: context.h(4)),
                           Text(
                             "${s.followUps.length} Clinical Follow-ups Scheduled",
-                            style: CustomFonts.grey12w400,
+                            style: context.fonts.grey12w400,
                           ),
                         ],
                       ),
@@ -760,7 +759,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                     if (!isDefault)
                       IconButton(
                         onPressed: () => notifier.removeSession(idx),
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        icon: const Icon(Icons.delete_outline, color: CustomColors.red),
                       ),
                   ],
                 ),
@@ -781,35 +780,35 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Follow-Up Configuration", style: CustomFonts.black20w600),
-        SizedBox(height: 8.h),
+        Text("Follow-Up Configuration", style: context.fonts.black20w600),
+        SizedBox(height: context.h(8)),
         Text(
           "Schedule virtual or in-person checkups for patients nested inside each target Session.",
-          style: CustomFonts.grey14w400,
+          style: context.fonts.grey14w400,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(3, state),
 
         if (sessions.isEmpty)
           Container(
-            padding: EdgeInsets.all(24.r),
+            padding: EdgeInsets.all(context.r(24)),
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8.r)),
-            child: Text("Please add or select sessions in Step 3 first.", style: CustomFonts.grey14w400),
+            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(context.r(8))),
+            child: Text("Please add or select sessions in Step 3 first.", style: context.fonts.grey14w400),
           )
         else
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: sessions.length,
-            separatorBuilder: (_, __) => SizedBox(height: 20.h),
+            separatorBuilder: (_, __) => SizedBox(height: context.h(20)),
             itemBuilder: (context, sIdx) {
               final session = sessions[sIdx];
               return Container(
-                padding: EdgeInsets.all(16.r),
+                padding: EdgeInsets.all(context.r(16)),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
+                  color: CustomColors.white,
+                  borderRadius: BorderRadius.circular(context.r(10)),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: Column(
@@ -818,23 +817,23 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Session ${session.number} Follow-ups", style: CustomFonts.black16w600),
+                        Text("Session ${session.number} Follow-ups", style: context.fonts.black16w600),
                         if (!isDefault)
                           TextButton.icon(
                             onPressed: () => notifier.addFollowUp(sIdx),
-                            icon: Icon(Icons.add_circle_outline, size: 16.r, color: Colors.black),
-                            label: Text("Add Follow-up", style: TextStyle(fontSize: 12.sp, color: Colors.black, fontWeight: FontWeight.bold)),
+                            icon: Icon(Icons.add_circle_outline, size: context.r(16), color: CustomColors.black),
+                            label: Text("Add Follow-up", style: TextStyle(fontSize: context.sp(12), color: CustomColors.black, fontWeight: FontWeight.bold)),
                           ),
                       ],
                     ),
                     const Divider(),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.h(8)),
 
                     if (session.followUps.isEmpty)
                       Container(
-                        padding: EdgeInsets.all(16.r),
+                        padding: EdgeInsets.all(context.r(16)),
                         alignment: Alignment.center,
-                        child: Text("No follow-ups defined for this session.", style: CustomFonts.grey12w400),
+                        child: Text("No follow-ups defined for this session.", style: context.fonts.grey12w400),
                       )
                     else
                       ListView.separated(
@@ -849,18 +848,18 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.timer_outlined, color: Colors.grey.shade400, size: 18.r),
-                                  SizedBox(width: 8.w),
-                                  Text("Follow-up #${fIdx + 1}", style: CustomFonts.black14w600),
+                                  Icon(Icons.timer_outlined, color: Colors.grey.shade400, size: context.r(18)),
+                                  SizedBox(width: context.w(8)),
+                                  Text("Follow-up #${fIdx + 1}", style: context.fonts.black14w600),
                                   const Spacer(),
                                   if (!isDefault)
                                     IconButton(
                                       onPressed: () => notifier.removeFollowUp(sIdx, fIdx),
-                                      icon: const Icon(Icons.close, color: Colors.red, size: 18),
+                                      icon: const Icon(Icons.close, color: CustomColors.red, size: 18),
                                     ),
                                 ],
                               ),
-                              SizedBox(height: 12.h),
+                              SizedBox(height: context.h(12)),
                               Row(
                                 children: [
                                   Expanded(
@@ -876,7 +875,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                                       },
                                     ),
                                   ),
-                                  SizedBox(width: 16.w),
+                                  SizedBox(width: context.w(16)),
                                   Expanded(
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -892,7 +891,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                                             },
                                           ),
                                         ),
-                                        SizedBox(width: 8.w),
+                                        SizedBox(width: context.w(8)),
                                         Expanded(
                                           flex: 3,
                                           child: _buildDropdownSelector(
@@ -912,20 +911,20 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 12.h),
+                              SizedBox(height: context.h(12)),
                               SwitchListTile(
                                 contentPadding: EdgeInsets.zero,
-                                activeColor: Colors.black,
-                                title: Text("Image Upload Mandatory", style: CustomFonts.black14w500),
-                                subtitle: Text("Patient must take and upload high-res target area photos before booking.", style: CustomFonts.grey12w400),
+                                activeColor: CustomColors.black,
+                                title: Text("Image Upload Mandatory", style: context.fonts.black14w500),
+                                subtitle: Text("Patient must take and upload high-res target area photos before booking.", style: context.fonts.grey12w400),
                                 value: f.isImageUploadMandatory,
                                 onChanged: isDefault ? null : (val) {
                                   notifier.updateFollowUp(sIdx, fIdx, isImageUploadMandatory: val);
                                 },
                               ),
-                              SizedBox(height: 8.h),
-                              Text("Clinical Instructions & Notes", style: CustomFonts.black14w500),
-                              SizedBox(height: 8.h),
+                              SizedBox(height: context.h(8)),
+                              Text("Clinical Instructions & Notes", style: context.fonts.black14w500),
+                              SizedBox(height: context.h(8)),
                               TextFormField(
                                 initialValue: f.clinicalInstructions,
                                 readOnly: isDefault,
@@ -933,7 +932,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                                 maxLines: 2,
                                 decoration: InputDecoration(
                                   hintText: "Enter specific instructions or treatment checkpoints...",
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(6.r)),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(context.r(6))),
                                 ),
                                 onChanged: (val) {
                                   notifier.updateFollowUp(sIdx, fIdx, clinicalInstructions: val);
@@ -962,34 +961,34 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Patient Clinical Consent Forms", style: CustomFonts.black20w600),
-        SizedBox(height: 16.h),
+        Text("Patient Clinical Consent Forms", style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(4, state),
 
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(24.r),
+          padding: EdgeInsets.all(context.r(24)),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10.r),
+            color: CustomColors.white,
+            borderRadius: BorderRadius.circular(context.r(10)),
             border: Border.all(color: Colors.grey.shade300),
           ),
           child: Column(
             children: [
-              Icon(Icons.picture_as_pdf_outlined, size: 60.r, color: Colors.red.shade400),
-              SizedBox(height: 12.h),
+              Icon(Icons.picture_as_pdf_outlined, size: context.r(60), color: Colors.red.shade400),
+              SizedBox(height: context.h(12)),
               Text(
                 consentName.isNotEmpty ? consentName : "No document configured",
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: TextStyle(fontSize: context.sp(15), fontWeight: FontWeight.bold, color: Colors.black87),
               ),
-              SizedBox(height: 6.h),
+              SizedBox(height: context.h(6)),
               Text(
                 "Requires mandatory clinician-patient signatures before physical or chemical work starts.",
-                style: CustomFonts.grey12w400,
+                style: context.fonts.grey12w400,
                 textAlign: TextAlign.center,
               ),
               if (!isDefault) ...[
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 InkWell(
                   onTap: () {
                     // Mock file upload trigger
@@ -1001,18 +1000,18 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(context.r(8)),
                       border: Border.all(color: Colors.grey.shade400, width: 1, style: BorderStyle.solid),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 24.w),
+                    padding: EdgeInsets.symmetric(vertical: context.h(16), horizontal: context.w(24)),
                     width: double.infinity,
                     child: Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.upload_file, size: 18.r),
-                          SizedBox(width: 8.w),
-                          Text("Upload Custom clinical PDF Form", style: CustomFonts.black14w600),
+                          Icon(Icons.upload_file, size: context.r(18)),
+                          SizedBox(width: context.w(8)),
+                          Text("Upload Custom clinical PDF Form", style: context.fonts.black14w600),
                         ],
                       ),
                     ),
@@ -1035,8 +1034,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Pre-Treatment Preparation Alerts", style: CustomFonts.black20w600),
-        SizedBox(height: 16.h),
+        Text("Pre-Treatment Preparation Alerts", style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(5, state),
 
         BuildTextField(
@@ -1048,7 +1047,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updatePreNotification(title: val),
           validator: (val) => val == null || val.isEmpty ? "Title is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         BuildTextField(
           label: "Reminder / Guidance Message",
           controller: _preMsgController,
@@ -1059,7 +1058,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updatePreNotification(message: val),
           validator: (val) => val == null || val.isEmpty ? "Message is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildDropdownSelector(
           label: "Reminder Trigger Timing",
           value: state.effectivePreNotificationTiming,
@@ -1082,8 +1081,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Post-Treatment Aftercare Alerts", style: CustomFonts.black20w600),
-        SizedBox(height: 16.h),
+        Text("Post-Treatment Aftercare Alerts", style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(6, state),
 
         BuildTextField(
@@ -1095,7 +1094,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updatePostNotification(title: val),
           validator: (val) => val == null || val.isEmpty ? "Title is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         BuildTextField(
           label: "Engagement / Recovery Instructions",
           controller: _postMsgController,
@@ -1106,7 +1105,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           onChanged: (val) => notifier.updatePostNotification(message: val),
           validator: (val) => val == null || val.isEmpty ? "Message is required" : null,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildDropdownSelector(
           label: "Engagement Trigger Timing",
           value: state.effectivePostNotificationTiming,
@@ -1130,8 +1129,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Clinical Downtime Level", style: CustomFonts.black20w600),
-        SizedBox(height: 16.h),
+        Text("Clinical Downtime Level", style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(7, state),
 
         GridView.builder(
@@ -1139,8 +1138,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: context.isLandscape ? 4 : 2,
-            crossAxisSpacing: 12.w,
-            mainAxisSpacing: 12.h,
+            crossAxisSpacing: context.w(12),
+            mainAxisSpacing: context.h(12),
             childAspectRatio: 1.3,
           ),
           itemCount: ClinicDummyData.downtimeLevels.length,
@@ -1170,8 +1169,8 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
               onTap: isDefault ? null : () => notifier.updateDowntimeLevel(level),
               child: Container(
                 decoration: BoxDecoration(
-                  color: isSelected ? themeColor.withOpacity(0.06) : Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
+                  color: isSelected ? themeColor.withValues(alpha: 0.06) : CustomColors.white,
+                  borderRadius: BorderRadius.circular(context.r(10)),
                   border: Border.all(
                     color: isSelected ? themeColor : Colors.grey.shade200,
                     width: isSelected ? 2.0 : 1.0,
@@ -1181,23 +1180,23 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 12.r,
-                      height: 12.r,
+                      width: context.r(12),
+                      height: context.r(12),
                       decoration: BoxDecoration(color: themeColor, shape: BoxShape.circle),
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.h(8)),
                     Text(
                       level,
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: context.sp(14),
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.black : Colors.grey.shade600,
+                        color: isSelected ? CustomColors.black : Colors.grey.shade600,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: context.h(4)),
                     Text(
                       _getDowntimeDesc(level),
-                      style: TextStyle(fontSize: 10.sp, color: Colors.grey),
+                      style: TextStyle(fontSize: context.sp(10), color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -1227,24 +1226,24 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Allowed Provider Roles", style: CustomFonts.black20w600),
-        SizedBox(height: 8.h),
-        Text("Which practitioner roles are legally allowed to perform this treatment?", style: CustomFonts.grey14w400),
-        SizedBox(height: 16.h),
+        Text("Allowed Provider Roles", style: context.fonts.black20w600),
+        SizedBox(height: context.h(8)),
+        Text("Which practitioner roles are legally allowed to perform this treatment?", style: context.fonts.grey14w400),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(8, state),
 
         Wrap(
-          spacing: 12.w,
-          runSpacing: 12.h,
+          spacing: context.w(12),
+          runSpacing: context.h(12),
           children: ClinicDummyData.providerRoles.map((role) {
             final isSelected = selectedRoles.contains(role);
             return FilterChip(
               showCheckmark: true,
-              checkmarkColor: Colors.white,
-              selectedColor: Colors.black,
+              checkmarkColor: CustomColors.white,
+              selectedColor: CustomColors.black,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontSize: 13.sp,
+                color: isSelected ? CustomColors.white : Colors.black87,
+                fontSize: context.sp(13),
                 fontWeight: FontWeight.bold,
               ),
               label: Text(role),
@@ -1277,36 +1276,36 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Inventory Products Mapping", style: CustomFonts.black20w600),
+            Text("Inventory Products Mapping", style: context.fonts.black20w600),
             if (!isDefault && remainingProducts.isNotEmpty)
               _buildAddProductMenu(remainingProducts),
           ],
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(9, state),
 
         if (productsList.isEmpty)
           Container(
-            padding: EdgeInsets.all(24.r),
+            padding: EdgeInsets.all(context.r(24)),
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8.r)),
-            child: Text("No required medical stock products matched.", style: CustomFonts.grey14w400),
+            decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(context.r(8))),
+            child: Text("No required medical stock products matched.", style: context.fonts.grey14w400),
           )
         else
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: productsList.length,
-            separatorBuilder: (_, __) => SizedBox(height: 16.h),
+            separatorBuilder: (_, __) => SizedBox(height: context.h(16)),
             itemBuilder: (context, idx) {
               final usage = productsList[idx];
               final p = usage.product;
 
               return Container(
-                padding: EdgeInsets.all(16.r),
+                padding: EdgeInsets.all(context.r(16)),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
+                  color: CustomColors.white,
+                  borderRadius: BorderRadius.circular(context.r(10)),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: Column(
@@ -1318,16 +1317,16 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8.r),
-                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6.r)),
-                              child: Icon(Icons.medication, color: Colors.black87, size: 20.r),
+                              padding: EdgeInsets.all(context.r(8)),
+                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(context.r(6))),
+                              child: Icon(Icons.medication, color: Colors.black87, size: context.r(20)),
                             ),
-                            SizedBox(width: 12.w),
+                            SizedBox(width: context.w(12)),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(p.name, style: CustomFonts.black16w600),
-                                Text("Unit of Measure (UOM): ${p.uom}", style: CustomFonts.grey12w400),
+                                Text(p.name, style: context.fonts.black16w600),
+                                Text("Unit of Measure (UOM): ${p.uom}", style: context.fonts.grey12w400),
                               ],
                             ),
                           ],
@@ -1335,12 +1334,12 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         if (!isDefault)
                           IconButton(
                             onPressed: () => notifier.removeProductUsage(p.id),
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
+                            icon: const Icon(Icons.delete_outline, color: CustomColors.red),
                           ),
                       ],
                     ),
                     const Divider(),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.h(8)),
 
                     // Inputs for customizing usage rules
                     Row(
@@ -1358,7 +1357,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                             },
                           ),
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: context.w(12)),
                         Expanded(
                           child: _buildDropdownSelector(
                             label: "Deduction Timing",
@@ -1374,7 +1373,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         ),
                       ],
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.h(12)),
 
                     // Min and Max Limits based on dynamic UOM label
                     Row(
@@ -1389,7 +1388,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                             },
                           ),
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: context.w(12)),
                         Expanded(
                           child: _buildSimpleNumericFieldDouble(
                             label: "Max Quantity (${p.uom}s)",
@@ -1402,34 +1401,34 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                         ),
                       ],
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: context.h(12)),
 
                     // Allow Substitution
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      activeColor: Colors.black,
-                      title: Text("Allow Clinic Substitutions", style: CustomFonts.black14w500),
-                      subtitle: Text("Clinicians can select equivalent brands if this item is out of stock.", style: CustomFonts.grey12w400),
+                      activeColor: CustomColors.black,
+                      title: Text("Allow Clinic Substitutions", style: context.fonts.black14w500),
+                      subtitle: Text("Clinicians can select equivalent brands if this item is out of stock.", style: context.fonts.grey12w400),
                       value: usage.allowSubstitution,
                       onChanged: isDefault ? null : (val) {
                         notifier.updateProductUsage(p.id, allowSubstitution: val);
                       },
                     ),
 
-                    SizedBox(height: 8.h),
-                    Text("Target Injection/Application Sub-Areas", style: CustomFonts.black14w500),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: context.h(8)),
+                    Text("Target Injection/Application Sub-Areas", style: context.fonts.black14w500),
+                    SizedBox(height: context.h(8)),
                     Wrap(
-                      spacing: 8.w,
-                      runSpacing: 8.h,
-                      children: ["Forehead", "Cheeks", "Glabella", "Crow's Feet", "Lips", "Full Face"].map((area) {
+                      spacing: context.w(8),
+                      runSpacing: context.h(8),
+                      children: const ["Forehead", "Cheeks", "Glabella", "Crow's Feet", "Lips", "Full Face"].map((area) {
                         final isSelected = usage.targetAreas.contains(area);
                         return ChoiceChip(
-                          selectedColor: Colors.black,
-                          checkmarkColor: Colors.white,
+                          selectedColor: CustomColors.black,
+                          checkmarkColor: CustomColors.white,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black87,
-                            fontSize: 11.sp,
+                            color: isSelected ? CustomColors.white : Colors.black87,
+                            fontSize: context.sp(11),
                           ),
                           label: Text(area),
                           selected: isSelected,
@@ -1459,25 +1458,25 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return DropdownButtonHideUnderline(
       child: DropdownButton2<ClinicDummyProduct>(
         customButton: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(8)),
           decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(6.r),
+            color: CustomColors.black,
+            borderRadius: BorderRadius.circular(context.r(6)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add, size: 16.r, color: Colors.white),
-              SizedBox(width: 4.w),
-              Text("Add Product", style: TextStyle(fontSize: 12.sp, color: Colors.white, fontWeight: FontWeight.bold)),
+              Icon(Icons.add, size: context.r(16), color: CustomColors.white),
+              SizedBox(width: context.w(4)),
+              Text("Add Product", style: TextStyle(fontSize: context.sp(12), color: CustomColors.white, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
         dropdownStyleData: DropdownStyleData(
-          width: 250.w,
+          width: context.w(250),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
+            color: CustomColors.white,
+            borderRadius: BorderRadius.circular(context.r(8)),
           ),
         ),
         items: remaining.map((ip) {
@@ -1485,7 +1484,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             value: ip,
             child: Text(
               "${ip.name} (${ip.uom})",
-              style: TextStyle(fontSize: 12.sp),
+              style: TextStyle(fontSize: context.sp(12)),
             ),
           );
         }).toList(),
@@ -1511,10 +1510,10 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Treatment Pricing Blueprint", style: CustomFonts.black20w600),
-        SizedBox(height: 8.h),
-        Text("Define the standard entry session price and custom pricing factors per specific unit of measure.", style: CustomFonts.grey14w400),
-        SizedBox(height: 16.h),
+        Text("Treatment Pricing Blueprint", style: context.fonts.black20w600),
+        SizedBox(height: context.h(8)),
+        Text("Define the standard entry session price and custom pricing factors per specific unit of measure.", style: context.fonts.grey14w400),
+        SizedBox(height: context.h(16)),
         _buildInheritanceToggle(10, state),
 
         BuildTextField(
@@ -1522,7 +1521,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           controller: _basePriceController,
           hintText: "e.g., 150.00",
           keyboardType: TextInputType.number,
-          prefixIcon: const Icon(Icons.attach_money, color: Colors.black),
+          prefixIcon: const Icon(Icons.attach_money, color: CustomColors.black),
           readOnly: isDefault,
           enabled: !isDefault,
           onChanged: (val) {
@@ -1537,21 +1536,21 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         ),
 
         if (uniqueUoms.isNotEmpty) ...[
-          SizedBox(height: 24.h),
+          SizedBox(height: context.h(24)),
           const Divider(),
-          SizedBox(height: 16.h),
-          Text("Dynamic Unit Overrides", style: CustomFonts.black16w600),
-          SizedBox(height: 4.h),
+          SizedBox(height: context.h(16)),
+          Text("Dynamic Unit Overrides", style: context.fonts.black16w600),
+          SizedBox(height: context.h(4)),
           Text(
             "Configure pricing metrics per consumed product unit to automatically calculate patient invoice adjustments.",
-            style: CustomFonts.grey12w400,
+            style: context.fonts.grey12w400,
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: context.h(16)),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: uniqueUoms.length,
-            separatorBuilder: (_, __) => SizedBox(height: 14.h),
+            separatorBuilder: (_, __) => SizedBox(height: context.h(14)),
             itemBuilder: (context, idx) {
               final uom = uniqueUoms[idx];
               final ctrl = _uomControllers[uom];
@@ -1562,7 +1561,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 controller: ctrl,
                 hintText: "e.g., 15.00",
                 keyboardType: TextInputType.number,
-                prefixIcon: const Icon(Icons.attach_money, color: Colors.blue),
+                prefixIcon: const Icon(Icons.attach_money, color: CustomColors.blue),
                 readOnly: isDefault,
                 enabled: !isDefault,
                 onChanged: (val) {
@@ -1588,10 +1587,10 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Review Clinical Treatment Blueprint", style: CustomFonts.black20w600),
-        SizedBox(height: 8.h),
-        Text("Perform a final visual audit of your configuration before saving to your active catalog.", style: CustomFonts.grey14w400),
-        SizedBox(height: 20.h),
+        Text("Review Clinical Treatment Blueprint", style: context.fonts.black20w600),
+        SizedBox(height: context.h(8)),
+        Text("Perform a final visual audit of your configuration before saving to your active catalog.", style: context.fonts.grey14w400),
+        SizedBox(height: context.h(20)),
 
         // Section: Baseline Template
         _buildReviewSectionHeader("Baseline Settings Template"),
@@ -1637,30 +1636,30 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
 
   Widget _buildReviewSectionHeader(String title) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.only(bottom: context.h(8)),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(fontSize: 11.sp, color: Colors.blue.shade700, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+        style: TextStyle(fontSize: context.sp(11), color: Colors.blue.shade700, fontWeight: FontWeight.bold, letterSpacing: 0.8),
       ),
     );
   }
 
   Widget _buildReviewRow(String label, String val) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(vertical: context.h(4)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
-            child: Text(label, style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+            child: Text(label, style: TextStyle(fontSize: context.sp(13), color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
           Expanded(
             flex: 3,
             child: Text(
               val.isEmpty ? "—" : val,
-              style: TextStyle(fontSize: 13.sp, color: Colors.black87, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: context.sp(13), color: Colors.black87, fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -1671,22 +1670,22 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
   // Warning when no template selected
   Widget _buildTemplateWarning() {
     return Container(
-      padding: EdgeInsets.all(24.r),
+      padding: EdgeInsets.all(context.r(24)),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(context.r(8)),
         border: Border.all(color: Colors.red.shade200),
       ),
       child: Column(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.red, size: 40.r),
-          SizedBox(height: 12.h),
-          Text("No Baseline Template Selected", style: CustomFonts.black16w600),
-          SizedBox(height: 6.h),
+          Icon(Icons.warning_amber_rounded, color: CustomColors.red, size: context.r(40)),
+          SizedBox(height: context.h(12)),
+          Text("No Baseline Template Selected", style: context.fonts.black16w600),
+          SizedBox(height: context.h(6)),
           Text(
             "Please navigate to Step 1 and choose a treatment template first.",
-            style: CustomFonts.grey14w400,
+            style: context.fonts.grey14w400,
             textAlign: TextAlign.center,
           ),
         ],
@@ -1704,25 +1703,25 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black14w500),
-        SizedBox(height: 10.h),
+        Text(label, style: context.fonts.black14w500),
+        SizedBox(height: context.h(10)),
         DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
             isExpanded: true,
             hint: Text(
               "Select options",
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
+              style: TextStyle(fontSize: context.sp(14), color: Colors.grey[400]),
             ),
             value: items.contains(value) ? value : null,
             items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: enabled ? onChanged : null,
             buttonStyleData: ButtonStyleData(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              height: context.h(48),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               decoration: BoxDecoration(
-                color: enabled ? Colors.white : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.grey.shade300!),
+                color: enabled ? CustomColors.white : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(context.r(8)),
+                border: Border.all(color: Colors.grey.shade300),
               ),
             ),
           ),
@@ -1740,16 +1739,16 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black12w600),
-        SizedBox(height: 8.h),
+        Text(label, style: context.fonts.black12w600),
+        SizedBox(height: context.h(8)),
         TextFormField(
           initialValue: initialValue.toString(),
           enabled: enabled,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6.r)),
+            contentPadding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(10)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(context.r(6))),
           ),
           onChanged: (val) {
             final parsed = int.tryParse(val) ?? 1;
@@ -1769,16 +1768,16 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: CustomFonts.black12w600),
-        SizedBox(height: 8.h),
+        Text(label, style: context.fonts.black12w600),
+        SizedBox(height: context.h(8)),
         TextFormField(
           initialValue: initialValue.toString(),
           enabled: enabled,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6.r)),
+            contentPadding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(10)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(context.r(6))),
           ),
           onChanged: (val) {
             final parsed = double.tryParse(val) ?? 1.0;
@@ -1801,14 +1800,14 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           OutlinedButton(
             onPressed: () => notifier.prevStep(),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-              side: BorderSide(color: Colors.grey.shade300),
+              foregroundColor: CustomColors.black,
+              padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
+              side: const BorderSide(color: Colors.grey),
             ),
-            child: Text("Previous", style: CustomFonts.black14w600),
+            child: Text("Previous", style: context.fonts.black14w600),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
         ],
         const Spacer(),
         if (!isLast)
@@ -1822,17 +1821,17 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                     }
                   },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 16.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              backgroundColor: CustomColors.black,
+              foregroundColor: CustomColors.white,
+              padding: EdgeInsets.symmetric(horizontal: context.w(30), vertical: context.h(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Next Step", style: CustomFonts.white14w600),
-                SizedBox(width: 8.w),
-                const Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+                Text("Next Step", style: context.fonts.white14w600),
+                SizedBox(width: context.w(8)),
+                const Icon(Icons.arrow_forward, size: 16, color: CustomColors.white),
               ],
             ),
           )
@@ -1840,23 +1839,23 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           OutlinedButton(
             onPressed: () => _handleSave(isDraft: true),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-              side: BorderSide(color: Colors.grey.shade300),
+              foregroundColor: CustomColors.black,
+              padding: EdgeInsets.symmetric(horizontal: context.w(20), vertical: context.h(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
+              side: const BorderSide(color: Colors.grey),
             ),
-            child: Text("Save Draft", style: CustomFonts.black14w600),
+            child: Text("Save Draft", style: context.fonts.black14w600),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
           ElevatedButton(
             onPressed: () => _handleSave(isDraft: false),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              backgroundColor: CustomColors.black,
+              foregroundColor: CustomColors.white,
+              padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
             ),
-            child: Text("Save Treatment", style: CustomFonts.white14w600),
+            child: Text("Save Treatment", style: context.fonts.white14w600),
           ),
         ]
       ],
@@ -1872,35 +1871,35 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
       barrierDismissible: false,
       builder: (BuildContext ctx) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(16))),
           child: Padding(
-            padding: EdgeInsets.all(32.r),
+            padding: EdgeInsets.all(context.r(32)),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: EdgeInsets.all(16.r),
+                  padding: EdgeInsets.all(context.r(16)),
                   decoration: const BoxDecoration(
-                    color: Colors.green,
+                    color: CustomColors.green,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.check, size: 40.r, color: Colors.white),
+                  child: Icon(Icons.check, size: context.r(40), color: CustomColors.white),
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: context.h(24)),
                 Text(
                   isDraft ? "Draft Saved Successfully!" : "Treatment Added Successfully!",
-                  style: CustomFonts.black20w600,
+                  style: context.fonts.black20w600,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 12.h),
+                SizedBox(height: context.h(12)),
                 Text(
                   isDraft
                       ? "The clinical blueprint has been recorded as a draft in your local workspace."
                       : "The treatment configuration has been fully finalized and updated in your clinic active catalog.",
-                  style: CustomFonts.grey14w400,
+                  style: context.fonts.grey14w400,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 24.h),
+                SizedBox(height: context.h(24)),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -1910,12 +1909,12 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                       context.pop(); // Navigate back to treatments screen
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 14.h),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      backgroundColor: CustomColors.black,
+                      foregroundColor: CustomColors.white,
+                      padding: EdgeInsets.symmetric(vertical: context.h(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(8))),
                     ),
-                    child: Text("Return to Catalog", style: CustomFonts.white14w600),
+                    child: Text("Return to Catalog", style: context.fonts.white14w600),
                   ),
                 ),
               ],

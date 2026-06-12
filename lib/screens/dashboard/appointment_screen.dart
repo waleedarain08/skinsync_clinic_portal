@@ -149,8 +149,14 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     Expanded(
                       flex: 5,
                       child: CupertinoSearchTextField(
-                        style: CustomFonts.black16w500,
+                        style: context.fonts.black14w400,
+                        placeholderStyle: context.fonts.grey14w400,
                         backgroundColor: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(10)),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(12),
+                          vertical: context.h(10),
+                        ),
                       ),
                     ),
                     SizedBox(width: context.w(10)),

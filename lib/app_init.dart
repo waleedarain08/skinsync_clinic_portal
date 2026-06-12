@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:skinsync_clinic_portal/route_generator.dart';
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
