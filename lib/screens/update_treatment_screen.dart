@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
-import '../utils/custom_fonts.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class UpdateTreatmentScreen extends StatefulWidget {
@@ -59,28 +58,31 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFBDBDBD),
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 250.w, vertical: 20.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(250),
+            vertical: context.h(20),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              BuildHeader(title: "Update Treatment"),
+              const BuildHeader(title: "Update Treatment"),
 
-              SizedBox(height: 24.h),
+              SizedBox(height: context.h(24)),
 
               // Treatment List
               Expanded(
                 child: SizedBox(
-                  width: 399.w,
+                  width: context.w(399),
                   child: ListView.separated(
                     itemCount: treatments.length,
                     separatorBuilder: (context, index) => Divider(
-                      height: 24.h,
+                      height: context.h(24),
                       thickness: 1,
-                      color: Colors.grey.shade200,
+                      color: CustomColors.border,
                     ),
                     itemBuilder: (context, index) {
                       return _buildTreatmentItem(treatments[index], index);
@@ -101,57 +103,59 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
       children: [
         // Treatment Image
         ClipRRect(
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(context.r(8)),
           child: Image.network(
             treatment.image,
-            width: 90.w,
-            height: 150.h,
+            width: context.w(90),
+            height: context.h(150),
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                width: 90.w,
-                height: 70.h,
+                width: context.w(90),
+                height: context.h(70),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8.r),
+                  color: CustomColors.softGrey,
+                  borderRadius: BorderRadius.circular(context.r(8)),
                 ),
                 child: Icon(
                   Icons.image,
-                  color: Colors.grey.shade400,
-                  size: 30.sp,
+                  color: CustomColors.grey,
+                  size: context.r(30),
                 ),
               );
             },
           ),
         ),
 
-        SizedBox(width: 12.w),
+        SizedBox(width: context.w(12)),
         // Content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text(treatment.name, style: CustomFonts.black18w600),
+              Text(treatment.name, style: context.fonts.black18w600),
 
-              SizedBox(height: 4.h),
+              SizedBox(height: context.h(4)),
 
               // Price
               Row(
                 children: [
                   Text(
-                    '\$${treatment.originalPrice}',
-                    style: CustomFonts.grey14w400LineThrough,
+                    'AED ${treatment.originalPrice}',
+                    style: context.fonts.grey14w400.copyWith(
+                      decoration: TextDecoration.lineThrough,
+                    ),
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: context.w(6)),
                   Text(
-                    '\$ ${treatment.currentPrice}',
-                    style: CustomFonts.black14w500,
+                    'AED ${treatment.currentPrice}',
+                    style: context.fonts.black14w500,
                   ),
                 ],
               ),
 
-              SizedBox(height: 38.h),
+              SizedBox(height: context.h(38)),
 
               // Edit Button
               GestureDetector(
@@ -160,23 +164,28 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
+                    horizontal: context.w(12),
+                    vertical: context.h(6),
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFF4081),
-                    borderRadius: BorderRadius.circular(20.r),
+                    borderRadius: BorderRadius.circular(context.r(20)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.edit_outlined,
-                        size: 14.sp,
-                        color: Colors.white,
+                        size: context.r(14),
+                        color: CustomColors.white,
                       ),
-                      SizedBox(width: 4.w),
-                      Text('Edit', style: CustomFonts.black12w600),
+                      SizedBox(width: context.w(4)),
+                      Text(
+                        'Edit',
+                        style: context.fonts.black12w600.copyWith(
+                          color: CustomColors.white,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -195,10 +204,10 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
                 treatments[index].isActive = value;
               });
             },
-            activeThumbColor: Colors.white,
+            activeThumbColor: CustomColors.white,
             activeTrackColor: const Color(0xFF4DD0E1),
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: Colors.grey.shade300,
+            inactiveThumbColor: CustomColors.white,
+            inactiveTrackColor: CustomColors.border,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),

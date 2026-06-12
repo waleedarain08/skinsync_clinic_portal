@@ -1,65 +1,55 @@
 import 'package:flutter/material.dart';
 
-abstract class CustomColors {
-  static const Color lightBlueColor = Color(0xff88E3FB);
-  static const Color lightPurpleColor = Color(0xffE7C6E8);
-  static const Color bottomNavText = Color(0xff636363);
-  static const Color purpleColor = Color(0xffEEA1F0);
-  static const Color blackColor = Color(0xff000000);
-  static const Color whiteColor = Color(0xffffffff);
-  static const Color silverColor = Color(0xff657296);
-  static const Color greyColor = Color(0xffE9E9E9);
-  static const Color iconColor = Color(0xffF2F2F2);
-  static const Color dashboardBackgroundColor = Color(0xffF9FAFB);
-  static const Color borderColor = Color(0x1010101A);
+class CustomColors {
+  // Brand Colors
+  static const Color purple = Color(0xFF6750a4);
+  static const Color lightPurple = Color(0xFFeaddff);
+  static const Color lightPurple2 = Color(0xFFfcf8ff);
+  static const Color slateBlue = Color(0xff556caf);
+  static const Color slateBlueLight = Color(0xffCED5E8);
 
-  static const Color textGreyColor = Color(0xff6B7280);
-  static const Color textFeildBoaderColor = Color(0xff939393);
-  static const Color blueColor = Color(0xFF74D8F2);
-  static const Color navigationRailBackground = Color(0xFFDEF8FF);
-  static const Color drakPurpleColor = Color(0xFF4F39F6);
-  static const Color fillColor = Color(0xffF3F3F5);
-  static const Color green = Color(0xFF12BD09);
-  
+  static const Color palePurple = Color(0xFFEEF2FF);
+  static const Color purpleHover = Color(0x0D6366F1);
 
-  static const Color errorColor = Color(0xFFEF4444);
+  static const Color green = Color(0xFF10B981);
+  static const Color paleGreen = Color(0x2610B981);
+  static const Color successBg = Color(0x2610B981);
 
-  static const LinearGradient purpleBlueGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xff88E3FB), Color(0xffE7C6E8)],
-  );
+  static const Color red = Color(0xFFEF4444);
+  static const Color paleRed = Color(0x26EF4444);
+  static const Color errorBg = Color(0x26EF4444);
 
-  static LinearGradient blueWhitePurpleGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
+  static const Color amber = Color(0xFFF59E0B);
+  static const Color paleAmber = Color(0x26F59E0B);
+  static const Color warningBg = Color(0x26F59E0B);
+
+  static const Color blue = Color(0xFF3B82F6);
+  static const Color paleBlue = Color(0x263B82F6);
+  static const Color infoBg = Color(0x263B82F6);
+
+  // Neutrals
+  static const Color black = Color(0xFF0F172A);
+  static const Color grey = Color(0xFF475569);
+  static const Color lightGrey = Color(0xFF94A3B8);
+  static const Color softGrey = Color(0xFFF1F5F9);
+  static const Color whiteGrey = Color(0xFFF8FAFC);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFE2E8F0);
+
+  // Gradients (Descriptive Naming)
+  static const LinearGradient purpleWhiteStateBlueLightGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
     colors: [
-      Color(0xff88E3FB).withValues(alpha: 0.05),
-      Color(0xffFFFFFF),
-      Color(0xffE7C6E8),
+      lightPurple2, // Violet 100
+      white,
+      slateBlueLight// Violet 50
     ],
   );
-  static LinearGradient whitePurpleGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xffFFF0FF), Color(0xffE7C6E8)],
-  );
-  static const LinearGradient purpleWhiteBlueGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xffE7C6E8), Color(0xffFFFFFF), Color(0xff88E3FB)],
-  );
-  static LinearGradient BlueWithWhiteGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color(0xffFFFFFF).withValues(alpha: 0.0), // fully transparent
-      Color(0xffFFFFFF).withValues(alpha: 0.8),
-      Color(0xff88E3FB).withValues(alpha: 0.3),
-      Color(0xff88E3FB).withValues(alpha: 0.5),
-      Color(0xff88E3FB).withValues(alpha: 0.5),
-      Color(0xffFFFFFF).withValues(alpha: 0.6),
-      Color(0xffFFFFFF).withValues(alpha: 1.0),
-    ],
+
+  static const LinearGradient whiteGreyToSoftGreyGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [whiteGrey, softGrey],
   );
 }

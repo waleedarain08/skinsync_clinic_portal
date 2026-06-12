@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:skinsync_clinic_portal/models/responses/clinic_products_response.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
 
@@ -31,39 +29,39 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   void _showAddProductDialog() {
     showDialog(
       context: context,
       builder: (context) {
-        return AddProductDialog();
+        return const AddProductDialog();
       },
     );
   }
-
-  // void _showInventoryDetailDialog(InventoryItem item) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return InventoryDetailDialog(item: item);
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(20),
+          vertical: context.h(16),
+        ),
         child: Column(
           children: [
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             _buildHeader(context),
-            SizedBox(height: 24.h),
+            SizedBox(height: context.h(24)),
             _buildSearchBar(),
-            SizedBox(height: 24.h),
-            Divider(color: Colors.grey.shade300),
-            SizedBox(height: 24.h),
+            SizedBox(height: context.h(24)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(24)),
             Expanded(child: _buildInventoryGrid(context)),
           ],
         ),
@@ -74,24 +72,27 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        Text("Inventory", style: CustomFonts.black22w600),
+        Text("Inventory", style: context.fonts.black20w600),
         const Spacer(),
         ElevatedButton(
           onPressed: _showAddProductDialog,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            backgroundColor: CustomColors.black,
+            foregroundColor: CustomColors.white,
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(20),
+              vertical: context.h(12),
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(context.r(8)),
             ),
             elevation: 0,
           ),
           child: Row(
             children: [
-              Icon(Icons.add, color: Colors.white, size: 20.r),
-              SizedBox(width: 8.w),
-              Text('Add Item', style: CustomFonts.white14w500),
+              Icon(Icons.add, color: CustomColors.white, size: context.r(20)),
+              SizedBox(width: context.w(8)),
+              Text('Add Item', style: context.fonts.white14w600),
             ],
           ),
         ),
@@ -104,8 +105,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
       label: 'Search Products',
       controller: _searchController,
       hintText: 'Search by item name...',
-      prefixIcon: Icon(Iconsax.search_normal, size: 20.r, color: Colors.grey),
-      // onChanged: _filterInventory,
+      prefixIcon: Icon(
+        Iconsax.search_normal,
+        size: context.r(20),
+        color: CustomColors.grey,
+      ),
     );
   }
 
@@ -118,19 +122,20 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           inventoryProvider.select((s) => (s.products, s.loading)),
         );
         if (data.$2) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(color: CustomColors.purple),
+          );
         }
         return GridView.builder(
           itemCount: data.$1.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 20.w,
-            mainAxisSpacing: 20.h,
+            crossAxisSpacing: context.w(20),
+            mainAxisSpacing: context.h(20),
             childAspectRatio: childAspectRatio,
           ),
           itemBuilder: (context, index) {
             return GestureDetector(
-              // onTap: () => _showInventoryDetailDialog(_filteredItems[index]),
               child: _buildInventoryCard(data.$1[index]),
             );
           },
@@ -142,27 +147,25 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   Widget _buildInventoryCard(ClinicProduct item) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
         boxShadow: [
           BoxShadow(
-            color: CustomColors.lightBlueColor.withValues(alpha: 0.2),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
-          ),
-          BoxShadow(
-            color: CustomColors.lightPurpleColor.withValues(alpha: 0.1),
-            blurRadius: 10.r,
-            offset: Offset(2.h, 0),
+            color: CustomColors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: Offset(0, context.h(2)),
           ),
         ],
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15.r)),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(context.r(15)),
+              ),
               child: Stack(
                 children: [
                   CachedNetworkImage(
@@ -171,33 +174,34 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                     fit: BoxFit.cover,
                     errorWidget: (context, error, stackTrace) {
                       return Container(
-                        color: const Color(0xFFE8E8E8),
+                        color: CustomColors.softGrey,
                         height: double.infinity,
+                        width: double.infinity,
                         child: const Icon(
                           Icons.broken_image,
-                          color: Colors.grey,
+                          color: CustomColors.grey,
                         ),
                       );
                     },
                   ),
                   Positioned(
-                    top: 10.h,
-                    right: 10.w,
+                    top: context.h(10),
+                    right: context.w(10),
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 4.h,
+                        horizontal: context.w(8),
+                        vertical: context.h(4),
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(20.r),
+                        color: CustomColors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(context.r(20)),
                       ),
                       child: Text(
                         'Qty: ${item.totalQuantity}',
-                        style: CustomFonts.black12w600.copyWith(
+                        style: context.fonts.black12w600.copyWith(
                           color: item.totalQuantity < 20
-                              ? CustomColors.errorColor
-                              : CustomColors.silverColor,
+                              ? CustomColors.red
+                              : CustomColors.grey,
                         ),
                       ),
                     ),
@@ -207,40 +211,40 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(12.w),
+            padding: EdgeInsets.all(context.w(12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.name,
-                  style: CustomFonts.black16w600,
+                  style: context.fonts.black16w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: context.h(8)),
                 Row(
                   children: [
                     Text(
-                      '\$${item.originalPrice.toStringAsFixed(2)}',
-                      style: CustomFonts.black14w600.copyWith(
-                        color: CustomColors.purpleColor,
+                      'AED ${item.originalPrice.toStringAsFixed(2)}',
+                      style: context.fonts.black14w600.copyWith(
+                        color: CustomColors.purple,
                       ),
                     ),
                     if (item.discountedPrice > 0 &&
                         item.discountedPrice != item.originalPrice) ...{
-                      SizedBox(width: 10.w),
+                      SizedBox(width: context.w(10)),
                       Text(
-                        '\$${item.originalPrice.toStringAsFixed(2)}',
-                        style: CustomFonts.black12w400.copyWith(
-                          color: CustomColors.purpleColor,
+                        'AED ${item.originalPrice.toStringAsFixed(2)}',
+                        style: context.fonts.black12w400.copyWith(
+                          color: CustomColors.purple,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
                     },
-                    Spacer(),
+                    const Spacer(),
                     Text(
                       'per unit',
-                      style: CustomFonts.grey14w500.copyWith(fontSize: 12.sp),
+                      style: context.fonts.grey12w400,
                     ),
                   ],
                 ),

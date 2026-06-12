@@ -31,7 +31,7 @@ class Feature {
     if (json['permissions'] != null) {
       permissions = <Permissions>[];
       json['permissions'].forEach((v) {
-        permissions!.add(new Permissions.fromJson(v));
+        permissions!.add(Permissions.fromJson(v));
       });
     }
   }

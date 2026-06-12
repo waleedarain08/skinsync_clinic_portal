@@ -20,6 +20,7 @@ import 'package:skinsync_clinic_portal/screens/notification_screen.dart';
 import 'package:skinsync_clinic_portal/screens/sign_in_screen.dart';
 import 'package:skinsync_clinic_portal/screens/signup_screen.dart';
 import 'package:skinsync_clinic_portal/screens/update_treatment_screen.dart';
+import 'package:skinsync_clinic_portal/screens/clinic_add_treatment_screen.dart';
 import 'package:skinsync_clinic_portal/services/storage_service.dart';
 
 import 'app_init.dart';
@@ -145,6 +146,11 @@ class RouteGenerator {
             path: TreatmentScreen.routeName,
             builder: (_, _) => TreatmentScreen(),
           ),
+          GoRoute(
+            name: ClinicAddTreatmentScreen.routeName,
+            path: ClinicAddTreatmentScreen.routeName,
+            builder: (_, _) => ClinicAddTreatmentScreen(),
+          ),
         ],
       ),
       GoRoute(
@@ -190,6 +196,7 @@ class RouteGenerator {
         path: UpdateTreatmentScreen.routeName,
         builder: (_, _) => UpdateTreatmentScreen(),
       ),
+
       GoRoute(
         path: DynamicPricing.routeName,
         name: DynamicPricing.routeName,

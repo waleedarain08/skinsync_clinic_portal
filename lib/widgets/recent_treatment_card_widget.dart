@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../utils/theme.dart';
 
 class RecentTreatmentCardWidget extends StatelessWidget {
   final String title;
@@ -25,74 +26,55 @@ class RecentTreatmentCardWidget extends StatelessWidget {
           child: Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(context.r(12)),
                 child: Image.asset(
                   image,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    color: Color(0xFFE8E8E8),
-                    child: Icon(Icons.broken_image, color: Colors.grey),
+                    color: CustomColors.softGrey,
+                    child: const Icon(Icons.broken_image, color: CustomColors.grey),
                   ),
                 ),
               ),
               Positioned(
-                top: 12.h,
-                right: 12.w,
+                top: context.h(12),
+                right: context.w(12),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 8.h,
+                    horizontal: context.w(10),
+                    vertical: context.h(8),
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(20.r),
+                    color: CustomColors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(context.r(20)),
                   ),
                   child: Text(
                     nextAppointment,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+                    style: CustomFonts.black12w600,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: context.h(10)),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-            overflow: TextOverflow.ellipsis,
-          ),
+          style: CustomFonts.black18w600,
           maxLines: 1,
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.h(6)),
         Text(
           date,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.grey.shade600,
-            overflow: TextOverflow.ellipsis,
-          ),
+          style: CustomFonts.grey14w400,
           maxLines: 1,
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.h(6)),
         Row(
           children: [
             Text(
-              "\$800 \$650",
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-                overflow: TextOverflow.ellipsis,
-              ),
+              "AED 800 AED 650",
+              style: CustomFonts.grey14w400,
               maxLines: 1,
             ),
           ],

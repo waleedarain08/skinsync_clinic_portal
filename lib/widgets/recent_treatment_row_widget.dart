@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import '../utils/assets.dart';
+import '../utils/theme.dart';
 import 'recent_treatment_card_widget.dart';
 
 class RecentTreatmentRowWidget extends StatelessWidget {
@@ -32,9 +32,9 @@ class RecentTreatmentRowWidget extends StatelessWidget {
 
     return AdaptiveLayoutList(
       isScrollVertical: false,
-      horizontalHeight: 268.r,
-      spaceWidth: 20.w,
-      spaceHeight: 20.h,
+      horizontalHeight: context.r(268),
+      spaceWidth: context.w(20),
+      spaceHeight: context.h(20),
       children: List.generate(appointments.length, (index) {
         return RecentTreatmentCardWidget(
           title: appointments[index]['title']!,

@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/payment_history_screen.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/payment_withdrawal_dailog_box.dart';
 
@@ -19,64 +17,58 @@ class PaymentAndWalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h),
-            Text('Patient Management', style: CustomFonts.black22w600),
-            SizedBox(height: 14.h),
-            Divider(color:Colors.grey.shade300),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
+            Text('Payment and Wallet', style: context.fonts.black20w600),
+            SizedBox(height: context.h(14)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(20)),
             walletInfo(context),
-            SizedBox(height: 10.h),
+            SizedBox(height: context.h(10)),
             Text(
               "Payments are processed securely through Stripe. All transactions are encrypted and compliant with PCI DSS and HIPAA standards.",
-              style: CustomFonts.grey14w500,
+              style: context.fonts.grey14w400,
             ),
-            SizedBox(height: 20.h),
-            totalEraning(),
-            SizedBox(height: 20.h),
-            searchAndFilter(),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
+            totalEarnings(context),
+            SizedBox(height: context.h(20)),
+            searchAndFilter(context),
+            SizedBox(height: context.h(20)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Transactions",
-                  style: TextStyle(
-                    fontSize: 22.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: context.fonts.black20w600,
                 ),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     context.go(PaymentHistoryScreen.routeName);
                   },
                   child: Text(
                     "View All",
-                    style: TextStyle(
+                    style: context.fonts.purple14w600.copyWith(
                       decoration: TextDecoration.underline,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textPrimary,
-                      fontFamily: 'Degular',
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             ListView.separated(
               separatorBuilder: (context, index) {
-                return SizedBox(height: 15.h);
+                return SizedBox(height: context.h(15));
               },
               shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: 3,
               itemBuilder: (context, index) {
-                return TranscationTileWidget();
+                return const TranscationTileWidget();
               },
             ),
           ],
@@ -87,10 +79,13 @@ class PaymentAndWalletScreen extends StatelessWidget {
 
   Widget walletInfo(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 50.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(24),
+        vertical: context.h(40),
+      ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        gradient: LinearGradient(
+        borderRadius: BorderRadius.circular(context.r(15)),
+        gradient: const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [Color(0xFF0C3987), Color(0xFF6B0DAE)],
@@ -98,98 +93,131 @@ class PaymentAndWalletScreen extends StatelessWidget {
       ),
       child: AdaptiveLayoutRowColumn(
         alignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: .center,
-        expandedWidget: false,
         widthBetween: 0,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Available Balance", style: CustomFonts.white22w600),
-              Text("\$ 228,565", style: CustomFonts.white40w700),
+              Text(
+                "Available Balance",
+                style: context.fonts.white16w400.copyWith(
+                  fontSize: context.sp(22),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                "AED 228,565",
+                style: context.fonts.black40w700.copyWith(
+                  color: CustomColors.white,
+                  fontSize: context.sp(40),
+                ),
+              ),
             ],
           ),
-          context.isLandscape? Spacer() : SizedBox.shrink(),
+          context.isLandscape ? const Spacer() : const SizedBox.shrink(),
           Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: .center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 CupertinoIcons.arrowtriangle_up_fill,
-                size: 14.sp,
-                color: AppTheme.greenColor,
-                
+                size: context.r(14),
+                color: CustomColors.green,
               ),
-              SizedBox(width: 10.r),
+              SizedBox(width: context.w(10)),
               Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(text: "\$ 20,600 ", style: CustomFonts.green16w600),
-                    TextSpan(text: "Last Week ", style: CustomFonts.white16w600),
+                    TextSpan(
+                      text: "AED 20,600 ",
+                      style: context.fonts.green14w600.copyWith(
+                        fontSize: context.sp(16),
+                      ),
+                    ),
+                    TextSpan(
+                      text: "Last Week ",
+                      style: context.fonts.white14w600.copyWith(
+                        fontSize: context.sp(16),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(width: 20.w),
+          SizedBox(width: context.w(20)),
           GestureDetector(
             onTap: () {
               showDialog(
                 context: context,
-                builder: (context) => PaymentWithDrawalDailogBox(),
+                builder: (context) => const PaymentWithDrawalDailogBox(),
               );
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 13.5.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(14),
+                vertical: context.h(8),
+              ),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                color: Colors.white,
+                borderRadius: BorderRadius.circular(context.r(8)),
+                color: CustomColors.white,
               ),
               child: Row(
-                mainAxisAlignment: .center,
-                crossAxisAlignment: .center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
                     SvgAssets.withdraw,
-                    color: AppTheme.purpleColor,
-                    height: 14.h,
-                    width: 16.47.w,
+                    colorFilter: const ColorFilter.mode(
+                      CustomColors.purple,
+                      BlendMode.srcIn,
+                    ),
+                    height: context.h(14),
+                    width: context.w(16.5),
                   ),
-                  SizedBox(width: 8.w),
-                  Center(child: Text("Withdraw Balance", style: CustomFonts.purple14w500)),
+                  SizedBox(width: context.w(8)),
+                  Center(
+                    child: Text(
+                      "Withdraw Balance",
+                      style: context.fonts.purple14w600,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
-      )
+      ),
     );
   }
 
-  Widget totalEraning() {
+  Widget totalEarnings(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(15),
+        vertical: context.h(15),
+      ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        color: CustomColors.palePurple,
       ),
       child: Row(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("\$ 4500", style: CustomFonts.black30w600),
-              Text("Today’s Earnings", style: CustomFonts.grey18w500),
+              Text("AED 4,500", style: context.fonts.black30w600),
+              Text("Today’s Earnings", style: context.fonts.grey14w500),
             ],
           ),
-          Spacer(),
+          const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text("Next Deposit Will Be ", style: CustomFonts.grey18w500),
-              Text("Added After 12:00 am", style: CustomFonts.grey18w500),
+              Text("Next Deposit Will Be", style: context.fonts.grey14w500),
+              Text("Added After 12:00 am", style: context.fonts.grey14w500),
             ],
           ),
         ],
@@ -197,35 +225,41 @@ class PaymentAndWalletScreen extends StatelessWidget {
     );
   }
 
-  Widget searchAndFilter() {
+  Widget searchAndFilter(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
+        const Expanded(
+          child: CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: context.w(8)),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(15),
+            vertical: context.h(15),
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.r),
-            color: Colors.white,
-            border: Border.all(color:Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(context.r(10)),
+            color: CustomColors.white,
+            border: Border.all(color: CustomColors.border),
           ),
           child: Row(
             children: [
               SvgPicture.asset(
                 SvgAssets.filter,
-                height: 12.67.h,
-                width: 13.33.w,
-                color: AppTheme.textSecondary,
+                height: context.h(13),
+                width: context.w(13),
+                colorFilter: const ColorFilter.mode(
+                  CustomColors.grey,
+                  BlendMode.srcIn,
+                ),
               ),
-              SizedBox(width: 10.w),
-              Text("All Status", style: CustomFonts.grey18w500),
-              SizedBox(width: 10.w),
+              SizedBox(width: context.w(10)),
+              Text("All Status", style: context.fonts.grey14w500),
+              SizedBox(width: context.w(10)),
               Icon(
                 CupertinoIcons.chevron_down,
-                size: 16.sp,
-                color: AppTheme.textSecondary,
+                size: context.r(16),
+                color: CustomColors.grey,
               ),
             ],
           ),

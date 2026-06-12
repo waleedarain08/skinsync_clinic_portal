@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/patient_management.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/pateint_treatment_selection_tile.dart';
 
 import '../../utils/assets.dart';
@@ -18,8 +16,9 @@ class PatientManagementDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -29,28 +28,27 @@ class PatientManagementDetailScreen extends StatelessWidget {
                   onTap: () {
                     context.pop();
                   },
-                  child: Icon(Icons.arrow_back, size: 24.sp),
+                  child: Icon(Icons.arrow_back, size: context.r(24)),
                 ),
-                SizedBox(width: 10.w),
-                Text("Patient Management", style: CustomFonts.black22w600),
+                SizedBox(width: context.w(10)),
+                Text("Patient Management", style: context.fonts.black20w600),
               ],
             ),
-            SizedBox(height: 14.h),
-            Divider(color: Colors.grey.shade300),
-            SizedBox(height: 50.h),
+            SizedBox(height: context.h(14)),
+            const Divider(color: CustomColors.border),
+            SizedBox(height: context.h(50)),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                patientSelection(),
-                SizedBox(width: 28.9.w),
+                patientSelection(context),
+                SizedBox(width: context.w(24)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       treamentInfo(context: context),
-                      SizedBox(height: 19.h),
-                      // Replace the old container with the new stepper
+                      SizedBox(height: context.h(20)),
                       TreatmentJourneyStepper(steps: _getTreatmentSteps()),
                     ],
                   ),
@@ -103,52 +101,53 @@ class PatientManagementDetailScreen extends StatelessWidget {
 
   Widget treamentInfo({required BuildContext context}) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 248.w,
+            height: context.h(248),
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.r),
-              image: DecorationImage(
+              borderRadius: BorderRadius.circular(context.r(10)),
+              image: const DecorationImage(
                 fit: BoxFit.cover,
                 image: AssetImage(PngAssets.treatmentImage),
               ),
             ),
           ),
-          SizedBox(height: 19.h),
-          Text("Derma Fillers - Cheeks", style: CustomFonts.black30w600),
-          Text("Glow Skin Clinic", style: CustomFonts.black20w500),
-          SizedBox(height: 11.h),
+          SizedBox(height: context.h(20)),
+          Text("Derma Fillers - Cheeks", style: context.fonts.black30w600),
+          Text("Glow Skin Clinic", style: context.fonts.black20w500),
+          SizedBox(height: context.h(12)),
           Text(
             "Enhance your natural beauty by adding volume, smoothing wrinkles, and contouring areas like cheeks, lips, and under-eyes for a youthful, refreshed look.",
-            style: CustomFonts.black18w400,
+            style: context.fonts.black16w400,
           ),
         ],
       ),
     );
   }
 
-  Widget patientSelection() {
+  Widget patientSelection(BuildContext context) {
     return SizedBox(
-      width: 386.w,
+      width: context.w(386),
       child: Column(
         children: [
-          CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
-          SizedBox(height: 14.h),
+          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          SizedBox(height: context.h(14)),
           ListView.separated(
-            physics: NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => SizedBox(height: 15.h),
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
             shrinkWrap: true,
             itemCount: 6,
             itemBuilder: (context, index) {
-              return PatientTreatmentSelectionTile();
+              return const PatientTreatmentSelectionTile();
             },
           ),
         ],
@@ -183,19 +182,20 @@ class TreatmentJourneyStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Your Treatment Journey", style: CustomFonts.black22w600),
-          SizedBox(height: 20.h),
+          Text("Your Treatment Journey", style: context.fonts.black20w600),
+          SizedBox(height: context.h(20)),
           ListView.builder(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: steps.length,
             itemBuilder: (context, index) {
               final isLast = index == steps.length - 1;
@@ -206,35 +206,35 @@ class TreatmentJourneyStepper extends StatelessWidget {
                   Column(
                     children: [
                       Container(
-                        width: 27.w,
-                        height: 27.h,
+                        width: context.w(27),
+                        height: context.w(27),
                         decoration: BoxDecoration(
                           color: steps[index].isCompleted
-                              ? CustomColors.purpleColor
-                              : Colors.grey.shade300,
+                              ? CustomColors.purple
+                              : CustomColors.softGrey,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.check,
-                          size: 14.w,
-                          color: Colors.white,
+                          size: context.r(14),
+                          color: CustomColors.white,
                         ),
                       ),
                       if (!isLast)
                         Container(
-                          height: 148.h,
-                          width: 1.w,
-                          color: Colors.grey.shade400,
+                          height: context.h(148),
+                          width: 1,
+                          color: CustomColors.border,
                         ),
                     ],
                   ),
-                  SizedBox(width: 16.w),
+                  SizedBox(width: context.w(16)),
                   // Content
                   Expanded(
                     child: Column(
                       children: [
                         TreatmentCard(step: steps[index]),
-                        if (!isLast) SizedBox(height: 18.h),
+                        if (!isLast) SizedBox(height: context.h(18)),
                       ],
                     ),
                   ),
@@ -258,25 +258,25 @@ class TreatmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xffDEF8FF),
-        borderRadius: BorderRadius.circular(12.r),
+        color: const Color(0xffDEF8FF),
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(left: 20.w),
+              padding: EdgeInsets.only(left: context.w(20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 14.h),
-                  Text(step.title, style: CustomFonts.black18w600),
-                  SizedBox(height: 11.h),
-                  Text(step.description, style: CustomFonts.black16w400),
-                  SizedBox(height: 34.h),
-                  Text(step.date, style: CustomFonts.black16w500),
-                  SizedBox(height: 14.h),
+                  SizedBox(height: context.h(14)),
+                  Text(step.title, style: context.fonts.black18w600),
+                  SizedBox(height: context.h(11)),
+                  Text(step.description, style: context.fonts.black16w400),
+                  SizedBox(height: context.h(34)),
+                  Text(step.date, style: context.fonts.black16w500),
+                  SizedBox(height: context.h(14)),
                 ],
               ),
             ),
@@ -284,14 +284,19 @@ class TreatmentCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(6.0),
             child: Container(
-              height: 144.h,
+              height: context.h(144),
+              width: context.w(144),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(context.r(12)),
               ),
-              child: Image.asset(
-                step.imageAsset,
-                height: 144.h,
-                fit: BoxFit.cover,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(context.r(12)),
+                child: Image.asset(
+                  step.imageAsset,
+                  height: context.h(144),
+                  width: context.w(144),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

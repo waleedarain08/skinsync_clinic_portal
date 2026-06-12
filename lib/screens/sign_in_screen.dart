@@ -1,16 +1,15 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import 'package:skinsync_clinic_portal/models/requests/login_request_model.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 
 import '../utils/assets.dart';
-import '../utils/color_constant.dart';
 import '../utils/enums.dart';
 import '../view_models/auth_view_model.dart';
 import 'dashboard/home_screen.dart';
@@ -99,34 +98,34 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CustomColors.white,
       body: Row(
         children: [
           // Left logo panel (landscape only)
           if (context.isLandscape)
             Expanded(
               child: Container(
-                color: Colors.white,
+                color: CustomColors.white,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 200.w,
-                        height: 200.h,
+                        width: context.w(200),
+                        height: context.h(200),
                         child: Image.asset(
                           PngAssets.splashLogo,
-                          height: 100.w,
-                          width: 100.w,
+                          height: context.h(100),
+                          width: context.w(100),
                         ),
                       ),
-                      SizedBox(height: 30.h),
+                      SizedBox(height: context.h(30)),
                       Text(
                         "SkinSync AI",
-                        style: TextStyle(
-                          fontSize: 48.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF6B7BA8),
+                        style: context.fonts.black50w600.copyWith(
+                          color: const Color(0xFF6B7BA8),
                           letterSpacing: 4,
+                          fontSize: context.sp(48),
                         ),
                       ),
                     ],
@@ -134,20 +133,23 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               ),
             ),
-          Container(width: 1.w, color: Colors.grey.shade300),
+          Container(width: 1, color: CustomColors.border),
           // Right content panel
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 50.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(50),
+                vertical: context.h(50),
+              ),
               child: Column(
                 children: [
                   if (_currentScreen == AuthScreen.login)
                     Container(
-                      height: 64.h,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      height: context.h(64),
+                      padding: EdgeInsets.symmetric(horizontal: context.w(16)),
                       decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(12.r),
+                        color: CustomColors.black,
+                        borderRadius: BorderRadius.circular(context.r(12)),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton2<String>(
@@ -159,10 +161,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   value: item,
                                   child: Text(
                                     item,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: Colors.white,
-                                    ),
+                                    style: context.fonts.white14w600,
                                   ),
                                 ),
                               )
@@ -174,40 +173,39 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           },
 
                           buttonStyleData: ButtonStyleData(
-                            height: 50.h,
+                            height: context.h(50),
                             padding: EdgeInsets.zero,
                           ),
 
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.black,
-                          ),
+                          style: context.fonts.black14w400,
 
                           // Icon
                           iconStyleData: IconStyleData(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.keyboard_arrow_down,
-                              color: Colors.white,
+                              color: CustomColors.white,
                             ),
-                            iconSize: 24.sp,
+                            iconSize: context.sp(24),
                           ),
                           dropdownStyleData: DropdownStyleData(
                             offset: const Offset(0, -2),
                             decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(12.r),
+                              color: CustomColors.black,
+                              borderRadius: BorderRadius.circular(context.r(12)),
                             ),
                           ),
 
-                          // Menu item style
+                          // MenuItem style
                           menuItemStyleData: MenuItemStyleData(
-                            height: 45.h,
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            height: context.h(45),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.w(16),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  SizedBox(height: 30.h),
+                  SizedBox(height: context.h(30)),
                   if (_currentScreen == AuthScreen.login) _loginWidget(),
                   if (_currentScreen == AuthScreen.forgetPassword)
                     _forgetPasswordWidget(),
@@ -230,13 +228,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: 36.w,
-          height: 36.w,
-          decoration: BoxDecoration(
-            color: CustomColors.fillColor,
+          width: context.w(36),
+          height: context.w(36),
+          decoration: const BoxDecoration(
+            color: CustomColors.softGrey,
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.arrow_back, size: 18.sp, color: Colors.black),
+          child: Icon(
+            Icons.arrow_back,
+            size: context.sp(18),
+            color: CustomColors.black,
+          ),
         ),
       ),
     );
@@ -244,15 +246,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Widget _loginWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(40),
+        vertical: context.h(40),
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(context.r(12))),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: CustomColors.black.withValues(alpha: 0.15),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -262,75 +267,59 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(SvgAssets.stethoscope, height: 60.h, width: 60.w),
-            SizedBox(height: 8.h),
-            Text(
-              "Doctor (Clinic Owner)",
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+            SvgPicture.asset(
+              SvgAssets.stethoscope,
+              height: context.h(60),
+              width: context.w(60),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
+            Text("Doctor (Clinic Owner)", style: context.fonts.black20w600),
+            SizedBox(height: context.h(8)),
             Text(
               "Full administrative and clinical access",
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-              ),
+              style: context.fonts.grey14w400,
             ),
-            SizedBox(height: 40.h),
+            SizedBox(height: context.h(40)),
             Align(
               alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: "Email Address",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(height: 0, color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
-              decoration: InputDecoration(hintText: "Enter Your Email Address"),
+              decoration:
+                  const InputDecoration(hintText: "Enter Your Email Address"),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             Align(
               alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: "Password",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             TextFormField(
               controller: _passwordController,
               validator: Validators.password,
@@ -342,30 +331,29 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: Colors.grey.shade600,
-                    size: 20.sp,
+                    color: CustomColors.grey,
+                    size: context.sp(20),
                   ),
                   onPressed: () =>
                       setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             Align(
               alignment: Alignment.centerRight,
               child: InkWell(
                 onTap: _goToForgetPassword,
                 child: Text(
                   "Forget Password",
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Color(0xFF2881F5),
+                  style: context.fonts.purple16w600.copyWith(
+                    fontSize: context.sp(12),
                     decoration: TextDecoration.underline,
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
             GestureDetector(
               onTap: () {
                 if (!_formKey.currentState!.validate()) return;
@@ -378,31 +366,34 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                     )
                     .then((success) {
-                      if (success && context.mounted) {
-                        context.goNamed(HomeScreen.routeName);
-                      }
-                    });
+                  if (success && context.mounted) {
+                    context.goNamed(HomeScreen.routeName);
+                  }
+                });
               },
               child: Container(
-                width: 215.w,
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                width: context.w(215),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(20),
+                  vertical: context.h(8),
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                  color: CustomColors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Sign In",
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: context.fonts.white16w400,
                     ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 20.sp),
+                    SizedBox(width: context.w(8)),
+                    Icon(
+                      Icons.arrow_forward,
+                      color: CustomColors.white,
+                      size: context.sp(20),
+                    ),
                   ],
                 ),
               ),
@@ -415,15 +406,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Widget _forgetPasswordWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(40),
+        vertical: context.h(40),
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(context.r(12))),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: CustomColors.black.withValues(alpha: 0.15),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -434,55 +428,44 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildBackButton(_goToLogin),
-            SizedBox(height: 16.h),
-            SvgPicture.asset(SvgAssets.stethoscope, height: 60.h, width: 60.w),
-            SizedBox(height: 8.h),
-            Text(
-              "Forgot Password",
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+            SizedBox(height: context.h(16)),
+            SvgPicture.asset(
+              SvgAssets.stethoscope,
+              height: context.h(60),
+              width: context.w(60),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
+            Text("Forgot Password", style: context.fonts.black20w600),
+            SizedBox(height: context.h(8)),
             Text(
               "Enter your email to receive a verification code",
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-              ),
+              style: context.fonts.grey14w400,
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             Align(
               alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: "Email Address",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(height: 0, color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
-              decoration: InputDecoration(hintText: "Enter Your Email Address"),
+              decoration:
+                  const InputDecoration(hintText: "Enter Your Email Address"),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
             GestureDetector(
               onTap: () {
                 if (!_formKeyForgetPassword.currentState!.validate()) return;
@@ -490,31 +473,34 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     .read(authViewModelProvider.notifier)
                     .forgetPassword(email: _emailController.text.trim())
                     .then((success) {
-                      if (success && context.mounted) {
-                        _goToVerifyOtp();
-                      }
-                    });
+                  if (success && context.mounted) {
+                    _goToVerifyOtp();
+                  }
+                });
               },
               child: Container(
-                width: 215.w,
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                width: context.w(215),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(20),
+                  vertical: context.h(8),
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                  color: CustomColors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Send Code",
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: context.fonts.white16w400,
                     ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 20.sp),
+                    SizedBox(width: context.w(8)),
+                    Icon(
+                      Icons.arrow_forward,
+                      color: CustomColors.white,
+                      size: context.sp(20),
+                    ),
                   ],
                 ),
               ),
@@ -527,15 +513,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Widget _verifyOtpWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(40),
+        vertical: context.h(40),
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(context.r(12))),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: CustomColors.black.withValues(alpha: 0.15),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -546,49 +535,37 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildBackButton(_goBackToForgetPassword),
-            SizedBox(height: 16.h),
-            SvgPicture.asset(SvgAssets.stethoscope, height: 60.h, width: 60.w),
-            SizedBox(height: 8.h),
-            Text(
-              "Verify Email",
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+            SizedBox(height: context.h(16)),
+            SvgPicture.asset(
+              SvgAssets.stethoscope,
+              height: context.h(60),
+              width: context.w(60),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
+            Text("Verify Email", style: context.fonts.black20w600),
+            SizedBox(height: context.h(8)),
             Text(
               "We just sent a 6-digit code to ${_emailController.text}, enter it below:",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-              ),
+              style: context.fonts.grey14w400,
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
             Align(
               alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: "Enter OTP",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(height: 0, color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             FormField<String>(
               validator: (_) {
                 if (_otpController.text.isEmpty) return 'Please enter the OTP';
@@ -604,7 +581,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     Pinput(
                       controller: _otpController,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      separatorBuilder: (index) => SizedBox(width: 10.w),
+                      separatorBuilder: (index) => SizedBox(width: context.w(10)),
                       length: 6,
                       onChanged: (pin) {
                         if (field.hasError) field.didChange(pin);
@@ -612,69 +589,65 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       },
                       onCompleted: (pin) => field.didChange(pin),
                       defaultPinTheme: PinTheme(
-                        width: 60.w,
-                        height: 48.h,
+                        width: context.w(60),
+                        height: context.h(48),
                         decoration: BoxDecoration(
-                          color: CustomColors.fillColor,
+                          color: CustomColors.softGrey,
                           border: Border.all(
                             color: field.hasError
-                                ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                ? CustomColors.red
+                                : CustomColors.border,
                           ),
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(context.r(15)),
                         ),
-                        textStyle: TextStyle(fontSize: 16.sp),
+                        textStyle: context.fonts.black16w400,
                       ),
                       focusedPinTheme: PinTheme(
-                        width: 60.5.w,
-                        height: 48.h,
+                        width: context.w(60.5),
+                        height: context.h(48),
                         decoration: BoxDecoration(
-                          color: CustomColors.fillColor,
+                          color: CustomColors.softGrey,
                           border: Border.all(
                             color: field.hasError
-                                ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                ? CustomColors.red
+                                : CustomColors.border,
                           ),
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(context.r(15)),
                         ),
-                        textStyle: TextStyle(fontSize: 16.sp),
+                        textStyle: context.fonts.black16w400,
                       ),
                       submittedPinTheme: PinTheme(
-                        width: 60.5.w,
-                        height: 48.h,
+                        width: context.w(60.5),
+                        height: context.h(48),
                         decoration: BoxDecoration(
-                          color: CustomColors.whiteColor,
+                          color: CustomColors.white,
                           border: Border.all(
                             color: field.hasError
-                                ? Colors.red
-                                : CustomColors.textFeildBoaderColor,
+                                ? CustomColors.red
+                                : CustomColors.border,
                           ),
-                          borderRadius: BorderRadius.circular(15.r),
+                          borderRadius: BorderRadius.circular(context.r(15)),
                         ),
-                        textStyle: TextStyle(fontSize: 16.sp),
+                        textStyle: context.fonts.black16w400,
                       ),
                     ),
                     if (field.hasError)
                       Padding(
-                        padding: EdgeInsets.only(top: 8.h),
+                        padding: EdgeInsets.only(top: context.h(8)),
                         child: Text(
                           field.errorText!,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
+                          style: context.fonts.red11w600.copyWith(
+                            fontSize: context.sp(12),
                           ),
                         ),
                       ),
                     if (_otpError != null)
                       Padding(
-                        padding: EdgeInsets.only(top: 8.h),
+                        padding: EdgeInsets.only(top: context.h(8)),
                         child: Text(
                           _otpError!,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
+                          style: context.fonts.red11w600.copyWith(
+                            fontSize: context.sp(12),
                           ),
                         ),
                       ),
@@ -682,7 +655,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 );
               },
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
             GestureDetector(
               onTap: () {
                 if (!_formKeyVerifyOtp.currentState!.validate()) return;
@@ -693,35 +666,38 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       otp: _otpController.text.trim(),
                     )
                     .then((success) {
-                      if (success && context.mounted) {
-                        _goToCreateNewPassword();
-                      } else if (!success && context.mounted) {
-                        setState(
-                          () => _otpError = 'Invalid OTP. Please try again.',
-                        );
-                      }
-                    });
+                  if (success && context.mounted) {
+                    _goToCreateNewPassword();
+                  } else if (!success && context.mounted) {
+                    setState(
+                      () => _otpError = 'Invalid OTP. Please try again.',
+                    );
+                  }
+                });
               },
               child: Container(
-                width: 215.w,
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                width: context.w(215),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(20),
+                  vertical: context.h(8),
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                  color: CustomColors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Verify Email",
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: context.fonts.white16w400,
                     ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 20.sp),
+                    SizedBox(width: context.w(8)),
+                    Icon(
+                      Icons.arrow_forward,
+                      color: CustomColors.white,
+                      size: context.sp(20),
+                    ),
                   ],
                 ),
               ),
@@ -734,15 +710,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Widget _createNewPasswordWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(40),
+        vertical: context.h(40),
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12.r)),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.all(Radius.circular(context.r(12))),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: CustomColors.black.withValues(alpha: 0.15),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -753,28 +732,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildBackButton(_goBackToForgetPassword),
-            SizedBox(height: 16.h),
-            SvgPicture.asset(SvgAssets.stethoscope, height: 60.h, width: 60.w),
-            SizedBox(height: 8.h),
-            Text(
-              "Create New Password",
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-              ),
+            SizedBox(height: context.h(16)),
+            SvgPicture.asset(
+              SvgAssets.stethoscope,
+              height: context.h(60),
+              width: context.w(60),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
+            Text("Create New Password", style: context.fonts.black20w600),
+            SizedBox(height: context.h(8)),
             Text(
               "Your new password must be different from your previous password",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-              ),
+              style: context.fonts.grey14w400,
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
 
             // ✅ New Password Field
             Align(
@@ -782,22 +754,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               child: RichText(
                 text: TextSpan(
                   text: "New Password",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(height: 0, color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             TextFormField(
               controller: _newPasswordController,
               obscureText: _obscureNewPassword,
@@ -809,8 +776,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     _obscureNewPassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: Colors.grey.shade600,
-                    size: 20.sp,
+                    color: CustomColors.grey,
+                    size: context.sp(20),
                   ),
                   onPressed: () => setState(
                     () => _obscureNewPassword = !_obscureNewPassword,
@@ -818,29 +785,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
 
             Align(
               alignment: Alignment.centerLeft,
               child: RichText(
                 text: TextSpan(
                   text: "Confirm Password",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    height: 0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: context.fonts.black14w600,
                   children: [
                     TextSpan(
-                      text: "*",
-                      style: TextStyle(height: 0, color: Colors.red),
+                      text: " *",
+                      style: context.fonts.red14w600,
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             TextFormField(
               controller: _confirmNewPasswordController,
               obscureText: _obscureConfirmNewPassword,
@@ -860,8 +822,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     _obscureConfirmNewPassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: Colors.grey.shade600,
-                    size: 20.sp,
+                    color: CustomColors.grey,
+                    size: context.sp(20),
                   ),
                   onPressed: () => setState(
                     () => _obscureConfirmNewPassword =
@@ -870,7 +832,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
 
             GestureDetector(
               onTap: () {
@@ -882,31 +844,34 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       newPassword: _newPasswordController.text.trim(),
                     )
                     .then((success) {
-                      if (success && context.mounted) {
-                        _goToLogin();
-                      }
-                    });
+                  if (success && context.mounted) {
+                    _goToLogin();
+                  }
+                });
               },
               child: Container(
-                width: 215.w,
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                width: context.w(215),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(20),
+                  vertical: context.h(8),
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                  color: CustomColors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(context.r(30))),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Save Password",
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: context.fonts.white16w400,
                     ),
-                    SizedBox(width: 8.w),
-                    Icon(Icons.arrow_forward, color: Colors.white, size: 20.sp),
+                    SizedBox(width: context.w(8)),
+                    Icon(
+                      Icons.arrow_forward,
+                      color: CustomColors.white,
+                      size: context.sp(20),
+                    ),
                   ],
                 ),
               ),

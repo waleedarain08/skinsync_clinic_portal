@@ -5,16 +5,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class BaseViewModel<S> extends Notifier<S> {
-  final S initialState;
-
-  BaseViewModel(this.initialState);
-
   @override
-  S build() {
-    init();
-    ref.onDispose(dispose);
-    return initialState;
-  }
+  S build();
 
   Future<T?> runSafely<T>(
     AsyncValueGetter<T> action, {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../utils/theme.dart';
 
 class TreatmentCardWidget extends StatelessWidget {
   final String title;
@@ -23,62 +24,46 @@ class TreatmentCardWidget extends StatelessWidget {
       children: [
         Flexible(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(context.r(12)),
             child: Image.asset(
               image,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: const Color(0xFFE8E8E8),
-                child: const Icon(Icons.broken_image, color: Colors.grey),
+                color: CustomColors.softGrey,
+                child: const Icon(Icons.broken_image, color: CustomColors.grey),
               ),
             ),
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: context.h(10)),
         Row(
           children: [
             Text(
               title,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
+              style: CustomFonts.black18w600,
             ),
             if (price != null) ...[
-              SizedBox(width: 8.w),
+              SizedBox(width: context.w(8)),
               Text(
                 price!,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
+                style: CustomFonts.black18w600,
               ),
             ],
           ],
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.h(6)),
         Text(
           date,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.grey.shade600,
-          ),
+          style: CustomFonts.grey14w400,
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: context.h(6)),
         Row(
           children: [
-            Icon(Icons.attach_file, size: 14.sp, color: Colors.grey.shade600),
-            SizedBox(width: 4.w),
+            Icon(Icons.attach_file, size: context.r(14), color: CustomColors.grey),
+            SizedBox(width: context.w(4)),
             Text(
               "Attached AI Model",
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
-              ),
+              style: CustomFonts.grey14w400,
             ),
           ],
         ),

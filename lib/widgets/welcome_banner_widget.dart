@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/services/locator.dart';
 import 'package:skinsync_clinic_portal/services/storage_service.dart';
+
+import '../utils/theme.dart';
 
 class WelcomeBannerWidget extends StatelessWidget {
   const WelcomeBannerWidget({super.key});
@@ -10,14 +11,14 @@ class WelcomeBannerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(context.w(20)),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [Color(0xFF7DD3D3), Color(0xFF9BA7D4)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(context.r(16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,22 +29,14 @@ class WelcomeBannerWidget extends StatelessWidget {
               final name = snapshot.data?.name;
               return Text(
                 name != null ? 'Welcome back, $name 👋' : 'Welcome back 👋',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
+                style: CustomFonts.black20w600,
               );
             },
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: context.h(6)),
           Text(
             "Here's what's happening at your clinic today",
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w400,
-              color: Colors.black.withValues(alpha: 0.7),
-            ),
+            style: CustomFonts.grey14w400,
           ),
         ],
       ),

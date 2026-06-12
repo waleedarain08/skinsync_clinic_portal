@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_app_bar.dart';
 
 class DynamicPricing extends StatefulWidget {
@@ -24,8 +22,8 @@ class _DynamicPricingState extends State<DynamicPricing> {
       'name': 'Campaign Name',
       'enabled': true,
       'days': null,
-      'startTime': TimeOfDay(hour: 10, minute: 0),
-      'endTime': TimeOfDay(hour: 22, minute: 0),
+      'startTime': const TimeOfDay(hour: 10, minute: 0),
+      'endTime': const TimeOfDay(hour: 22, minute: 0),
       'discount': 20,
       'bogo': false,
     };
@@ -95,38 +93,38 @@ class _DynamicPricingState extends State<DynamicPricing> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF7F8FA),
-      appBar: CustomAppBar(showLogo: true),
+      appBar: const CustomAppBar(showLogo: true),
       body: Center(
         child: SizedBox(
-          width: 0.8.sw,
+          width: context.screenWidth * 0.8,
           child: Column(
             children: [
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
               Row(
                 children: [
                   IconButton(
                     onPressed: context.pop,
                     icon: Icon(
                       Icons.arrow_back,
-                      size: 24.sp,
-                      color: CustomColors.blackColor,
+                      size: context.r(24),
+                      color: CustomColors.black,
                     ),
                   ),
-                  SizedBox(width: 15.w),
-                  Text('Dynamic pricing', style: CustomFonts.black22w600),
-                  Spacer(),
+                  SizedBox(width: context.w(15)),
+                  Text('Dynamic pricing', style: context.fonts.black20w600),
+                  const Spacer(),
                   IconButton(
                     onPressed: () {},
                     icon: SvgPicture.asset(SvgAssets.plus),
                   ),
                 ],
               ),
-              SizedBox(height: 15.h),
+              SizedBox(height: context.h(15)),
               Divider(
                 height: 0,
-                color: CustomColors.blackColor.withValues(alpha: 0.1),
+                color: CustomColors.black.withValues(alpha: 0.1),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: context.h(24)),
               Expanded(child: _buildBody()),
             ],
           ),
@@ -144,7 +142,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
           child: Column(
             children: [
               _searchBar(),
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
               Expanded(
                 child: ListView.builder(
                   itemCount: campaigns.length,
@@ -160,13 +158,13 @@ class _DynamicPricingState extends State<DynamicPricing> {
                         });
                       },
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 16.h),
+                        margin: EdgeInsets.only(bottom: context.h(16)),
                         decoration: BoxDecoration(
-                          color: CustomColors.whiteColor,
-                          borderRadius: BorderRadius.circular(16),
+                          color: CustomColors.white,
+                          borderRadius: BorderRadius.circular(context.r(16)),
                           border: Border.all(
                             color: selected
-                                ? CustomColors.purpleColor
+                                ? CustomColors.purple
                                 : Colors.transparent,
                             width: 2,
                           ),
@@ -175,28 +173,28 @@ class _DynamicPricingState extends State<DynamicPricing> {
                           children: [
                             Padding(
                               padding: EdgeInsets.only(
-                                left: 12.w,
-                                right: 12.w,
-                                top: 12.w,
+                                left: context.w(12),
+                                right: context.w(12),
+                                top: context.w(12),
                               ),
                               child: Row(
-                                crossAxisAlignment: .start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    width: 50.w,
-                                    height: 50.w,
+                                    width: context.w(50),
+                                    height: context.w(50),
                                     decoration: BoxDecoration(
-                                      color: CustomColors.lightBlueColor
+                                      color: CustomColors.blue
                                           .withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(14.r),
+                                      borderRadius: BorderRadius.circular(context.r(14)),
                                     ),
                                     child: SvgPicture.asset(
                                       SvgAssets.discount,
-                                      width: 28.w,
-                                      height: 28.w,
+                                      width: context.w(28),
+                                      height: context.w(28),
                                     ),
                                   ),
-                                  SizedBox(width: 16.w),
+                                  SizedBox(width: context.w(16)),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -204,12 +202,12 @@ class _DynamicPricingState extends State<DynamicPricing> {
                                       children: [
                                         Text(
                                           'Campaign Name',
-                                          style: CustomFonts.black20w600,
+                                          style: context.fonts.black20w600,
                                         ),
-                                        SizedBox(height: 4.h),
+                                        SizedBox(height: context.h(4)),
                                         Text(
                                           '03 Treatments Included',
-                                          style: CustomFonts.grey14w400,
+                                          style: context.fonts.grey14w400,
                                         ),
                                       ],
                                     ),
@@ -225,7 +223,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                                 ],
                               ),
                             ),
-                            Divider(height: 32.h),
+                            Divider(height: context.h(32)),
                             _buildCampaignInfoRow(
                               key: 'Offer Days',
                               value: 'Mon, Wed, Fri',
@@ -239,7 +237,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                               value: '20% Off',
                               isImportant: true,
                             ),
-                            SizedBox(height: 12.w),
+                            SizedBox(height: context.w(12)),
                           ],
                         ),
                       ),
@@ -251,25 +249,24 @@ class _DynamicPricingState extends State<DynamicPricing> {
           ),
         ),
 
-        SizedBox(width: 32.w),
+        SizedBox(width: context.w(32)),
 
         /// RIGHT SIDE PANEL
         Expanded(
           child: Container(
-            margin: EdgeInsets.only(bottom: 10.h),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            margin: EdgeInsets.only(bottom: context.h(10)),
+            padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(12)),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              color: CustomColors.white,
+              borderRadius: BorderRadius.circular(context.r(16)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Treatments', style: CustomFonts.black18w600),
-                SizedBox(height: 5.h),
+                Text('Treatments', style: context.fonts.black18w600),
+                SizedBox(height: context.h(5)),
                 DropdownButtonFormField<String>(
                   initialValue: selectedTreatment,
-
                   hint: const Text('Select'),
                   items: treatments
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -281,13 +278,12 @@ class _DynamicPricingState extends State<DynamicPricing> {
                   },
                 ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
 
-                Text('Days of the Week', style: CustomFonts.black18w600),
-                SizedBox(height: 5.h),
+                Text('Days of the Week', style: context.fonts.black18w600),
+                SizedBox(height: context.h(5)),
                 DropdownButtonFormField<String>(
                   initialValue: selectedDay,
-
                   hint: const Text('Select'),
                   items: weekDays
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -298,9 +294,9 @@ class _DynamicPricingState extends State<DynamicPricing> {
                     });
                   },
                 ),
-                SizedBox(height: 20.h),
-                Text('Time Range', style: CustomFonts.black18w600),
-                SizedBox(height: 5.h),
+                SizedBox(height: context.h(20)),
+                Text('Time Range', style: context.fonts.black18w600),
+                SizedBox(height: context.h(5)),
                 Row(
                   children: [
                     Expanded(
@@ -308,7 +304,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
                         onPressed: () => pickTime(true),
                         child: Text(
                           formatTime(startTime),
-                          style: CustomFonts.black18w400,
+                          style: context.fonts.black16w400,
                         ),
                       ),
                     ),
@@ -318,19 +314,19 @@ class _DynamicPricingState extends State<DynamicPricing> {
                         onPressed: () => pickTime(false),
                         child: Text(
                           formatTime(endTime),
-                          style: CustomFonts.black18w400,
+                          style: context.fonts.black16w400,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: context.h(20)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Buy one get one free',
-                      style: CustomFonts.black18w600,
+                      style: context.fonts.black18w600,
                     ),
                     Switch(
                       value: isBogo,
@@ -342,10 +338,10 @@ class _DynamicPricingState extends State<DynamicPricing> {
                     ),
                   ],
                 ),
-                Divider(height: 5.h, thickness: 0.5),
-                SizedBox(height: 20.h),
-                Text('Discount', style: CustomFonts.black18w600),
-                SizedBox(height: 5.h),
+                Divider(height: context.h(5), thickness: 0.5),
+                SizedBox(height: context.h(20)),
+                Text('Discount', style: context.fonts.black18w600),
+                SizedBox(height: context.h(5)),
                 TextFormField(
                   initialValue: discount.toString(),
                   keyboardType: TextInputType.number,
@@ -381,16 +377,16 @@ class _DynamicPricingState extends State<DynamicPricing> {
     bool isImportant = false,
   }) {
     return Padding(
-      padding: EdgeInsets.only(left: 12.w, right: 12.w, top: 5.h),
+      padding: EdgeInsets.only(left: context.w(12), right: context.w(12), top: context.h(5)),
       child: Row(
-        mainAxisAlignment: .spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(key, style: CustomFonts.grey14w400),
+          Text(key, style: context.fonts.grey14w400),
           Text(
             value,
             style: isImportant
-                ? CustomFonts.black14w600.copyWith(color: Colors.red)
-                : CustomFonts.black14w600,
+                ? context.fonts.black14w600.copyWith(color: CustomColors.red)
+                : context.fonts.black14w600,
           ),
         ],
       ),
@@ -401,9 +397,9 @@ class _DynamicPricingState extends State<DynamicPricing> {
     return TextFormField(
       decoration: InputDecoration(
         hintText: 'Search Campaign',
-        hintStyle: CustomFonts.grey16w400,
-        prefixIcon: Icon(Icons.search),
-        fillColor: CustomColors.fillColor,
+        hintStyle: context.fonts.grey16w400,
+        prefixIcon: const Icon(Icons.search),
+        fillColor: CustomColors.softGrey,
         filled: true,
         contentPadding: EdgeInsets.zero,
       ),

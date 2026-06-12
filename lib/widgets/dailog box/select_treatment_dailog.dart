@@ -4,12 +4,11 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/view_models/doctor_view_model.dart';
 
 import '../../models/treatment_model.dart';
-import '../../utils/custom_fonts.dart';
+import '../../utils/theme.dart';
 import '../../utils/extentions.dart';
 import '../../view_models/treatment_view_model.dart';
 
@@ -46,43 +45,46 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
 
   TreatmentModel? _selectedTreatment;
   late List<TreatmentModel> _treatments;
-  late List<SideAreaModel> _sideAreas;
-  late List<SideAreaModel> _selectedAreas;
+  List<SideAreaModel> _sideAreas = [];
+  List<SideAreaModel> _selectedAreas = [];
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 50.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(50),
+        vertical: context.h(50),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.r(12)),
+      ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(24.w),
+        padding: EdgeInsets.all(context.r(24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Add Doctor Treatment', style: CustomFonts.black22w600),
+                Text('Add Doctor Treatment', style: CustomFonts.black20w600),
                 IconButton(
                   onPressed: () {
                     context.pop();
                   },
-                  icon: Icon(Icons.close, color: Colors.black),
+                  icon: const Icon(Icons.close, color: CustomColors.black),
                 ),
               ],
             ),
-            // SizedBox(height: 24.h),
-            // Text('Treatment Details', style: CustomFonts.black22w600),
-            SizedBox(height: 40.h),
+            SizedBox(height: context.h(40)),
 
             Text("Select Treatment", style: CustomFonts.black14w500),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             _loadingTreatments
                 ? Container(
-                    height: 48.h,
+                    height: context.h(48),
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8.r),
+                      color: CustomColors.softGrey,
+                      borderRadius: BorderRadius.circular(context.r(8)),
                     ),
                   ).withShimmer()
                 : DropdownButtonHideUnderline(
@@ -90,7 +92,10 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                       isExpanded: true,
                       hint: Text(
                         "Select Treatment",
-                        style: TextStyle(color: Colors.grey[400]),
+                        style: TextStyle(
+                          color: CustomColors.lightGrey,
+                          fontSize: context.sp(14),
+                        ),
                       ),
                       value: _selectedTreatment,
                       items: _treatments
@@ -115,32 +120,34 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                         setState(() {});
                       },
                       buttonStyleData: ButtonStyleData(
-                        height: 48.h,
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        height: context.h(48),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(16),
+                        ),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(context.r(8)),
+                          border: Border.all(color: CustomColors.border),
                         ),
                       ),
                     ),
                   ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
             if (_selectedTreatment != null) ...[
               Text("Select Areas", style: CustomFonts.black14w500),
-              SizedBox(height: 16.h),
+              SizedBox(height: context.h(16)),
               Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: (_sideAreas).map((area) {
+                spacing: context.w(8),
+                runSpacing: context.h(8),
+                children: _sideAreas.map((area) {
                   final isSelected = _selectedAreas.contains(area);
                   return ChoiceChip(
                     label: Text(area.name ?? "N/A"),
                     selected: isSelected,
-                    selectedColor: Colors.black,
-                    checkmarkColor: Colors.white,
+                    selectedColor: CustomColors.black,
+                    checkmarkColor: CustomColors.white,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black,
-                      fontSize: 14.sp,
+                      color: isSelected ? CustomColors.white : CustomColors.black,
+                      fontSize: context.sp(14),
                       fontWeight: FontWeight.w500,
                     ),
                     onSelected: (selected) {
@@ -149,34 +156,28 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                           _selectedAreas.add(area);
                         } else {
                           _selectedAreas.remove(area);
-                          final index = _selectedAreas.indexOf(area);
-                          if (index != -1) {}
                         }
                       });
                     },
                   );
                 }).toList(),
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: context.h(30)),
             ],
-            SizedBox(height: 32.h),
+            SizedBox(height: context.h(32)),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // 2️⃣ If treatments or side areas are loading
                       if (_loadingTreatments) {
                         EasyLoading.showError('Please wait while we load');
                         return;
                       }
-                      // 1️⃣ Treatment must be selected
                       if (_selectedTreatment == null) {
                         EasyLoading.showError('Please select a treatment');
                         return;
                       }
-
-                      // 2️⃣ If treatment has areas → at least one area required
                       if (_selectedTreatment!.isArea == true &&
                           _selectedAreas.isEmpty) {
                         EasyLoading.showError(
@@ -194,18 +195,21 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: CustomColors.black,
                     ),
                     child: Text(
                       'Add Treatment',
-                      style: CustomFonts.white14w500,
+                      style: CustomFonts.white14w600,
                     ),
                   ),
                 ),
-                SizedBox(width: 16.w),
+                SizedBox(width: context.w(16)),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: CustomColors.black),
+                    ),
                     child: Text('Cancel', style: CustomFonts.black14w500),
                   ),
                 ),

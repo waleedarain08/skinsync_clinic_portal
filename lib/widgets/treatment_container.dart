@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/patient_management_detail.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+
+import '../utils/theme.dart';
 
 class TreatmentContainer extends StatelessWidget {
   const TreatmentContainer({super.key});
@@ -15,26 +15,29 @@ class TreatmentContainer extends StatelessWidget {
         context.go(PatientManagementDetailScreen.routeName);
       },
       child: Container(
-        padding: EdgeInsets.all(15.w),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.r)),
+        padding: EdgeInsets.all(context.w(15)),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(context.r(15))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(15.r),
+              borderRadius: BorderRadius.circular(context.r(15)),
               child: Image.asset(
                 PngAssets.treatmentImage,
-                height: 248.h,
+                height: context.h(248),
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 19.h),
-            Text("Botox - Forehead", style: CustomFonts.grey18w700),
-            SizedBox(height: 19.h),
-            Text("Provider: Dr. Smith", style: CustomFonts.grey18w500),
-            SizedBox(height: 9.h),
-            Text("Oct 29, 2025", style: CustomFonts.grey18w500),
+            SizedBox(height: context.h(19)),
+            Text(
+              "Botox - Forehead",
+              style: CustomFonts.grey18w400.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: context.h(19)),
+            Text("Provider: Dr. Smith", style: CustomFonts.grey14w500),
+            SizedBox(height: context.h(9)),
+            Text("Oct 29, 2025", style: CustomFonts.grey14w500),
           ],
         ),
       ),

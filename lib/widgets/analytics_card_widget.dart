@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../utils/theme.dart';
 
 class AnalyticsCardWidget extends StatelessWidget {
   final IconData icon;
@@ -21,23 +22,29 @@ class AnalyticsCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(16),
+        vertical: context.h(16),
+      ),
       decoration: BoxDecoration(
-        color: Color(0xFFFAFAFA),
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.whiteGrey,
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 44.w,
-            width: 44.w,
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+            height: context.w(44),
+            width: context.w(44),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(10),
+              vertical: context.h(10),
+            ),
             decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 23.sp),
+            child: Icon(icon, color: iconColor, size: context.r(23)),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: context.w(12)),
           Flexible(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -45,20 +52,12 @@ class AnalyticsCardWidget extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
+                  style: CustomFonts.black20w600,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: context.h(4)),
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black54,
-                  ),
+                  style: CustomFonts.grey16w400,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),

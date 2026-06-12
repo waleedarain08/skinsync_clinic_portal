@@ -3,14 +3,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/appointment_screen.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/patient_management_detail.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/appointment_tile_widget.dart';
@@ -18,6 +15,7 @@ import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_da
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/chat_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/notes_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/simulations_detail_dailog_box.dart';
+import 'package:skinsync_clinic_portal/widgets/pateint_treatment_selection_tile.dart';
 import 'package:skinsync_clinic_portal/widgets/signpad_widget.dart';
 
 class PatientMangementWidget extends StatefulWidget {
@@ -29,59 +27,68 @@ class PatientMangementWidget extends StatefulWidget {
 
 class _PatientMangementWidgetState extends State<PatientMangementWidget> {
   bool isTreatmentSelected = true;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         patientInfo(context: context),
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(20)),
         selectionButtons(),
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(20)),
         if (isTreatmentSelected) treatmentContent(),
         if (!isTreatmentSelected) simulationContent(),
-        SizedBox(height: 19.h),
+        SizedBox(height: context.h(20)),
         allergies(),
-        SizedBox(height: 19.h),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(15.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.r),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text("Photos", style: CustomFonts.black22w600),
-              SizedBox(height: 20.h),
-              Row(
-                children: List.generate(3, (_) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: 10.w),
-                    child: Container(
-                      height: 100.h,
-                      width: 104.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.r),
-                        image: DecorationImage(
-                          image: AssetImage(PngAssets.treatmentImage2),
-                          fit: BoxFit.fill,
-                        ),
+        SizedBox(height: context.h(20)),
+        photosSection(),
+        SizedBox(height: context.h(20)),
+        appointmentContent(),
+        SizedBox(height: context.h(20)),
+        medicalInfo(context: context),
+        SizedBox(height: context.h(20)),
+      ],
+    );
+  }
+
+  Widget photosSection() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(context.w(15)),
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Photos", style: CustomFonts.black20w600),
+          SizedBox(height: context.h(20)),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(3, (index) {
+                return Padding(
+                  padding: EdgeInsets.only(right: context.w(10)),
+                  child: Container(
+                    height: context.h(100),
+                    width: context.w(104),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(context.r(16)),
+                      image: const DecorationImage(
+                        image: AssetImage(PngAssets.treatmentImage2),
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  );
-                }),
-              ),
-            ],
+                  ),
+                );
+              }),
+            ),
           ),
-        ),
-        SizedBox(height: 19.h),
-        appointmentContent(),
-        SizedBox(height: 19.h),
-        medicalInfo(context: context),
-        SizedBox(height: 19.h),
-      ],
+        ],
+      ),
     );
   }
 
@@ -96,43 +103,42 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16.5.h),
+              padding: EdgeInsets.symmetric(vertical: context.h(16)),
               decoration: BoxDecoration(
-                color: isTreatmentSelected ? Colors.black : AppTheme.lightgrey,
-                borderRadius: BorderRadius.circular(10.r),
+                color: isTreatmentSelected ? CustomColors.black : CustomColors.softGrey,
+                borderRadius: BorderRadius.circular(context.r(10)),
               ),
               child: Center(
                 child: Text(
                   "Treatments",
                   style: isTreatmentSelected
-                      ? CustomFonts.white18w500
-                      : CustomFonts.black18w500,
+                      ? CustomFonts.white14w600
+                      : CustomFonts.black14w600,
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(width: 11.w),
+        SizedBox(width: context.w(12)),
         Expanded(
           child: GestureDetector(
             onTap: () {
               setState(() {
-                print("AI Simulations tapped");
                 isTreatmentSelected = false;
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16.5.h),
+              padding: EdgeInsets.symmetric(vertical: context.h(16)),
               decoration: BoxDecoration(
-                color: !isTreatmentSelected ? Colors.black : AppTheme.lightgrey,
-                borderRadius: BorderRadius.circular(10.r),
+                color: !isTreatmentSelected ? CustomColors.black : CustomColors.softGrey,
+                borderRadius: BorderRadius.circular(context.r(10)),
               ),
               child: Center(
                 child: Text(
                   "AI Simulations",
                   style: !isTreatmentSelected
-                      ? CustomFonts.white18w500
-                      : CustomFonts.black18w500,
+                      ? CustomFonts.white14w600
+                      : CustomFonts.black14w600,
                 ),
               ),
             ),
@@ -145,23 +151,27 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
   Widget allergies() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Allergies", style: CustomFonts.black22w600),
-          SizedBox(height: 20.h),
+          Text("Allergies", style: CustomFonts.black20w600),
+          SizedBox(height: context.h(20)),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 9.65.w, vertical: 5.39.h),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(10.r),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(12),
+              vertical: context.h(6),
             ),
-            child: Text("New", style: CustomFonts.white18w600),
+            decoration: BoxDecoration(
+              color: CustomColors.black,
+              borderRadius: BorderRadius.circular(context.r(10)),
+            ),
+            child: Text("New", style: CustomFonts.white14w600),
           ),
         ],
       ),
@@ -170,76 +180,56 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
 
   Widget simulationContent() {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Calculate max width per item for responsive design
-          double maxWidthPerItem = 300.w; // Adjust this as needed
-
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: 8,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: maxWidthPerItem, // Max width of each item
-              crossAxisSpacing: 10.w,
-              mainAxisSpacing: 10.h,
-              childAspectRatio: 0.75, // Height/width ratio
-            ),
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  showDialog<bool>(
-                    context: context,
-                    builder: (context) => SimulationDetailDaillogBox(),
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(5.w),
-                  // decoration: BoxDecoration(
-                  //   color: Colors.white,
-                  //   borderRadius: BorderRadius.circular(10.r),
-                  //   boxShadow: [
-                  //     BoxShadow(
-                  //       color: Colors.black12,
-                  //       blurRadius: 4,
-                  //       offset: Offset(0, 2),
-                  //     ),
-                  //   ],
-                  // ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.r),
-                          child: Image.asset(
-                            PngAssets.simulation,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        "Simulation Name",
-                        style: CustomFonts.black18w600,
-                        textAlign: TextAlign.left,
-                      ),
-                      Text(
-                        "Treatment Name",
-                        style: CustomFonts.grey16w400,
-                        textAlign: TextAlign.left,
-                      ),
-                    ],
-                  ),
-                ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 4,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: context.w(15),
+          mainAxisSpacing: context.h(15),
+          childAspectRatio: 0.8,
+        ),
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => const SimulationDetailDaillogBox(),
               );
             },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(context.r(10)),
+                    child: Image.asset(
+                      PngAssets.simulation,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SizedBox(height: context.h(8)),
+                Text(
+                  "Simulation ${index + 1}",
+                  style: CustomFonts.black16w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  "Treatment Name",
+                  style: CustomFonts.grey14w400,
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -248,28 +238,29 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
 
   Widget treatmentContent() {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Treatment History", style: CustomFonts.black22w600),
-          SizedBox(height: 20.h),
-          CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
-          SizedBox(height: 19.h),
+          Text("Treatment History", style: CustomFonts.black20w600),
+          SizedBox(height: context.h(20)),
+          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: 0.h),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: 3,
             itemBuilder: (context, index) {
-              return AppointmentTileWidget(
+              return PatientTreatmentSelectionTile(
                 onTap: () {
                   context.go(PatientManagementDetailScreen.routeName);
                 },
-                appointment: dummyAppointments[4],
               );
             },
           ),
@@ -280,22 +271,22 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
 
   Widget appointmentContent() {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Appointments", style: CustomFonts.black22w600),
-          SizedBox(height: 20.h),
-          // CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
-          // SizedBox(height: 19.h),
+          Text("Appointments", style: CustomFonts.black20w600),
+          SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: 0.h),
+            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
             shrinkWrap: true,
-            itemCount: 3,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 2,
             itemBuilder: (context, index) {
               return Consumer(
                 builder: (context, ref, _) {
@@ -307,7 +298,7 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
                           .navigateDailogIndexToNext(0);
                       showDialog(
                         context: context,
-                        builder: (_) => AppointmentReadyDailog(),
+                        builder: (_) => const AppointmentReadyDailog(),
                       );
                     },
                   );
@@ -323,235 +314,169 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
   Widget medicalInfo({required BuildContext context}) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
-          Text("Medical Information", style: CustomFonts.black22w600),
-          SizedBox(height: 20.h),
-          Text("Allergies", style: CustomFonts.grey18w500),
-          SizedBox(height: 9.h),
+          Text("Medical Information", style: CustomFonts.black20w600),
+          SizedBox(height: context.h(20)),
+          Text("Allergies", style: CustomFonts.grey14w600),
+          SizedBox(height: context.h(10)),
           Container(
-            padding: EdgeInsets.all(14.w),
+            padding: EdgeInsets.all(context.w(12)),
             decoration: BoxDecoration(
-              color: AppTheme.errorColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(15.r),
+              color: CustomColors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(context.r(10)),
             ),
-            child: Text("Latex", style: CustomFonts.red18w500),
+            child: Text("Latex", style: CustomFonts.red14w600),
           ),
-          SizedBox(height: 19.h),
+          SizedBox(height: context.h(20)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
             children: [
-              Text("Notes", style: CustomFonts.grey18w700),
+              Text("Notes", style: CustomFonts.grey14w600),
               GestureDetector(
                 onTap: () {
-                  showDialog<bool>(
+                  showDialog(
                     context: context,
-                    builder: (context) => NotesDailog(),
+                    builder: (context) => const NotesDailog(),
                   );
                 },
-                child: Text("+ Add New Note", style: CustomFonts.blue16w600),
+                child: Text("+ Add New Note", style: CustomFonts.purple16w600),
               ),
             ],
           ),
-
-          SizedBox(height: 19.h),
-          Text(
-            "Prefers natural-looking results",
-            style: CustomFonts.grey18w500,
-          ),
-          SizedBox(height: 19.h),
-          Text(
-            "Prefers natural-looking results",
-            style: CustomFonts.grey18w500,
-          ),
-          SizedBox(height: 19.h),
-          Text(
-            "Prefers natural-looking results",
-            style: CustomFonts.grey18w500,
-          ),
-
-          for (int i = 0; i < 3; i++)
+          SizedBox(height: context.h(15)),
+          ...List.generate(3, (index) => Padding(
+            padding: EdgeInsets.only(bottom: context.h(10)),
+            child: Text(
+              "Prefers natural-looking results",
+              style: CustomFonts.grey14w400,
+            ),
+          )),
+          SizedBox(height: context.h(10)),
+          for (int i = 0; i < 2; i++)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 9.h),
-              child: ExpansionTile(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                collapsedShape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                clipBehavior: Clip.antiAlias,
-                leading: Image.asset(PngAssets.pdf, height: 33.h, width: 44.w),
-                title: Text(
-                  "Client Intake Form.pdf",
-                  style: CustomFonts.black12w600,
-                ),
-                subtitle: Text(
-                  "867 Kb    14 Feb 2022 at 11:30 am",
-                  style: CustomFonts.grey14w400,
-                ),
-                trailing: SvgPicture.asset(
-                  SvgAssets.downloadIcon,
-                  height: 20.w,
-                  width: 20.w,
-                ),
-                childrenPadding: EdgeInsets.symmetric(
-                  horizontal: 22.w,
-                  vertical: 19.h,
-                ),
-                children: [
-                  Divider(height: 0, color: CustomColors.greyColor),
-                  SizedBox(height: 10.h),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-                    children: [
-                      Text("Text Field 1", style: CustomFonts.grey14w400),
-                      Text("Client Input", style: CustomFonts.black14w400),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-                    children: [
-                      Text("Text Field 2", style: CustomFonts.grey14w400),
-                      Text("Client Input", style: CustomFonts.black14w400),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-                    children: [
-                      Text("Text Field 2", style: CustomFonts.grey14w400),
-                      Text("Client Input", style: CustomFonts.black14w400),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-
-                    children: [
-                      SizedBox(
-                        height: 54.h,
-                        width: 101.w,
-                        child: Image.asset(
-                          (PngAssets.signature),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Spacer(),
-                      Consumer(
-                        builder: (context, ref, _) {
-                          final signature = ref
-                              .watch(authViewModelProvider)
-                              .signature;
-                          if (signature != null) {
-                            return RawImage(
-                              image: signature,
-                              height: 60.h,
-                              fit: BoxFit.contain,
-                            );
-                          }
-
-                          return GestureDetector(
-                            onTap: () async {
-                              final ui.Image? signature =
-                                  await ESignatureDialog.show(context);
-                              if (signature != null) {
-                                ref
-                                    .read(authViewModelProvider.notifier)
-                                    .saveSignature(signature);
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(9.w),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: CustomColors.blackColor,
-                                ),
-                                borderRadius: BorderRadius.circular(8.r),
-                                color: CustomColors.greyColor,
-                              ),
-
-                              child: Text(
-                                " + Draw Signature",
-                                style: CustomFonts.black12w400,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  Row(
-                    mainAxisAlignment: .spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: .start,
-                        children: [
-                          Container(
-                            width: 105.w,
-                            height: 1.h,
-                            color: CustomColors.blackColor,
-                          ),
-                          Text(
-                            "Patient Signature",
-                            style: CustomFonts.black14w400,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: .start,
-                        children: [
-                          Container(
-                            width: 105.w,
-                            height: 1.h,
-                            color: CustomColors.blackColor,
-                          ),
-                          Text(
-                            "Clinic Signature",
-                            style: CustomFonts.black14w400,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              padding: EdgeInsets.symmetric(vertical: context.h(8)),
+              child: intakeFormTile(context),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildSignBox() {
-    return Column(
-      crossAxisAlignment: .start,
+  Widget intakeFormTile(BuildContext context) {
+    return ExpansionTile(
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: CustomColors.border),
+        borderRadius: BorderRadius.circular(context.r(16)),
+      ),
+      collapsedShape: RoundedRectangleBorder(
+        side: const BorderSide(color: CustomColors.border),
+        borderRadius: BorderRadius.circular(context.r(16)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      leading: Image.asset(PngAssets.pdf, height: context.h(33), width: context.w(44)),
+      title: Text(
+        "Client Intake Form.pdf",
+        style: CustomFonts.black14w600,
+      ),
+      subtitle: Text(
+        "867 Kb    14 Feb 2022 at 11:30 am",
+        style: CustomFonts.grey12w400,
+      ),
+      trailing: SvgPicture.asset(
+        SvgAssets.downloadIcon,
+        height: context.w(20),
+        width: context.w(20),
+      ),
+      childrenPadding: EdgeInsets.symmetric(
+        horizontal: context.w(15),
+        vertical: context.h(15),
+      ),
       children: [
-        SizedBox(
-          height: 54.h,
-          width: 101.w,
-          child: Image.asset((PngAssets.signature), fit: BoxFit.cover),
+        const Divider(color: CustomColors.border),
+        SizedBox(height: context.h(10)),
+        ...List.generate(3, (index) => Padding(
+          padding: EdgeInsets.only(bottom: context.h(8)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Text Field ${index + 1}", style: CustomFonts.grey14w400),
+              Text("Client Input", style: CustomFonts.black14w400),
+            ],
+          ),
+        )),
+        SizedBox(height: context.h(15)),
+        signatureSection(context),
+      ],
+    );
+  }
+
+  Widget signatureSection(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: context.h(40),
+              width: context.w(100),
+              child: Image.asset(PngAssets.signature, fit: BoxFit.contain),
+            ),
+            Container(width: context.w(105), height: 1, color: CustomColors.black),
+            Text("Patient Signature", style: CustomFonts.black12w400),
+          ],
         ),
-        Container(width: 105.w, height: 1.h, color: CustomColors.blackColor),
-        Text("Patient Signature", style: CustomFonts.black14w400),
+        Consumer(
+          builder: (context, ref, _) {
+            final signature = ref.watch(authViewModelProvider).signature;
+            if (signature != null) {
+              return RawImage(
+                image: signature,
+                height: context.h(50),
+                fit: BoxFit.contain,
+              );
+            }
+            return GestureDetector(
+              onTap: () async {
+                final ui.Image? sig = await ESignatureDialog.show(context);
+                if (sig != null) {
+                  ref.read(authViewModelProvider.notifier).saveSignature(sig);
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.all(context.w(8)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: CustomColors.purple),
+                  borderRadius: BorderRadius.circular(context.r(8)),
+                  color: CustomColors.softGrey,
+                ),
+                child: Text(
+                  "+ Draw Signature",
+                  style: CustomFonts.purple14w600,
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
 
   Widget patientInfo({required BuildContext context}) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: Colors.grey.shade300),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,79 +484,76 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
           Row(
             children: [
               ClipOval(
-                child: Image.asset(PngAssets.person, height: 96.r, width: 96.r),
+                child: Image.asset(PngAssets.person, height: context.r(80), width: context.r(80)),
               ),
-              SizedBox(width: 15.r),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Sarah Johnson", style: CustomFonts.black18w500),
-                  Text("Patient ID: 1", style: CustomFonts.grey16w400),
-                ],
+              SizedBox(width: context.w(15)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Sarah Johnson", style: CustomFonts.black18w600),
+                    Text("Patient ID: 1", style: CustomFonts.grey14w400),
+                  ],
+                ),
               ),
-              Spacer(),
               GestureDetector(
                 onTap: () {
-                  showDialog<bool>(
+                  showDialog(
                     context: context,
-                    builder: (context) => ChatDailog(),
+                    builder: (context) => const ChatDailog(),
                   );
                 },
                 child: Container(
-                  padding: EdgeInsets.all(14.r),
-                  decoration: BoxDecoration(
-                    color: CustomColors.greyColor,
+                  padding: EdgeInsets.all(context.r(12)),
+                  decoration: const BoxDecoration(
+                    color: CustomColors.softGrey,
                     shape: BoxShape.circle,
                   ),
                   child: SvgPicture.asset(
                     SvgAssets.message,
-                    height: 20.w,
-                    width: 20.w,
+                    height: context.w(20),
+                    width: context.w(20),
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 15.h),
-
+          SizedBox(height: context.h(20)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: infoContainer(
                   title: "Email",
-                  info: "Sarah Johnson",
+                  info: "sarah.j@email.com",
                   icon: Icons.email_outlined,
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: context.w(12)),
               Expanded(
                 child: infoContainer(
                   title: "Phone",
-                  info: "+1 (555) 123-4567",
+                  info: "+1 555 123 4567",
                   icon: Icons.call_outlined,
                 ),
               ),
             ],
           ),
-
-          SizedBox(height: 15.h),
+          SizedBox(height: context.h(12)),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: infoContainer(
                   title: "Last Visit",
                   info: "Oct 29, 2025",
-                  icon: Icons.calendar_today,
+                  icon: Icons.calendar_today_outlined,
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: context.w(12)),
               Expanded(
                 child: infoContainer(
-                  title: "Next Appointment",
+                  title: "Next Appt",
                   info: "Nov 5, 2025",
-                  icon: Icons.calendar_today,
+                  icon: Icons.calendar_month_outlined,
                 ),
               ),
             ],
@@ -647,36 +569,32 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
     required IconData icon,
   }) {
     return Container(
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.all(context.w(12)),
       decoration: BoxDecoration(
-        color: AppTheme.fillCOlor,
-        borderRadius: BorderRadius.circular(10.r),
+        color: CustomColors.softGrey,
+        borderRadius: BorderRadius.circular(context.r(10)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
           Text(
             title,
-            style: CustomFonts.grey16w400,
+            style: CustomFonts.grey12w400,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 10.h),
-          Text.rich(
-            overflow: TextOverflow.ellipsis,
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Icon(
-                    icon,
-                    size: 16.sp,
-                    color: CustomColors.textGreyColor,
-                  ),
+          SizedBox(height: context.h(6)),
+          Row(
+            children: [
+              Icon(icon, size: context.sp(14), color: CustomColors.lightGrey),
+              SizedBox(width: context.w(6)),
+              Expanded(
+                child: Text(
+                  info,
+                  style: CustomFonts.black14w500,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                TextSpan(text: " $info", style: CustomFonts.grey16w400),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

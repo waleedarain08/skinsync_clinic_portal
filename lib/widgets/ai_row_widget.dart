@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import '../utils/theme.dart';
 import 'treatment_stats_card_widget.dart';
 
 class AiRowWidget extends StatelessWidget {
@@ -11,9 +11,9 @@ class AiRowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveLayoutList(
-      horizontalHeight: 400.r,
-      spaceHeight: 20.h,
-      spaceWidth: 20.w,
+      horizontalHeight: context.r(400),
+      spaceHeight: context.h(20),
+      spaceWidth: context.w(20),
       isScrollVertical: false,
       children: [
         TreatmentStatsCard(

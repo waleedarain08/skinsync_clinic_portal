@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
-import '../utils/custom_fonts.dart';
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
 
@@ -23,23 +22,21 @@ class _NotificationSettingsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFBDBDBD),
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button
-              BuildHeader(title: 'Notification Settings'),
-              SizedBox(height: 24.h),
+              const BuildHeader(title: 'Notification Settings'),
+              SizedBox(height: context.h(24)),
               // Main Card Container
               _buildCardContainer(),
-              SizedBox(height: 16.h),
-              // Important Note
             ],
           ),
         ),
@@ -49,28 +46,26 @@ class _NotificationSettingsScreenState
 
   Widget _buildCardContainer() {
     return Container(
-      padding: EdgeInsets.all(20.w),
-
+      padding: EdgeInsets.all(context.w(20)),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: CustomColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
-        spacing: 16.h,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Manage Notifications Title
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.w),
-            child: Text('Manage Notifications', style: CustomFonts.black22w600),
+            padding: EdgeInsets.symmetric(vertical: context.h(16)),
+            child: Text('Manage Notifications', style: context.fonts.black20w600),
           ),
           // Notification Options
           _buildNotificationOption(
@@ -83,6 +78,7 @@ class _NotificationSettingsScreenState
               });
             },
           ),
+          SizedBox(height: context.h(16)),
           _buildNotificationOption(
             title: 'Payment Notifications',
             subtitle: 'Get notified about payments',
@@ -93,6 +89,7 @@ class _NotificationSettingsScreenState
               });
             },
           ),
+          SizedBox(height: context.h(16)),
           _buildNotificationOption(
             title: 'AI Report Notifications',
             subtitle: 'Get notified when AI reports are ready',
@@ -103,6 +100,7 @@ class _NotificationSettingsScreenState
               });
             },
           ),
+          SizedBox(height: context.h(16)),
           _buildNotificationOption(
             title: 'Follow-up Reminders',
             subtitle: 'Get reminders for patient follow-ups',
@@ -112,8 +110,8 @@ class _NotificationSettingsScreenState
                 _followUpReminders = value;
               });
             },
-            showBottomPadding: true,
           ),
+          SizedBox(height: context.h(24)),
           _buildImportantNote(),
         ],
       ),
@@ -125,18 +123,15 @@ class _NotificationSettingsScreenState
     required String subtitle,
     required bool value,
     required Function(bool) onChanged,
-    bool showBottomPadding = false,
   }) {
     return Container(
-      padding: EdgeInsets.only(
-        top: 16.h,
-        left: 20.w,
-        right: 20.w,
-        bottom: showBottomPadding ? 20.h : 16.h,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(20),
+        vertical: context.h(16),
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.softGrey,
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,9 +141,9 @@ class _NotificationSettingsScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: CustomFonts.black16w600),
-                SizedBox(height: 4.h),
-                Text(subtitle, style: CustomFonts.grey16w400),
+                Text(title, style: context.fonts.black16w600),
+                SizedBox(height: context.h(4)),
+                Text(subtitle, style: context.fonts.grey16w400),
               ],
             ),
           ),
@@ -158,10 +153,10 @@ class _NotificationSettingsScreenState
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeThumbColor: Colors.white,
-              activeTrackColor: const Color(0xFF1F1F1F),
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: Colors.grey[300],
+              activeThumbColor: CustomColors.white,
+              activeTrackColor: CustomColors.black,
+              inactiveThumbColor: CustomColors.white,
+              inactiveTrackColor: CustomColors.border,
               trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
             ),
           ),
@@ -173,20 +168,24 @@ class _NotificationSettingsScreenState
   Widget _buildImportantNote() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(context.w(16)),
       decoration: BoxDecoration(
         color: const Color(0xFFEEF4FF),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: RichText(
         text: TextSpan(
-          style: TextStyle(fontSize: 12.sp, color: Colors.black87, height: 1.4),
+          style: TextStyle(
+            fontSize: context.sp(12),
+            color: Colors.black87,
+            height: 1.4,
+          ),
           children: [
-            TextSpan(text: 'Important: ', style: CustomFonts.black16w600),
+            TextSpan(text: 'Important: ', style: context.fonts.black16w600),
             TextSpan(
               text:
                   'You will need to enter a verification code sent to your phone every time you sign in.',
-              style: CustomFonts.grey16w400,
+              style: context.fonts.grey16w400,
             ),
           ],
         ),

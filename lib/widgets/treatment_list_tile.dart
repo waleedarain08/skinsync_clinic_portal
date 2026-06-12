@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/edit_treatment_dailogbox.dart';
 
 import '../models/treatment_model.dart';
 import '../utils/responsive.dart';
+import '../utils/theme.dart';
 import '../view_models/treatment_view_model.dart';
 
 class TreatmentListTile extends ConsumerWidget {
@@ -18,47 +16,44 @@ class TreatmentListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: context.isLandscape ? 300.h : 500.h,
-      margin: EdgeInsets.all(20.w),
-      padding: EdgeInsets.all(20.w),
+      height: context.isLandscape ? context.h(300) : context.h(500),
+      margin: EdgeInsets.all(context.w(20)),
+      padding: EdgeInsets.all(context.w(20)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CustomColors.white,
         boxShadow: [
           BoxShadow(
-            color: CustomColors.lightBlueColor,
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
+            color: CustomColors.blue.withValues(alpha: 0.15),
+            blurRadius: context.r(8),
+            offset: Offset(0, context.h(2)),
           ),
           BoxShadow(
-            color: CustomColors.lightPurpleColor,
-            blurRadius: 10.r,
-            offset: Offset(2.h, 0),
+            color: CustomColors.lightPurple.withValues(alpha: 0.15),
+            blurRadius: context.r(10),
+            offset: Offset(context.h(2), 0),
           ),
         ],
-        borderRadius: BorderRadius.circular(15.r),
+        borderRadius: BorderRadius.circular(context.r(15)),
       ),
       child: AdaptiveLayoutRowColumn(
         size: MainAxisSize.max,
         expandedWidget: true,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        widthBetween: 0,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(context.r(12)),
             child: Image.asset(
               PngAssets.treatmentImage,
-              // width: 0.5.sw,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: Color(0xFFE8E8E8),
-                child: Icon(Icons.broken_image, color: Colors.grey),
+                color: CustomColors.softGrey,
+                child: const Icon(Icons.broken_image, color: CustomColors.grey),
               ),
             ),
           ),
           context.isLandscape
               ? treatmentResponsiveData(context, ref)
               : Expanded(child: treatmentResponsiveData(context, ref)),
-
-          // Icon(Icons.edit),
         ],
       ),
     );
@@ -70,7 +65,7 @@ class TreatmentListTile extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Align(
-          alignment: AlignmentGeometry.centerRight,
+          alignment: Alignment.centerRight,
           child: Column(
             children: [
               InkWell(
@@ -83,7 +78,7 @@ class TreatmentListTile extends ConsumerWidget {
                     builder: (context) => const EditTreatmentDialog(),
                   );
                 },
-                child: Icon(Icons.edit),
+                child: const Icon(Icons.edit),
               ),
               InkWell(
                 onTap: () {
@@ -91,7 +86,7 @@ class TreatmentListTile extends ConsumerWidget {
                       .read(treatmentViewModelProvider.notifier)
                       .deleteTreatment(treatmentId: treatment.id!);
                 },
-                child: Icon(Icons.delete, color: Colors.red),
+                child: const Icon(Icons.delete, color: CustomColors.red),
               ),
             ],
           ),
@@ -99,68 +94,65 @@ class TreatmentListTile extends ConsumerWidget {
 
         // Title
         Text(treatment.name ?? "N/A", style: CustomFonts.black18w600),
-        SizedBox(height: 20.h),
+        SizedBox(height: context.h(20)),
         // Area
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(10.w),
+            padding: EdgeInsets.all(context.w(10)),
             child: Wrap(
-              spacing: 20.r,
-              runSpacing: 20.r,
+              spacing: context.r(20),
+              runSpacing: context.r(20),
               children: List.generate(
                 treatment.sideAreas?.length ?? 0,
                 (index) => Container(
-                  margin: EdgeInsets.only(right: 10.w),
-                  padding: EdgeInsets.all(14.w),
+                  margin: EdgeInsets.only(right: context.w(10)),
+                  padding: EdgeInsets.all(context.w(14)),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14.r),
+                    color: CustomColors.white,
+                    borderRadius: BorderRadius.circular(context.r(14)),
                     boxShadow: [
                       BoxShadow(
-                        color: CustomColors.lightBlueColor,
-                        blurRadius: 8.r,
-                        offset: Offset(0, 2.h),
+                        color: CustomColors.blue.withValues(alpha: 0.15),
+                        blurRadius: context.r(8),
+                        offset: Offset(0, context.h(2)),
                       ),
                       BoxShadow(
-                        color: CustomColors.lightPurpleColor,
-                        blurRadius: 10.r,
-                        offset: Offset(2.h, 0),
+                        color: CustomColors.lightPurple.withValues(alpha: 0.15),
+                        blurRadius: context.r(10),
+                        offset: Offset(context.h(2), 0),
                       ),
                     ],
                   ),
-
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         treatment.sideAreas?[index].name ?? "N/A",
                         style: CustomFonts.black14w500.copyWith(
-                          color: Colors.grey.shade700,
+                          color: CustomColors.grey,
                         ),
                       ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: context.h(10)),
 
                       // Price
                       treatment.sideAreas?[index].perSyringePrice == null
-                          ? SizedBox()
+                          ? const SizedBox()
                           : Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 RichText(
                                   text: TextSpan(
-                                    style:
-                                        CustomFonts.black14w600, // base style
+                                    style: CustomFonts.black14w600,
                                     children: [
                                       TextSpan(
                                         text:
-                                            "\$${treatment.sideAreas?[index].perSyringePrice ?? ""} ",
+                                            "AED ${treatment.sideAreas?[index].perSyringePrice ?? ""} ",
                                         style: CustomFonts.black14w600.copyWith(
-                                          color: CustomColors.blueColor,
+                                          color: CustomColors.blue,
                                         ),
                                       ),
                                       const TextSpan(
                                         text: " /Per Syringe",
-                                        // inherits font from parent; add color here if you want a different one
                                       ),
                                     ],
                                   ),
@@ -177,9 +169,9 @@ class TreatmentListTile extends ConsumerWidget {
         Align(
           alignment: Alignment.bottomRight,
           child: Text(
-            " Price: \$${treatment.price ?? ""}",
+            " Price: AED ${treatment.price ?? ""}",
             style: CustomFonts.black18w600.copyWith(
-              color: CustomColors.purpleColor,
+              color: CustomColors.purple,
             ),
           ),
         ),

@@ -2,6 +2,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 
+import '../utils/theme.dart';
+
 /// Shows the E-Signature dialog.
 /// Usage: ESignatureDialog.show(context);
 class ESignatureDialog extends StatefulWidget {
@@ -25,8 +27,8 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // Toolbar state
   double _strokeSize = 3.0;
-  Color _strokeColor = Colors.black;
-  Color _backgroundColor = Colors.white;
+  Color _strokeColor = CustomColors.black;
+  Color _backgroundColor = CustomColors.white;
 
   // Which toolbar tab is active
   int _activeTab = -1;
@@ -35,21 +37,24 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(24),
+        vertical: context.h(40),
+      ),
       child: Container(
-        width: 540,
+        width: context.w(540),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(12)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildHeader(),
-            _buildSignaturePad(),
-            _buildToolbar(),
-            _buildActions(),
+            _buildHeader(context),
+            _buildSignaturePad(context),
+            _buildToolbar(context),
+            _buildActions(context),
           ],
         ),
       ),
@@ -58,46 +63,48 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // ── Header ──────────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 12, 12),
+      padding: EdgeInsets.fromLTRB(
+        context.w(20),
+        context.h(16),
+        context.w(12),
+        context.h(12),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'E - Signature',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: CustomFonts.black16w600,
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: context.h(2)),
                 Text(
                   'Draw Your E - signature for the onboarding form',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
+                  style: CustomFonts.grey12w400,
                 ),
               ],
             ),
           ),
           InkWell(
             onTap: () => Navigator.pop(context, null),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(context.r(20)),
             child: Container(
-              width: 28,
-              height: 28,
+              width: context.w(28),
+              height: context.w(28),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.black26),
+                border: Border.all(color: CustomColors.border),
               ),
-              child: const Icon(Icons.close, size: 16, color: Colors.black54),
+              child: Icon(
+                Icons.close,
+                size: context.r(16),
+                color: CustomColors.grey,
+              ),
             ),
           ),
         ],
@@ -107,18 +114,18 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // ── Signature Pad ────────────────────────────────────────────────────────────
 
-  Widget _buildSignaturePad() {
+  Widget _buildSignaturePad(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        height: 220,
+        height: context.h(220),
         decoration: BoxDecoration(
           color: _backgroundColor,
-          border: Border.all(color: const Color(0xFFE0E0E0)),
-          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: CustomColors.border),
+          borderRadius: BorderRadius.circular(context.r(6)),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(context.r(6)),
           child: SfSignaturePad(
             key: _signatureKey,
             backgroundColor: _backgroundColor,
@@ -133,36 +140,44 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // ── Toolbar ──────────────────────────────────────────────────────────────────
 
-  Widget _buildToolbar() {
+  Widget _buildToolbar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(16),
+        vertical: context.h(8),
+      ),
       child: Row(
         children: [
           _toolbarButton(
+            context: context,
             icon: Icons.format_size,
             label: 'Size',
             index: 0,
-            onTap: () => _showSizeOptions(),
+            onTap: () => _showSizeOptions(context),
           ),
           _toolbarButton(
+            context: context,
             icon: Icons.palette_outlined,
             label: 'Color',
             index: 1,
-            onTap: () => _showColorOptions(),
+            onTap: () => _showColorOptions(context),
           ),
           _toolbarButton(
+            context: context,
             icon: Icons.style_outlined,
             label: 'Style',
             index: 2,
             onTap: () {},
           ),
           _toolbarButton(
+            context: context,
             icon: Icons.wallpaper_outlined,
             label: 'Background',
             index: 3,
-            onTap: () => _showBackgroundOptions(),
+            onTap: () => _showBackgroundOptions(context),
           ),
           _toolbarButton(
+            context: context,
             icon: Icons.gesture,
             label: 'Swash',
             index: 4,
@@ -172,7 +187,7 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
           // Undo
           IconButton(
             onPressed: () => _signatureKey.currentState?.clear(),
-            icon: const Icon(Icons.undo, size: 20, color: Colors.black45),
+            icon: Icon(Icons.undo, size: context.r(20), color: CustomColors.grey),
             tooltip: 'Clear',
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -180,7 +195,7 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
           // Redo placeholder
           IconButton(
             onPressed: null,
-            icon: const Icon(Icons.redo, size: 20, color: Colors.black26),
+            icon: Icon(Icons.redo, size: context.r(20), color: CustomColors.lightGrey),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           ),
@@ -190,6 +205,7 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
   }
 
   Widget _toolbarButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required int index,
@@ -201,21 +217,26 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
         setState(() => _activeTab = active ? -1 : index);
         onTap();
       },
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(context.r(6)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(8),
+          vertical: context.h(4),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon,
-                size: 20,
-                color: active ? Colors.black87 : Colors.black45),
-            const SizedBox(height: 2),
+            Icon(
+              icon,
+              size: context.r(20),
+              color: active ? CustomColors.black : CustomColors.grey,
+            ),
+            SizedBox(height: context.h(2)),
             Text(
               label,
               style: TextStyle(
-                fontSize: 10,
-                color: active ? Colors.black87 : Colors.black45,
+                fontSize: context.sp(10),
+                color: active ? CustomColors.black : CustomColors.grey,
               ),
             ),
           ],
@@ -226,44 +247,49 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // ── Action Buttons ────────────────────────────────────────────────────────────
 
-  Widget _buildActions() {
+  Widget _buildActions(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: EdgeInsets.fromLTRB(
+        context.w(16),
+        0,
+        context.w(16),
+        context.h(16),
+      ),
       child: Row(
         children: [
           Expanded(
             child: ElevatedButton(
               onPressed: _onDone,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: CustomColors.black,
+                foregroundColor: CustomColors.white,
+                padding: EdgeInsets.symmetric(vertical: context.h(14)),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(context.r(8)),
                 ),
                 elevation: 0,
               ),
-              child: const Text(
+              child: Text(
                 'Done',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                style: CustomFonts.white14w600,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: context.w(12)),
           Expanded(
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context, null),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: const BorderSide(color: Color(0xFFDDDDDD)),
+                foregroundColor: CustomColors.black,
+                padding: EdgeInsets.symmetric(vertical: context.h(14)),
+                side: const BorderSide(color: CustomColors.border),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(context.r(8)),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                style: CustomFonts.black14w500,
               ),
             ),
           ),
@@ -274,7 +300,7 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
 
   // ── Option Popups ─────────────────────────────────────────────────────────────
 
-  void _showSizeOptions() {
+  void _showSizeOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -282,27 +308,29 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
       ),
       builder: (_) => StatefulBuilder(
         builder: (ctx, setLocal) => Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(context.w(20)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Stroke Size',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-              const SizedBox(height: 16),
+              Text(
+                'Stroke Size',
+                style: CustomFonts.black16w600,
+              ),
+              SizedBox(height: context.h(16)),
               Slider(
                 value: _strokeSize,
                 min: 1,
                 max: 10,
                 divisions: 9,
                 label: _strokeSize.toStringAsFixed(1),
-                activeColor: Colors.black,
+                activeColor: CustomColors.black,
                 onChanged: (v) {
                   setLocal(() {});
                   setState(() => _strokeSize = v);
                 },
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: context.h(8)),
             ],
           ),
         ),
@@ -310,14 +338,14 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
     );
   }
 
-  void _showColorOptions() {
+  void _showColorOptions(BuildContext context) {
     final colors = [
-      Colors.black,
-      Colors.blue,
-      Colors.red,
-      Colors.green,
-      Colors.purple,
-      Colors.orange,
+      CustomColors.black,
+      CustomColors.blue,
+      CustomColors.red,
+      CustomColors.green,
+      CustomColors.purple,
+      CustomColors.amber,
     ];
     showModalBottomSheet(
       context: context,
@@ -325,16 +353,18 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Stroke Color',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-            const SizedBox(height: 16),
+            Text(
+              'Stroke Color',
+              style: CustomFonts.black16w600,
+            ),
+            SizedBox(height: context.h(16)),
             Wrap(
-              spacing: 12,
+              spacing: context.w(12),
               children: colors.map((c) {
                 final selected = _strokeColor == c;
                 return GestureDetector(
@@ -343,33 +373,32 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
                     Navigator.pop(context);
                   },
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: context.w(40),
+                    height: context.w(40),
                     decoration: BoxDecoration(
                       color: c,
                       shape: BoxShape.circle,
                       border: selected
-                          ? Border.all(color: Colors.grey, width: 3)
+                          ? Border.all(color: CustomColors.grey, width: 3)
                           : null,
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.h(8)),
           ],
         ),
       ),
     );
   }
 
-  void _showBackgroundOptions() {
+  void _showBackgroundOptions(BuildContext context) {
     final colors = [
-      Colors.white,
-      const Color(0xFFF5F5F5),
-      const Color(0xFFFFF9C4),
-      const Color(0xFFE8F5E9),
-      const Color(0xFFE3F2FD),
+      CustomColors.white,
+      CustomColors.whiteGrey,
+      CustomColors.softGrey,
+      CustomColors.lightPurple2,
     ];
     showModalBottomSheet(
       context: context,
@@ -377,16 +406,18 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(context.w(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Background Color',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-            const SizedBox(height: 16),
+            Text(
+              'Background Color',
+              style: CustomFonts.black16w600,
+            ),
+            SizedBox(height: context.h(16)),
             Wrap(
-              spacing: 12,
+              spacing: context.w(12),
               children: colors.map((c) {
                 final selected = _backgroundColor == c;
                 return GestureDetector(
@@ -395,13 +426,13 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
                     Navigator.pop(context);
                   },
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: context.w(40),
+                    height: context.w(40),
                     decoration: BoxDecoration(
                       color: c,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: selected ? Colors.grey : Colors.black12,
+                        color: selected ? CustomColors.grey : CustomColors.border,
                         width: selected ? 3 : 1,
                       ),
                     ),
@@ -409,7 +440,7 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: context.h(8)),
           ],
         ),
       ),
@@ -421,58 +452,5 @@ class _ESignatureDialogState extends State<ESignatureDialog> {
   Future<void> _onDone() async {
     final image = await _signatureKey.currentState?.toImage(pixelRatio: 3.0);
     if (mounted) Navigator.pop(context, image);
-  }
-}
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Example usage in your app
-// ─────────────────────────────────────────────────────────────────────────────
-
-class ExampleApp extends StatelessWidget {
-  const ExampleApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'E-Signature Demo',
-      theme: ThemeData(useMaterial3: true),
-      home: const ExampleHome(),
-    );
-  }
-}
-
-class ExampleHome extends StatefulWidget {
-  const ExampleHome({super.key});
-
-  @override
-  State<ExampleHome> createState() => _ExampleHomeState();
-}
-
-class _ExampleHomeState extends State<ExampleHome> {
-  ui.Image? _signature;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Onboarding')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_signature != null)
-              RawImage(image: _signature, width: 200, height: 80),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                final img = await ESignatureDialog.show(context);
-                if (img != null) setState(() => _signature = img);
-              },
-              child: const Text('Open Signature Dialog'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

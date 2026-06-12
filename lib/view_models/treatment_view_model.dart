@@ -5,34 +5,26 @@ import '../models/requests/add_treatment_req_model.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
 
-final treatmentViewModelProvider = NotifierProvider(
+final treatmentViewModelProvider = NotifierProvider<TreamententViewModel, TreatmentState>(
   () => TreamententViewModel._(),
 );
 
 class TreamententViewModel extends BaseViewModel<TreatmentState> {
-  TreamententViewModel._() : super(TreatmentState());
+  TreamententViewModel._();
+
+  @override
+  TreatmentState build() {
+    init();
+    ref.onDispose(dispose);
+    return TreatmentState();
+  }
 
   final TreatmentRepository _treatmentRepository =
       locator<TreatmentRepository>();
 
-  // @override
-  // void init() {
-  //   super.init();
-  //   _loadTreatments();
-  // }
-
-  // Future<void> _loadTreatments() async {
-  //   await getTreatments();
-  // }
-
   Future<bool> getTreatments() async {
     return await runSafely<bool?>(showLoading: false, () async {
           state = state.copyWith(loading: true);
-          // final authState = ref.read(authViewModelProvider);
-          // final clinicId = authState.user?.clinicId;
-          // if (clinicId == null) {
-          //   throw BadRequestException("Clinic ID not found");
-          // }
           final response = await _treatmentRepository.getClinicTreatments();
 
           state = state.copyWith(treatments: response, loading: false);
@@ -44,16 +36,7 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
 
   Future<List<TreatmentModel>> getAdminTreatments() async {
     return await runSafely<List<TreatmentModel>?>(showLoading: false, () async {
-          // state = state.copyWith(loading: true);
-          // final authState = ref.read(authViewModelProvider);
-          // final clinicId = authState.user?.clinicId;
-          // if (clinicId == null) {
-          //   throw BadRequestException("Clinic ID not found");
-          // }
           final response = await _treatmentRepository.getAdminTreatments();
-
-          // state = state.copyWith(treatments: response, loading: false);
-
           return response;
         }) ??
         [];
@@ -63,18 +46,9 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     required int treatmentId,
   }) async {
     return await runSafely<List<SideAreaModel>?>(showLoading: true, () async {
-          // state = state.copyWith(loading: true);
-          // final authState = ref.read(authViewModelProvider);
-          // final clinicId = authState.user?.clinicId;
-          // if (clinicId == null) {
-          //   throw BadRequestException("Clinic ID not found");
-          // }
           final response = await _treatmentRepository.getTreatmentsSideArea(
             treatmentId,
           );
-
-          // state = state.copyWith(treatments: response, loading: false);
-
           return response;
         }) ??
         [];

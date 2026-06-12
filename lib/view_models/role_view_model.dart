@@ -7,10 +7,19 @@ import 'package:skinsync_clinic_portal/services/role_service.dart';
 
 import 'package:skinsync_clinic_portal/view_models/base_view_model.dart';
 
-final roleProvider = NotifierProvider.autoDispose(() => RoleViewModel._());
+final roleProvider = NotifierProvider.autoDispose<RoleViewModel, RoleState>(
+  () => RoleViewModel._(),
+);
 
 class RoleViewModel extends BaseViewModel<RoleState> {
-  RoleViewModel._() : super(const RoleState());
+  RoleViewModel._();
+
+  @override
+  RoleState build() {
+    init();
+    ref.onDispose(dispose);
+    return const RoleState();
+  }
 
   Feature? getSelectedFeature(int featureId) {
     try {

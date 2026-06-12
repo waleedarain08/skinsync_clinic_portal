@@ -1,9 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../utils/color_constant.dart';
-import '../utils/custom_fonts.dart';
+import '../utils/theme.dart';
 
 class CustomDropdown<T> extends StatelessWidget {
   final String hint;
@@ -27,58 +25,56 @@ class CustomDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final dropdownItems = items ?? [];
     return SizedBox(
-      height: height ?? 55.h,
+      height: height ?? context.h(55),
       child: DropdownButtonFormField2<T>(
         isExpanded: true,
         value: value,
-        style: CustomFonts.black16w400,
+        style: CustomFonts.black14w400,
         decoration: InputDecoration(
-          fillColor: CustomColors.fillColor,
+          fillColor: CustomColors.softGrey,
           filled: true,
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 12.w,
-            // vertical: 15.h,
+            horizontal: context.w(12),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: CustomColors.fillColor),
+            borderRadius: BorderRadius.circular(context.r(10)),
+            borderSide: const BorderSide(color: CustomColors.softGrey),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: CustomColors.fillColor),
+            borderRadius: BorderRadius.circular(context.r(10)),
+            borderSide: const BorderSide(color: CustomColors.softGrey),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: CustomColors.fillColor),
+            borderRadius: BorderRadius.circular(context.r(10)),
+            borderSide: const BorderSide(color: CustomColors.softGrey),
           ),
         ),
-        hint: Text(hint, style: CustomFonts.black16w400),
+        hint: Text(hint, style: CustomFonts.grey14w400),
         items: dropdownItems
             .map(
               (item) => DropdownMenuItem<T>(
                 value: item,
-                child:
-                    builder?.call(item) ??
-                    Text(item.toString(), style: CustomFonts.black18w400),
+                child: builder?.call(item) ??
+                    Text(item.toString(), style: CustomFonts.black14w400),
               ),
             )
             .toList(),
         onChanged: onChanged,
-        buttonStyleData: ButtonStyleData(height: 55.h, width: null),
+        buttonStyleData: ButtonStyleData(height: context.h(55), width: null),
         menuItemStyleData: MenuItemStyleData(
-          height: 48.h,
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          height: context.h(48),
+          padding: EdgeInsets.symmetric(horizontal: context.w(12)),
         ),
         dropdownStyleData: DropdownStyleData(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14.r),
-            color: Colors.white,
+            borderRadius: BorderRadius.circular(context.r(14)),
+            color: CustomColors.white,
           ),
-          maxHeight: 300.h,
+          maxHeight: context.h(300),
         ),
         iconStyleData: IconStyleData(
-          icon: Icon(Icons.keyboard_arrow_down, color: Color(0xff494949)),
-          iconSize: 24.sp,
+          icon: const Icon(Icons.keyboard_arrow_down, color: CustomColors.grey),
+          iconSize: context.r(24),
         ),
       ),
     );

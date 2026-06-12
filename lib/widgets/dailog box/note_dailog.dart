@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../utils/color_constant.dart';
-import '../../utils/custom_fonts.dart';
+import '../../utils/theme.dart';
 import '../custom_dropdown_widget.dart';
 
 class AddNoteDialog extends StatefulWidget {
@@ -31,11 +29,14 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.3,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: MediaQuery.sizeOf(context).width * 0.3,
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -43,35 +44,35 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
           children: [
             /// Header
             Row(
-              mainAxisAlignment: .end,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 32.w,
-                    width: 32.w,
+                    height: context.w(32),
+                    width: context.w(32),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black12),
+                      border: Border.all(color: CustomColors.border),
                     ),
-                    child: Icon(Icons.close, size: 18.sp),
+                    child: Icon(Icons.close, size: context.r(18)),
                   ),
                 ),
               ],
             ),
             Text('Note Type', style: CustomFonts.black18w600),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
             CustomDropdown(
               hint: 'All note',
               value: _selectedNote,
               items: const ['All note', 'Note 1', 'Note 2', 'Note 3'],
-              height: 42.h,
+              height: context.h(42),
               onChanged: (value) =>
                   setState(() => _selectedNote = value ?? 'All note'),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.h(16)),
             Text('Note', style: CustomFonts.black18w600),
-            SizedBox(height: 8.h),
+            SizedBox(height: context.h(8)),
 
             /// Note TextField
             TextField(
@@ -82,31 +83,30 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                 hintText: 'Write your note here...',
                 hintStyle: CustomFonts.grey14w400,
                 filled: true,
-                fillColor: Color(0xFFF3F3F5),
+                fillColor: CustomColors.softGrey,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(context.r(12)),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.all(14.w),
+                contentPadding: EdgeInsets.all(context.r(14)),
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
 
             /// Save Button
             GestureDetector(
               onTap: () {
-                // handle save
                 Navigator.pop(context);
               },
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 16.h),
+                padding: EdgeInsets.symmetric(vertical: context.h(16)),
                 decoration: BoxDecoration(
-                  color: CustomColors.blackColor,
-                  borderRadius: BorderRadius.circular(8.r),
+                  color: CustomColors.black,
+                  borderRadius: BorderRadius.circular(context.r(8)),
                 ),
                 child: Center(
-                  child: Text('Save', style: CustomFonts.white16w600),
+                  child: Text('Save', style: CustomFonts.white14w600),
                 ),
               ),
             ),

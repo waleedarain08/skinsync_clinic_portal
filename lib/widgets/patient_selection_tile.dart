@@ -2,34 +2,33 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
+
+import '../utils/theme.dart';
 
 class PatientSelectionTile extends StatelessWidget {
   final String title;
   final String? subTitle;
   final String? imageUrl;
   final bool isSelected;
+
   const PatientSelectionTile({
     super.key,
-    required,
     required this.title,
     this.subTitle,
     this.imageUrl,
-
     this.isSelected = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(15.w),
+      padding: EdgeInsets.all(context.w(15)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(15)),
         border: Border.all(
-          color: isSelected ? AppTheme.primaryColor : AppTheme.titleBorderColor,
-          width: isSelected ? 2.r : 1.r,
+          color: isSelected ? CustomColors.purple : CustomColors.border,
+          width: isSelected ? 2 : 1,
         ),
       ),
       child: Row(
@@ -39,37 +38,44 @@ class PatientSelectionTile extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: imageUrl!,
                 fit: BoxFit.cover,
-                height: 63.w,
-                width: 63.w,
+                height: context.w(63),
+                width: context.w(63),
                 errorWidget: (_, error, s) {
                   if (imageUrl!.contains('alyssa')) {
                     log('ERROR: $error');
                   }
-                  return _buildPlaceholder();
+                  return _buildPlaceholder(context);
                 },
               ),
             )
           else
-            _buildPlaceholder(),
-          SizedBox(width: 15.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SelectableText(title, style: CustomFonts.black22w600),
-              if (subTitle != null)
-                SelectableText(subTitle ?? "", style: CustomFonts.black13w400),
-            ],
+            _buildPlaceholder(context),
+          SizedBox(width: context.w(15)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SelectableText(title, style: context.fonts.black20w600),
+                if (subTitle != null)
+                  SelectableText(subTitle ?? "", style: context.fonts.black13w400),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  CircleAvatar _buildPlaceholder() {
+  Widget _buildPlaceholder(BuildContext context) {
     return CircleAvatar(
-      radius: 63.w / 2,
-      child: Icon(Icons.person, size: 30.sp),
+      radius: context.w(63) / 2,
+      backgroundColor: CustomColors.softGrey,
+      child: Icon(
+        Icons.person,
+        size: context.r(30),
+        color: CustomColors.grey,
+      ),
     );
   }
 }

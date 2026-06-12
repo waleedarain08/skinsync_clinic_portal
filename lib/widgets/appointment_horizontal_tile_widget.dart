@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../utils/assets.dart';
 import '../utils/theme.dart';
@@ -17,23 +16,23 @@ class AppointmentHorizontalTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 24.w),
+      margin: EdgeInsets.only(right: context.w(24)),
       decoration: BoxDecoration(
         border: Border.all(
-          color: selected ? AppTheme.primaryColor : AppTheme.borderColor,
+          color: selected ? CustomColors.purple : CustomColors.border,
           width: 0.5,
         ),
         color: selected
-            ? AppTheme.primaryColor.withValues(alpha: 0.3)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+            ? CustomColors.purple.withValues(alpha: 0.3)
+            : CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(20)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12),
+      padding: EdgeInsets.symmetric(horizontal: context.w(12)),
       child: Center(
         child: index == 0
             ? Text(
                 "All Appointments",
-                style: Theme.of(context).textTheme.titleMedium,
+                style: CustomFonts.black14w600,
               )
             : Row(
                 mainAxisSize: MainAxisSize.min,
@@ -41,14 +40,14 @@ class AppointmentHorizontalTileWidget extends StatelessWidget {
                   ClipOval(
                     child: Image.asset(
                       DemoAssets.person,
-                      height: 32.w,
-                      width: 32.w,
+                      height: context.w(32),
+                      width: context.w(32),
                     ),
                   ),
-                  SizedBox(width: 10.w),
+                  SizedBox(width: context.w(10)),
                   Text(
                     "Nolan Aminoff",
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: CustomFonts.black14w600,
                   ),
                 ],
               ),

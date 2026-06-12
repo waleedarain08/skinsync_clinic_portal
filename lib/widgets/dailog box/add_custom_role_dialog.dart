@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skinsync_clinic_portal/models/responses/get_feature_response.dart';
 import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
 
-import '../../models/dummy/roles.dart';
-import '../../utils/color_constant.dart';
-import '../../utils/custom_fonts.dart';
 import '../../utils/responsive.dart';
+import '../../utils/theme.dart';
 
 class AddCustomRoleDialog extends ConsumerStatefulWidget {
-  
-  const AddCustomRoleDialog({super.key,});
+  const AddCustomRoleDialog({super.key});
 
   @override
   ConsumerState<AddCustomRoleDialog> createState() =>
@@ -22,6 +18,7 @@ class AddCustomRoleDialog extends ConsumerStatefulWidget {
 class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
   final TextEditingController controller = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void dispose() {
     controller.dispose();
@@ -38,15 +35,18 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(roleProvider).loading;
-
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 50.w, vertical: 50.h),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(50),
+        vertical: context.h(50),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.r(12)),
+      ),
       child: SizedBox(
-        width: context.isLandscape ? 600.w : double.infinity,
+        width: context.isLandscape ? context.w(600) : double.infinity,
         child: Padding(
-          padding: EdgeInsets.all(24.w),
+          padding: EdgeInsets.all(context.r(24)),
           child: Form(
             key: _formKey,
             child: Column(
@@ -56,71 +56,91 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Add Custom Role', style: CustomFonts.black22w600),
+                    Text('Add Custom Role', style: CustomFonts.black20w600),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        padding: EdgeInsets.all(4.r),
+                        padding: EdgeInsets.all(context.r(4)),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: CustomColors.border),
                         ),
                         child: Icon(
                           Icons.close,
-                          size: 20.r,
-                          color: Colors.black,
+                          size: context.r(20),
+                          color: CustomColors.black,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 30.h),
+                SizedBox(height: context.h(30)),
                 Text("Role Name", style: CustomFonts.black14w500),
-                SizedBox(height: 8.h),
+                SizedBox(height: context.h(8)),
                 TextFormField(
                   controller: controller,
+                  style: CustomFonts.black14w400,
                   decoration: InputDecoration(
                     hintText: "e.g. Manager",
+                    hintStyle: CustomFonts.grey14w400,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: context.w(16),
+                      vertical: context.h(14),
+                    ),
+                    filled: true,
+                    fillColor: CustomColors.white,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                      borderSide: const BorderSide(color: CustomColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                      borderSide: const BorderSide(color: CustomColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                      borderSide: const BorderSide(color: CustomColors.purple),
                     ),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Role name is required";
                     }
-
                     return null;
                   },
                 ),
-                SizedBox(height: 30.h),
+                SizedBox(height: context.h(30)),
                 Text("Assign Permissions", style: CustomFonts.black14w500),
-                SizedBox(height: 16.h),
+                SizedBox(height: context.h(16)),
                 Consumer(
                   builder: (context, ref, _) {
                     final state = ref.watch(roleProvider);
                     if (state.loading) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: CustomColors.purple,
+                        ),
+                      );
                     } else if (state.features.isEmpty) {
-                      return Center(child: Text("No Features Available"));
+                      return Center(
+                        child: Text(
+                          "No Features Available",
+                          style: CustomFonts.grey14w400,
+                        ),
+                      );
                     } else {
                       return Expanded(
                         child: ListView.builder(
                           shrinkWrap: true,
-                          // physics: NeverScrollableScrollPhysics(),
-                          itemCount: ref.read(roleProvider).features.length,
+                          itemCount: state.features.length,
                           itemBuilder: (context, index) {
-                            final feature = ref.watch(roleProvider).features;
+                            final feature = state.features[index];
                             return Padding(
-                              padding: EdgeInsets.only(bottom: 10.h),
+                              padding: EdgeInsets.only(bottom: context.h(10)),
                               child: _buildFeatureContainer(
-                                feature: feature[index],
+                                feature: feature,
                                 ref: ref,
+                                context: context,
                               ),
                             );
                           },
@@ -129,14 +149,17 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                     }
                   },
                 ),
-
-                SizedBox(height: 32.h),
+                SizedBox(height: context.h(32)),
                 Consumer(
                   builder: (context, ref, _) {
                     final loading = ref.watch(roleProvider).createRoleLoading;
                     final state = ref.read(roleProvider);
                     if (loading) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: CustomColors.purple,
+                        ),
+                      );
                     }
                     return Row(
                       children: [
@@ -148,42 +171,43 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                                   EasyLoading.showToast(
                                     "Please select at least one permission",
                                   );
-
                                   return;
                                 } else {
                                   final success = await ref
                                       .read(roleProvider.notifier)
                                       .createRole(controller.text.trim());
 
-                                  if (success == true) {
+                                  if (success == true && context.mounted) {
                                     Navigator.pop(context);
                                   }
                                 }
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              backgroundColor: CustomColors.black,
+                              padding: EdgeInsets.symmetric(
+                                vertical: context.h(12),
+                              ),
                             ),
                             child: Text(
                               'Create Role',
-                              style: CustomFonts.white14w500,
+                              style: CustomFonts.white14w600,
                             ),
                           ),
                         ),
-                        SizedBox(width: 16.w),
+                        SizedBox(width: context.w(16)),
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.pop(context),
                             style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 12.h),
-                              side: const BorderSide(color: Colors.black),
+                              padding: EdgeInsets.symmetric(
+                                vertical: context.h(12),
+                              ),
+                              side: const BorderSide(color: CustomColors.black),
                             ),
                             child: Text(
                               'Cancel',
-                              style: CustomFonts.black18w500.copyWith(
-                                fontSize: 14.sp,
-                              ),
+                              style: CustomFonts.black14w500,
                             ),
                           ),
                         ),
@@ -202,33 +226,33 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
   Widget _buildFeatureContainer({
     required Feature feature,
     required WidgetRef ref,
+    required BuildContext context,
   }) {
     final vm = ref.read(roleProvider.notifier);
-   
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(10.w),
+      padding: EdgeInsets.all(context.r(10)),
       decoration: BoxDecoration(
-        border: Border.all(color: CustomColors.borderColor),
-        borderRadius: BorderRadius.circular(12.r),
-        color: Colors.white,
+        border: Border.all(color: CustomColors.border),
+        borderRadius: BorderRadius.circular(context.r(12)),
+        color: CustomColors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(feature.featureName ?? "N/A", style: CustomFonts.black16w600),
-          SizedBox(height: 10.h),
-
+          Text(
+            feature.featureName ?? "N/A",
+            style: CustomFonts.black16w600,
+          ),
+          SizedBox(height: context.h(10)),
           Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
+            spacing: context.w(8),
+            runSpacing: context.h(8),
             children: List.generate(feature.permissions!.length, (index) {
               final permissions = feature.permissions![index];
-
               final selectedFeature = vm.getSelectedFeature(feature.featureId!);
-
-              final isSelected =
-                  selectedFeature?.permissions?.any(
+              final isSelected = selectedFeature?.permissions?.any(
                     (a) => a.permissionId == permissions.permissionId,
                   ) ??
                   false;
@@ -236,11 +260,11 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
               return ChoiceChip(
                 label: Text(permissions.permissionTitle ?? "N/A"),
                 selected: isSelected,
-                selectedColor: Colors.black,
-                checkmarkColor: Colors.white,
+                selectedColor: CustomColors.black,
+                checkmarkColor: CustomColors.white,
                 labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
-                  fontSize: 13.sp,
+                  color: isSelected ? CustomColors.white : CustomColors.black,
+                  fontSize: context.sp(13),
                   fontWeight: FontWeight.w500,
                 ),
                 onSelected: (value) {

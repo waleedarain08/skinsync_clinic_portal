@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
-import '../utils/custom_fonts.dart';
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
 
@@ -19,26 +18,24 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFBDBDBD),
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button
-              BuildHeader(title: 'Two-Factor Authentication'),
-              SizedBox(height: 12.h),
+              const BuildHeader(title: 'Two-Factor Authentication'),
+              SizedBox(height: context.h(12)),
               // Divider
-              Divider(height: 1, thickness: 1, color: Colors.grey[200]),
-              SizedBox(height: 12.h),
+              const Divider(height: 1, thickness: 1, color: CustomColors.border),
+              SizedBox(height: context.h(12)),
               // Main Card Container
               _buildCardContainer(),
-
-              // Verification Method Section (shown when toggle is enabled)
             ],
           ),
         ),
@@ -48,14 +45,14 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
 
   Widget _buildCardContainer() {
     return Container(
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(context.w(24)),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: CustomColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -65,14 +62,14 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
         children: [
           // Business Information Row
           _buildBusinessInfoRow(),
-          SizedBox(height: 30.h),
+          SizedBox(height: context.h(30)),
           // Two-Factor Authentication Toggle Row
           _buildTwoFactorToggleRow(),
 
           if (_isTwoFactorEnabled) ...[
-            SizedBox(height: 24.h),
+            SizedBox(height: context.h(24)),
             _buildVerificationMethodSection(),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.h(16)),
             _buildImportantNote(),
           ],
         ],
@@ -85,8 +82,8 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
       children: [
         // Purple Circle Icon
         Container(
-          width: 40.w,
-          height: 40.w,
+          width: context.w(40),
+          height: context.w(40),
           decoration: const BoxDecoration(
             color: Color(0xFFEEEBFF),
             shape: BoxShape.circle,
@@ -94,21 +91,21 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
           child: Center(
             child: Icon(
               Icons.shield_outlined,
-              size: 20.sp,
+              size: context.r(20),
               color: const Color(0xFF6B5DD3),
             ),
           ),
         ),
-        SizedBox(width: 14.w),
+        SizedBox(width: context.w(14)),
         // Text Column
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Business Information', style: CustomFonts.black16w600),
-            SizedBox(height: 4.h),
+            Text('Business Information', style: context.fonts.black16w600),
+            SizedBox(height: context.h(4)),
             Text(
               'Update clinic details and contact info',
-              style: CustomFonts.grey16w400,
+              style: context.fonts.grey16w400,
             ),
           ],
         ),
@@ -118,11 +115,11 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
 
   Widget _buildTwoFactorToggleRow() {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(context.w(16)),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.softGrey,
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,12 +130,12 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
             children: [
               Text(
                 'Enable Two-Factor Authentication',
-                style: CustomFonts.black16w600,
+                style: context.fonts.black16w600,
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: context.h(4)),
               Text(
                 'Require a verification code when signing in',
-                style: CustomFonts.grey16w400,
+                style: context.fonts.grey16w400,
               ),
             ],
           ),
@@ -150,10 +147,10 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
                 _isTwoFactorEnabled = value;
               });
             },
-            activeThumbColor: Colors.white,
+            activeThumbColor: CustomColors.white,
             activeTrackColor: const Color(0xFF6B5DD3),
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: Colors.grey[300],
+            inactiveThumbColor: CustomColors.white,
+            inactiveTrackColor: CustomColors.border,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ],
@@ -165,8 +162,8 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Verification Method', style: CustomFonts.black22w600),
-        SizedBox(height: 16.h),
+        Text('Verification Method', style: context.fonts.black20w600),
+        SizedBox(height: context.h(16)),
         // SMS Verification Option
         _buildVerificationOption(
           icon: Icons.phone_android_outlined,
@@ -179,7 +176,7 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
             });
           },
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: context.h(12)),
         // Email Verification Option
         _buildVerificationOption(
           icon: Icons.email_outlined,
@@ -207,16 +204,16 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(context.w(16)),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD2CEF1) : Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          color: isSelected ? const Color(0xFFD2CEF1) : CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(12)),
           border: isSelected
-              ? Border.all(color: Color(0xFF6B5DD3), width: 1)
+              ? Border.all(color: const Color(0xFF6B5DD3), width: 1)
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: CustomColors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -226,30 +223,30 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
           children: [
             // Icon
             Container(
-              width: 40.w,
-              height: 40.w,
+              width: context.w(40),
+              height: context.w(40),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8.r),
+                    ? CustomColors.white.withValues(alpha: 0.2)
+                    : CustomColors.softGrey,
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
               child: Center(
                 child: Icon(
                   icon,
-                  size: 20.sp,
-                  color: isSelected ? Color(0xFF6B5DD3) : Colors.grey[600],
+                  size: context.r(20),
+                  color: isSelected ? const Color(0xFF6B5DD3) : CustomColors.grey,
                 ),
               ),
             ),
-            SizedBox(width: 14.w),
+            SizedBox(width: context.w(14)),
             // Text Column
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: CustomFonts.black16w600),
-                SizedBox(height: 4.h),
-                Text(subtitle, style: CustomFonts.grey16w400),
+                Text(title, style: context.fonts.black16w600),
+                SizedBox(height: context.h(4)),
+                Text(subtitle, style: context.fonts.grey16w400),
               ],
             ),
           ],
@@ -261,20 +258,24 @@ class _TwoFactorAuthScreenState extends State<TwoFactorAuthScreen> {
   Widget _buildImportantNote() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(context.w(16)),
       decoration: BoxDecoration(
         color: const Color(0xFFEEF4FF),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(context.r(12)),
       ),
       child: RichText(
         text: TextSpan(
-          style: TextStyle(fontSize: 12.sp, color: Colors.black87, height: 1.4),
+          style: TextStyle(
+            fontSize: context.sp(12),
+            color: Colors.black87,
+            height: 1.4,
+          ),
           children: [
-            TextSpan(text: 'Important: ', style: CustomFonts.black16w600),
+            TextSpan(text: 'Important: ', style: context.fonts.black16w600),
             TextSpan(
               text:
                   'You will need to enter a verification code sent to your phone every time you sign in.',
-              style: CustomFonts.grey16w400,
+              style: context.fonts.grey16w400,
             ),
           ],
         ),

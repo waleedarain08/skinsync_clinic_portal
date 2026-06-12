@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../app_init.dart';
 import '../utils/responsive.dart';
+import '../utils/theme.dart';
 
 class TreatmentStatsCard extends StatelessWidget {
   final String revenue;
@@ -41,15 +41,17 @@ class TreatmentStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: navigatorKey.currentContext!.isLandscape ? 350.r : 1.sw,
-      // margin: EdgeInsets.only(right: 16.w),
-      padding: EdgeInsets.symmetric(vertical: 25.h, horizontal: 28.w),
+      width: navigatorKey.currentContext!.isLandscape ? context.r(350) : MediaQuery.sizeOf(context).width,
+      padding: EdgeInsets.symmetric(
+        vertical: context.h(25),
+        horizontal: context.w(28),
+      ),
       decoration: BoxDecoration(
         gradient: cardGradient,
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(context.r(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: CustomColors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -67,12 +69,12 @@ class TreatmentStatsCard extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   SizedBox(
-                    width: 85.r,
-                    height: 85.r,
+                    width: context.r(85),
+                    height: context.r(85),
                     child: CircularProgressIndicator(
                       value: progress,
-                      strokeWidth: 14.r,
-                      backgroundColor: Colors.white.withValues(alpha: 0.4),
+                      strokeWidth: context.r(14),
+                      backgroundColor: CustomColors.white.withValues(alpha: 0.4),
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Color(0xffEEA1F0),
                       ),
@@ -83,26 +85,17 @@ class TreatmentStatsCard extends StatelessWidget {
                     children: [
                       Text(
                         revenue,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
+                        style: CustomFonts.black16w600,
                       ),
                       Text(
                         'Revenue',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
+                        style: CustomFonts.black10w600,
                       ),
                     ],
                   ),
                 ],
               ),
-              // CustomCircularIndicator(progress: 0.72),
-              SizedBox(width: 24.w),
+              SizedBox(width: context.w(24)),
               // Percentage Stats
               Flexible(
                 child: Column(
@@ -114,23 +107,18 @@ class TreatmentStatsCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             percentage,
-                            style: TextStyle(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                              //height: 0.9,
-                            ),
+                            style: CustomFonts.black20w600,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(width: 6.w),
+                        SizedBox(width: context.w(6)),
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 6.h),
+                            padding: EdgeInsets.only(top: context.h(6)),
                             child: Text(
                               percentageChange,
                               style: TextStyle(
-                                fontSize: 17.sp,
+                                fontSize: context.sp(17),
                                 height: 0,
                                 fontWeight: FontWeight.w600,
                                 color: const Color(0xFF66BB6A),
@@ -141,14 +129,14 @@ class TreatmentStatsCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: context.h(4)),
                     Text(
                       mainLabel,
                       style: TextStyle(
-                        fontSize: 17.sp,
+                        fontSize: context.sp(17),
                         height: 0,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: CustomColors.black,
                       ),
                     ),
                   ],
@@ -156,7 +144,7 @@ class TreatmentStatsCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 19.h),
+          SizedBox(height: context.h(19)),
           // Treatment Name and Price
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -166,22 +154,22 @@ class TreatmentStatsCard extends StatelessWidget {
                 child: Text(
                   treatmentName,
                   style: TextStyle(
-                    fontSize: 22.sp,
+                    fontSize: context.sp(22),
                     height: 0,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: CustomColors.black,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: context.w(8)),
               Flexible(
                 child: Text(
-                  "$originalPrice > $discountedPrice",
+                  "AED $originalPrice > AED $discountedPrice",
                   style: TextStyle(
-                    fontSize: 17.sp,
+                    fontSize: context.sp(17),
                     fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                    color: CustomColors.black,
                   ),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.end,
@@ -189,28 +177,26 @@ class TreatmentStatsCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: context.h(8)),
           // Description
           Text(
             description,
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: Colors.grey[800],
-              height: 1.5,
-              fontWeight: FontWeight.w400,
-            ),
+            style: CustomFonts.grey16w400,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Button
           GestureDetector(
             onTap: onButtonPressed,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 28.w),
+              padding: EdgeInsets.symmetric(
+                vertical: context.h(16),
+                horizontal: context.w(28),
+              ),
               decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(12.r),
+                color: CustomColors.black,
+                borderRadius: BorderRadius.circular(context.r(12)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -219,19 +205,15 @@ class TreatmentStatsCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       buttonText,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: CustomFonts.white14w600,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: context.w(8)),
                   Icon(
                     Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 18.sp,
+                    color: CustomColors.white,
+                    size: context.r(18),
                   ),
                 ],
               ),

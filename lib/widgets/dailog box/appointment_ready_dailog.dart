@@ -1,19 +1,16 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_notes_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/create_invoice_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/patient_detail_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/status_update_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/pdf_expansiontile_.dart';
+
+import '../../utils/theme.dart';
 
 class AppointmentReadyDailog extends ConsumerStatefulWidget {
   const AppointmentReadyDailog({super.key});
@@ -27,79 +24,89 @@ class _AppointmentReadyDailogState
     extends ConsumerState<AppointmentReadyDailog> {
   @override
   Widget build(BuildContext context) {
+    final navigateDailogIndex = ref.watch(authViewModelProvider).navigateDailogIndex;
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 520.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(520),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10.h),
+              SizedBox(height: context.h(10)),
               Text(
                 "Your Treatment Appointment is Completed",
                 style: CustomFonts.black30w600,
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: context.h(12)),
               Container(
-                padding: EdgeInsets.all(6.w),
+                padding: EdgeInsets.all(context.w(6)),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.r),
-                  border: Border.all(color: CustomColors.blackColor),
+                  borderRadius: BorderRadius.circular(context.r(15)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Row(
                   children: [
                     Image.asset(
                       PngAssets.image,
                       fit: BoxFit.fill,
-                      height: 105.h,
-                      width: 151.w,
+                      height: context.h(105),
+                      width: context.w(151),
                     ),
-                    SizedBox(width: 21.w),
-                    Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          "Monday, Feb 03 - 11:00 AM",
-                          style: CustomFonts.black14w500,
-                        ),
-                        Text(
-                          "Derma Fillers - Cheeks",
-                          style: CustomFonts.black14w600,
-                        ),
-                        Text(
-                          "Glow Skin Clinic",
-                          style: CustomFonts.black14w400,
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.attach_file,
-                              size: 12.sp,
-                              color: CustomColors.blackColor,
-                            ),
-                            Text(
-                              " Derma Fillers Cheeks Model",
-                              style: CustomFonts.black14w400.copyWith(
-                                decoration: TextDecoration.underline,
+                    SizedBox(width: context.w(21)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Monday, Feb 03 - 11:00 AM",
+                            style: CustomFonts.black14w500,
+                          ),
+                          Text(
+                            "Derma Fillers - Cheeks",
+                            style: CustomFonts.black14w600,
+                          ),
+                          Text(
+                            "Glow Skin Clinic",
+                            style: CustomFonts.black14w400,
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.attach_file,
+                                size: context.r(12),
+                                color: CustomColors.grey,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Expanded(
+                                child: Text(
+                                  " Derma Fillers Cheeks Model",
+                                  style: CustomFonts.black14w400.copyWith(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20.h),
-              Divider(height: 0, color: Colors.grey.shade300),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
+              Divider(height: 0, color: CustomColors.border),
+              SizedBox(height: context.h(20)),
               GestureDetector(
                 onTap: () {
                   ref
@@ -107,82 +114,86 @@ class _AppointmentReadyDailogState
                       .navigateDailogIndexToNext(0);
                   showDialog(
                     context: context,
-                    builder: (_) => PatientDetailDailog(),
+                    builder: (_) => const PatientDetailDailog(),
                   );
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 18.h,
+                    horizontal: context.w(20),
+                    vertical: context.h(18),
                   ),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(context.r(16)),
+                    border: Border.all(color: CustomColors.border),
                   ),
                   child: Row(
                     children: [
                       ClipOval(
                         child: Image.asset(
                           PngAssets.person,
-                          height: 60.w,
-                          width: 60.w,
+                          height: context.w(60),
+                          width: context.w(60),
                         ),
                       ),
-                      SizedBox(width: 18.w),
-                      Column(
-                        crossAxisAlignment: .start,
-                        children: [
-                          Text("Tiana Botosh", style: CustomFonts.black22w600),
-                          Text("@tianabotosh", style: CustomFonts.grey16w400),
-                        ],
+                      SizedBox(width: context.w(18)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Tiana Botosh", style: CustomFonts.black20w600),
+                            Text("@tianabotosh", style: CustomFonts.grey16w400),
+                          ],
+                        ),
                       ),
-                      Spacer(),
                       Container(
-                        padding: EdgeInsets.all(10.w),
-                        decoration: BoxDecoration(
+                        padding: EdgeInsets.all(context.r(10)),
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: CustomColors.greyColor,
+                          color: CustomColors.softGrey,
                         ),
                         child: SvgPicture.asset(
                           SvgAssets.scan,
-                          height: 20.h,
-                          width: 24.w,
+                          height: context.h(20),
+                          width: context.w(24),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
               Row(
-                mainAxisAlignment: .spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Payment Details", style: CustomFonts.black22w600),
-                  Spacer(),
+                  Text("Payment Details", style: CustomFonts.black20w600),
+                  const Spacer(),
                   GestureDetector(
                     onTap: () {
                       context.pop();
                       showDialog(
                         context: context,
                         builder: (context) =>
-                            CreateInvoiceDialog(invoiceNumber: '#SSA5002'),
+                            const CreateInvoiceDialog(invoiceNumber: '#SSA5002'),
                       );
                     },
                     child: Text(
                       "Add New Invoice",
-                      style: CustomFonts.black16w600.copyWith(
-                        color: Color(0xFF155DFC),
+                      style: CustomFonts.purple14w600.copyWith(
+                        color: CustomColors.blue,
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 18.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(17),
+                  vertical: context.h(18),
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.r),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(context.r(15)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Column(
                   children: [
@@ -190,81 +201,82 @@ class _AppointmentReadyDailogState
                       children: [
                         Image.asset(
                           PngAssets.masterLogo,
-                          height: 62.h,
-                          width: 62.w,
+                          height: context.h(62),
+                          width: context.w(62),
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: context.w(12)),
                         Column(
-                          crossAxisAlignment: .start,
-                          spacing: 4.h,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Master Card", style: CustomFonts.black15w600),
+                            Text("Master Card", style: CustomFonts.black14w600),
+                            SizedBox(height: context.h(4)),
                             Text(
                               "5689470025899658",
-                              style: CustomFonts.black15w600,
+                              style: CustomFonts.black14w600,
                             ),
                           ],
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 31.w,
-                            vertical: 3.h,
+                            horizontal: context.w(24),
+                            vertical: context.h(6),
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50.r),
+                            borderRadius: BorderRadius.circular(context.r(50)),
                             color: CustomColors.green.withValues(alpha: 0.2),
                           ),
                           child: Text(
                             "Paid",
-                            style: CustomFonts.black15w600.copyWith(
+                            style: CustomFonts.purple14w600.copyWith(
                               color: CustomColors.green,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 22.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Subtotal", style: CustomFonts.grey17w500),
-                        Text("AED 65.00", style: CustomFonts.grey18w500),
+                        Text("Subtotal", style: CustomFonts.grey14w500),
+                        Text("AED 65.00", style: CustomFonts.black14w500),
                       ],
                     ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Platform Fee", style: CustomFonts.grey17w500),
-                        Text("AED 1.00", style: CustomFonts.grey18w500),
+                        Text("Platform Fee", style: CustomFonts.grey14w500),
+                        Text("AED 1.00", style: CustomFonts.black14w500),
                       ],
                     ),
-
-                    SizedBox(height: 9.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 14.h),
-
+                    SizedBox(height: context.h(9)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(14)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Total Amount", style: CustomFonts.black20w700),
-                        Text("AED 61.45", style: CustomFonts.black20w700),
+                        Text("Total Amount", style: CustomFonts.black20w600),
+                        Text("AED 61.45", style: CustomFonts.black20w600),
                       ],
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20.h),
-              Text("Additional Invoice", style: CustomFonts.black22w600),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(20)),
+              Text("Additional Invoice", style: CustomFonts.black20w600),
+              SizedBox(height: context.h(20)),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 18.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(17),
+                  vertical: context.h(18),
+                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.r),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(context.r(15)),
+                  border: Border.all(color: CustomColors.border),
                 ),
                 child: Column(
                   children: [
@@ -272,102 +284,100 @@ class _AppointmentReadyDailogState
                       children: [
                         Icon(
                           Icons.receipt_outlined,
-                          size: 20.h,
-                          color: CustomColors.blackColor,
+                          size: context.r(20),
+                          color: CustomColors.black,
                         ),
-                        SizedBox(width: 12.w),
+                        SizedBox(width: context.w(12)),
                         Column(
-                          crossAxisAlignment: .start,
-                          spacing: 4.h,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Invoice", style: CustomFonts.black15w600),
+                            Text("Invoice", style: CustomFonts.black14w600),
+                            SizedBox(height: context.h(4)),
                             Text(
                               "5689470025899658",
-                              style: CustomFonts.black15w600,
+                              style: CustomFonts.black14w600,
                             ),
                           ],
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 31.w,
-                            vertical: 3.h,
+                            horizontal: context.w(24),
+                            vertical: context.h(6),
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50.r),
+                            borderRadius: BorderRadius.circular(context.r(50)),
                             color: CustomColors.green.withValues(alpha: 0.2),
                           ),
                           child: Text(
                             "Paid",
-                            style: CustomFonts.black15w600.copyWith(
+                            style: CustomFonts.purple14w600.copyWith(
                               color: CustomColors.green,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 22.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Subtotal", style: CustomFonts.grey17w500),
-                        Text("AED 65.00", style: CustomFonts.grey18w500),
+                        Text("Subtotal", style: CustomFonts.grey14w500),
+                        Text("AED 65.00", style: CustomFonts.black14w500),
                       ],
                     ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: context.h(22)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Platform Fee", style: CustomFonts.grey17w500),
-                        Text("AED 1.00", style: CustomFonts.grey18w500),
+                        Text("Platform Fee", style: CustomFonts.grey14w500),
+                        Text("AED 1.00", style: CustomFonts.black14w500),
                       ],
                     ),
-
-                    SizedBox(height: 9.h),
-                    Divider(height: 0, color: Colors.grey.shade300),
-                    SizedBox(height: 14.h),
-
+                    SizedBox(height: context.h(9)),
+                    Divider(height: 0, color: CustomColors.border),
+                    SizedBox(height: context.h(14)),
                     Row(
-                      mainAxisAlignment: .spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Total Amount", style: CustomFonts.black20w700),
-                        Text("AED 61.45", style: CustomFonts.black20w700),
+                        Text("Total Amount", style: CustomFonts.black20w600),
+                        Text("AED 61.45", style: CustomFonts.black20w600),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 20.h),
-              PDFExpansionTile(),
-              SizedBox(height: 20.h),
-              ref.watch(authViewModelProvider).navigateDailogIndex == 0
-                  ? SizedBox()
+              SizedBox(height: context.h(20)),
+              const PDFExpansionTile(),
+              SizedBox(height: context.h(20)),
+              navigateDailogIndex == 0
+                  ? const SizedBox()
                   : Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 15.w,
-                        vertical: 15.h,
+                        horizontal: context.w(15),
+                        vertical: context.h(15),
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
-                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(context.r(15)),
+                        border: Border.all(color: CustomColors.border),
                       ),
                       child: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Upload Images", style: CustomFonts.black22w600),
-                          SizedBox(height: 20.h),
+                          Text("Upload Images", style: CustomFonts.black20w600),
+                          SizedBox(height: context.h(20)),
                           Row(
                             children: List.generate(3, (_) {
                               return Padding(
-                                padding: EdgeInsets.only(right: 10.w),
+                                padding: EdgeInsets.only(right: context.w(10)),
                                 child: Container(
-                                  height: 100.h,
-                                  width: 104.w,
+                                  height: context.h(100),
+                                  width: context.w(104),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16.r),
+                                    borderRadius: BorderRadius.circular(context.r(16)),
                                     image: DecorationImage(
                                       image: AssetImage(
                                         PngAssets.treatmentImage2,
@@ -379,138 +389,131 @@ class _AppointmentReadyDailogState
                               );
                             }),
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: context.h(20)),
                           Container(
                             width: double.infinity,
                             alignment: Alignment.center,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 17.w,
-                              vertical: 13.h,
+                              horizontal: context.w(17),
+                              vertical: context.h(13),
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.r),
-                              color: CustomColors.blackColor,
+                              borderRadius: BorderRadius.circular(context.r(15)),
+                              color: CustomColors.black,
                             ),
                             child: Text(
                               "Upload Images",
-                              style: CustomFonts.white18w600,
+                              style: CustomFonts.white14w600,
                             ),
                           ),
                         ],
                       ),
                     ),
-              ref.watch(authViewModelProvider).navigateDailogIndex == 0
-                  ? SizedBox()
-                  : SizedBox(height: 20.h),
-              ref.watch(authViewModelProvider).navigateDailogIndex == 0
-                  ? SizedBox()
+              navigateDailogIndex == 0
+                  ? const SizedBox()
+                  : SizedBox(height: context.h(20)),
+              navigateDailogIndex == 0
+                  ? const SizedBox()
                   : Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 15.w,
-                        vertical: 15.h,
+                        horizontal: context.w(15),
+                        vertical: context.h(15),
                       ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.r),
-                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(context.r(15)),
+                        border: Border.all(color: CustomColors.border),
                       ),
                       child: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Treatment Notes",
-                            style: CustomFonts.black22w600,
+                            style: CustomFonts.black20w600,
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: context.h(20)),
                           Row(
                             children: [
                               Text(
                                 "Note Type: ",
-                                style: CustomFonts.black18w600,
+                                style: CustomFonts.black14w600,
                               ),
-                              Text(
-                                "Prefers natural-looking results",
-                                style: CustomFonts.grey18w500,
+                              Expanded(
+                                child: Text(
+                                  "Prefers natural-looking results",
+                                  style: CustomFonts.grey14w500,
+                                ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: context.h(20)),
                           GestureDetector(
                             onTap: () {
                               showDialog(
                                 context: context,
-                                builder: (context) => AddNotesDailog(),
+                                builder: (context) => const AddNotesDailog(),
                               );
                             },
                             child: Container(
                               width: double.infinity,
                               alignment: Alignment.center,
                               padding: EdgeInsets.symmetric(
-                                horizontal: 17.w,
-                                vertical: 13.h,
+                                horizontal: context.w(17),
+                                vertical: context.h(13),
                               ),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.r),
-                                border: Border.all(color: Colors.grey.shade300),
-                                color: CustomColors.whiteColor,
+                                borderRadius: BorderRadius.circular(context.r(15)),
+                                border: Border.all(color: CustomColors.border),
+                                color: CustomColors.white,
                               ),
                               child: Text(
                                 "Add Treatment Note",
-                                style: CustomFonts.black18w600,
+                                style: CustomFonts.black14w600,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-              ref.read(authViewModelProvider).navigateDailogIndex == 0
-                  ? SizedBox()
-                  : SizedBox(height: 30.h),
+              navigateDailogIndex == 0
+                  ? const SizedBox()
+                  : SizedBox(height: context.h(30)),
               Row(
                 children: [
-                  Consumer(
-                    builder: (context, ref, _) {
-                      final navigateDailogIndex = ref
-                          .watch(authViewModelProvider)
-                          .navigateDailogIndex;
-                      log(navigateDailogIndex.toString());
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (navigateDailogIndex == 1) {
-                              context.pop();
-                              showDialog(
-                                context: context,
-                                builder: (context) => StatusUpdateDailog(),
-                              );
-                            } else {
-                              ref
-                                  .read(authViewModelProvider.notifier)
-                                  .navigateDailogIndexToNext(1);
-                            }
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 17.w,
-                              vertical: 13.h,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.r),
-
-                              color: CustomColors.blackColor,
-                            ),
-                            child: Text(
-                              navigateDailogIndex == 0
-                                  ? "Start Appointment"
-                                  : "End Appointment",
-                              style: CustomFonts.white18w600,
-                            ),
-                          ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        if (navigateDailogIndex == 1) {
+                          context.pop();
+                          showDialog(
+                            context: context,
+                            builder: (context) => const StatusUpdateDailog(),
+                          );
+                        } else {
+                          ref
+                              .read(authViewModelProvider.notifier)
+                              .navigateDailogIndexToNext(1);
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(17),
+                          vertical: context.h(13),
                         ),
-                      );
-                    },
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(context.r(15)),
+                          color: CustomColors.black,
+                        ),
+                        child: Text(
+                          navigateDailogIndex == 0
+                              ? "Start Appointment"
+                              : "End Appointment",
+                          style: CustomFonts.white14w600,
+                        ),
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 15.w),
+                  SizedBox(width: context.w(15)),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -519,21 +522,21 @@ class _AppointmentReadyDailogState
                       child: Container(
                         alignment: Alignment.center,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 17.w,
-                          vertical: 13.h,
+                          horizontal: context.w(17),
+                          vertical: context.h(13),
                         ),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r),
-                          border: Border.all(color: Colors.grey.shade300),
-                          color: CustomColors.whiteColor,
+                          borderRadius: BorderRadius.circular(context.r(15)),
+                          border: Border.all(color: CustomColors.border),
+                          color: CustomColors.white,
                         ),
-                        child: Text("Cancel", style: CustomFonts.black18w600),
+                        child: Text("Cancel", style: CustomFonts.black14w600),
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: context.h(30)),
             ],
           ),
         ),

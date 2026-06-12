@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/transcation_tile_widget.dart';
 
@@ -15,8 +13,9 @@ class PaymentHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CustomColors.whiteGrey,
       body: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(context.w(20)),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,30 +23,32 @@ class PaymentHistoryScreen extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       context.pop();
                     },
-                    child: Icon(Icons.arrow_back, size: 24.sp)),
-                  SizedBox(width: 10.w),
-                  Text("Transaction History", style: CustomFonts.black22w600),
+                    child: Icon(Icons.arrow_back, size: context.r(24)),
+                  ),
+                  SizedBox(width: context.w(10)),
+                  Text("Transaction History", style: context.fonts.black20w600),
                 ],
               ),
-              SizedBox(height: 18.h),
-              Divider(color: Colors.grey.shade300),
-              SizedBox(height: 17.h),
-              searchAndFilter(),
-              SizedBox(height: 20.h),
-              Text("Transactions", style: CustomFonts.black22w600),
-              SizedBox(height: 20.h),
+              SizedBox(height: context.h(18)),
+              const Divider(color: CustomColors.border),
+              SizedBox(height: context.h(17)),
+              searchAndFilter(context),
+              SizedBox(height: context.h(20)),
+              Text("Transactions", style: context.fonts.black20w600),
+              SizedBox(height: context.h(20)),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: 10,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: EdgeInsets.only(bottom:  15.0.h),
-                    child: TranscationTileWidget(),
-                  ); },
+                    padding: EdgeInsets.only(bottom: context.h(15)),
+                    child: const TranscationTileWidget(),
+                  );
+                },
               ),
             ],
           ),
@@ -56,35 +57,41 @@ class PaymentHistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget searchAndFilter() {
+  Widget searchAndFilter(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: CupertinoSearchTextField(backgroundColor: Color(0xFFF3F3F5)),
+        const Expanded(
+          child: CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
         ),
-        SizedBox(width: 8.w),
+        SizedBox(width: context.w(8)),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(15),
+            vertical: context.h(15),
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.r),
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(context.r(10)),
+            color: CustomColors.white,
+            border: Border.all(color: CustomColors.border),
           ),
           child: Row(
             children: [
               SvgPicture.asset(
                 SvgAssets.filter,
-                height: 12.67.h,
-                width: 13.33.w,
-                color: AppTheme.textSecondary,
+                height: context.h(13),
+                width: context.w(13),
+                colorFilter: const ColorFilter.mode(
+                  CustomColors.grey,
+                  BlendMode.srcIn,
+                ),
               ),
-              SizedBox(width: 10.w),
-              Text("All Status", style: CustomFonts.grey18w500),
-              SizedBox(width: 10.w),
+              SizedBox(width: context.w(10)),
+              Text("All Status", style: context.fonts.grey14w500),
+              SizedBox(width: context.w(10)),
               Icon(
                 CupertinoIcons.chevron_down,
-                size: 16.sp,
-                color: AppTheme.textSecondary,
+                size: context.r(16),
+                color: CustomColors.grey,
               ),
             ],
           ),

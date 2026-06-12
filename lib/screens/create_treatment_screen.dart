@@ -1,8 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';
@@ -20,9 +18,8 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
   final TextEditingController _treatmentNameController =
       TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-
-  final ImagePicker _imagePicker = ImagePicker();
-  XFile? _selectedImage;
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _discountController = TextEditingController();
 
   // Dropdown values
   String? _selectedCategory;
@@ -51,25 +48,27 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
   void dispose() {
     _treatmentNameController.dispose();
     _descriptionController.dispose();
+    _priceController.dispose();
+    _discountController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFBDBDBD),
+      backgroundColor: CustomColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: 20.h,
-            horizontal: context.isLandscape ? 250.w : 20.w,
+            vertical: context.h(20),
+            horizontal: context.isLandscape ? context.w(250) : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header with back button
-              BuildHeader(title: 'Create Treatment'),
-              SizedBox(height: 24.h),
+              const BuildHeader(title: 'Create Treatment'),
+              SizedBox(height: context.h(24)),
               // Main Form Container
               _buildFormContainer(),
             ],
@@ -82,13 +81,13 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
   Widget _buildFormContainer() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(context.w(24)),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: CustomColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -97,16 +96,15 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile Picture Section
-          Text('Treatment Details', style: CustomFonts.black22w600),
-          SizedBox(height: 24.h),
+          Text('Treatment Details', style: context.fonts.black20w600),
+          SizedBox(height: context.h(24)),
           // Treatment Name
           BuildTextField(
             label: 'Treatment Name',
             controller: _treatmentNameController,
             hintText: 'e.g., Botox, Dermal Fillers',
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Category Dropdown
           _buildDropdownField(
             label: 'Category',
@@ -119,7 +117,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
               });
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Subcategory Dropdown
           _buildDropdownField(
             label: 'Subcategory',
@@ -132,7 +130,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
               });
             },
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
           // Description
           BuildTextField(
             label: 'Description',
@@ -140,7 +138,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
             hintText: 'Describe the treatment and its benefits',
             maxLines: 5,
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: context.h(20)),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -148,22 +146,22 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
               Expanded(
                 child: BuildTextField(
                   label: 'Price',
-                  controller: _treatmentNameController,
-                  hintText: '\$500',
+                  controller: _priceController,
+                  hintText: 'AED 500',
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: context.w(16)),
               Expanded(
                 child: BuildTextField(
                   label: 'Discount',
-                  controller: _treatmentNameController,
-                  hintText: '%30 Off',
+                  controller: _discountController,
+                  hintText: '30% Off',
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 32.h),
+          SizedBox(height: context.h(32)),
 
           // Buttons Row
           _buildButtonsRow(),
@@ -184,19 +182,15 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
-          ),
+          style: context.fonts.black13w500.copyWith(color: Colors.black87),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: context.h(8)),
         DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
             isExpanded: true,
             hint: Text(
               hintText,
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey[400]),
+              style: context.fonts.grey14w400.copyWith(color: CustomColors.grey),
             ),
             value: value,
             items: items
@@ -205,51 +199,51 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
                     value: item,
                     child: Text(
                       item,
-                      style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+                      style: context.fonts.black14w400.copyWith(color: Colors.black87),
                     ),
                   ),
                 )
                 .toList(),
             onChanged: onChanged,
             buttonStyleData: ButtonStyleData(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              height: context.h(48),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.grey[300]!, width: 1),
+                color: CustomColors.white,
+                borderRadius: BorderRadius.circular(context.r(8)),
+                border: Border.all(color: CustomColors.border, width: 1),
               ),
             ),
             iconStyleData: IconStyleData(
               icon: Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: Colors.grey[500],
-                size: 24.sp,
+                color: CustomColors.grey,
+                size: context.r(24),
               ),
             ),
             dropdownStyleData: DropdownStyleData(
-              maxHeight: 200.h,
+              maxHeight: context.h(200),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.r),
+                color: CustomColors.white,
+                borderRadius: BorderRadius.circular(context.r(8)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: CustomColors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              offset: Offset(0, -4.h),
+              offset: Offset(0, -context.h(4)),
               scrollbarTheme: ScrollbarThemeData(
-                radius: Radius.circular(40.r),
+                radius: Radius.circular(context.r(40)),
                 thickness: WidgetStateProperty.all(6),
                 thumbVisibility: WidgetStateProperty.all(true),
               ),
             ),
             menuItemStyleData: MenuItemStyleData(
-              height: 44.h,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              height: context.h(44),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
             ),
           ),
         ),
@@ -260,52 +254,48 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
   Widget _buildButtonsRow() {
     return Row(
       children: [
-        // Create Staff Button
+        // Create Treatment Button
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              // Handle create staff
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Staff created successfully!'),
-                  backgroundColor: Colors.green,
+                  content: Text('Treatment created successfully!'),
+                  backgroundColor: CustomColors.green,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 20.h),
+              backgroundColor: CustomColors.black,
+              foregroundColor: CustomColors.white,
+              padding: EdgeInsets.symmetric(vertical: context.h(16)),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
               elevation: 0,
             ),
-            child: Text('Create Treatment', style: CustomFonts.white18w500),
+            child: Text('Create Treatment', style: context.fonts.white14w600),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: context.w(16)),
         // Cancel Button
         Expanded(
           child: OutlinedButton(
             onPressed: () {
-              // Handle cancel
-              // context.pop();
+              Navigator.pop(context);
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black,
-              padding: EdgeInsets.symmetric(vertical: 20.h),
+              foregroundColor: CustomColors.black,
+              padding: EdgeInsets.symmetric(vertical: context.h(16)),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(context.r(8)),
               ),
-              side: BorderSide(color: Colors.grey[300]!, width: 1),
+              side: const BorderSide(color: CustomColors.border, width: 1),
             ),
-            child: Text('Cancel', style: CustomFonts.black18w500),
+            child: Text('Cancel', style: context.fonts.black14w500),
           ),
         ),
       ],
     );
   }
 }
-
-// Custom Painter for Dotted Circle Border

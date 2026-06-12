@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/color_constant.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
+
+import '../../utils/theme.dart';
 
 class CreateInvoiceDialog extends StatefulWidget {
   final String invoiceNumber;
@@ -49,13 +48,16 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.4,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: MediaQuery.sizeOf(context).width * 0.4,
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -68,41 +70,41 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Create Invoice', style: CustomFonts.black22w600),
-                    SizedBox(height: 4.h),
+                    Text('Create Invoice', style: CustomFonts.black20w600),
+                    SizedBox(height: context.h(4)),
                     Text(
                       '#${widget.invoiceNumber}',
                       style: CustomFonts.grey14w400,
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    height: 36.w,
-                    width: 36.w,
+                    height: context.w(36),
+                    width: context.w(36),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black26),
+                      border: Border.all(color: CustomColors.border),
                     ),
-                    child: Icon(Icons.close, size: 18.sp),
+                    child: Icon(Icons.close, size: context.r(18)),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
 
             /// Search
             CupertinoSearchTextField(
-              style: CustomFonts.black17w500,
-              backgroundColor: Color(0xFFF3F3F5),
+              style: CustomFonts.black16w500,
+              backgroundColor: CustomColors.softGrey,
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: context.h(16)),
 
             /// Product List
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.28,
+              height: MediaQuery.sizeOf(context).height * 0.28,
               child: SingleChildScrollView(
                 child: Column(
                   children: _products
@@ -112,16 +114,16 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
               ),
             ),
 
-            Divider(height: 28.h, color: Colors.grey.shade300),
+            Divider(height: context.h(28), color: CustomColors.border),
 
             /// Payment Summary
             Text('Payment Summary', style: CustomFonts.black18w600),
-            SizedBox(height: 12.h),
+            SizedBox(height: context.h(12)),
             Container(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(context.w(16)),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: CustomColors.border),
               ),
               child: Column(
                 children: [
@@ -130,13 +132,13 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                     'AED ${_subtotal.toStringAsFixed(2)}',
                     isBold: false,
                   ),
-                  Divider(height: 20.h, color: Colors.grey.shade200),
+                  Divider(height: context.h(20), color: CustomColors.border),
                   _summaryRow(
                     'Platform Fee',
                     'AED ${_platformFee.toStringAsFixed(2)}',
                     isBold: false,
                   ),
-                  Divider(height: 20.h, color: Colors.grey.shade200),
+                  Divider(height: context.h(20), color: CustomColors.border),
                   _summaryRow(
                     'Total',
                     'AED ${_total.toStringAsFixed(2)}',
@@ -145,53 +147,57 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: context.h(20)),
 
             /// Buttons
             Row(
               children: [
                 Consumer(
-                  builder: (context,ref,_) {
+                  builder: (context, ref, _) {
                     return Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          ref.read(authViewModelProvider.notifier).navigateDailogIndexToNext(1);
+                          ref
+                              .read(authViewModelProvider.notifier)
+                              .navigateDailogIndexToNext(1);
                           context.pop();
-                          
+
                           showDialog(
                             context: context,
-                            builder: (context) => AppointmentReadyDailog(),
+                            builder: (context) => const AppointmentReadyDailog(),
                           );
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          padding: EdgeInsets.symmetric(
+                            vertical: context.h(16),
+                          ),
                           decoration: BoxDecoration(
-                            color: CustomColors.blackColor,
-                            borderRadius: BorderRadius.circular(8.r),
+                            color: CustomColors.black,
+                            borderRadius: BorderRadius.circular(context.r(8)),
                           ),
                           child: Center(
                             child: Text(
                               'Send Invoice & Consent',
-                              style: CustomFonts.white16w600,
+                              style: CustomFonts.white14w600,
                             ),
                           ),
                         ),
                       ),
                     );
-                  }
+                  },
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: context.w(12)),
                 Expanded(
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      padding: EdgeInsets.symmetric(vertical: context.h(16)),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: CustomColors.greyColor),
+                        borderRadius: BorderRadius.circular(context.r(8)),
+                        border: Border.all(color: CustomColors.border),
                       ),
                       child: Center(
-                        child: Text('Cancel', style: CustomFonts.black16w500),
+                        child: Text('Cancel', style: CustomFonts.black14w500),
                       ),
                     ),
                   ),
@@ -229,40 +235,44 @@ class _ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.all(12.w),
+      margin: EdgeInsets.only(bottom: context.h(10)),
+      padding: EdgeInsets.all(context.w(12)),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(color: CustomColors.border),
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(context.r(8)),
             child: Image.asset(
               product['image'],
-              width: 52.w,
-              height: 52.w,
+              width: context.w(52),
+              height: context.w(52),
               fit: BoxFit.cover,
             ),
           ),
-          SizedBox(width: 12.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(product['name'], style: CustomFonts.black16w600),
-              SizedBox(height: 4.h),
-              Text(
-                '\$ ${product['price'].toStringAsFixed(0)}',
-                style: CustomFonts.black14w400.copyWith(color: Colors.orange),
-              ),
-            ],
+          SizedBox(width: context.w(12)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product['name'],
+                  style: CustomFonts.black16w600,
+                ),
+                SizedBox(height: context.h(4)),
+                Text(
+                  'AED ${product['price'].toStringAsFixed(0)}',
+                  style: CustomFonts.purple14w600,
+                ),
+              ],
+            ),
           ),
-          Spacer(),
           Icon(
             Icons.qr_code_scanner,
-            size: 24.sp,
-            color: CustomColors.blackColor,
+            size: context.r(24),
+            color: CustomColors.black,
           ),
         ],
       ),

@@ -1,11 +1,8 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_dropdown_widget.dart';
+
+import '../../utils/theme.dart';
 
 class AddNotesDailog extends StatefulWidget {
   const AddNotesDailog({super.key});
@@ -15,18 +12,22 @@ class AddNotesDailog extends StatefulWidget {
 }
 
 class _AddNotesDailogState extends State<AddNotesDailog> {
-  String? _selectedType ;
+  String? _selectedType;
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: 354.w,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+        width: context.w(354),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24.r),
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,22 +39,26 @@ class _AddNotesDailogState extends State<AddNotesDailog> {
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  height: 32.w,
-                  width: 32.w,
+                  height: context.w(32),
+                  width: context.w(32),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black12),
+                    border: Border.all(color: CustomColors.border),
                   ),
-                  child: const Icon(Icons.close, size: 18),
+                  child: Icon(
+                    Icons.close,
+                    size: context.r(18),
+                    color: CustomColors.grey,
+                  ),
                 ),
               ),
             ),
             Text("Note Type", style: CustomFonts.black18w600),
-            SizedBox(height: 5.h),
+            SizedBox(height: context.h(5)),
             CustomDropdown(
               hint: "Select type",
               value: _selectedType,
-              items: [
+              items: const [
                 "General Note",
                 "Treatment Note",
                 "Follow-up Note",
@@ -63,24 +68,49 @@ class _AddNotesDailogState extends State<AddNotesDailog> {
                 "Post-Treatment Note",
                 "Consultation Note",
               ],
-              height: 42.h,
+              height: context.h(42),
               onChanged: (value) =>
                   setState(() => _selectedType = value ?? 'General Note'),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: context.h(30)),
 
             Text("Notes", style: CustomFonts.black18w600),
-            SizedBox(height: 5.h),
+            SizedBox(height: context.h(5)),
             TextField(
               maxLines: 2,
-              decoration: InputDecoration(hintText: "Write your note here"),
+              style: CustomFonts.black14w400,
+              decoration: InputDecoration(
+                hintText: "Write your note here",
+                hintStyle: CustomFonts.grey14w400,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: context.w(16),
+                  vertical: context.h(14),
+                ),
+                filled: true,
+                fillColor: CustomColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.purple),
+                ),
+              ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: context.h(30)),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(onPressed: () {
-                context.pop();
-              }, child: Text("Save Note")),
+              child: ElevatedButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text("Save Note"),
+              ),
             ),
           ],
         ),
