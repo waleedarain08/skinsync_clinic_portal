@@ -1,14 +1,55 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+
+import '../app_init.dart';
+
+abstract class Responsive {
+  static T when<T>(
+      BuildContext context, {
+        required T defaultValue,
+        ValueGetter<T>? mobile,
+        ValueGetter<T>? tablet,
+        ValueGetter<T>? desktop,
+      }) {
+    // Accessing context.w(0) to register as a listener of ScreenUtil metrics if needed,
+    // though MediaQuery.sizeOf(context) already registers as a listener of size changes.
+    final width = MediaQuery.sizeOf(context).width;
+
+    if (width < 480) {
+      return mobile?.call() ?? defaultValue;
+    } else if (width < 1024) {
+      return tablet?.call() ?? defaultValue;
+    } else {
+      return desktop?.call() ?? defaultValue;
+    }
+  }
+
+  // Legacy version using navigatorKey
+  static T when_static<T>({
+    required T defaultValue,
+    ValueGetter<T>? mobile,
+    ValueGetter<T>? tablet,
+    ValueGetter<T>? desktop,
+  }) {
+    final context = navigatorKey.currentContext!;
+    final width = MediaQuery.sizeOf(context).width;
+
+    if (width < 480) {
+      return mobile?.call() ?? defaultValue;
+    } else if (width < 1024) {
+      return tablet?.call() ?? defaultValue;
+    } else {
+      return desktop?.call() ?? defaultValue;
+    }
+  }
+}
 
 extension ResponsiveExtension on BuildContext {
-  bool get isMobile => MediaQuery.of(this).size.width < 600;
+  bool get isMobile => MediaQuery.sizeOf(this).width < 480;
 
-  bool get isTablet =>
-      MediaQuery.of(this).size.width >= 600 &&
-      MediaQuery.of(this).size.width < 1024;
+  bool get isTablet => MediaQuery.sizeOf(this).width >= 481 && MediaQuery.sizeOf(this).width <= 1024;
 
-  bool get isDesktop => MediaQuery.of(this).size.width >= 1024;
+  bool get isDesktop => MediaQuery.sizeOf(this).width > 1024;
 
   bool get isLandscape =>
       MediaQuery.of(this).orientation == Orientation.landscape;
@@ -20,7 +61,6 @@ extension ResponsiveExtension on BuildContext {
 class AdaptiveLayoutRowColumn extends StatelessWidget {
   final List<Widget> children;
   final MainAxisAlignment? alignment;
-  final CrossAxisAlignment? crossAxisAlignment;
   final double? widthBetween;
   final double? heightBetween;
   final MainAxisSize? size;
@@ -34,7 +74,6 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
     this.widthBetween,
     this.heightBetween,
     this.expandedWidget,
-    this.crossAxisAlignment,
   });
 
   @override
@@ -42,7 +81,7 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
     if (context.isLandscape) {
       final rowChildren = <Widget>[];
       for (var i = 0; i < children.length; i++) {
-        if (i > 0) rowChildren.add(SizedBox(width: widthBetween ?? 20.w));
+        if (i > 0) rowChildren.add(context.horizontalSpace(widthBetween ?? 20));
         if (expandedWidget == true) {
           rowChildren.add(Expanded(child: children[i]));
         } else {
@@ -52,13 +91,12 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
       return Row(
         mainAxisAlignment: alignment ?? MainAxisAlignment.start,
         mainAxisSize: size ?? MainAxisSize.max,
-        crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.start,
         children: rowChildren,
       );
     }
     final columnChildren = <Widget>[];
     for (var i = 0; i < children.length; i++) {
-      if (i > 0) columnChildren.add(SizedBox(height: heightBetween ?? 20.h));
+      if (i > 0) columnChildren.add(context.verticalSpace(heightBetween ?? 20));
       columnChildren.add(children[i]);
     }
     return Column(
@@ -72,8 +110,10 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
 class AdaptiveLayoutList extends StatelessWidget {
   final List<Widget> children;
   final double? horizontalHeight;
+
   final double? spaceHeight;
   final double? spaceWidth;
+
   final bool isScrollVertical;
 
   const AdaptiveLayoutList({
@@ -95,7 +135,7 @@ class AdaptiveLayoutList extends StatelessWidget {
         physics: context.isLandscape
             ? null
             : isScrollVertical
-            ? NeverScrollableScrollPhysics()
+            ? const NeverScrollableScrollPhysics()
             : null,
         scrollDirection: context.isLandscape ? Axis.horizontal : Axis.vertical,
         itemBuilder: (context, index) {
@@ -103,50 +143,8 @@ class AdaptiveLayoutList extends StatelessWidget {
         },
         separatorBuilder: (BuildContext context, int index) {
           return context.isLandscape
-              ? SizedBox(width: spaceWidth ?? 20.w)
-              : SizedBox(height: spaceHeight ?? 20.h);
-        },
-      ),
-    );
-  }
-}
-
-class AdaptiveLayoutListInverse extends StatelessWidget {
-  final List<Widget> children;
-  final double? horizontalHeight;
-
-  final double? spaceHeight;
-  final double? spaceWidth;
-
-  final bool isScrollVertical;
-
-  const AdaptiveLayoutListInverse({
-    super.key,
-    required this.children,
-    this.horizontalHeight,
-    this.spaceHeight,
-    this.spaceWidth,
-    required this.isScrollVertical,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: context.isLandscape ? null : horizontalHeight,
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: children.length,
-        physics: context.isLandscape
-            ? (isScrollVertical ? NeverScrollableScrollPhysics() : null)
-            : null,
-        scrollDirection: context.isLandscape ? Axis.vertical : Axis.horizontal,
-        itemBuilder: (context, index) {
-          return children[index];
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return context.isLandscape
-              ? SizedBox(height: spaceHeight ?? 20.h)
-              : SizedBox(width: spaceWidth ?? 20.w);
+              ? context.horizontalSpace(spaceWidth ?? 20)
+              : context.verticalSpace(spaceHeight ?? 20);
         },
       ),
     );

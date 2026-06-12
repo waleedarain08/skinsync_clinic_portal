@@ -1,282 +1,301 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skinsync_clinic_portal/utils/custom_fonts.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'color_constant.dart';
+import 'custom_fonts.dart';
+
+export 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+export 'color_constant.dart';
+export 'custom_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF74D8F2);
-  static const Color secondaryColor = Color(0xFF8B5CF6); // Purple
-  static const Color backgroundColor = Color(0xFFFAF7FC);
-  static const Color surfaceColor = Color(0xFFFFFFFF);
-  static const Color errorColor = Color(0xFFEF4444);
-  static const Color successColor = Color(0xFF10B981);
-  static const Color warningColor = Color(0xFFF59E0B);
-  static const Color unSelectedColor = Color(0xFF838788);
-  static const Color titleBorderColor = Color(0xFFEEA1F0);
-  static const Color fillCOlor = Color(0xFFF3F3F5);
-  static const Color lightgrey = Color(0xFFDDDDDD);
-  static const Color greenColor = Color(0xFF1AC039);
-  static const Color purpleColor = Color(0xFF4F39F6);
+  // Design Standards (Static getters using singleton)
+  static double get inputHeight => 52.h;
+  static double get buttonHeight => 52.h;
+  static double get borderRadius => 12.r;
+  static double get borderWidth => 1.0;
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFF111827);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textTertiary = Color(0xFF9CA3AF);
+  static ThemeData get calmWellnessTheme => _buildTheme();
 
-  // Border Colors
-  static const Color borderColor = unSelectedColor;
-  // button colors
-  static const Color elevatedButtonColor = Colors.black;
+  // Legacy Aliases
+  static ThemeData get lightTheme => calmWellnessTheme;
+  static ThemeData get darkTheme => calmWellnessTheme;
 
-  // Sidebar Colors
-  static const Color sidebarBackground = Color(0xFFEAF8FC);
-  static const Color sidebarSelectedIconColor = primaryColor;
-  static const Color sidebarUnSelectedIconColor = unSelectedColor;
-  static const Color sidebarSelectedTextColor = Colors.black;
-  static const Color sidebarUnSelectedTextColor = unSelectedColor;
-  static const Color sidebarHover = Color(0xFF374151);
-  // Light Theme
-  static ThemeData get lightTheme {
+  static ThemeData _buildTheme() {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        brightness: Brightness.light,
-        primary: primaryColor,
-        secondary: secondaryColor,
-        error: errorColor,
-        surface: surfaceColor,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: Colors.transparent,
+      primaryColor: CustomColors.purple,
+      splashColor: CustomColors.purple.withValues(alpha: 0.05),
+
+      colorScheme: const ColorScheme.light(
+        primary: CustomColors.purple,
+        onPrimary: CustomColors.white,
+        secondary: CustomColors.green,
+        onSecondary: CustomColors.white,
+        surface: CustomColors.white,
+        onSurface: CustomColors.black,
+        error: CustomColors.red,
+        outline: CustomColors.border,
+        surfaceContainerHighest: CustomColors.softGrey,
       ),
-      scaffoldBackgroundColor: backgroundColor,
-      appBarTheme: const AppBarTheme(
+
+      iconTheme: IconThemeData(
+        color: CustomColors.grey,
+        size: 20.sp,
+      ),
+
+      primaryIconTheme: IconThemeData(
+        color: CustomColors.purple,
+        size: 20.sp,
+      ),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        backgroundColor: surfaceColor,
-        foregroundColor: textPrimary,
-        titleTextStyle: TextStyle(
-          color: textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
+        iconTheme: IconThemeData(color: CustomColors.black, size: 22.sp),
+        titleTextStyle: CustomFonts.black18w600,
       ),
+
+      textTheme: TextTheme(
+        headlineLarge: CustomFonts.black26w700,
+        headlineMedium: CustomFonts.black20w600,
+        headlineSmall: CustomFonts.black18w600,
+        bodyLarge: CustomFonts.black16w400,
+        bodyMedium: CustomFonts.black14w400,
+        bodySmall: CustomFonts.grey13w500,
+        labelMedium: CustomFonts.grey12w600,
+      ),
+
       cardTheme: CardThemeData(
+        color: CustomColors.white,
         elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: borderColor, width: 1),
-        ),
-        color: surfaceColor,
-      ),
-      dividerColor: unSelectedColor,
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey.shade400),
-        filled: true,
-        fillColor: surfaceColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: errorColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          borderRadius: BorderRadius.circular(borderRadius),
+          side: BorderSide(color: CustomColors.border, width: borderWidth),
         ),
       ),
+
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: CustomColors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: CustomColors.purple,
+          foregroundColor: CustomColors.white,
           elevation: 0,
-          fixedSize: Size(double.infinity, 40.h),
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0.h),
-          visualDensity: VisualDensity.compact,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50.r),
-          ),
-          backgroundColor: elevatedButtonColor,
-          foregroundColor: Colors.white,
-          textStyle: CustomFonts.white22w600,
+          minimumSize: Size(0, buttonHeight),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
+          textStyle: CustomFonts.white14w600,
         ),
       ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          fixedSize: Size(double.infinity, 40.h),
+          foregroundColor: CustomColors.purple,
+          minimumSize: Size(0, buttonHeight),
           padding: EdgeInsets.symmetric(horizontal: 24.w),
-          visualDensity: VisualDensity.compact,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50.r),
-          ),
-          side: BorderSide(color: elevatedButtonColor),
-          foregroundColor: elevatedButtonColor,
-          textStyle: CustomFonts.black22w600,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
+          side: BorderSide(color: CustomColors.purple, width: borderWidth),
+          textStyle: CustomFonts.black14w600.copyWith(color: CustomColors.purple),
         ),
       ),
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          foregroundColor: primaryColor,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          foregroundColor: CustomColors.purple,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          textStyle: CustomFonts.black14w600.copyWith(color: CustomColors.purple),
         ),
       ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 32.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        displayMedium: TextStyle(
-          fontSize: 28.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 24.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 20.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
 
-        bodyLarge: TextStyle(fontSize: 16.sp, color: textPrimary),
-        bodyMedium: TextStyle(fontSize: 14.sp, color: textSecondary),
-        bodySmall: TextStyle(fontSize: 12.sp, color: textTertiary),
-      ).apply(fontFamily: 'Degular'),
-    );
-  }
+      tabBarTheme: TabBarThemeData(
+        labelColor: CustomColors.purple,
+        unselectedLabelColor: CustomColors.grey,
+        labelStyle: CustomFonts.black14w600,
+        unselectedLabelStyle: CustomFonts.grey14w500,
+        indicatorSize: TabBarIndicatorSize.label,
+        indicatorColor: CustomColors.purple,
+        dividerColor: CustomColors.border,
+      ),
 
-  // Dark Theme
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        brightness: Brightness.light,
-        primary: primaryColor,
-        secondary: secondaryColor,
-        error: errorColor,
-        surface: surfaceColor,
+      dataTableTheme: DataTableThemeData(
+        headingRowColor: WidgetStateProperty.all(CustomColors.softGrey),
+        dataRowColor: WidgetStateProperty.all(CustomColors.white),
+        headingTextStyle: CustomFonts.grey12w600,
+        dataTextStyle: CustomFonts.black14w400,
+        horizontalMargin: 24.0,
+        dividerThickness: 1,
       ),
-      scaffoldBackgroundColor: backgroundColor,
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        centerTitle: false,
-        backgroundColor: surfaceColor,
-        foregroundColor: textPrimary,
-        titleTextStyle: TextStyle(
-          color: textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: borderColor, width: 1),
-        ),
-        color: surfaceColor,
-      ),
-      dividerColor: unSelectedColor,
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceColor,
+        fillColor: CustomColors.white,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        hintStyle: CustomFonts.grey12w400,
+        labelStyle: CustomFonts.black14w400,
+        constraints: BoxConstraints(minHeight: inputHeight, maxHeight: inputHeight),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: borderColor),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: CustomColors.border, width: borderWidth),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: borderColor),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: CustomColors.border, width: borderWidth),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: primaryColor, width: 2),
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: CustomColors.purple, width: borderWidth * 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: errorColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: CustomColors.red, width: borderWidth),
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          backgroundColor: elevatedButtonColor,
-          foregroundColor: Colors.white,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          foregroundColor: primaryColor,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 32.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        displayMedium: TextStyle(
-          fontSize: 28.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 24.sp,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 20.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-
-        bodyLarge: TextStyle(fontSize: 16.sp, color: textPrimary),
-        bodyMedium: TextStyle(fontSize: 14.sp, color: textSecondary),
-        bodySmall: TextStyle(fontSize: 12.sp, color: textTertiary),
-      ).apply(fontFamily: 'Degular'),
     );
   }
+}
+
+extension AppScreenUtilContext on BuildContext {
+  double get screenWidth => MediaQuery.of(this).size.width;
+  double get screenHeight => MediaQuery.of(this).size.height;
+
+  EdgeInsets appEdgeInsets({double? horizontal, double? vertical, double? all, double? left, double? top, double? right, double? bottom}) {
+    if (all != null) return EdgeInsets.all(r(all));
+    return EdgeInsets.only(
+      left: w(left ?? horizontal ?? 0),
+      top: h(top ?? vertical ?? 0),
+      right: w(right ?? horizontal ?? 0),
+      bottom: h(bottom ?? vertical ?? 0),
+    );
+  }
+
+  BorderRadius appBorderRadius({double? all, double? topLeft, double? topRight, double? bottomLeft, double? bottomRight}) {
+    if (all != null) return BorderRadius.circular(r(all));
+    return BorderRadius.only(
+      topLeft: Radius.circular(r(topLeft ?? 0)),
+      topRight: Radius.circular(r(topRight ?? 0)),
+      bottomLeft: Radius.circular(r(bottomLeft ?? 0)),
+      bottomRight: Radius.circular(r(bottomRight ?? 0)),
+    );
+  }
+}
+
+class AppDecorations {
+  static BoxDecoration card(BuildContext context) => BoxDecoration(
+    color: CustomColors.white,
+    borderRadius: context.appBorderRadius(all: 12),
+    border: Border.all(color: CustomColors.border, width: 1),
+  );
+
+  static Widget appBarGradient = Container(
+    decoration: const BoxDecoration(
+      gradient: CustomColors.purpleWhiteStateBlueLightGradient,
+    ),
+  );
+
+  static BoxDecoration sidebarItem(BuildContext context) => BoxDecoration(
+    borderRadius: context.appBorderRadius(all: 8),
+  );
+
+  static InputDecoration input(
+      BuildContext context, {
+        String? hint,
+        Widget? prefixIcon,
+        Widget? suffixIcon,
+        Color? fillColor,
+        EdgeInsets? contentPadding,
+        int maxLines = 1,
+      }) =>
+      InputDecoration(
+        hintText: hint,
+        hintStyle: context.fonts.grey12w400,
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: fillColor ?? CustomColors.white,
+        contentPadding: contentPadding ?? context.appEdgeInsets(horizontal: 16, vertical: 14),
+        constraints: BoxConstraints(
+            minHeight: context.h(52),
+            maxHeight: maxLines > 1 ? double.infinity : context.h(52)
+        ),
+        border: OutlineInputBorder(
+          borderRadius: context.appBorderRadius(all: 12),
+          borderSide: const BorderSide(color: CustomColors.border, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: context.appBorderRadius(all: 12),
+          borderSide: const BorderSide(color: CustomColors.border, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: context.appBorderRadius(all: 12),
+          borderSide: const BorderSide(color: CustomColors.purple, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: context.appBorderRadius(all: 12),
+          borderSide: const BorderSide(color: CustomColors.red, width: 1),
+        ),
+      );
+}
+
+class AppSpacing {
+  static double xs(BuildContext context) => context.w(8);
+  static double sm(BuildContext context) => context.w(12);
+  static double md(BuildContext context) => context.w(16);
+  static double lg(BuildContext context) => context.w(20);
+  static double xl(BuildContext context) => context.w(24);
+  static double xxl(BuildContext context) => context.w(32);
+  static double xxxl(BuildContext context) => context.w(40);
+
+  static double pagePaddingH(BuildContext context) => context.w(28);
+  static double pagePaddingV(BuildContext context) => context.h(28);
+  static double topBarHeight(BuildContext context) => context.h(72);
+  static double cardPadding(BuildContext context) => context.w(24);
+
+  // Legacy static getters
+  static double get pagePaddingH_static => 28.w;
+  static double get pagePaddingV_static => 28.h;
+}
+
+class AppRadius {
+  static double xs(BuildContext context) => context.r(6);
+  static double sm(BuildContext context) => context.r(8);
+  static double md(BuildContext context) => context.r(12);
+  static double lg(BuildContext context) => context.r(16);
+  static double xl(BuildContext context) => context.r(20);
+  static double xxl(BuildContext context) => context.r(24);
+  static double full(BuildContext context) => context.r(999);
+}
+
+class AppShadows {
+  static List<BoxShadow> card(BuildContext context) => [
+    BoxShadow(
+      color: CustomColors.black.withValues(alpha: 0.05),
+      blurRadius: context.r(10),
+      offset: Offset(0, context.h(4)),
+    ),
+  ];
+
+  static List<BoxShadow> cardHover(BuildContext context) => [
+    BoxShadow(
+      color: CustomColors.black.withValues(alpha: 0.1),
+      blurRadius: context.r(20),
+      offset: Offset(0, context.h(8)),
+    ),
+  ];
+
+  static List<BoxShadow> lg(BuildContext context) => [
+    BoxShadow(color: CustomColors.black.withValues(alpha: 0.1), blurRadius: context.r(30), offset: Offset(0, context.h(10)))
+  ];
+
+  static List<BoxShadow> xs(BuildContext context) => [
+    BoxShadow(color: CustomColors.black.withValues(alpha: 0.05), blurRadius: 10.r, offset: const Offset(0, 2))
+  ];
 }
