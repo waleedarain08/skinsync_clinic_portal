@@ -30,6 +30,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   late final SidebarXController _controller;
+  bool? _wasDesktop;
 
   @override
   void initState() {
@@ -40,12 +41,11 @@ class _DashboardState extends State<Dashboard> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Update controller state based on screen size
-    if (context.isDesktop) {
-      _controller.setExtended(true);
-    } else if (context.isTablet) {
-      // Default tablet to collapsed but allow toggle
-      _controller.setExtended(false);
+    // Update controller state only when crossing desktop/tablet threshold
+    final isDesktop = context.isDesktop;
+    if (_wasDesktop != isDesktop) {
+      _wasDesktop = isDesktop;
+      _controller.setExtended(isDesktop);
     }
   }
 
