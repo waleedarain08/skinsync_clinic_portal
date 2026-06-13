@@ -10,6 +10,7 @@ import 'package:skinsync_clinic_portal/utils/clinic_dummy_data.dart';
 import 'package:skinsync_clinic_portal/view_models/clinic_add_treatment_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../utils/responsive.dart';
 
@@ -123,8 +124,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
 
     final isLandscape = context.isLandscape;
 
-    return Scaffold(
-      backgroundColor: CustomColors.whiteGrey,
+    return GradientScaffold(
       body: SafeArea(
         child: Column(
           children: [

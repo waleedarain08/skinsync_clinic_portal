@@ -8,6 +8,7 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../../widgets/dailog box/add_product_dailog.dart';
 
@@ -47,8 +48,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),

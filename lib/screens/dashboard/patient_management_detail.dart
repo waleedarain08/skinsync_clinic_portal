@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/patient_management.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/pateint_treatment_selection_tile.dart';
 
 import '../../utils/assets.dart';
@@ -15,8 +16,7 @@ class PatientManagementDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
         child: Column(

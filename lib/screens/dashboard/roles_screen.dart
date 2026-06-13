@@ -4,6 +4,7 @@ import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart'
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_custom_role_dialog.dart';
 
 class RolesScreen extends ConsumerStatefulWidget {
@@ -32,8 +33,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.whiteGrey,
+    return GradientScaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),

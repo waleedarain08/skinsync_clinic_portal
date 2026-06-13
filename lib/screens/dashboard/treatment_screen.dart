@@ -5,6 +5,7 @@ import 'package:skinsync_clinic_portal/utils/extentions.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/treatment_list_tile.dart';
 
 import '../../utils/responsive.dart';
@@ -31,8 +32,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),

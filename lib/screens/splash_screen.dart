@@ -8,6 +8,7 @@ import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'dashboard/home_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -60,14 +61,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
+    return GradientScaffold(
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: CustomColors.purpleWhiteStateBlueLightGradient,
-            ),
-          ),
           AnimatedOpacity(
             opacity: _animate ? 0.0 : 1.0,
             duration: const Duration(milliseconds: 400),

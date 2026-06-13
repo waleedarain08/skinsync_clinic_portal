@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../utils/assets.dart';
 import '../widgets/phone_widget.dart';
@@ -56,8 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: Row(
         children: [
           // Left Side - Branding

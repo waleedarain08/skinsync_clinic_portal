@@ -9,6 +9,7 @@ import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../utils/assets.dart';
 import '../utils/enums.dart';
@@ -98,8 +99,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: Row(
         children: [
           // Left logo panel (landscape only)

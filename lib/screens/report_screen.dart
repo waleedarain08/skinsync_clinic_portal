@@ -1,6 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
@@ -38,8 +39,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(

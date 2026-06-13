@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_mangement_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
 
@@ -18,8 +19,7 @@ class PatientManagementScreen extends StatefulWidget {
 class _PatientManagementScreenState extends State<PatientManagementScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(28),

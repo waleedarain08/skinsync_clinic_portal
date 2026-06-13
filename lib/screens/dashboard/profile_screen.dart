@@ -8,6 +8,7 @@ import 'package:skinsync_clinic_portal/screens/dynamic_pricing.dart';
 import 'package:skinsync_clinic_portal/screens/notification_screen.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../business_info_screen.dart';
 import '../change_password_screen.dart';
@@ -20,8 +21,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
         child: Column(

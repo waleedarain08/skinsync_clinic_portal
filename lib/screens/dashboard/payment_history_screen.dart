@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/utils/assets.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/transcation_tile_widget.dart';
 
 class PaymentHistoryScreen extends StatelessWidget {
@@ -12,8 +13,7 @@ class PaymentHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.whiteGrey,
+    return GradientScaffold(
       body: Padding(
         padding: EdgeInsets.all(context.w(20)),
         child: SingleChildScrollView(

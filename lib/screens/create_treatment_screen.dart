@@ -6,6 +6,7 @@ import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class CreateTreatmentScreen extends StatefulWidget {
@@ -57,8 +58,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(

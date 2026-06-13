@@ -6,6 +6,7 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_app_bar.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 class DynamicPricing extends StatefulWidget {
   static const String routeName = '/dynamic-pricing';
@@ -93,8 +94,7 @@ class _DynamicPricingState extends State<DynamicPricing> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffF7F8FA),
+    return GradientScaffold(
       appBar: const CustomAppBar(showLogo: true),
       body: Center(
         child: SizedBox(

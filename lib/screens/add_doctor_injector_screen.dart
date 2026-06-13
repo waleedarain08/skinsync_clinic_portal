@@ -12,6 +12,7 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dailogBox.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_treatment_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/phone_widget.dart';
@@ -121,8 +122,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
       canPop: true,
       onPopInvokedWithResult: (_, _) =>
           ref.read(doctorProvider.notifier).clearData(),
-      child: Scaffold(
-        backgroundColor: CustomColors.white,
+      child: GradientScaffold(
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(

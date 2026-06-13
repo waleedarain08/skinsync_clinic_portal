@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
 
 import '../utils/responsive.dart';
@@ -17,7 +18,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(

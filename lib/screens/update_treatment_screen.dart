@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../widgets/header__with_back_btn.dart';
 
@@ -58,8 +59,7 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(

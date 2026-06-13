@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
@@ -76,8 +77,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(

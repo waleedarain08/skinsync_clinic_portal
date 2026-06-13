@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:skinsync_clinic_portal/screens/create_staff_screen.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
 
 import '../../../utils/assets.dart';
@@ -77,8 +78,7 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),

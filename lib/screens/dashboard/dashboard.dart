@@ -7,6 +7,7 @@ import 'package:skinsync_clinic_portal/screens/dashboard/inventory_screen.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/payment_and_wallet_screen.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/roles_screen.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../../utils/assets.dart';
 import '../../utils/theme.dart';
@@ -57,8 +58,7 @@ class _DashboardState extends State<Dashboard> {
       _controller.selectIndex(index);
     }
 
-    return Scaffold(
-      backgroundColor: CustomColors.whiteGrey,
+    return GradientScaffold(
       // Use SidebarX as drawer on mobile/portrait
       drawer: context.isLandscape ? null : _buildSidebar(context),
       body: Row(

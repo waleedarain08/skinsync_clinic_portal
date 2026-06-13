@@ -7,6 +7,7 @@ import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/appointment_tile_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/borderd_container_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/number_paginator.dart';
 
 import '../../utils/theme.dart';
@@ -99,7 +100,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   Widget build(BuildContext context) {
     final appointmentState = ref.watch(appointmentProvider);
 
-    return Scaffold(
+    return GradientScaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),

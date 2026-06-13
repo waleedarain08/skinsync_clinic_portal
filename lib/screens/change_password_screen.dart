@@ -10,6 +10,7 @@ import '../utils/validators.dart';
 import '../view_models/auth_view_model.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
 
 class ChangePasswordScreen extends ConsumerWidget {
@@ -37,7 +38,7 @@ class ChangePasswordScreen extends ConsumerWidget {
     final authState = ref.watch(authViewModelProvider);
     final viewModel = ref.read(authViewModelProvider.notifier);
 
-    return Scaffold(
+    return GradientScaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:skinsync_clinic_portal/screens/dashboard/payment_history_screen.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/payment_withdrawal_dailog_box.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../../utils/assets.dart';
 import '../../utils/theme.dart';
@@ -16,8 +17,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
         child: Column(

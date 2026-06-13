@@ -9,6 +9,7 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
 import '../widgets/phone_widget.dart';
 
@@ -190,8 +191,7 @@ class _BusinessInformationScreenState extends State<BusinessInformationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CustomColors.white,
+    return GradientScaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
