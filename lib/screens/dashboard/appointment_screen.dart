@@ -7,7 +7,6 @@ import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/appointment_tile_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/borderd_container_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/number_paginator.dart';
 
 import '../../utils/theme.dart';
@@ -100,7 +99,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   Widget build(BuildContext context) {
     final appointmentState = ref.watch(appointmentProvider);
 
-    return GradientScaffold(
+    return Scaffold(
+
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: context.w(20),
@@ -231,51 +231,25 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               ),
               SizedBox(height: context.h(15)),
               Consumer(
-                builder: (context, ref, _) {
-                  final loading = appointmentState.loading;
-                  if (loading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: CustomColors.purple,
-                      ),
-                    );
-                  }
-                  if (appointmentState.appointmentList == null ||
-                      appointmentState.appointmentList!.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "No appointments found",
-                        style: CustomFonts.black14w600,
-                      ),
-                    );
-                  }
+  builder: (context, ref, _) {
+    final loading = appointmentState.loading;
+    if (loading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: CustomColors.purple,
+        ),
+      );
+    }
 
-                  // Use filtered list size to map index safely to actual UI items
-                  final filteredList = _getFilteredAppointments(appointmentState.filter);
-                  return ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: filteredList.length,
-                    itemBuilder: (context, index) {
-                      final appointment = filteredList[index];
+    final filteredList = _getFilteredAppointments(appointmentState.filter);
 
-                      return AppointmentTileWidget(
-                        appointment: appointment,
-                        onTap: () {
-                          ref
-                              .read(authViewModelProvider.notifier)
-                              .navigateDailogIndexToNext(0);
+    if (filteredList.isEmpty) {
+      return _buildEmptyState();
+    }
 
-                          showDialog(
-                            context: context,
-                            builder: (_) => const AppointmentReadyDailog(),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
+    return _buildAppointmentsTable(filteredList);
+  },
+),
               _buildFooter(),
             ],
           ),
@@ -283,6 +257,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
       ),
     );
   }
+
+  
 
   List<AppointmentModel> _getFilteredAppointments(AppointmentFilter? filter) {
     switch (filter) {
@@ -305,9 +281,9 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
         final appointmentState = ref.watch(appointmentProvider);
         final totalPage = appointmentState.totalPage ?? 0;
         final page = appointmentState.page;
-        if (totalPage == 0) {
-          return const SizedBox.shrink();
-        }
+        // if (totalPage == 0) {
+        //   return const SizedBox.shrink();
+        // }
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -322,6 +298,210 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           ],
         );
       },
+    );
+  }
+
+Widget _buildAppointmentsTable(List<AppointmentModel> list) {
+  return BorderdContainerWidget(
+    padding: EdgeInsets.zero,
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(12.r),
+      child: Table(
+        columnWidths: const {
+          0: FlexColumnWidth(3), // Patient
+          1: FlexColumnWidth(2), // Treatment
+          2: FlexColumnWidth(2), // Date & Time
+          3: FlexColumnWidth(2), // Doctor
+          4: FlexColumnWidth(2), // Amount
+          5: FlexColumnWidth(2), // Status
+          6: FlexColumnWidth(1), // Actions
+        },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: [
+          // Header Row
+          TableRow(
+            decoration: const BoxDecoration(
+              color: CustomColors.whiteGrey,
+              border: Border(bottom: BorderSide(color: CustomColors.border)),
+            ),
+            children: const [
+              _AppointmentHeaderCell("PATIENT"),
+              _AppointmentHeaderCell("TREATMENT"),
+              _AppointmentHeaderCell("DATE & TIME"),
+              _AppointmentHeaderCell("DOCTOR"),
+              _AppointmentHeaderCell("AMOUNT"),
+              _AppointmentHeaderCell("STATUS"),
+              _AppointmentHeaderCell("ACTIONS"),
+            ],
+          ),
+          // Data Rows
+          ...list.map((a) {
+            return TableRow(
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: CustomColors.border)),
+              ),
+              children: [
+                _appointmentPatientCell(a),
+                _appointmentTextCell(a.treatment, style: context.fonts.black14w600),
+                _appointmentTextCell("${a.date}\n${a.time}", style: context.fonts.grey14w400),
+                _appointmentTextCell(a.doctor, style: context.fonts.grey14w400),
+                _appointmentTextCell("\$${a.amount.toStringAsFixed(0)}", style: context.fonts.black14w600),
+                _appointmentStatusBadgeCell(a.status),
+                _appointmentActionsCell(a),
+              ],
+            );
+          }),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _appointmentPatientCell(AppointmentModel a) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 18.r,
+          backgroundColor: CustomColors.palePurple,
+          child: Text(
+            a.patientName.isNotEmpty ? a.patientName[0] : "?",
+            style: context.fonts.purple12w700,
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Text(
+            a.patientName,
+            style: context.fonts.black14w600,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _appointmentTextCell(String text, {required TextStyle style}) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+    child: Text(
+      text,
+      style: style,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+}
+
+Widget _appointmentStatusBadgeCell(AppointmentStatus status) {
+  Color badgeColor;
+  switch (status) {
+    case AppointmentStatus.completed:
+    case AppointmentStatus.arrived:
+      badgeColor = CustomColors.green;
+      break;
+    case AppointmentStatus.ongoing:
+      badgeColor = Colors.blue;
+      break;
+    case AppointmentStatus.delayed:
+      badgeColor = CustomColors.purple;
+      break;
+    case AppointmentStatus.noShow:
+      badgeColor = CustomColors.red;
+      break;
+    default:
+      badgeColor = CustomColors.grey;
+  }
+
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+          decoration: BoxDecoration(
+            color: badgeColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
+          ),
+          child: Text(
+            status.label,
+            style: context.fonts.grey12w600.copyWith(
+              color: badgeColor,
+              fontSize: 10.sp,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _appointmentActionsCell(AppointmentModel a) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+    child: IconButton(
+      tooltip: "View Details",
+      icon: Icon(Icons.visibility_outlined, color: CustomColors.grey, size: 20.sp),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      onPressed: () {
+        ref.read(authViewModelProvider.notifier).navigateDailogIndexToNext(0);
+        showDialog(
+          context: context,
+          builder: (_) => const AppointmentReadyDailog(),
+        );
+      },
+    ),
+  );
+}
+Widget _buildEmptyState() {
+  return BorderdContainerWidget(
+    padding: EdgeInsets.all(context.w(48)),
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(context.w(20)),
+            decoration: const BoxDecoration(
+              color: CustomColors.whiteGrey,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.event_busy_rounded, size: context.sp(48), color: CustomColors.grey),
+          ),
+          SizedBox(height: context.h(24)),
+          Text("No appointments found", style: context.fonts.black18w600),
+          SizedBox(height: context.h(8)),
+          Text(
+            "Try changing your filters or search keyword.",
+            style: context.fonts.grey14w400,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+}
+
+class _AppointmentHeaderCell extends StatelessWidget {
+  final String label;
+  const _AppointmentHeaderCell(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      child: Text(
+        label,
+        style: context.fonts.grey12w600.copyWith(letterSpacing: 1),
+      ),
     );
   }
 }
