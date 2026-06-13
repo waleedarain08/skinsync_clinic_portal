@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_init.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
+import 'app_loader.dart';
 
 class TreatmentStatsCard extends StatelessWidget {
   final String revenue;
@@ -41,7 +42,9 @@ class TreatmentStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: navigatorKey.currentContext!.isLandscape ? context.r(350) : MediaQuery.sizeOf(context).width,
+      width: navigatorKey.currentContext!.isLandscape
+          ? context.r(350)
+          : MediaQuery.sizeOf(context).width,
       padding: EdgeInsets.symmetric(
         vertical: context.h(25),
         horizontal: context.w(28),
@@ -68,29 +71,12 @@ class TreatmentStatsCard extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  SizedBox(
-                    width: context.r(85),
-                    height: context.r(85),
-                    child: CircularProgressIndicator(
-                      value: progress,
-                      strokeWidth: context.r(14),
-                      backgroundColor: CustomColors.white.withValues(alpha: 0.4),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xffEEA1F0),
-                      ),
-                    ),
-                  ),
+                  AppLoader(size: context.r(85), value: progress),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        revenue,
-                        style: CustomFonts.black16w600,
-                      ),
-                      Text(
-                        'Revenue',
-                        style: CustomFonts.black10w600,
-                      ),
+                      Text(revenue, style: CustomFonts.black16w600),
+                      Text('Revenue', style: CustomFonts.black10w600),
                     ],
                   ),
                 ],

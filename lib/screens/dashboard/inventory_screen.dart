@@ -10,6 +10,7 @@ import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
+import '../../widgets/app_loader.dart';
 import '../../widgets/dailog box/add_product_dailog.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
@@ -107,9 +108,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           inventoryProvider.select((s) => (s.products, s.loading)),
         );
         if (data.$2) {
-          return const Center(
-            child: CircularProgressIndicator(color: CustomColors.purple),
-          );
+          return const Center(child: AppLoader());
         }
         return GridView.builder(
           itemCount: data.$1.length,
@@ -120,9 +119,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             childAspectRatio: childAspectRatio,
           ),
           itemBuilder: (context, index) {
-            return GestureDetector(
-              child: _buildInventoryCard(data.$1[index]),
-            );
+            return GestureDetector(child: _buildInventoryCard(data.$1[index]));
           },
         );
       },
@@ -227,10 +224,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                       ),
                     },
                     const Spacer(),
-                    Text(
-                      'per unit',
-                      style: context.fonts.grey12w400,
-                    ),
+                    Text('per unit', style: context.fonts.grey12w400),
                   ],
                 ),
               ],

@@ -4,8 +4,10 @@ import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart'
 import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_custom_role_dialog.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+
+import '../../widgets/app_loader.dart';
 
 class RolesScreen extends ConsumerStatefulWidget {
   static const String routeName = '/roles';
@@ -62,9 +64,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               builder: (context, ref, _) {
                 final state = ref.watch(roleProvider);
                 if (state.loading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: CustomColors.purple),
-                  );
+                  return const Center(child: AppLoader());
                 }
                 return Expanded(
                   child: ListView.separated(
@@ -175,9 +175,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                           pIndex,
                         ) {
                           final permission = feature.permissions![pIndex];
-                          final isSelected = feature.activePermissionIds!.contains(
-                            permission.permissionId,
-                          );
+                          final isSelected = feature.activePermissionIds!
+                              .contains(permission.permissionId);
 
                           return ChoiceChip(
                             label: Text(permission.permissionTitle ?? "N/A"),
@@ -185,7 +184,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                             selectedColor: CustomColors.black,
                             checkmarkColor: CustomColors.white,
                             labelStyle: TextStyle(
-                              color: isSelected ? CustomColors.white : CustomColors.black,
+                              color: isSelected
+                                  ? CustomColors.white
+                                  : CustomColors.black,
                               fontSize: context.sp(13),
                               fontWeight: FontWeight.w500,
                             ),

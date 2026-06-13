@@ -12,9 +12,9 @@ import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dialog_box.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_treatment_dailog.dart';
+import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 import 'package:skinsync_clinic_portal/widgets/phone_widget.dart';
 
 import '../models/requests/register_doctor_request.dart';
@@ -23,6 +23,7 @@ import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../view_models/doctor_view_model.dart';
 import '../view_models/treatment_view_model.dart';
+import '../widgets/app_loader.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/header__with_back_btn.dart';
 
@@ -163,7 +164,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
         ],
       ),
       child: loading
-          ? const Center(child: CircularProgressIndicator(color: CustomColors.purple))
+          ? const Center(child: AppLoader())
           : Form(
               key: _formKey,
               child: Column(
@@ -281,7 +282,10 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                   SizedBox(height: context.h(16)),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text("Phone Number", style: context.fonts.black14w500),
+                    child: Text(
+                      "Phone Number",
+                      style: context.fonts.black14w500,
+                    ),
                   ),
                   SizedBox(height: context.h(8)),
                   PhoneWidget(
@@ -332,7 +336,9 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
             isExpanded: true,
             hint: Text(
               hintText,
-              style: context.fonts.grey14w400.copyWith(color: CustomColors.lightGrey),
+              style: context.fonts.grey14w400.copyWith(
+                color: CustomColors.lightGrey,
+              ),
             ),
             value: value,
             items: items
@@ -386,9 +392,13 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                       labelStyle: context.fonts.white14w600,
                       onSelected: (selected) {},
                     ),
-                    if (treatment.sideAreas != null && treatment.sideAreas!.isNotEmpty)
+                    if (treatment.sideAreas != null &&
+                        treatment.sideAreas!.isNotEmpty)
                       Padding(
-                        padding: EdgeInsets.only(top: context.h(10), bottom: context.h(10)),
+                        padding: EdgeInsets.only(
+                          top: context.h(10),
+                          bottom: context.h(10),
+                        ),
                         child: Wrap(
                           spacing: context.w(8),
                           runSpacing: context.h(8),
@@ -455,7 +465,10 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: context.h(10), bottom: context.h(10)),
+                    padding: EdgeInsets.only(
+                      top: context.h(10),
+                      bottom: context.h(10),
+                    ),
                     child: Wrap(
                       spacing: context.w(8),
                       runSpacing: context.h(8),

@@ -192,7 +192,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             offset: const Offset(0, -2),
                             decoration: BoxDecoration(
                               color: CustomColors.black,
-                              borderRadius: BorderRadius.circular(context.r(12)),
+                              borderRadius: BorderRadius.circular(
+                                context.r(12),
+                              ),
                             ),
                           ),
 
@@ -288,10 +290,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "Email Address",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -301,8 +300,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
-              decoration:
-                  const InputDecoration(hintText: "Enter Your Email Address"),
+              decoration: const InputDecoration(
+                hintText: "Enter Your Email Address",
+              ),
             ),
             SizedBox(height: context.h(20)),
             Align(
@@ -312,10 +312,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "Password",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -425,10 +422,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "Email Address",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -438,8 +432,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: Validators.email,
-              decoration:
-                  const InputDecoration(hintText: "Enter Your Email Address"),
+              decoration: const InputDecoration(
+                hintText: "Enter Your Email Address",
+              ),
             ),
             SizedBox(height: context.h(30)),
             CustomPrimaryButton(
@@ -449,10 +444,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     .read(authViewModelProvider.notifier)
                     .forgetPassword(email: _emailController.text.trim())
                     .then((success) {
-                  if (success && context.mounted) {
-                    _goToVerifyOtp();
-                  }
-                });
+                      if (success && context.mounted) {
+                        _goToVerifyOtp();
+                      }
+                    });
               },
               label: "Send Code",
               width: context.w(215),
@@ -510,10 +505,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "Enter OTP",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -534,7 +526,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     Pinput(
                       controller: _otpController,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      separatorBuilder: (index) => SizedBox(width: context.w(10)),
+                      separatorBuilder: (index) =>
+                          SizedBox(width: context.w(10)),
                       length: 6,
                       onChanged: (pin) {
                         if (field.hasError) field.didChange(pin);
@@ -619,14 +612,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       otp: _otpController.text.trim(),
                     )
                     .then((success) {
-                  if (success && context.mounted) {
-                    _goToCreateNewPassword();
-                  } else if (!success && context.mounted) {
-                    setState(
-                      () => _otpError = 'Invalid OTP. Please try again.',
-                    );
-                  }
-                });
+                      if (success && context.mounted) {
+                        _goToCreateNewPassword();
+                      } else if (!success && context.mounted) {
+                        setState(
+                          () => _otpError = 'Invalid OTP. Please try again.',
+                        );
+                      }
+                    });
               },
               label: "Verify Email",
               width: context.w(215),
@@ -686,10 +679,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "New Password",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -724,10 +714,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   text: "Confirm Password",
                   style: context.fonts.black14w600,
                   children: [
-                    TextSpan(
-                      text: " *",
-                      style: context.fonts.red14w600,
-                    ),
+                    TextSpan(text: " *", style: context.fonts.red14w600),
                   ],
                 ),
               ),
@@ -774,10 +761,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       newPassword: _newPasswordController.text.trim(),
                     )
                     .then((success) {
-                  if (success && context.mounted) {
-                    _goToLogin();
-                  }
-                });
+                      if (success && context.mounted) {
+                        _goToLogin();
+                      }
+                    });
               },
               label: "Save Password",
               width: context.w(215),

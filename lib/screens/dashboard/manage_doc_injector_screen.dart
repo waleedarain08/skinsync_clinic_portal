@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/utils/string_utils.dart';
+import 'package:skinsync_clinic_portal/utils/theme.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
 import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
@@ -15,6 +15,7 @@ import '../../../utils/assets.dart';
 import '../../models/requests/register_doctor_request.dart';
 import '../../models/responses/register_doctor_response.dart';
 import '../../view_models/doctor_view_model.dart';
+import '../../widgets/app_loader.dart';
 import '../add_doctor_injector_screen.dart';
 
 class MangeDoctorsInjectorsScreen extends ConsumerStatefulWidget {
@@ -57,8 +58,7 @@ class _MangeDoctorsInjectorsScreenState
                   style: context.fonts.black20w600,
                 ),
                 CustomPrimaryButton(
-                  onTap: () =>
-                      context.push(AddDoctorInjectorScreen.routeName),
+                  onTap: () => context.push(AddDoctorInjectorScreen.routeName),
                   label: 'Add Doctor / Injector',
                   icon: Icons.add,
                   height: context.h(45),
@@ -73,9 +73,7 @@ class _MangeDoctorsInjectorsScreenState
                 builder: (context, ref, _) {
                   final state = ref.watch(doctorProvider);
                   if (state.loading) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: CustomColors.purple),
-                    );
+                    return const Center(child: AppLoader());
                   } else if (state.doctors.isEmpty) {
                     return Center(
                       child: EmptyWidget(
@@ -175,7 +173,9 @@ class _MangeDoctorsInjectorsScreenState
                             ),
                             decoration: BoxDecoration(
                               color: CustomColors.softGrey,
-                              borderRadius: BorderRadius.circular(context.r(15)),
+                              borderRadius: BorderRadius.circular(
+                                context.r(15),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -233,9 +233,14 @@ class _MangeDoctorsInjectorsScreenState
                               ),
                               decoration: BoxDecoration(
                                 color: CustomColors.softGrey,
-                                borderRadius: BorderRadius.circular(context.r(15)),
+                                borderRadius: BorderRadius.circular(
+                                  context.r(15),
+                                ),
                               ),
-                              child: Text(day, style: context.fonts.black14w500),
+                              child: Text(
+                                day,
+                                style: context.fonts.black14w500,
+                              ),
                             ),
                             SizedBox(width: context.w(16)),
                             Text(
@@ -278,7 +283,11 @@ class _MangeDoctorsInjectorsScreenState
                   return CircleAvatar(
                     radius: context.r(40),
                     backgroundColor: CustomColors.softGrey,
-                    child: Icon(Icons.person, size: context.r(30), color: CustomColors.grey),
+                    child: Icon(
+                      Icons.person,
+                      size: context.r(30),
+                      color: CustomColors.grey,
+                    ),
                   );
                 },
               ),
@@ -287,7 +296,11 @@ class _MangeDoctorsInjectorsScreenState
             CircleAvatar(
               radius: context.r(40),
               backgroundColor: CustomColors.softGrey,
-              child: Icon(Icons.person, size: context.r(30), color: CustomColors.grey),
+              child: Icon(
+                Icons.person,
+                size: context.r(30),
+                color: CustomColors.grey,
+              ),
             ),
           SizedBox(width: context.w(20)),
           Expanded(
@@ -341,11 +354,14 @@ class _MangeDoctorsInjectorsScreenState
       width: context.w(386),
       child: Column(
         children: [
-          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          const CupertinoSearchTextField(
+            backgroundColor: CustomColors.softGrey,
+          ),
           SizedBox(height: context.h(20)),
           Expanded(
             child: ListView.separated(
-              separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
+              separatorBuilder: (context, index) =>
+                  SizedBox(height: context.h(12)),
               itemCount: state.doctors.length,
               itemBuilder: (context, index) {
                 return InkWell(

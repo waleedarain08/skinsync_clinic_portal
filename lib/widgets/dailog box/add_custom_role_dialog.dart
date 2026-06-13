@@ -8,6 +8,7 @@ import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
+import '../app_loader.dart';
 
 class AddCustomRoleDialog extends ConsumerStatefulWidget {
   const AddCustomRoleDialog({super.key});
@@ -119,9 +120,7 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                     final state = ref.watch(roleProvider);
                     if (state.loading) {
                       return const Center(
-                        child: CircularProgressIndicator(
-                          color: CustomColors.purple,
-                        ),
+                        child: AppLoader(color: CustomColors.purple),
                       );
                     } else if (state.features.isEmpty) {
                       return Center(
@@ -220,10 +219,7 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            feature.featureName ?? "N/A",
-            style: CustomFonts.black16w600,
-          ),
+          Text(feature.featureName ?? "N/A", style: CustomFonts.black16w600),
           SizedBox(height: context.h(10)),
           Wrap(
             spacing: context.w(8),
@@ -231,7 +227,8 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
             children: List.generate(feature.permissions!.length, (index) {
               final permissions = feature.permissions![index];
               final selectedFeature = vm.getSelectedFeature(feature.featureId!);
-              final isSelected = selectedFeature?.permissions?.any(
+              final isSelected =
+                  selectedFeature?.permissions?.any(
                     (a) => a.permissionId == permissions.permissionId,
                   ) ??
                   false;
