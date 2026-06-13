@@ -25,7 +25,7 @@ abstract class Responsive {
   }
 
   // Legacy version using navigatorKey
-  static T when_static<T>({
+  static T whenStatic<T>({
     required T defaultValue,
     ValueGetter<T>? mobile,
     ValueGetter<T>? tablet,

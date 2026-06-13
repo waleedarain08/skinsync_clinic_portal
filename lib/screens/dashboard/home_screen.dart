@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:skinsync_clinic_portal/utils/theme.dart';
@@ -136,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               SizedBox(width: context.w(6)),
                               Icon(
-                                CupertinoIcons.arrow_right,
+                                Icons.arrow_forward_ios_rounded,
                                 size: context.sp(14),
                                 color: CustomColors.black,
                               ),
@@ -223,7 +222,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                               SizedBox(width: context.w(6)),
                               Icon(
-                                CupertinoIcons.arrow_right,
+                                Icons.arrow_forward_ios_rounded,
                                 size: context.sp(14),
                                 color: CustomColors.black,
                               ),

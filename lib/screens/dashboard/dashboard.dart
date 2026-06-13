@@ -1,24 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/appointment_screen.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/inventory_screen.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/payment_and_wallet_screen.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/roles_screen.dart';
 import 'package:skinsync_clinic_portal/utils/responsive.dart';
 import 'package:skinsync_clinic_portal/widgets/app_sidebar.dart';
 import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
-import '../../utils/assets.dart';
-import '../../utils/theme.dart';
 import '../../widgets/custom_app_bar.dart';
-import 'home_screen.dart';
-import 'manage_doc_injector_screen.dart';
-import 'mange_staff_screen.dart';
-import 'patient_management.dart';
-import 'profile_screen.dart';
-import 'treatment_screen.dart';
 
 class Dashboard extends StatefulWidget {
   static const String routeName = '/dashboard';

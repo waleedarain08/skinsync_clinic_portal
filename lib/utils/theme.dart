@@ -260,8 +260,8 @@ class AppSpacing {
   static double cardPadding(BuildContext context) => context.w(24);
 
   // Legacy static getters
-  static double get pagePaddingH_static => 28.w;
-  static double get pagePaddingV_static => 28.h;
+  static double get pagePaddingHStatic => 28.w;
+  static double get pagePaddingVStatic => 28.h;
 }
 
 class AppRadius {

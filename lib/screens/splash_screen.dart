@@ -39,16 +39,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
       if (mounted) {
         if (locator<SecureStorageService>().isLoggedIn) {
-          await ref
+          final value = await ref
               .read(authViewModelProvider.notifier)
-              .callGetMe()
-              .then((value) {
-            if (value) {
-              context.goNamed(HomeScreen.routeName);
-            } else {
-              context.goNamed(SignInScreen.routeName);
-            }
-          });
+              .callGetMe();
+
+          if (!mounted) return;
+
+          if (value) {
+            context.goNamed(HomeScreen.routeName);
+          } else {
+            context.goNamed(SignInScreen.routeName);
+          }
         } else {
           context.goNamed(SignInScreen.routeName);
         }

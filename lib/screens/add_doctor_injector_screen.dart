@@ -13,7 +13,7 @@ import 'package:skinsync_clinic_portal/utils/validators.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
 import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
 import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dailogBox.dart';
+import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dialog_box.dart';
 import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_treatment_dailog.dart';
 import 'package:skinsync_clinic_portal/widgets/phone_widget.dart';
 

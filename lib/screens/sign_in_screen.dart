@@ -356,21 +356,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
             SizedBox(height: context.h(30)),
             CustomPrimaryButton(
-              onTap: () {
+              onTap: () async {
                 if (!_formKey.currentState!.validate()) return;
-                ref
+                final success = await ref
                     .read(authViewModelProvider.notifier)
                     .login(
                       loginReq: LoginRequestModel(
                         email: _emailController.text.trim(),
                         password: _passwordController.text.trim(),
                       ),
-                    )
-                    .then((success) {
-                  if (success && context.mounted) {
-                    context.goNamed(HomeScreen.routeName);
-                  }
-                });
+                    );
+                if (success && mounted) {
+                  context.goNamed(HomeScreen.routeName);
+                }
               },
               label: "Sign In",
               width: context.w(215),
