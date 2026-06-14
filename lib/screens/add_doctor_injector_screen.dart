@@ -304,7 +304,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     controller: _feeController,
                     keyboardType: TextInputType.number,
                     validator: Validators.empty,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                 
                   ),
                   SizedBox(height: context.h(16)),
                   _buildTreatmentChips(),

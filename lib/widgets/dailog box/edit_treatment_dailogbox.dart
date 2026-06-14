@@ -275,7 +275,7 @@ class EditTreatmentDialogState extends ConsumerState<EditTreatmentDialog> {
                                   _selectedTreatment!
                                       .sideAreas![currentIdx]
                                       .perSyringePrice =
-                                      double.tryParse(value) ?? 0;
+                                      double.tryParse(value ?? "") ?? 0;
                                 }
                               },
                               validator: (value) {

@@ -1523,7 +1523,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
           readOnly: isDefault,
           enabled: !isDefault,
           onChanged: (val) {
-            final p = double.tryParse(val) ?? 0.0;
+            final p = double.tryParse(val ?? "") ?? 0.0;
             notifier.updateBasePrice(p);
           },
           validator: (val) {
@@ -1563,7 +1563,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 readOnly: isDefault,
                 enabled: !isDefault,
                 onChanged: (val) {
-                  final p = double.tryParse(val) ?? 0.0;
+                  final p = double.tryParse(val ?? "") ?? 0.0;
                   notifier.updateUomPrice(uom, p);
                 },
               );

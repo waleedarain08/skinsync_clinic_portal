@@ -250,7 +250,7 @@ class _AddTreatmentDialogState extends ConsumerState<AddTreatmentDialog> {
                                 final index = _selectedAreas.indexOf(area);
                                 if (index != -1) {
                                   _selectedAreas[index].perSyringePrice =
-                                      double.tryParse(value) ?? 0;
+                                      double.tryParse(value ?? "") ?? 0;
                                 }
                               },
                               validator: (value) {
