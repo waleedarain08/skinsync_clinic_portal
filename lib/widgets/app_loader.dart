@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
+import '../utils/assets.dart';
 
 class AppLoader extends StatelessWidget {
   final double? size;

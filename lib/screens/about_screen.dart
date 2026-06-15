@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
+import '../widgets/gradient_scaffold.dart';
+import '../widgets/header__with_back_btn.dart';
 
 import '../utils/responsive.dart';
 import '../utils/theme.dart';

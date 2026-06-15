@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/edit_treatment_dailogbox.dart';
 
 import '../models/treatment_model.dart';
+import '../utils/assets.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../view_models/treatment_view_model.dart';
+import 'dialog_box/edit_treatment_dailogbox.dart';
 
 class TreatmentListTile extends ConsumerWidget {
   const TreatmentListTile({super.key, required this.treatment});
@@ -151,9 +151,7 @@ class TreatmentListTile extends ConsumerWidget {
                                           color: CustomColors.blue,
                                         ),
                                       ),
-                                      const TextSpan(
-                                        text: " /Per Syringe",
-                                      ),
+                                      const TextSpan(text: " /Per Syringe"),
                                     ],
                                   ),
                                 ),
@@ -170,9 +168,7 @@ class TreatmentListTile extends ConsumerWidget {
           alignment: Alignment.bottomRight,
           child: Text(
             " Price: AED ${treatment.price ?? ""}",
-            style: CustomFonts.black18w600.copyWith(
-              color: CustomColors.purple,
-            ),
+            style: CustomFonts.black18w600.copyWith(color: CustomColors.purple),
           ),
         ),
       ],

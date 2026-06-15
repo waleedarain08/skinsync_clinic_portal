@@ -1,18 +1,17 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-
 import '../../utils/enums.dart';
 import '../requests/register_doctor_request.dart';
+import 'base_response_model.dart';
 
-class RegisterDoctorResponse extends BaseApiResponseModel<Doctor> {
+class RegisterDoctorResponse extends BaseResponse<Doctor> {
   const RegisterDoctorResponse({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
 
   factory RegisterDoctorResponse.fromJson(Map<String, dynamic> json) =>
       RegisterDoctorResponse(
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
         data: json["data"] == null ? null : Doctor.fromJson(json["data"]),
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
+import '../../utils/assets.dart';
 
 import '../../utils/theme.dart';
 
@@ -95,7 +95,7 @@ class _AppointmentCompletedDailogState
                 ),
               ),
               SizedBox(height: context.h(20)),
-              Divider(height: 0, color: CustomColors.border),
+              const Divider(height: 0, color: CustomColors.border),
               SizedBox(height: context.h(20)),
               Container(
                 padding: EdgeInsets.symmetric(
@@ -193,7 +193,7 @@ class _AppointmentCompletedDailogState
                       ],
                     ),
                     SizedBox(height: context.h(22)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(22)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -211,7 +211,7 @@ class _AppointmentCompletedDailogState
                       ],
                     ),
                     SizedBox(height: context.h(9)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(14)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

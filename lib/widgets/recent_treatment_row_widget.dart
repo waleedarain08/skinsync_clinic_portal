@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import '../utils/responsive.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
 import 'recent_treatment_card_widget.dart';

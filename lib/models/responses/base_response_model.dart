@@ -1,35 +1,27 @@
-class BaseApiResponseModel<T> {
-  final bool isSuccess;
+class BaseResponse<T> {
+  final bool status;
   final String message;
   final T? data;
 
-  const BaseApiResponseModel({
-    required this.isSuccess,
-    required this.message,
-    this.data,
-  });
+  const BaseResponse({required this.status, required this.message, this.data});
 
-  factory BaseApiResponseModel.fromJson(
+  factory BaseResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) {
-    return BaseApiResponseModel<T>(
-      isSuccess: json['is_success'] ?? false,
+    return BaseResponse<T>(
+      status: json['status'] ?? false,
       message: json['message'] ?? '',
       data: json['data'] != null ? fromJsonT(json['data']) : null,
     );
   }
 
   /// For APIs that don’t wrap data
-  factory BaseApiResponseModel.raw({
+  factory BaseResponse.raw({
     required T data,
     String message = '',
     int statusCode = 400,
   }) {
-    return BaseApiResponseModel<T>(
-      isSuccess: true,
-      message: message,
-      data: data,
-    );
+    return BaseResponse<T>(status: true, message: message, data: data);
   }
 }

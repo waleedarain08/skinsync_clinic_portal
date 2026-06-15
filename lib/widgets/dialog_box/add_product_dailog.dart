@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/responses/catalog_response.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
-import 'package:skinsync_clinic_portal/utils/validators.dart';
-import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import '../../models/responses/catalog_response.dart';
+import '../../utils/enums.dart';
+import '../../utils/validators.dart';
+import '../../view_models/inventory_view_model.dart';
+import '../custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';

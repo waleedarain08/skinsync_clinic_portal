@@ -3,11 +3,11 @@ import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/update_doctors_treament_request.dart';
-import 'package:skinsync_clinic_portal/models/treatment_model.dart';
-import 'package:skinsync_clinic_portal/services/locator.dart';
-import 'package:skinsync_clinic_portal/services/media_service.dart';
+import '../models/requests/register_doctor_request.dart';
+import '../models/requests/update_doctors_treament_request.dart';
+import '../models/treatment_model.dart';
+import '../services/locator.dart';
+import '../services/media_service.dart';
 
 import '../models/responses/register_doctor_response.dart';
 import '../services/doctor_service.dart';

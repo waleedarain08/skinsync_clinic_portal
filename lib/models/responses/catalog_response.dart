@@ -1,11 +1,7 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
+import 'base_response_model.dart';
 
-class CatalogResponse extends BaseApiResponseModel<List<CatalogItem>> {
-  CatalogResponse({
-    super.data,
-    required super.isSuccess,
-    required super.message,
-  });
+class CatalogResponse extends BaseResponse<List<CatalogItem>> {
+  CatalogResponse({super.data, required super.status, required super.message});
 
   factory CatalogResponse.fromJson(Map<String, dynamic> json) =>
       CatalogResponse(
@@ -14,7 +10,7 @@ class CatalogResponse extends BaseApiResponseModel<List<CatalogItem>> {
             : List<CatalogItem>.from(
                 json["data"]!.map((x) => CatalogItem.fromJson(x)),
               ),
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
       );
 }

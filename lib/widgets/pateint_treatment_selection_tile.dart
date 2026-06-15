@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
+import '../utils/assets.dart';
+import '../utils/theme.dart';
 
 class PatientTreatmentSelectionTile extends StatelessWidget {
   final VoidCallback? onTap;

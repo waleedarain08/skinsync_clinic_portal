@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_time_slot_dailog.dart';
+import '../../utils/assets.dart';
+import 'show_success_dailog.dart';
 
 import '../../utils/theme.dart';
 
-class ScheduledNextAppointment extends StatelessWidget {
-  const ScheduledNextAppointment({super.key});
+class SelectTimeSlotDialog extends StatelessWidget {
+  const SelectTimeSlotDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: MediaQuery.sizeOf(context).width * 0.6,
+        width: MediaQuery.sizeOf(context).width * 0.4,
         padding: EdgeInsets.symmetric(
           vertical: context.h(20),
           horizontal: context.w(20),
@@ -31,38 +29,8 @@ class ScheduledNextAppointment extends StatelessWidget {
             /// Header
             Row(
               children: [
-                Container(
-                  height: context.h(48),
-                  width: context.w(48),
-                  padding: EdgeInsets.all(context.w(12)),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: CustomColors.lightPurple.withValues(alpha: 0.15),
-                  ),
-                  child: SvgPicture.asset(
-                    SvgAssets.appointment,
-                    colorFilter: const ColorFilter.mode(
-                      CustomColors.purple,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-                SizedBox(width: context.w(15)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Scheduled Next Appointment",
-                        style: CustomFonts.black16w600,
-                      ),
-                      Text(
-                        "Lorem ipsum dolor sit amet consectetur.",
-                        style: CustomFonts.black14w400,
-                      ),
-                    ],
-                  ),
-                ),
+                Text("Select Time Slot", style: CustomFonts.black20w600),
+                const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
@@ -81,14 +49,17 @@ class ScheduledNextAppointment extends StatelessWidget {
                 ),
               ],
             ),
+            SizedBox(height: context.h(10)),
+            Text(
+              "we’ll notify you in advance so you’re always prepared. Your journey to glowing skin is just a tap away!",
+              style: CustomFonts.black14w400,
+            ),
             SizedBox(height: context.h(20)),
+
             SizedBox(
               width: double.infinity,
-              height: MediaQuery.sizeOf(context).height * 0.7,
-              child: Image.asset(
-                DemoAssets.scheduledNextAppointment,
-                fit: BoxFit.contain,
-              ),
+              height: MediaQuery.sizeOf(context).height * 0.4,
+              child: Image.asset(DemoAssets.selectSlot, fit: BoxFit.contain),
             ),
             Padding(
               padding: EdgeInsets.only(top: context.h(20)),
@@ -100,7 +71,7 @@ class ScheduledNextAppointment extends StatelessWidget {
                         context.pop();
                         showDialog(
                           context: context,
-                          builder: (context) => const SelectTimeSlotDialog(),
+                          builder: (context) => const SuccessDialog(),
                         );
                       },
                       child: Container(

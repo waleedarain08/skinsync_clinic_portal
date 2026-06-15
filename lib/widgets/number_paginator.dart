@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import '../utils/responsive.dart';
 
 import '../utils/theme.dart';
 

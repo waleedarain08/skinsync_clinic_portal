@@ -1,4 +1,6 @@
-class LoginRequestModel {
+import 'base_request.dart';
+
+class LoginRequestModel extends BaseRequest {
   final String email;
   final String password;
 
@@ -11,6 +13,7 @@ class LoginRequestModel {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {'email': email, 'password': password};
   }

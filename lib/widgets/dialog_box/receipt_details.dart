@@ -52,7 +52,7 @@ class ReceiptDialog extends StatelessWidget {
             ),
 
             SizedBox(height: context.h(15)),
-            Divider(color: CustomColors.border),
+            const Divider(color: CustomColors.border),
             SizedBox(height: context.h(15)),
 
             /// Receipt Card

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/receipt_details.dart';
 
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
+import 'dialog_box/receipt_details.dart';
 
 class TranscationTileWidget extends StatelessWidget {
   const TranscationTileWidget({super.key});
@@ -43,8 +43,9 @@ class TranscationTileWidget extends StatelessWidget {
             ),
             SizedBox(width: context.r(30)),
             Column(
-              crossAxisAlignment:
-                  context.isLandscape ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+              crossAxisAlignment: context.isLandscape
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Sarah Johnson", style: CustomFonts.black16w600),

@@ -2,14 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/payment_history_screen.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/payment_withdrawal_dailog_box.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
 import '../../utils/assets.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
+import '../../widgets/dialog_box/payment_withdrawal_dailog_box.dart';
+import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/transcation_tile_widget.dart';
+import 'payment_history_screen.dart';
 
 class PaymentAndWalletScreen extends StatelessWidget {
   static const String routeName = '/payment-and-wallet';
@@ -42,10 +42,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Transactions",
-                  style: context.fonts.black20w600,
-                ),
+                Text("Transactions", style: context.fonts.black20w600),
                 GestureDetector(
                   onTap: () {
                     context.go(PaymentHistoryScreen.routeName);
@@ -229,7 +226,9 @@ class PaymentAndWalletScreen extends StatelessWidget {
     return Row(
       children: [
         const Expanded(
-          child: CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          child: CupertinoSearchTextField(
+            backgroundColor: CustomColors.softGrey,
+          ),
         ),
         SizedBox(width: context.w(8)),
         Container(

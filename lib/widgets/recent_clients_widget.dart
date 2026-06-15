@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import 'client_item_widget.dart';
 

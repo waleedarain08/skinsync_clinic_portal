@@ -1,30 +1,29 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
+import '../../utils/enums.dart';
+import 'base_response_model.dart';
 
-class AppointmentResponse extends BaseApiResponseModel<List<AppointmentData>> {
-
-  
+class AppointmentResponse extends BaseResponse<List<AppointmentData>> {
   int? limit;
- 
+
   int? page;
   int? totalPages;
 
-  AppointmentResponse(
-      {super.data,
-     required super.isSuccess,
-      this.limit,
-     required super.message,
-      this.page,
-      this.totalPages});
+  AppointmentResponse({
+    super.data,
+    required super.status,
+    this.limit,
+    required super.message,
+    this.page,
+    this.totalPages,
+  });
 
-    factory AppointmentResponse.fromJson(Map<String, dynamic> json) {
+  factory AppointmentResponse.fromJson(Map<String, dynamic> json) {
     return AppointmentResponse(
-      isSuccess: json['is_success'] ?? false,
+      status: json['is_success'] ?? false,
       message: json['message'] ?? '',
       data: json['data'] != null
           ? (json['data'] as List)
-              .map((e) => AppointmentData.fromJson(e))
-              .toList()
+                .map((e) => AppointmentData.fromJson(e))
+                .toList()
           : null,
       limit: json['limit'],
       page: json['page'],
@@ -32,8 +31,6 @@ class AppointmentResponse extends BaseApiResponseModel<List<AppointmentData>> {
     );
   }
 }
-
-
 
 class AppointmentData {
   int? appointmentId;
@@ -55,33 +52,32 @@ class AppointmentData {
   int? amountPayable;
   AppointmentStatus? status;
 
-  AppointmentData(
-      {this.appointmentId,
-      this.patientName,
-      this.clinic,
-      this.doctor,
-      this.date,
-      this.startTime,
-      this.endTime,
-      this.treatment,
-      this.treatmentSubsection,
-      this.treatmentTotal,
-      this.paymentType,
-      this.discount,
-      this.discountType,
-      this.loyalityPoints,
-      this.actualAmount,
-      this.amountPaid,
-      this.amountPayable,
-      this.status});
+  AppointmentData({
+    this.appointmentId,
+    this.patientName,
+    this.clinic,
+    this.doctor,
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.treatment,
+    this.treatmentSubsection,
+    this.treatmentTotal,
+    this.paymentType,
+    this.discount,
+    this.discountType,
+    this.loyalityPoints,
+    this.actualAmount,
+    this.amountPaid,
+    this.amountPayable,
+    this.status,
+  });
 
   AppointmentData.fromJson(Map<String, dynamic> json) {
     appointmentId = json['appointment_id'];
     patientName = json['patient_name'];
-    clinic =
-        json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
-    doctor =
-        json['doctor'] != null ? Clinic.fromJson(json['doctor']) : null;
+    clinic = json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
+    doctor = json['doctor'] != null ? Clinic.fromJson(json['doctor']) : null;
     date = json['date'];
     startTime = json['start_time'];
     endTime = json['end_time'];
@@ -106,7 +102,6 @@ class AppointmentData {
     amountPayable = json['amount_payable'];
     status = AppointmentStatus.fromApi(json['status']);
   }
-
 }
 
 class Clinic {
@@ -121,7 +116,6 @@ class Clinic {
     name = json['name'];
     image = json['image'];
   }
-
 }
 
 class Treatment {
@@ -132,13 +126,14 @@ class Treatment {
   String? beforeImage;
   String? afterImage;
 
-  Treatment(
-      {this.treatmentId,
-      this.treatmentName,
-      this.treatmentPrice,
-      this.treatmentQuantity,
-      this.beforeImage,
-      this.afterImage});
+  Treatment({
+    this.treatmentId,
+    this.treatmentName,
+    this.treatmentPrice,
+    this.treatmentQuantity,
+    this.beforeImage,
+    this.afterImage,
+  });
 
   Treatment.fromJson(Map<String, dynamic> json) {
     treatmentId = json['treatment_id'];
@@ -148,8 +143,6 @@ class Treatment {
     afterImage = json['after_image'];
     treatmentName = json['treatment_name'];
   }
-
-  
 }
 
 class TreatmentSubsection {
@@ -157,16 +150,17 @@ class TreatmentSubsection {
   int? syringesQuantity;
   int? perSyringePrice;
 
-  TreatmentSubsection(
-      {this.sectionId, this.syringesQuantity, this.perSyringePrice});
+  TreatmentSubsection({
+    this.sectionId,
+    this.syringesQuantity,
+    this.perSyringePrice,
+  });
 
   TreatmentSubsection.fromJson(Map<String, dynamic> json) {
     sectionId = json['section_id'];
     syringesQuantity = json['syringes_quantity'];
     perSyringePrice = json['per_syringe_price'];
   }
-
-
 }
 
 class PaymentType {

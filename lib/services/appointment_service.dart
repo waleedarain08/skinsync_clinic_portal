@@ -1,8 +1,7 @@
-import 'package:skinsync_clinic_portal/models/responses/appointment_response.dart';
-import 'package:skinsync_clinic_portal/repositories/appointment_repository.dart';
-import 'package:skinsync_clinic_portal/services/api_base_helper.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
-
+import '../models/responses/appointment_response.dart';
+import '../repositories/appointment_repository.dart';
+import '../utils/enums.dart';
+import 'api_base_helper.dart';
 import 'locator.dart';
 
 class AppointmentService extends AppointmentRepository {
@@ -16,8 +15,9 @@ class AppointmentService extends AppointmentRepository {
     String? doctorId,
   }) async {
     final aStatus = status == AppointmentStatus.allStatus ? null : status?.name;
-    final response = await locator<ApiBaseHelper>().get(
-      Endpoint.getAppointment,
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.getAppointment,
+      requestType: RequestType.get,
       queryParams: {
         'page': page.toString(),
         "limit": "10",
@@ -29,7 +29,7 @@ class AppointmentService extends AppointmentRepository {
       },
     );
     final model = AppointmentResponse.fromJson(response);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model;

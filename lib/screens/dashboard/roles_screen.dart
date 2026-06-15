@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_custom_role_dialog.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
+import '../../models/responses/get_roles_response.dart';
+import '../../utils/theme.dart';
+import '../../view_models/role_view_model.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/custom_primary_button.dart';
+import '../../widgets/dialog_box/add_custom_role_dialog.dart';
+import '../../widgets/gradient_scaffold.dart';
 
 class RolesScreen extends ConsumerStatefulWidget {
   static const String routeName = '/roles';

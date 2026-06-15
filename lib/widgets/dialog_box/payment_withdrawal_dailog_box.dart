@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/successfully_withdrawal_dailbox.dart';
+import '../custom_primary_button.dart';
+import 'successfully_withdrawal_dailbox.dart';
 
 import '../../utils/theme.dart';
 
@@ -52,7 +52,7 @@ class PaymentWithDrawalDailogBox extends StatelessWidget {
               ),
 
               SizedBox(height: context.h(30)),
-              Divider(color: CustomColors.border),
+              const Divider(color: CustomColors.border),
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: context.w(16),
@@ -112,7 +112,7 @@ class PaymentWithDrawalDailogBox extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: context.h(80)),
-                    Divider(color: CustomColors.border),
+                    const Divider(color: CustomColors.border),
                     SizedBox(height: context.w(20)),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: context.w(50)),

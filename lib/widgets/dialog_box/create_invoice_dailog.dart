@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
+import '../../utils/assets.dart';
+import '../../view_models/auth_view_model.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
+import 'appointment_ready_dailog.dart';
 
 import '../../utils/theme.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/widgets/borderd_container_widget.dart';
+import 'borderd_container_widget.dart';
 
 import '../screens/dashboard/appointment_screen.dart';
 import '../utils/theme.dart';

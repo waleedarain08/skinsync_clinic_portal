@@ -1,6 +1,7 @@
-import 'package:skinsync_clinic_portal/models/treatment_model.dart';
+import '../treatment_model.dart';
+import 'base_request.dart';
 
-class AddTreatmentReqModel {
+class AddTreatmentReqModel extends BaseRequest {
   final int treatmentId;
   final double treatmentPrice;
   final List<SideAreaModel> sideareas;
@@ -11,6 +12,7 @@ class AddTreatmentReqModel {
     required this.treatmentPrice,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'treatment_id': treatmentId,

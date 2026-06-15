@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/requests/create_role_request_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_feature_response.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart';
-import 'package:skinsync_clinic_portal/services/locator.dart';
-import 'package:skinsync_clinic_portal/services/role_service.dart';
+import '../models/requests/create_role_request_model.dart';
+import '../models/responses/get_feature_response.dart';
+import '../models/responses/get_roles_response.dart';
+import '../services/locator.dart';
+import '../services/role_service.dart';
 
-import 'package:skinsync_clinic_portal/view_models/base_view_model.dart';
+import 'base_view_model.dart';
 
 final roleProvider = NotifierProvider.autoDispose<RoleViewModel, RoleState>(
   () => RoleViewModel._(),

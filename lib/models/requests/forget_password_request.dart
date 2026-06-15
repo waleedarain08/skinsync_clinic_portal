@@ -1,4 +1,6 @@
-class ForgetPasswordRequest {
+import 'base_request.dart';
+
+class ForgetPasswordRequest extends BaseRequest {
   final String email;
 
   ForgetPasswordRequest({required this.email});
@@ -7,5 +9,6 @@ class ForgetPasswordRequest {
     return ForgetPasswordRequest(email: json['email']);
   }
 
+  @override
   Map<String, dynamic> toJson() => {'email': email};
 }

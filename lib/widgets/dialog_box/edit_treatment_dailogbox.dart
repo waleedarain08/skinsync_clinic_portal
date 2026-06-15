@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/extentions.dart';
+import '../../utils/extentions.dart';
 import '../../models/requests/add_treatment_req_model.dart';
 import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';

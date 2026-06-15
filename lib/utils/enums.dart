@@ -174,3 +174,16 @@ enum AppointmentFilter {
 }
 
 enum DiscountType { per, flat }
+
+enum RequestType {
+  post('POST'),
+  get('GET'),
+  put('PUT'),
+  patch('PATCH'),
+  delete('DELETE'),
+  multipartPost('MULTIPART-POST'),
+  multipartPatch('MULTIPART-PATCH');
+
+  final String label;
+  const RequestType(this.label);
+}

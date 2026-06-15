@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/extentions.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/treatment_list_tile.dart';
+import '../../utils/extentions.dart';
+import '../../utils/theme.dart';
+import '../../widgets/custom_primary_button.dart';
+import '../../widgets/empty_widget.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/treatment_list_tile.dart';
 
 import '../../utils/responsive.dart';
 import '../../view_models/treatment_view_model.dart';

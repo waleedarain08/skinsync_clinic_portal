@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/string_utils.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/empty_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
+import '../../utils/string_utils.dart';
+import '../../utils/theme.dart';
+import '../../widgets/custom_primary_button.dart';
+import '../../widgets/empty_widget.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/patient_selection_tile.dart';
 
 import '../../../utils/assets.dart';
 import '../../models/requests/register_doctor_request.dart';

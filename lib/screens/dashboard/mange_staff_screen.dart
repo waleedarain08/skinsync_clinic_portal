@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:skinsync_clinic_portal/screens/create_staff_screen.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
+import '../create_staff_screen.dart';
+import '../../utils/theme.dart';
+import '../../widgets/custom_primary_button.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/patient_selection_tile.dart';
 
 import '../../../utils/assets.dart';
 

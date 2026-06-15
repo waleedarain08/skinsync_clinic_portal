@@ -1,238 +1,230 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
+import 'dart:io' as io;
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:skinsync_clinic_portal/app_init.dart';
-import 'package:skinsync_clinic_portal/models/responses/refresh_token_response.dart';
-import 'package:skinsync_clinic_portal/screens/sign_in_screen.dart';
-import 'package:skinsync_clinic_portal/services/locator.dart';
-import 'package:skinsync_clinic_portal/services/storage_service.dart';
+import 'package:mime/mime.dart';
 
+import '../app_init.dart';
+import '../exceptions/app_exception.dart';
+import '../models/requests/base_request.dart';
+import '../models/requests/multi_part_model.dart';
+import '../screens/sign_in_screen.dart';
 import '../utils/enums.dart';
-import '../utils/exception.dart';
+import '../utils/http_utils.dart';
+import '../utils/string_utils.dart';
+import 'locator.dart';
+import 'storage_service.dart';
 
-class ApiBaseHelper {
-  static BaseUrls baseUrl = BaseUrls.api;
+class ApiBaseService {
+  final _secureStorage = locator<SecureStorageService>();
+  final String _baseUrl = BaseUrls.api.url;
+  String? authToken;
 
-  final http.Client _client = http.Client();
-  final Connectivity _connectivity = Connectivity();
-  final SecureStorageService _storage = SecureStorageService();
-
-  // ---------------- SAFE REQUEST WRAPPER ----------------
-
-  Future<T> _safeRequest<T>(Future<T> Function() request) async {
+  Future<Map<String, dynamic>> httpRequest({
+    required Endpoint endPoint,
+    required RequestType requestType,
+    BaseRequest? requestBody,
+    Map<String, String?>? queryParams,
+    Map<String, String>? pathParams,
+    List<MultiPartImageModel>? imagePath,
+  }) async {
     try {
-      await _checkInternet();
-      await _refreshToken();
-      return await request();
-    } on SocketException {
-      throw const NoInternetException();
+      final params = queryParams?.entries
+          .map((entry) {
+            return '${entry.key}=${entry.value}';
+          })
+          .join('&')
+          .addStringToStart('?');
+      // final String? params = queryParams?.entries
+      //     .map(((entry) {
+      //       if (entry.value == null) {
+      //         return null;
+      //       }
+      //       return '${entry.key}=${entry.value}';
+      //     }))
+      //     .nonNulls
+      //     .join('&')
+      //     .addStringToStart('?');
+      // final path = pathParams != null ? '/${pathParams.join('/')}' : '';
+      final uri = Uri.parse(
+        '$_baseUrl${endPoint.withParams(pathParams ?? {})}${params ?? ''}',
+      );
+      late http.Response response;
+      final headers = await getHeaders(endPoint, requestType);
+      final body = requestBody != null
+          ? jsonEncode(requestBody.toJson())
+          : null;
+      log('URL: $uri');
+      if (requestType != RequestType.multipartPost &&
+          requestType != RequestType.multipartPatch) {
+        log('BODY: $body');
+      }
+      switch (requestType) {
+        case RequestType.get:
+          response = await http.get(uri, headers: headers);
+          break;
+        case RequestType.post:
+          response = await http.post(uri, headers: headers, body: body);
+          break;
+        case RequestType.put:
+          response = await http.put(uri, headers: headers, body: body);
+          break;
+        case RequestType.patch:
+          response = await http.patch(uri, headers: headers, body: body);
+          break;
+        case RequestType.delete:
+          response = await http.delete(uri, headers: headers, body: body);
+          break;
+        case RequestType.multipartPost:
+          response = await _sendMultipart(
+            uri,
+            requestBody,
+            imagePath,
+            requestType,
+            headers,
+          );
+        case RequestType.multipartPatch:
+          response = await _sendMultipart(
+            uri,
+            requestBody,
+            imagePath,
+            requestType,
+            headers,
+          );
+      }
+      log('RESPONSE: ${response.body}');
+      final Map<String, dynamic> json = jsonDecode(response.body);
+
+      return json;
+    } on UnauthorizedException {
+      await locator<SecureStorageService>().clearToken();
+      GoRouter.of(navigatorKey.currentContext!).go(SignInScreen.routeName);
+      rethrow;
+    } on io.SocketException catch (e, s) {
+      log(e.toString(), stackTrace: s);
+      throw NetworkException(originalError: e);
+    } on io.HttpException catch (e, s) {
+      log(e.toString(), stackTrace: s);
+      throw NetworkException(
+        message: 'Network error occurred. Please try again.',
+        originalError: e,
+      );
+    } on FormatException catch (e, s) {
+      log(e.toString(), stackTrace: s);
+      throw FormatException(originalError: e);
+    } on TimeoutException catch (e, s) {
+      log(e.toString(), stackTrace: s);
+      throw TimeoutException(originalError: e);
     } on AppException catch (e, s) {
       log(e.toString(), stackTrace: s);
-      if (e is UnauthorizedException) {
-        await _storage.clearToken();
-        GoRouter.of(navigatorKey.currentContext!).go(SignInScreen.routeName);
-      }
       rethrow;
-    } catch (e) {
-      throw UnknownException(e.toString());
+    } catch (e, s) {
+      log(e.toString(), stackTrace: s);
+      throw UnknownException(
+        message: 'An unexpected error occurred: ${e.toString()}',
+        originalError: e,
+      );
     }
   }
 
-  // ---------------- HTTP METHODS ----------------
+  Future<http.Response> _sendMultipart(
+    Uri uri,
+    BaseRequest? requestBody,
+    List<MultiPartImageModel>? imagePath,
+    RequestType requestType,
+    Map<String, String> headers,
+  ) async {
+    final request = http.MultipartRequest(requestType.method, uri);
+    request.headers.addAll(headers);
 
-  Future<dynamic> get(
-    Endpoint endpoint, {
-    Map<String, String>? pathParams,
-    Map<String, String?>? queryParams,
-  }) {
-    return _safeRequest(() async {
-      final urlPath = pathParams != null
-          ? endpoint.withParams(pathParams)
-          : endpoint.path;
+    if (requestBody != null) {
+      final Map<String, dynamic> json = requestBody.toJson().cast();
+      for (final entry in json.entries) {
+        if (entry.value != null) {
+          request.fields[entry.key] = entry.value!.toString();
+        }
+      }
+    }
+    log('MULTIPART BODY: ${jsonEncode(request.fields)}');
 
-      final uri = Uri.parse(
-        '${baseUrl.url}$urlPath',
-      ).replace(queryParameters: queryParams);
-      log('URL: $uri');
-      final headers = await _headers();
-      log('HEADERS: $headers');
-      final response = await _client.get(uri, headers: headers);
-      log('RESPONSE: ${response.body}');
+    if (imagePath != null) {
+      for (var multiPartData in imagePath) {
+        if (multiPartData.path != "") {
+          final String? mimeType = lookupMimeType(multiPartData.path);
+          log('MIME: $mimeType');
+          final http.MultipartFile file = await http.MultipartFile.fromPath(
+            multiPartData.name,
+            multiPartData.path,
+            contentType: mimeType != null
+                ? http.MediaType.parse(mimeType)
+                : null,
+          );
+          request.files.add(file);
+        }
+      }
+    }
 
-      return _processResponse(response);
-    });
+    final response = await request.send();
+    return http.Response.fromStream(response);
   }
 
-  Future<dynamic> post(Endpoint endpoint, {Object? body}) {
-    return _safeRequest(() async {
-      log('URL: ${baseUrl.url}${endpoint.path}');
-      log('REQUEST: $body');
-      final response = await _client.post(
-        Uri.parse('${baseUrl.url}${endpoint.path}'),
-        headers: await _headers(),
-        body: jsonEncode(body),
-      );
-      return _processResponse(response);
-    });
-  }
+  // Future<bool> get _isAccessTokenExpired async {
+  //   final expiry = await locator<SecureStorageService>().getExpiry();
+  //   log('EXPIRY: $expiry');
+  //   if (expiry == null) {
+  //     return false;
+  //   }
+  //   return expiry.isBefore(DateTime.now());
+  // }
 
-  Future<dynamic> put(
-    Endpoint endpoint, {
-    Object? body,
-    Map<String, String>? pathParams,
-    Map<String, String>? queryParams,
-  }) {
-    final urlPath = pathParams != null
-        ? endpoint.withParams(pathParams)
-        : endpoint.path;
-
-    final uri = Uri.parse(
-      '${baseUrl.url}$urlPath',
-    ).replace(queryParameters: queryParams);
-    return _safeRequest(() async {
-      final response = await _client.put(
-        uri,
-        headers: await _headers(),
-        body: jsonEncode(body),
-      );
-      return _processResponse(response);
-    });
-  }
-
-  Future<dynamic> patch(Endpoint endpoint, {Object? body}) {
-    return _safeRequest(() async {
-      final response = await _client.patch(
-        Uri.parse('${baseUrl.url}${endpoint.path}'),
-        headers: await _headers(),
-        body: jsonEncode(body),
-      );
-      return _processResponse(response);
-    });
-  }
-
-  Future<dynamic> delete(
-    Endpoint endpoint, {
-    Map<String, String>? pathParams,
-    Map<String, String>? queryParams,
-  }) {
-    return _safeRequest(() async {
-      final urlPath = pathParams != null
-          ? endpoint.withParams(pathParams)
-          : endpoint.path;
-
-      final uri = Uri.parse(
-        '${baseUrl.url}$urlPath',
-      ).replace(queryParameters: queryParams);
-      log('URL: $uri');
-      final response = await _client.delete(uri, headers: await _headers());
-      return _processResponse(response);
-    });
-  }
-
-  // ---------------- HELPERS ----------------
-
-  Future<Map<String, String>> _headers() async {
-    final token = await _storage.getToken();
-    return {
-      'Content-Type': 'application/json',
+  Future<Map<String, String>> getHeaders(
+    Endpoint endpoint,
+    RequestType requestType,
+  ) async {
+    final authToken = _secureStorage.token;
+    // final authToken = endpoint == Endpoint.refreshToken
+    //     ? await _secureStorage.getRefreshToken()
+    //     : this.authToken ?? await _secureStorage.readAuthToken();
+    log('ACCESS TOKEN: $authToken');
+    final data = {
+      'Content-Type':
+          requestType == RequestType.multipartPost ||
+              requestType == RequestType.multipartPatch
+          ? 'multipart/form-data'
+          : 'application/json',
       'Accept': 'application/json',
-      // if (_storage.token != null)
-      'Authorization': 'Bearer $token',
     };
+    if (authToken != null) {
+      data['Authorization'] = 'Bearer $authToken';
+    }
+    log('HEADERS: $data');
+    return data;
   }
 
-  Future<void> _checkInternet() async {
-    final result = await _connectivity.checkConnectivity();
-    if (result.any((result) => result == ConnectivityResult.none)) {
-      throw const NoInternetException();
-    }
-  }
-
-  Future<void> _refreshToken() async {
-    if (_storage.token == null) {
-      return;
-    }
-    final expiry = await _storage.getAccessTokenExpiry();
-    final now = DateTime.now();
-    if (expiry?.isAfter(now) ?? false) {
-      return;
-    }
-    final refreshExpiry = await _storage.getRefreshTokenExpiry();
-    if (refreshExpiry?.isBefore(now) ?? true) {
-      throw UnauthorizedException('Unauthorized');
-    }
-    final refreshToken = await _storage.getRefreshToken();
-    if (refreshToken == null) {
-      throw UnauthorizedException('Unauthorized');
-    }
-    log('EXPIRY: $expiry');
-    log('REFRESH EXPIRY: $refreshExpiry');
-    final uri = Uri.parse('${baseUrl.url}${Endpoint.refreshToken.path}');
-    log('URL: $uri');
-    final request = {'refresh_token': refreshToken};
-    log('REQUEST: $request');
-    final json = await http.post(uri, body: jsonEncode(request));
-    log('RESPONSE: ${json.body}');
-    final response = RefreshTokenResponse.fromJson(_processResponse(json));
-    if (!response.isSuccess) {
-      throw UnauthorizedException('Unauthorized');
-    }
-    final secureStorage = locator<SecureStorageService>();
-    await secureStorage.saveToken(response.data!.accessToken!);
-    await secureStorage.saveRefreshToken(response.data!.refreshToken!);
-    await secureStorage.saveAccessTokenExpiry(
-      DateTime.fromMillisecondsSinceEpoch(
-        response.data!.accessExpiresAt! * 1000,
-      ),
-    );
-    await secureStorage.saveRefreshTokenExpiry(
-      DateTime.fromMillisecondsSinceEpoch(
-        response.data!.refreshExpiresAt! * 1000,
-      ),
-    );
-    log('TOKEN REFRESHED');
-  }
-
-  dynamic _processResponse(http.Response response) {
-    switch (response.statusCode) {
-      case 200:
-      case 201:
-        return _decode(response.body);
-
-      case 400:
-        throw BadRequestException(_message(response));
-
-      case 401:
-      case 403:
-        // _storage.clearToken();
-        throw UnauthorizedException(_message(response));
-
-      case 404:
-        throw NotFoundException('Endpoint not found');
-
-      default:
-        throw ServerException(_message(response));
-    }
-  }
-
-  dynamic _decode(String body) {
-    try {
-      return jsonDecode(body);
-    } catch (_) {
-      return body;
-    }
-  }
-
-  String _message(http.Response response) {
-    try {
-      final body = jsonDecode(response.body);
-      return body['message'] ?? 'Something went wrong';
-    } catch (_) {
-      return 'Something went wrong';
-    }
-  }
+  // Future<void> _refreshToken() async {
+  //   final refreshToken = await locator<SecureStorageService>()
+  //       .getRefreshToken();
+  //   if (refreshToken == null) {
+  //     throw const UnauthorizedException(message: 'UNAUTHORIZED');
+  //   }
+  //   final uri = Uri.parse('$_baseUrl${Endpoint.refreshToken.url}');
+  //   log('REFRESH TOKEN URI: $uri');
+  //   final response = await http.post(
+  //     uri,
+  //     body: {'refreshToken': refreshToken},
+  //     headers: {'Authorization': 'Bearer $refreshToken'},
+  //   );
+  //   final model = AuthResponse.fromJson(jsonDecode(response.body));
+  //   if (model.status != 'success') {
+  //     throw const ApiHttpException(message: 'Something went wrong!');
+  //   }
+  //   await locator<SecureStorageService>().saveToken(model.data!.token!);
+  //   await locator<SecureStorageService>().saveRefreshToken(
+  //     model.data!.refreshToken!,
+  //   );
+  //   await locator<SecureStorageService>().saveExpiry(DateTime.now());
+  //   log('ACCESS TOKEN REFRESHED');
+  // }
 }

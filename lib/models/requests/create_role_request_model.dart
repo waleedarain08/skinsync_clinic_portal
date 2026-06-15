@@ -1,9 +1,12 @@
-class CreateRoleRequest {
+import 'base_request.dart';
+
+class CreateRoleRequest extends BaseRequest {
   final String roleName;
   final List<RoleFeatureRequest> features;
 
   CreateRoleRequest({required this.roleName, required this.features});
 
+  @override
   Map<String, dynamic> toJson() => {
     "role_name": roleName,
     "features": features.map((e) => e.toJson()).toList(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/scheduled_next_appointment.dart';
+import '../../utils/assets.dart';
+import 'scheduled_next_appointment.dart';
 
 import '../../utils/theme.dart';
 

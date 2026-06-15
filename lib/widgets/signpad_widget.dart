@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import 'custom_outlined_button.dart';
+import 'custom_primary_button.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 
 import '../utils/theme.dart';

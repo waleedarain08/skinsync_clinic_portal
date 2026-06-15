@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
+import '../utils/theme.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/custom_outlined_button.dart';

@@ -1,14 +1,15 @@
 import 'package:get_it/get_it.dart';
-import 'package:skinsync_clinic_portal/services/appointment_service.dart';
-import 'package:skinsync_clinic_portal/services/doctor_service.dart';
-import 'package:skinsync_clinic_portal/services/inventory_service.dart';
-import 'package:skinsync_clinic_portal/services/media_service.dart';
-import 'package:skinsync_clinic_portal/services/role_service.dart';
 
 import '../repositories/auth_repository.dart';
 import '../repositories/treatment_repository.dart';
 import 'api_base_helper.dart';
+import 'appointment_service.dart';
 import 'auth_service.dart';
+import 'doctor_service.dart';
+import '../view_models/forms_controller.dart';
+import 'inventory_service.dart';
+import 'media_service.dart';
+import 'role_service.dart';
 import 'storage_service.dart';
 import 'treatment_services.dart';
 
@@ -18,20 +19,25 @@ Future<void> initializeServices() async {
   await locator.reset();
 
   /// Services
-  final apiBaseHelper = ApiBaseHelper();
+  final secureStorageService = SecureStorageService();
+  await secureStorageService.init();
+  locator.registerSingleton(secureStorageService);
+
+  final formsController = FormsController();
+  await formsController.init();
+  locator.registerSingleton(formsController);
+
+  final apiBaseHelper = ApiBaseService();
   locator.registerLazySingleton<AuthRepository>(
     () => AuthService(api: apiBaseHelper),
   );
   locator.registerLazySingleton<TreatmentRepository>(
     () => TreatmentServices(api: apiBaseHelper),
   );
-  final secureStorageService = SecureStorageService();
-  await secureStorageService.init();
-  locator.registerSingleton(secureStorageService);
   locator.registerLazySingleton(() => MediaService());
   locator.registerLazySingleton(() => DoctorService());
   locator.registerLazySingleton(() => RoleService());
   locator.registerLazySingleton(() => InventoryService());
-  locator.registerLazySingleton(()=> AppointmentService());
+  locator.registerLazySingleton(() => AppointmentService());
   locator.registerSingleton(apiBaseHelper);
 }

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
+import '../../utils/assets.dart';
 
 import '../../utils/theme.dart';
 

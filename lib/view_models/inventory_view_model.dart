@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/requests/add_inventory_request.dart';
-import 'package:skinsync_clinic_portal/models/responses/clinic_products_response.dart';
+import '../models/requests/add_inventory_request.dart';
+import '../models/responses/clinic_products_response.dart';
 
 import '../models/responses/catalog_response.dart';
 import '../services/inventory_service.dart';

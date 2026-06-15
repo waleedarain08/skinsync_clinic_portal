@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_app_bar.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+import '../utils/assets.dart';
+import '../utils/theme.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 
 class DynamicPricing extends StatefulWidget {
   static const String routeName = '/dynamic-pricing';

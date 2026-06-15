@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/transcation_tile_widget.dart';
+import '../../utils/assets.dart';
+import '../../utils/theme.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/transcation_tile_widget.dart';
 
 class PaymentHistoryScreen extends StatelessWidget {
   static const String routeName = '/payment-history';

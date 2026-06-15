@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/screens/sign_in_screen.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
+import 'sign_in_screen.dart';
+import '../view_models/auth_view_model.dart';
 
 import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+import '../widgets/gradient_scaffold.dart';
 import 'dashboard/home_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {

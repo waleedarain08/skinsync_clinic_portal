@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_notes_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/create_invoice_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/patient_detail_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/status_update_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/pdf_expansiontile_.dart';
+import '../../utils/assets.dart';
+import '../../view_models/auth_view_model.dart';
+import 'add_notes_dailog.dart';
+import 'create_invoice_dailog.dart';
+import 'patient_detail_dailog.dart';
+import 'status_update_dailog.dart';
+import '../pdf_expansiontile_.dart';
 
 import '../../utils/theme.dart';
 
@@ -105,7 +105,7 @@ class _AppointmentReadyDailogState
                 ),
               ),
               SizedBox(height: context.h(20)),
-              Divider(height: 0, color: CustomColors.border),
+              const Divider(height: 0, color: CustomColors.border),
               SizedBox(height: context.h(20)),
               GestureDetector(
                 onTap: () {
@@ -236,7 +236,7 @@ class _AppointmentReadyDailogState
                       ],
                     ),
                     SizedBox(height: context.h(22)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(22)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -254,7 +254,7 @@ class _AppointmentReadyDailogState
                       ],
                     ),
                     SizedBox(height: context.h(9)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(14)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,7 +319,7 @@ class _AppointmentReadyDailogState
                       ],
                     ),
                     SizedBox(height: context.h(22)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(22)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -337,7 +337,7 @@ class _AppointmentReadyDailogState
                       ],
                     ),
                     SizedBox(height: context.h(9)),
-                    Divider(height: 0, color: CustomColors.border),
+                    const Divider(height: 0, color: CustomColors.border),
                     SizedBox(height: context.h(14)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -378,7 +378,7 @@ class _AppointmentReadyDailogState
                                   width: context.w(104),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(context.r(16)),
-                                    image: DecorationImage(
+                                    image: const DecorationImage(
                                       image: AssetImage(
                                         PngAssets.treatmentImage2,
                                       ),

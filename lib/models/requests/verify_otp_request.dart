@@ -1,4 +1,6 @@
-class VerifyOtpRequest {
+import 'base_request.dart';
+
+class VerifyOtpRequest extends BaseRequest {
   final String email;
   final String otp;
 
@@ -8,5 +10,6 @@ class VerifyOtpRequest {
     return VerifyOtpRequest(email: json['email'], otp: json['otp']);
   }
 
+  @override
   Map<String, dynamic> toJson() => {'email': email, 'otp': otp};
 }

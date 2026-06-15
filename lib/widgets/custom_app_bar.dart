@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/models/user_model.dart';
+import '../models/user_model.dart';
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';

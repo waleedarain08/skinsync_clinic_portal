@@ -3,11 +3,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:material_duration_picker/material_duration_picker.dart';
-import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
-import 'package:skinsync_clinic_portal/view_models/doctor_view_model.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import '../../models/requests/register_doctor_request.dart';
+import '../../view_models/doctor_view_model.dart';
+import '../../utils/theme.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
 
 class AddSlotDialog extends StatefulWidget {
   const AddSlotDialog({super.key});

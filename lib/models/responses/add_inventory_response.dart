@@ -1,10 +1,10 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/clinic_products_response.dart';
+import 'base_response_model.dart';
+import 'clinic_products_response.dart';
 
-class AddInventoryResponse extends BaseApiResponseModel<ClinicProduct?> {
+class AddInventoryResponse extends BaseResponse<ClinicProduct?> {
   AddInventoryResponse({
     super.data,
-    required super.isSuccess,
+    required super.status,
     required super.message,
   });
 
@@ -13,7 +13,7 @@ class AddInventoryResponse extends BaseApiResponseModel<ClinicProduct?> {
         data: json["data"] == null
             ? null
             : ClinicProduct.fromJson(json["data"]),
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
       );
 }

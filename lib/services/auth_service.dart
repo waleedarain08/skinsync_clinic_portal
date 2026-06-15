@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:skinsync_clinic_portal/models/requests/change_password_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/login_request_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/login_response_model.dart';
-
+import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
+import '../models/requests/login_request_model.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
+import '../models/responses/base_response_model.dart';
+import '../models/responses/login_response_model.dart';
 import '../models/responses/verify_otp_response.dart';
 import '../repositories/auth_repository.dart';
 import '../utils/enums.dart';
@@ -17,29 +16,30 @@ import 'locator.dart';
 import 'storage_service.dart';
 
 class AuthService implements AuthRepository {
-  final ApiBaseHelper _api;
+  final ApiBaseService _api;
   final SecureStorageService _secureStorage = locator<SecureStorageService>();
 
-  AuthService({required ApiBaseHelper api}) : _api = api;
+  AuthService({required ApiBaseService api}) : _api = api;
 
   @override
-  Future<LoginResponseModel> login({required LoginRequestModel req}) async {
-    final jsonResponse = await _api.post(Endpoint.login, body: req.toJson());
-    final response = BaseApiResponseModel<LoginResponseModel>.fromJson(
-      jsonResponse,
-      (json) => LoginResponseModel.fromJson(json as Map<String, dynamic>),
+  Future<AuthData> login({required LoginRequestModel req}) async {
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.login,
+      requestType: RequestType.post,
+      requestBody: req,
     );
+    final response = LoginResponseModel.fromJson(jsonResponse);
 
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw BadRequestException(response.message);
     }
-    if (response.data?.accessToken == null) {
+    if (response.data == null) {
       throw UnknownException(response.message);
     }
 
     await _secureStorage.saveToken(response.data!.accessToken!);
     await _secureStorage.saveRefreshToken(response.data!.refreshToken!);
-    await _secureStorage.saveUser(response.data!.user);
+    await _secureStorage.saveUser(response.data!.clinicUser);
     await _secureStorage.saveAccessTokenExpiry(
       DateTime.fromMillisecondsSinceEpoch(
         response.data!.accessExpiresAt! * 1000,
@@ -54,18 +54,19 @@ class AuthService implements AuthRepository {
   }
 
   @override
-  Future<BaseApiResponseModel> changePassword({
+  Future<BaseResponse> changePassword({
     required ChangePasswordRequestModel req,
   }) async {
-    final jsonResponse = await _api.post(
-      Endpoint.changePassword,
-      body: req.toJson(),
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.changePassword,
+      requestType: RequestType.post,
+      requestBody: req,
     );
-    final response = BaseApiResponseModel<dynamic>.fromJson(
+    final response = BaseResponse<dynamic>.fromJson(
       jsonResponse,
       (json) => json,
     );
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw BadRequestException(response.message);
     }
 
@@ -73,33 +74,37 @@ class AuthService implements AuthRepository {
   }
 
   @override
-  Future<BaseApiResponseModel> forgetPassword({
+  Future<BaseResponse> forgetPassword({
     required ForgetPasswordRequest req,
   }) async {
-    final jsonResponse = await _api.post(
-      Endpoint.forgetPassword,
-      body: req.toJson(),
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.forgetPassword,
+      requestType: RequestType.post,
+      requestBody: req,
     );
-    final response = BaseApiResponseModel<dynamic>.fromJson(
+    final response = BaseResponse<dynamic>.fromJson(
       jsonResponse,
       (json) => json,
     );
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw BadRequestException(response.message);
     }
 
     return response;
   }
 
-    @override
+  @override
   Future<LoginResponseModel> getMe() async {
-     final jsonResponse = await _api.get(Endpoint.getMe,);
-    final response = BaseApiResponseModel<LoginResponseModel>.fromJson(
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.getMe,
+      requestType: RequestType.get,
+    );
+    final response = BaseResponse<LoginResponseModel>.fromJson(
       jsonResponse,
       (json) => LoginResponseModel.fromJson(json as Map<String, dynamic>),
     );
 
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw BadRequestException(response.message);
     }
 
@@ -109,7 +114,7 @@ class AuthService implements AuthRepository {
   // Future<BaseApiResponseModel> forgetPassword({
   //   required ForgetPasswordRequest req,
   // }) async {
-  //   final response = await locator<ApiBaseHelper>().post(
+  //   final response = await locator<ApiBaseService>().post(
   //     Endpoint.forgetPassword,
   //     body: req.toJson(),
   //   );
@@ -124,18 +129,19 @@ class AuthService implements AuthRepository {
   // }
 
   @override
-  Future<BaseApiResponseModel> resetPassword({
+  Future<BaseResponse> resetPassword({
     required ResetPasswordRequest req,
   }) async {
-    final jsonResponse = await _api.post(
-      Endpoint.resetPassword,
-      body: req.toJson(),
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.resetPassword,
+      requestType: RequestType.post,
+      requestBody: req,
     );
-    final response = BaseApiResponseModel<dynamic>.fromJson(
+    final response = BaseResponse<dynamic>.fromJson(
       jsonResponse,
       (json) => json,
     );
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw BadRequestException(response.message);
     }
 
@@ -146,9 +152,10 @@ class AuthService implements AuthRepository {
   Future<VerifyOtpResponseModel> verifyOtp({
     required VerifyOtpRequest req,
   }) async {
-    final jsonResponse = await _api.post(
-      Endpoint.verifyOtp,
-      body: req.toJson(),
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.verifyOtp,
+      requestType: RequestType.post,
+      requestBody: req,
     );
 
     final response = VerifyOtpResponseModel.fromJson(jsonResponse);

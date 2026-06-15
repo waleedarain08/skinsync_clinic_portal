@@ -1,4 +1,6 @@
-class ChangePasswordRequestModel {
+import 'base_request.dart';
+
+class ChangePasswordRequestModel extends BaseRequest {
   final String currentPassword;
   final String newPassword;
 
@@ -14,6 +16,7 @@ class ChangePasswordRequestModel {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     'current_password': currentPassword,
     'new_password': newPassword,

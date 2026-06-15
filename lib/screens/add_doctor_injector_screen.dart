@@ -6,26 +6,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:skinsync_clinic_portal/models/responses/register_doctor_response.dart';
-import 'package:skinsync_clinic_portal/models/treatment_model.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/utils/validators.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/add_slot_dialog_box.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/select_treatment_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/phone_widget.dart';
 
 import '../models/requests/register_doctor_request.dart';
+import '../models/responses/register_doctor_response.dart';
+import '../models/treatment_model.dart';
 import '../utils/enums.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
+import '../utils/theme.dart';
+import '../utils/validators.dart';
 import '../view_models/doctor_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../widgets/app_loader.dart';
 import '../widgets/build_textfield.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/add_slot_dialog_box.dart';
+import '../widgets/dialog_box/select_treatment_dailog.dart';
+import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
+import '../widgets/phone_widget.dart';
 
 class AddDoctorInjectorScreen extends ConsumerStatefulWidget {
   const AddDoctorInjectorScreen({super.key, this.doctor});

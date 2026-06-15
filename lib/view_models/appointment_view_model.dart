@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/responses/appointment_response.dart';
-import 'package:skinsync_clinic_portal/services/appointment_service.dart';
-import 'package:skinsync_clinic_portal/services/locator.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
-import 'package:skinsync_clinic_portal/view_models/base_view_model.dart';
+import '../models/responses/appointment_response.dart';
+import '../services/appointment_service.dart';
+import '../services/locator.dart';
+import '../utils/enums.dart';
+import 'base_view_model.dart';
 
 final appointmentProvider =
     NotifierProvider.autoDispose<AppointmentViewModel, AppointmentState>(

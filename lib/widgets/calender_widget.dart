@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timetable/timetable.dart';
 
 import '../utils/theme.dart';
+import '../view_models/auth_view_model.dart';
+import 'dialog_box/appointment_ready_dailog.dart';
 
 enum CalendarViewMode { month, week, day }
 

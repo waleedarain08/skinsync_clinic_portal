@@ -1,25 +1,25 @@
 import 'dart:developer';
 
-import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/update_doctors_treament_request.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_doctors_response.dart';
-import 'package:skinsync_clinic_portal/repositories/doctor_repository.dart';
-import 'package:skinsync_clinic_portal/services/api_base_helper.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
-
+import '../models/requests/register_doctor_request.dart';
+import '../models/requests/update_doctors_treament_request.dart';
+import '../models/responses/get_doctors_response.dart';
 import '../models/responses/register_doctor_response.dart';
+import '../repositories/doctor_repository.dart';
+import '../utils/enums.dart';
+import 'api_base_helper.dart';
 import 'locator.dart';
 
 class DoctorService extends DoctorRepository {
   @override
   Future<Doctor> register({required RegisterDoctorRequest request}) async {
-    final response = await locator<ApiBaseHelper>().post(
-      Endpoint.createDoctor,
-      body: request.toJson(),
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.createDoctor,
+      requestType: RequestType.post,
+      requestBody: request,
     );
     log('RESPONSE: $response');
     final model = RegisterDoctorResponse.fromJson(response);
-    if (!model.isSuccess || model.data == null) {
+    if (!model.status || model.data == null) {
       throw Exception(model.message);
     }
     return model.data!;
@@ -27,9 +27,12 @@ class DoctorService extends DoctorRepository {
 
   @override
   Future<List<Doctor>> fetchDoctors() async {
-    final response = await locator<ApiBaseHelper>().get(Endpoint.getDoctors);
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.getDoctors,
+      requestType: RequestType.get,
+    );
     final model = GetDoctorsResponse.fromJson(response);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model.data!;
@@ -39,9 +42,10 @@ class DoctorService extends DoctorRepository {
   Future<void> updateDoctorTreatment({
     required UpdateDoctorRequest request,
   }) async {
-    final response = await locator<ApiBaseHelper>().patch(
-      Endpoint.updateDoctorTreatment, // your patch endpoint
-      body: request.toJson(),
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.updateDoctorTreatment,
+      requestType: RequestType.patch,
+      requestBody: request,
     );
 
     if (response['is_success'] != true) {

@@ -1,12 +1,12 @@
-class UpdateRoleRequest {
+import 'base_request.dart';
+
+class UpdateRoleRequest extends BaseRequest {
   final String roleName;
   final List<FeaturePermissionModel> features;
 
-  UpdateRoleRequest({
-    required this.roleName,
-    required this.features,
-  });
+  UpdateRoleRequest({required this.roleName, required this.features});
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'role_name': roleName,
@@ -14,6 +14,7 @@ class UpdateRoleRequest {
     };
   }
 }
+
 class FeaturePermissionModel {
   final int featureId;
   final List<int> permissionIds;
@@ -24,9 +25,6 @@ class FeaturePermissionModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'feature_id': featureId,
-      'permission_ids': permissionIds,
-    };
+    return {'feature_id': featureId, 'permission_ids': permissionIds};
   }
 }

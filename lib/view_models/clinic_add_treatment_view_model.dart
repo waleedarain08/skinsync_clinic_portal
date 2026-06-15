@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/utils/clinic_dummy_data.dart';
+import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
 final clinicAddTreatmentViewModelProvider = NotifierProvider<ClinicAddTreatmentViewModel, ClinicAddTreatmentState>(

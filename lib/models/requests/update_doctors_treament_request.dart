@@ -1,5 +1,5 @@
-import 'package:skinsync_clinic_portal/models/requests/base_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
+import 'base_request.dart';
+import 'register_doctor_request.dart';
 
 class UpdateDoctorRequest extends BaseRequest {
   final int clinicUserId;

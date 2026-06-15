@@ -5,18 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/appointment_screen.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/patient_management_detail.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/appointment_tile_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/chat_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/notes_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/simulations_detail_dailog_box.dart';
-import 'package:skinsync_clinic_portal/widgets/pateint_treatment_selection_tile.dart';
-import 'package:skinsync_clinic_portal/widgets/signpad_widget.dart';
+
+import '../screens/dashboard/appointment_screen.dart';
+import '../screens/dashboard/patient_management_detail.dart';
+import '../utils/assets.dart';
+import '../utils/theme.dart';
+import '../view_models/auth_view_model.dart';
+import 'appointment_tile_widget.dart';
+import 'dialog_box/appointment_ready_dailog.dart';
+import 'dialog_box/chat_dailog.dart';
+import 'dialog_box/notes_dailog.dart';
+import 'dialog_box/simulations_detail_dailog_box.dart';
+import 'pateint_treatment_selection_tile.dart';
+import 'signpad_widget.dart';
 
 class PatientMangementWidget extends StatefulWidget {
   const PatientMangementWidget({super.key});
@@ -105,7 +106,9 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: context.h(16)),
               decoration: BoxDecoration(
-                color: isTreatmentSelected ? CustomColors.black : CustomColors.softGrey,
+                color: isTreatmentSelected
+                    ? CustomColors.black
+                    : CustomColors.softGrey,
                 borderRadius: BorderRadius.circular(context.r(10)),
               ),
               child: Center(
@@ -130,7 +133,9 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: context.h(16)),
               decoration: BoxDecoration(
-                color: !isTreatmentSelected ? CustomColors.black : CustomColors.softGrey,
+                color: !isTreatmentSelected
+                    ? CustomColors.black
+                    : CustomColors.softGrey,
                 borderRadius: BorderRadius.circular(context.r(10)),
               ),
               child: Center(
@@ -224,10 +229,7 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  "Treatment Name",
-                  style: CustomFonts.grey14w400,
-                ),
+                Text("Treatment Name", style: CustomFonts.grey14w400),
               ],
             ),
           );
@@ -249,10 +251,13 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
         children: [
           Text("Treatment History", style: CustomFonts.black20w600),
           SizedBox(height: context.h(20)),
-          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
+          const CupertinoSearchTextField(
+            backgroundColor: CustomColors.softGrey,
+          ),
           SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
+            separatorBuilder: (context, index) =>
+                SizedBox(height: context.h(15)),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: 3,
@@ -283,7 +288,8 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
           Text("Appointments", style: CustomFonts.black20w600),
           SizedBox(height: context.h(20)),
           ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: context.h(15)),
+            separatorBuilder: (context, index) =>
+                SizedBox(height: context.h(15)),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: 2,
@@ -352,13 +358,16 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
             ],
           ),
           SizedBox(height: context.h(15)),
-          ...List.generate(3, (index) => Padding(
-            padding: EdgeInsets.only(bottom: context.h(10)),
-            child: Text(
-              "Prefers natural-looking results",
-              style: CustomFonts.grey14w400,
+          ...List.generate(
+            3,
+            (index) => Padding(
+              padding: EdgeInsets.only(bottom: context.h(10)),
+              child: Text(
+                "Prefers natural-looking results",
+                style: CustomFonts.grey14w400,
+              ),
             ),
-          )),
+          ),
           SizedBox(height: context.h(10)),
           for (int i = 0; i < 2; i++)
             Padding(
@@ -381,11 +390,12 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
         borderRadius: BorderRadius.circular(context.r(16)),
       ),
       clipBehavior: Clip.antiAlias,
-      leading: Image.asset(PngAssets.pdf, height: context.h(33), width: context.w(44)),
-      title: Text(
-        "Client Intake Form.pdf",
-        style: CustomFonts.black14w600,
+      leading: Image.asset(
+        PngAssets.pdf,
+        height: context.h(33),
+        width: context.w(44),
       ),
+      title: Text("Client Intake Form.pdf", style: CustomFonts.black14w600),
       subtitle: Text(
         "867 Kb    14 Feb 2022 at 11:30 am",
         style: CustomFonts.grey12w400,
@@ -402,16 +412,19 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
       children: [
         const Divider(color: CustomColors.border),
         SizedBox(height: context.h(10)),
-        ...List.generate(3, (index) => Padding(
-          padding: EdgeInsets.only(bottom: context.h(8)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Text Field ${index + 1}", style: CustomFonts.grey14w400),
-              Text("Client Input", style: CustomFonts.black14w400),
-            ],
+        ...List.generate(
+          3,
+          (index) => Padding(
+            padding: EdgeInsets.only(bottom: context.h(8)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Text Field ${index + 1}", style: CustomFonts.grey14w400),
+                Text("Client Input", style: CustomFonts.black14w400),
+              ],
+            ),
           ),
-        )),
+        ),
         SizedBox(height: context.h(15)),
         signatureSection(context),
       ],
@@ -430,7 +443,11 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
               width: context.w(100),
               child: Image.asset(PngAssets.signature, fit: BoxFit.contain),
             ),
-            Container(width: context.w(105), height: 1, color: CustomColors.black),
+            Container(
+              width: context.w(105),
+              height: 1,
+              color: CustomColors.black,
+            ),
             Text("Patient Signature", style: CustomFonts.black12w400),
           ],
         ),
@@ -484,7 +501,11 @@ class _PatientMangementWidgetState extends State<PatientMangementWidget> {
           Row(
             children: [
               ClipOval(
-                child: Image.asset(PngAssets.person, height: context.r(80), width: context.r(80)),
+                child: Image.asset(
+                  PngAssets.person,
+                  height: context.r(80),
+                  width: context.r(80),
+                ),
               ),
               SizedBox(width: context.w(15)),
               Expanded(

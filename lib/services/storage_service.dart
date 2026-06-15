@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:skinsync_clinic_portal/models/user_model.dart';
+import '../models/user_model.dart';
 
 import '../utils/colored_print.dart';
 import '../utils/enums.dart';

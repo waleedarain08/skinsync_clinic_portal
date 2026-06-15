@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
-import 'package:skinsync_clinic_portal/models/requests/login_request_model.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/utils/validators.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
+import '../models/requests/login_request_model.dart';
 import '../utils/assets.dart';
 import '../utils/enums.dart';
+import '../utils/theme.dart';
+import '../utils/validators.dart';
 import '../view_models/auth_view_model.dart';
+import '../widgets/build_textfield.dart';
+import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import 'dashboard/home_screen.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -70,7 +69,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   void _goToForgetPassword() => setCurrentScreen(AuthScreen.forgetPassword);
   void _goToVerifyOtp() => setCurrentScreen(AuthScreen.verifyOtp);
-  void _goToCreateNewPassword() => setCurrentScreen(AuthScreen.createNewPassword);
+  void _goToCreateNewPassword() =>
+      setCurrentScreen(AuthScreen.createNewPassword);
 
   void _goToLogin() {
     setState(() {
@@ -157,10 +157,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           fit: BoxFit.contain,
         ),
         context.verticalSpace(32),
-        Text(
-          "SkinSync AI",
-          style: context.fonts.black40w700,
-        ),
+        Text("SkinSync AI", style: context.fonts.black40w700),
         context.verticalSpace(2),
         Text(
           "CLINIC PORTAL",
@@ -418,7 +415,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         context.verticalSpace(16),
         TextButton(
           onPressed: _handleForgotPassword,
-          child: Text("Didn't receive code? Resend", style: context.fonts.purple14w600),
+          child: Text(
+            "Didn't receive code? Resend",
+            style: context.fonts.purple14w600,
+          ),
         ),
       ],
     );
@@ -515,12 +515,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   // Handlers (existing clinic portal functionality preserved)
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    final success = await ref.read(authViewModelProvider.notifier).login(
-      loginReq: LoginRequestModel(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      ),
-    );
+    final success = await ref
+        .read(authViewModelProvider.notifier)
+        .login(
+          loginReq: LoginRequestModel(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          ),
+        );
     if (success && mounted) {
       context.goNamed(HomeScreen.routeName);
     }
@@ -538,10 +540,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Future<void> _handleVerifyOtp() async {
     if (!_formKey.currentState!.validate()) return;
-    final success = await ref.read(authViewModelProvider.notifier).verifyOtp(
-      email: _emailController.text.trim(),
-      otp: _otpController.text.trim(),
-    );
+    final success = await ref
+        .read(authViewModelProvider.notifier)
+        .verifyOtp(
+          email: _emailController.text.trim(),
+          otp: _otpController.text.trim(),
+        );
     if (success && mounted) {
       _goToCreateNewPassword();
     } else if (!success && mounted) {

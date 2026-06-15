@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
-import 'package:skinsync_clinic_portal/widgets/app_sidebar.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/app_sidebar.dart';
+import '../../widgets/gradient_scaffold.dart';
 
 import '../../widgets/custom_app_bar.dart';
 

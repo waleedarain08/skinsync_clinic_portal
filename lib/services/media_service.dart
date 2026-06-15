@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:skinsync_clinic_portal/utils/file_utils.dart';
+import '../utils/file_utils.dart';
 
 class MediaService {
   final _storage = FirebaseStorage.instance;

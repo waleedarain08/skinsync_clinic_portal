@@ -2,16 +2,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:skinsync_clinic_portal/models/responses/clinic_products_response.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/view_models/inventory_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
 
+import '../../models/responses/clinic_products_response.dart';
+import '../../utils/responsive.dart';
+import '../../utils/theme.dart';
+import '../../view_models/inventory_view_model.dart';
 import '../../widgets/app_loader.dart';
-import '../../widgets/dailog box/add_product_dailog.dart';
+import '../../widgets/build_textfield.dart';
+import '../../widgets/custom_primary_button.dart';
+import '../../widgets/dialog_box/add_product_dailog.dart';
+import '../../widgets/gradient_scaffold.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   static const String routeName = '/inventory_screen';

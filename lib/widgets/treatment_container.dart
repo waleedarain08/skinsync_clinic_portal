@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/patient_management_detail.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
+import '../screens/dashboard/patient_management_detail.dart';
+import '../utils/assets.dart';
 
 import '../utils/theme.dart';
 

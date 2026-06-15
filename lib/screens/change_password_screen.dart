@@ -48,7 +48,7 @@ class ChangePasswordScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BuildHeader(title: 'Password & Security'),
+              const BuildHeader(title: 'Password & Security'),
               SizedBox(height: context.h(24)),
               _buildCardContainer(context, ref, authState, viewModel),
             ],
@@ -190,23 +190,23 @@ class ChangePasswordScreen extends ConsumerWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.r(8)),
-              borderSide: BorderSide(color: CustomColors.border, width: 1),
+              borderSide: const BorderSide(color: CustomColors.border, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.r(8)),
-              borderSide: BorderSide(color: CustomColors.border, width: 1),
+              borderSide: const BorderSide(color: CustomColors.border, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.r(8)),
-              borderSide: BorderSide(color: CustomColors.purple, width: 1),
+              borderSide: const BorderSide(color: CustomColors.purple, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.r(8)),
-              borderSide: BorderSide(color: CustomColors.red, width: 1),
+              borderSide: const BorderSide(color: CustomColors.red, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(context.r(8)),
-              borderSide: BorderSide(color: CustomColors.red, width: 1),
+              borderSide: const BorderSide(color: CustomColors.red, width: 1),
             ),
             suffixIcon: GestureDetector(
               onTap: onToggle,

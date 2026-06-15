@@ -1,5 +1,5 @@
-import 'package:skinsync_clinic_portal/models/requests/register_doctor_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/update_doctors_treament_request.dart';
+import '../models/requests/register_doctor_request.dart';
+import '../models/requests/update_doctors_treament_request.dart';
 
 import '../models/responses/register_doctor_response.dart';
 

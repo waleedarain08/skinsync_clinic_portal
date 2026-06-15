@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
-import 'package:skinsync_clinic_portal/view_models/appointment_view_model.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/borderd_container_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/appointment_ready_dailog.dart';
-import 'package:skinsync_clinic_portal/widgets/number_paginator.dart';
 
+import '../../utils/enums.dart';
 import '../../utils/theme.dart';
+import '../../view_models/appointment_view_model.dart';
+import '../../view_models/auth_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/appointment_horizontal_tile_widget.dart';
+import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/calender_widget.dart';
 import '../../widgets/custom_dropdown_widget.dart';
+import '../../widgets/dialog_box/appointment_ready_dailog.dart';
+import '../../widgets/number_paginator.dart';
 
 class AppointmentScreen extends ConsumerStatefulWidget {
   static const String routeName = '/appointment';
@@ -323,12 +323,12 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
             // Header Row
-            TableRow(
-              decoration: const BoxDecoration(
+            const TableRow(
+              decoration: BoxDecoration(
                 color: CustomColors.whiteGrey,
                 border: Border(bottom: BorderSide(color: CustomColors.border)),
               ),
-              children: const [
+              children: [
                 _AppointmentHeaderCell("PATIENT"),
                 _AppointmentHeaderCell("TREATMENT"),
                 _AppointmentHeaderCell("DATE & TIME"),

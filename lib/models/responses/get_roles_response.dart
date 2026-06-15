@@ -1,15 +1,11 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
+import 'base_response_model.dart';
 
-class GetRoleResponse extends BaseApiResponseModel<List<Roles>> {
-  GetRoleResponse({
-    super.data,
-    required super.isSuccess,
-    required super.message,
-  });
+class GetRoleResponse extends BaseResponse<List<Roles>> {
+  GetRoleResponse({super.data, required super.status, required super.message});
 
   factory GetRoleResponse.fromJson(Map<String, dynamic> json) =>
       GetRoleResponse(
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
         data: json["roles"] == null
             ? []

@@ -1,4 +1,6 @@
-class ResetPasswordRequest {
+import 'base_request.dart';
+
+class ResetPasswordRequest extends BaseRequest {
   final String email;
   final String? resetToken;
   final String newPassword;
@@ -9,6 +11,7 @@ class ResetPasswordRequest {
     required this.newPassword,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'email': email,
     'reset_token': resetToken,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:skinsync_clinic_portal/utils/responsive.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/patient_mangement_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/patient_selection_tile.dart';
+import '../../utils/responsive.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/patient_mangement_widget.dart';
+import '../../widgets/patient_selection_tile.dart';
 
 import '../../utils/theme.dart';
 

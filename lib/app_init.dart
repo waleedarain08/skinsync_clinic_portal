@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:skinsync_clinic_portal/route_generator.dart';
-import 'package:skinsync_clinic_portal/widgets/app_loader.dart';
+import 'route_generator.dart';
+import 'widgets/app_loader.dart';
 
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
@@ -23,7 +23,7 @@ class AppInit extends StatelessWidget {
       ..indicatorColor = CustomColors.green
       ..textColor = CustomColors.black
       ..maskColor = Colors.transparent
-      ..indicatorWidget = AppLoader(size: 40)
+      ..indicatorWidget = const AppLoader(size: 40)
       ..userInteractions = true
       ..dismissOnTap = false;
   }

@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_dropdown_widget.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import '../custom_primary_button.dart';
 
 import '../../utils/theme.dart';
 
-class AddNotesDailog extends StatefulWidget {
-  const AddNotesDailog({super.key});
-
-  @override
-  State<AddNotesDailog> createState() => _AddNotesDailogState();
-}
-
-class _AddNotesDailogState extends State<AddNotesDailog> {
-  String? _selectedType;
+class NotesDailog extends StatelessWidget {
+  const NotesDailog({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,26 +45,6 @@ class _AddNotesDailogState extends State<AddNotesDailog> {
                 ),
               ),
             ),
-            Text("Note Type", style: CustomFonts.black18w600),
-            SizedBox(height: context.h(5)),
-            CustomDropdown(
-              hint: "Select type",
-              value: _selectedType,
-              items: const [
-                "General Note",
-                "Treatment Note",
-                "Follow-up Note",
-                "Prescription Note",
-                "Allergy Note",
-                "Pre-Treatment Note",
-                "Post-Treatment Note",
-                "Consultation Note",
-              ],
-              height: context.h(42),
-              onChanged: (value) =>
-                  setState(() => _selectedType = value ?? 'General Note'),
-            ),
-            SizedBox(height: context.h(30)),
 
             Text("Notes", style: CustomFonts.black18w600),
             SizedBox(height: context.h(5)),
@@ -105,10 +76,8 @@ class _AddNotesDailogState extends State<AddNotesDailog> {
             ),
             SizedBox(height: context.h(30)),
             CustomPrimaryButton(
+              onTap: () {},
               label: "Save Note",
-              onTap: () {
-                context.pop();
-              },
               width: double.infinity,
             ),
           ],

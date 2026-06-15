@@ -1,15 +1,15 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
+import 'base_response_model.dart';
 
-class RefreshTokenResponse extends BaseApiResponseModel {
+class RefreshTokenResponse extends BaseResponse {
   RefreshTokenResponse({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
 
   factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) =>
       RefreshTokenResponse(
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
         data: json["data"] == null
             ? null

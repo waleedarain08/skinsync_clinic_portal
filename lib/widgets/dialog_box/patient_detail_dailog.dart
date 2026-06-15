@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/show_success_dailog.dart';
+import '../patient_mangement_widget.dart';
 
 import '../../utils/theme.dart';
 
-class SelectTimeSlotDialog extends StatelessWidget {
-  const SelectTimeSlotDialog({super.key});
+class PatientDetailDailog extends StatelessWidget {
+  const PatientDetailDailog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
-        width: MediaQuery.sizeOf(context).width * 0.4,
         padding: EdgeInsets.symmetric(
           vertical: context.h(20),
           horizontal: context.w(20),
@@ -29,7 +27,7 @@ class SelectTimeSlotDialog extends StatelessWidget {
             /// Header
             Row(
               children: [
-                Text("Select Time Slot", style: CustomFonts.black20w600),
+                Text("Patient Profile", style: CustomFonts.black16w600),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
@@ -40,26 +38,17 @@ class SelectTimeSlotDialog extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: CustomColors.border),
                     ),
-                    child: Icon(
-                      Icons.close,
-                      size: context.r(18),
-                      color: CustomColors.grey,
-                    ),
+                    child: Icon(Icons.close, size: context.r(18), color: CustomColors.grey),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: context.h(10)),
-            Text(
-              "we’ll notify you in advance so you’re always prepared. Your journey to glowing skin is just a tap away!",
-              style: CustomFonts.black14w400,
-            ),
             SizedBox(height: context.h(20)),
-
             SizedBox(
-              width: double.infinity,
-              height: MediaQuery.sizeOf(context).height * 0.4,
-              child: Image.asset(DemoAssets.selectSlot, fit: BoxFit.contain),
+              height: MediaQuery.sizeOf(context).height * 0.7,
+              child: const SingleChildScrollView(
+                child: PatientMangementWidget(),
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(top: context.h(20)),
@@ -67,13 +56,7 @@ class SelectTimeSlotDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        context.pop();
-                        showDialog(
-                          context: context,
-                          builder: (context) => SuccessDialog(),
-                        );
-                      },
+                      onTap: () => Navigator.pop(context),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: context.w(12),
@@ -85,7 +68,7 @@ class SelectTimeSlotDialog extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            "Confirm Appointment",
+                            "Continue",
                             style: CustomFonts.white14w600,
                           ),
                         ),
@@ -106,7 +89,10 @@ class SelectTimeSlotDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(context.r(8)),
                         ),
                         child: Center(
-                          child: Text("Cancel", style: CustomFonts.black14w500),
+                          child: Text(
+                            "Cancel",
+                            style: CustomFonts.black14w500,
+                          ),
                         ),
                       ),
                     ),

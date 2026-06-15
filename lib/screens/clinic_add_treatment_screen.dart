@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/build_textfield.dart';
-import 'package:skinsync_clinic_portal/widgets/header__with_back_btn.dart';
-import 'package:skinsync_clinic_portal/utils/clinic_dummy_data.dart';
-import 'package:skinsync_clinic_portal/view_models/clinic_add_treatment_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+import '../utils/theme.dart';
+import '../widgets/build_textfield.dart';
+import '../widgets/header__with_back_btn.dart';
+import '../utils/clinic_dummy_data.dart';
+import '../view_models/clinic_add_treatment_view_model.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 
 import '../utils/responsive.dart';
 

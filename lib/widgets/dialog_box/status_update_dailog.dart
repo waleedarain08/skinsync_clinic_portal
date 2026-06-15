@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/patient_follow_up_appointment.dart';
+import '../custom_primary_button.dart';
+import 'patient_follow_up_appointment.dart';
 
 import '../../utils/theme.dart';
 

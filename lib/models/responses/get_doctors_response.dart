@@ -1,9 +1,9 @@
 import 'base_response_model.dart';
 import 'register_doctor_response.dart';
 
-class GetDoctorsResponse extends BaseApiResponseModel<List<Doctor>> {
+class GetDoctorsResponse extends BaseResponse<List<Doctor>> {
   const GetDoctorsResponse({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
@@ -11,7 +11,7 @@ class GetDoctorsResponse extends BaseApiResponseModel<List<Doctor>> {
   factory GetDoctorsResponse.fromJson(Map<String, dynamic> json) =>
       GetDoctorsResponse(
         data: List<Doctor>.from(json["data"].map((x) => Doctor.fromJson(x))),
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
       );
 }

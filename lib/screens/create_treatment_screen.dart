@@ -1,6 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
+import '../utils/theme.dart';
 
 import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';

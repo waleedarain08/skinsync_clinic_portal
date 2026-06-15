@@ -1,5 +1,5 @@
-import 'package:skinsync_clinic_portal/models/requests/base_request.dart';
-import 'package:skinsync_clinic_portal/utils/enums.dart';
+import 'base_request.dart';
+import '../../utils/enums.dart';
 
 class AddInventoryRequest extends BaseRequest {
   final int productId;

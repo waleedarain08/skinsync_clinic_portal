@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/screens/dashboard/patient_management.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
-import 'package:skinsync_clinic_portal/widgets/pateint_treatment_selection_tile.dart';
+import 'patient_management.dart';
+import '../../utils/theme.dart';
+import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/pateint_treatment_selection_tile.dart';
 
 import '../../utils/assets.dart';
 

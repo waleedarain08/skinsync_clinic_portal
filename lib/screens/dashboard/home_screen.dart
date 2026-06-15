@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:skinsync_clinic_portal/utils/theme.dart';
+import '../../utils/theme.dart';
 
-import 'package:skinsync_clinic_portal/widgets/gradient_scaffold.dart';
+import '../../widgets/gradient_scaffold.dart';
 import '../../utils/assets.dart';
 import '../../widgets/ai_row_widget.dart';
 import '../../widgets/analytics_grid_widget.dart';

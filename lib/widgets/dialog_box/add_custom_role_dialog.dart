@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_feature_response.dart';
-import 'package:skinsync_clinic_portal/view_models/role_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
+import '../../models/responses/get_feature_response.dart';
+import '../../view_models/role_view_model.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';

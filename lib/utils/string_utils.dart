@@ -5,4 +5,8 @@ extension StringUtils on String {
     }
     return '${this[0].toUpperCase()}${substring(1)}';
   }
+
+  String addStringToStart(String start) {
+    return '$start$this';
+  }
 }

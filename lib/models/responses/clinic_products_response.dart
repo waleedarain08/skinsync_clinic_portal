@@ -1,15 +1,15 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
+import 'base_response_model.dart';
 
-class ClinicProductsResponse extends BaseApiResponseModel<List<ClinicProduct>> {
+class ClinicProductsResponse extends BaseResponse<List<ClinicProduct>> {
   const ClinicProductsResponse({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
 
   factory ClinicProductsResponse.fromJson(Map<String, dynamic> json) {
     return ClinicProductsResponse(
-      isSuccess: json["is_success"],
+      status: json["is_success"],
       message: json["message"],
       data: json["data"] != null
           ? List<ClinicProduct>.from(

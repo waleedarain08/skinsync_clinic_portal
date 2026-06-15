@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_outlined_button.dart';
-import 'package:skinsync_clinic_portal/widgets/custom_primary_button.dart';
-import 'package:skinsync_clinic_portal/widgets/dailog%20box/follow_up_later_dailog.dart';
+import '../../utils/assets.dart';
+import '../custom_outlined_button.dart';
+import '../custom_primary_button.dart';
+import 'follow_up_later_dailog.dart';
 
 import '../../utils/theme.dart';
 

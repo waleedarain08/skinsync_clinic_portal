@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/services/locator.dart';
-import 'package:skinsync_clinic_portal/services/storage_service.dart';
+import '../services/locator.dart';
+import '../services/storage_service.dart';
 
 import '../utils/theme.dart';
 

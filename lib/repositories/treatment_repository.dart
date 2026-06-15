@@ -1,4 +1,4 @@
-import 'package:skinsync_clinic_portal/models/requests/add_treatment_req_model.dart';
+import '../models/requests/add_treatment_req_model.dart';
 
 import '../models/treatment_model.dart';
 

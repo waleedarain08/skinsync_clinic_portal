@@ -3,9 +3,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:skinsync_clinic_portal/utils/assets.dart';
-import 'package:skinsync_clinic_portal/view_models/auth_view_model.dart';
-import 'package:skinsync_clinic_portal/widgets/signpad_widget.dart';
+import '../utils/assets.dart';
+import '../view_models/auth_view_model.dart';
+import 'signpad_widget.dart';
 
 import '../utils/theme.dart';
 

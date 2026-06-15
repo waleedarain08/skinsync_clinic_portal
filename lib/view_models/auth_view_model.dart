@@ -4,9 +4,9 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_clinic_portal/models/requests/reset_password_request.dart';
-import 'package:skinsync_clinic_portal/models/requests/verify_otp_request.dart';
-import 'package:skinsync_clinic_portal/models/user_model.dart';
+import '../models/requests/reset_password_request.dart';
+import '../models/requests/verify_otp_request.dart';
+import '../models/user_model.dart';
 import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
 import '../models/requests/login_request_model.dart';
@@ -69,7 +69,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   Future<bool> callGetMe() async {
     return await runSafely<bool?>(() async {
           final response = await _authRepository.getMe();
-          state = state.copyWith(user: response.user);
+          state = state.copyWith(user: response.data!.clinicUser);
           return true;
         }) ??
         false;
@@ -78,7 +78,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   Future<bool> login({required LoginRequestModel loginReq}) async {
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.login(req: loginReq);
-          state = state.copyWith(user: response.user);
+          state = state.copyWith(user: response.clinicUser);
           return true;
         }) ??
         false;

@@ -1,14 +1,15 @@
-import 'package:skinsync_clinic_portal/models/requests/create_role_request_model.dart';
-import 'package:skinsync_clinic_portal/models/requests/update_role_request.dart';
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_feature_response.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart';
+import '../models/requests/create_role_request_model.dart';
+import '../models/requests/update_role_request.dart';
+import '../models/responses/base_response_model.dart';
+import '../models/responses/get_feature_response.dart';
+import '../models/responses/get_roles_response.dart';
 
 abstract class RoleRepository {
   Future<GetFeatureResponse> fetchFeature();
-  Future<BaseApiResponseModel> registerRole({
-    required CreateRoleRequest request,
-  });
+  Future<BaseResponse> registerRole({required CreateRoleRequest request});
   Future<GetRoleResponse> fetchRole();
-  Future<BaseApiResponseModel> updateRole({required UpdateRoleRequest request, required String roleId});
+  Future<BaseResponse> updateRole({
+    required UpdateRoleRequest request,
+    required String roleId,
+  });
 }

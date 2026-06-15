@@ -1,16 +1,16 @@
-import 'package:skinsync_clinic_portal/models/responses/base_response_model.dart';
-import 'package:skinsync_clinic_portal/models/responses/get_roles_response.dart';
+import 'base_response_model.dart';
+import 'get_roles_response.dart';
 
-class GetFeatureResponse extends BaseApiResponseModel<List<Feature>> {
+class GetFeatureResponse extends BaseResponse<List<Feature>> {
   GetFeatureResponse({
     super.data,
-    required super.isSuccess,
+    required super.status,
     required super.message,
   });
 
   factory GetFeatureResponse.fromJson(Map<String, dynamic> json) =>
       GetFeatureResponse(
-        isSuccess: json["is_success"],
+        status: json["is_success"],
         message: json["message"],
         data: json["data"] == null
             ? []
@@ -36,4 +36,3 @@ class Feature {
     }
   }
 }
-

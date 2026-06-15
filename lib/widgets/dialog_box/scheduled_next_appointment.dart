@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_clinic_portal/widgets/patient_mangement_widget.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import '../../utils/assets.dart';
+import 'select_time_slot_dailog.dart';
 
 import '../../utils/theme.dart';
 
-class PatientDetailDailog extends StatelessWidget {
-  const PatientDetailDailog({super.key});
+class ScheduledNextAppointment extends StatelessWidget {
+  const ScheduledNextAppointment({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +15,7 @@ class PatientDetailDailog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
       child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.6,
         padding: EdgeInsets.symmetric(
           vertical: context.h(20),
           horizontal: context.w(20),
@@ -27,8 +31,38 @@ class PatientDetailDailog extends StatelessWidget {
             /// Header
             Row(
               children: [
-                Text("Patient Profile", style: CustomFonts.black16w600),
-                const Spacer(),
+                Container(
+                  height: context.h(48),
+                  width: context.w(48),
+                  padding: EdgeInsets.all(context.w(12)),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: CustomColors.lightPurple.withValues(alpha: 0.15),
+                  ),
+                  child: SvgPicture.asset(
+                    SvgAssets.appointment,
+                    colorFilter: const ColorFilter.mode(
+                      CustomColors.purple,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+                SizedBox(width: context.w(15)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Scheduled Next Appointment",
+                        style: CustomFonts.black16w600,
+                      ),
+                      Text(
+                        "Lorem ipsum dolor sit amet consectetur.",
+                        style: CustomFonts.black14w400,
+                      ),
+                    ],
+                  ),
+                ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
@@ -38,16 +72,22 @@ class PatientDetailDailog extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: CustomColors.border),
                     ),
-                    child: Icon(Icons.close, size: context.r(18), color: CustomColors.grey),
+                    child: Icon(
+                      Icons.close,
+                      size: context.r(18),
+                      color: CustomColors.grey,
+                    ),
                   ),
                 ),
               ],
             ),
             SizedBox(height: context.h(20)),
             SizedBox(
+              width: double.infinity,
               height: MediaQuery.sizeOf(context).height * 0.7,
-              child: const SingleChildScrollView(
-                child: PatientMangementWidget(),
+              child: Image.asset(
+                DemoAssets.scheduledNextAppointment,
+                fit: BoxFit.contain,
               ),
             ),
             Padding(
@@ -56,7 +96,13 @@ class PatientDetailDailog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        context.pop();
+                        showDialog(
+                          context: context,
+                          builder: (context) => const SelectTimeSlotDialog(),
+                        );
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: context.w(12),
@@ -68,7 +114,7 @@ class PatientDetailDailog extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            "Continue",
+                            "Confirm Appointment",
                             style: CustomFonts.white14w600,
                           ),
                         ),
@@ -89,10 +135,7 @@ class PatientDetailDailog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(context.r(8)),
                         ),
                         child: Center(
-                          child: Text(
-                            "Cancel",
-                            style: CustomFonts.black14w500,
-                          ),
+                          child: Text("Cancel", style: CustomFonts.black14w500),
                         ),
                       ),
                     ),
