@@ -1,11 +1,11 @@
 import 'base_response_model.dart';
 
 class GetRoleResponse extends BaseResponse<List<Roles>> {
-  GetRoleResponse({super.data, required super.isSuccess, required super.message});
+  GetRoleResponse({super.data, required super.status, required super.message});
 
   factory GetRoleResponse.fromJson(Map<String, dynamic> json) =>
       GetRoleResponse(
-        isSuccess: json["is_success"] ?? false,
+        status: json["is_success"] ?? false,
         message: json["message"] ?? "",
         data: json["roles"] == null
             ? []

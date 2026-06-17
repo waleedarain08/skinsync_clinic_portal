@@ -18,7 +18,7 @@ class RoleService extends RoleRepository {
       requestType: RequestType.get,
     );
     final model = GetFeatureResponse.fromJson(response);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model;
@@ -31,7 +31,7 @@ class RoleService extends RoleRepository {
       requestType: RequestType.get,
     );
     final model = GetRoleResponse.fromJson(response);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model;
@@ -48,7 +48,7 @@ class RoleService extends RoleRepository {
     );
     log('RESPONSE: $response');
     final model = BaseResponse.fromJson(response, (json) => json);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model;
@@ -67,7 +67,7 @@ class RoleService extends RoleRepository {
     );
     log('RESPONSE: $response');
     final model = BaseResponse.fromJson(response, (json) => json);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model;

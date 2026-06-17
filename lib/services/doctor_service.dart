@@ -19,7 +19,7 @@ class DoctorService extends DoctorRepository {
     );
     log('RESPONSE: $response');
     final model = RegisterDoctorResponse.fromJson(response);
-    if (!model.isSuccess || model.data == null) {
+    if (!model.status || model.data == null) {
       throw Exception(model.message);
     }
     return model.data!;
@@ -32,7 +32,7 @@ class DoctorService extends DoctorRepository {
       requestType: RequestType.get,
     );
     final model = GetDoctorsResponse.fromJson(response);
-    if (!model.isSuccess) {
+    if (!model.status) {
       throw Exception(model.message);
     }
     return model.data!;

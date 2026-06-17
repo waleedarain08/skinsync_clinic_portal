@@ -1,18 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:pdf_kit_editor/pdf_kit_editor.dart';
 import 'package:uuid/uuid.dart';
-import 'package:printing/printing.dart';
-import 'package:path_provider/path_provider.dart';
 
+import '../../models/form_component.dart';
+import '../../models/form_design.dart';
 import '../../models/form_template.dart';
 import '../../view_models/forms_controller.dart';
 import '../../services/locator.dart';
-import '../../services/pdf_service.dart';
 import '../../utils/theme.dart';
 import '../../widgets/custom_primary_button.dart';
+import '../../widgets/custom_outlined_button.dart';
 
 class FormBuilderScreen extends StatefulWidget {
   final FormTemplate? initialForm;
@@ -23,54 +20,103 @@ class FormBuilderScreen extends StatefulWidget {
 }
 
 class _FormBuilderScreenState extends State<FormBuilderScreen> {
-  late PdfTemplate _template;
-  late TextEditingController _nameController;
+  late FormDesign _design;
+  int _currentPageIndex = 0;
+  FormComponent? _selectedComponent;
+  final TextEditingController _nameController = TextEditingController();
   final FormsController _formsController = locator<FormsController>();
   
+  bool _isPreviewMode = false;
   bool _isSaving = false;
-  bool _isPatientPreview = false;
-  
-  // Mock data for live preview
-  final Map<String, dynamic> _previewData = {
-    'patient_name': 'John Doe',
-    'patient_email': 'john.doe@example.com',
-    'date': '2023-10-27',
-    'notes': 'Patient has a history of skin sensitivity.',
-    'agree': true,
-    'signature': 'John Doe',
-  };
+
+  // A4 dimensions in points (72 points per inch)
+  // A4 is 8.27 x 11.69 inches -> 595 x 842 points
+  static const double a4Width = 595;
+  static const double a4Height = 842;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(
-      text: widget.initialForm?.name ?? "New Consent Form",
-    );
+    _nameController.text = widget.initialForm?.name ?? "New Consent Form";
     
     if (widget.initialForm?.templateJson != null) {
       try {
         final decoded = jsonDecode(widget.initialForm!.templateJson!);
-        _template = PdfTemplate.fromJson(decoded);
+        _design = FormDesign.fromMap(decoded);
       } catch (e) {
-        _template = PdfTemplate(
-          id: const Uuid().v4(),
-          name: _nameController.text,
-          elements: [],
-        );
+        _design = _createEmptyDesign();
       }
     } else {
-      _template = PdfTemplate(
-        id: const Uuid().v4(),
-        name: _nameController.text,
-        elements: [],
-      );
+      _design = _createEmptyDesign();
     }
+  }
+
+  FormDesign _createEmptyDesign() {
+    return FormDesign(
+      pages: [FormPage(components: [])],
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  void _addComponent(FormComponentType type) {
+    final id = const Uuid().v4();
+    final newComponent = FormComponent(
+      id: id,
+      type: type,
+      label: _getDefaultLabel(type),
+      dx: 50,
+      dy: 50 + (_design.pages[_currentPageIndex].components.length * 10),
+      width: _getDefaultWidth(type),
+      height: _getDefaultHeight(type),
+    );
+
+    setState(() {
+      _design.pages[_currentPageIndex].components.add(newComponent);
+      _selectedComponent = newComponent;
+    });
+  }
+
+  String _getDefaultLabel(FormComponentType type) {
+    switch (type) {
+      case FormComponentType.heading: return "Heading";
+      case FormComponentType.subHeading: return "Subheading";
+      case FormComponentType.paragraph: return "Paragraph text goes here...";
+      case FormComponentType.textField: return "Patient Name";
+      case FormComponentType.checkbox: return "I agree";
+      case FormComponentType.signature: return "Signature";
+      default: return type.name.toUpperCase();
+    }
+  }
+
+  double _getDefaultWidth(FormComponentType type) {
+    switch (type) {
+      case FormComponentType.heading:
+      case FormComponentType.subHeading:
+      case FormComponentType.paragraph:
+      case FormComponentType.divider:
+        return a4Width - 100;
+      case FormComponentType.signature:
+        return 200;
+      default:
+        return 250;
+    }
+  }
+
+  double _getDefaultHeight(FormComponentType type) {
+    switch (type) {
+      case FormComponentType.heading: return 40;
+      case FormComponentType.subHeading: return 30;
+      case FormComponentType.paragraph: return 60;
+      case FormComponentType.textArea: return 100;
+      case FormComponentType.signature: return 80;
+      case FormComponentType.divider: return 20;
+      default: return 50;
+    }
   }
 
   Future<void> _saveForm() async {
@@ -82,32 +128,18 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
     setState(() => _isSaving = true);
     try {
       final name = _formsController.getUniqueName(_nameController.text);
-      
-      final pdfBytes = await PdfService.generateFromTemplate(_template, _previewData);
-      
-      String filePath = '';
-      if (kIsWeb) {
-        filePath = "${name.replaceAll(' ', '_')}.pdf";
-      } else {
-        final output = await getApplicationDocumentsDirectory();
-        final fileName = "${name.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf";
-        final file = File("${output.path}/$fileName");
-        await file.writeAsBytes(pdfBytes);
-        filePath = file.path;
-      }
+      // PDF generation would go here using PdfService
+      // For now, we focus on the builder structure
       
       final template = FormTemplate(
         id: widget.initialForm?.id ?? const Uuid().v4(),
         name: name,
-        filePath: filePath,
-        templateJson: jsonEncode(_template.toJson()),
+        filePath: '', // PDF generation skipped for now as per instructions to focus on builder
+        templateJson: jsonEncode(_design.toMap()),
         createdAt: DateTime.now(),
         isUserCreated: true,
       );
 
-      // We need to handle the PDF file generation too if required by the existing system
-      // But the requirement says "Store form configuration as structured JSON".
-      
       await _formsController.saveForm(template);
       
       if (mounted) {
@@ -123,19 +155,8 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
 
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? CustomColors.red : CustomColors.green,
-      ),
+      SnackBar(content: Text(message), backgroundColor: isError ? CustomColors.red : CustomColors.green),
     );
-  }
-
-  void _addElement(PdfElement element) {
-    setState(() {
-      _template = _template.copyWith(
-        elements: [..._template.elements, element],
-      );
-    });
   }
 
   @override
@@ -145,20 +166,9 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
       appBar: _buildAppBar(),
       body: Row(
         children: [
-          // Left Side: Controls
-          Container(
-            width: 350.w,
-            color: CustomColors.white,
-            child: _buildControlsPanel(),
-          ),
-          
-          // Divider
-          const VerticalDivider(width: 1, color: CustomColors.border),
-          
-          // Right Side: Live Preview / Editor
-          Expanded(
-            child: _buildEditorCanvas(),
-          ),
+          if (!_isPreviewMode) _buildLeftPanel(),
+          Expanded(child: _buildCanvasArea()),
+          if (!_isPreviewMode && _selectedComponent != null) _buildRightPanel(),
         ],
       ),
     );
@@ -166,18 +176,19 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
+      backgroundColor: CustomColors.white,
+      elevation: 0,
       title: TextField(
         controller: _nameController,
         style: context.fonts.black18w600,
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          hintText: "Enter Form Name",
-        ),
+        decoration: const InputDecoration(border: InputBorder.none, hintText: "Form Name"),
       ),
       actions: [
-        _buildTogglePreviewButton(),
+        TextButton.icon(
+          onPressed: () => setState(() => _isPreviewMode = !_isPreviewMode),
+          icon: Icon(_isPreviewMode ? Icons.edit : Icons.remove_red_eye),
+          label: Text(_isPreviewMode ? "Edit" : "Preview"),
+        ),
         SizedBox(width: 12.w),
         CustomPrimaryButton(
           label: "Save Form",
@@ -191,192 +202,574 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
     );
   }
 
-  Widget _buildTogglePreviewButton() {
+  Widget _buildLeftPanel() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: CustomColors.softGrey,
-        borderRadius: BorderRadius.circular(8.r),
+      width: 280.w,
+      decoration: const BoxDecoration(
+        color: CustomColors.white,
+        border: Border(right: BorderSide(color: CustomColors.border)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _previewToggleOption("Builder", !_isPatientPreview),
-          _previewToggleOption("Patient", _isPatientPreview),
+          Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Text("Components", style: context.fonts.black16w600),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(12.w),
+              children: [
+                _buildComponentGroup("Text Elements", [
+                  _componentTile(FormComponentType.heading, "Heading", Icons.title),
+                  _componentTile(FormComponentType.subHeading, "Sub Heading", Icons.text_fields),
+                  _componentTile(FormComponentType.paragraph, "Paragraph", Icons.notes),
+                ]),
+                _buildComponentGroup("Form Fields", [
+                  _componentTile(FormComponentType.textField, "Text Field", Icons.short_text),
+                  _componentTile(FormComponentType.textArea, "Text Area", Icons.subject),
+                  _componentTile(FormComponentType.numberField, "Number", Icons.numbers),
+                  _componentTile(FormComponentType.emailField, "Email", Icons.email_outlined),
+                  _componentTile(FormComponentType.dateField, "Date", Icons.calendar_today),
+                  _componentTile(FormComponentType.checkbox, "Checkbox", Icons.check_box_outlined),
+                  _componentTile(FormComponentType.radioGroup, "Radio Group", Icons.radio_button_checked),
+                  _componentTile(FormComponentType.dropdown, "Dropdown", Icons.arrow_drop_down_circle_outlined),
+                  _componentTile(FormComponentType.toggle, "Toggle", Icons.toggle_on_outlined),
+                ]),
+                _buildComponentGroup("Signatures", [
+                  _componentTile(FormComponentType.signature, "Signature", Icons.gesture),
+                  _componentTile(FormComponentType.initials, "Initials", Icons.person_outline),
+                ]),
+                _buildComponentGroup("Layout", [
+                  _componentTile(FormComponentType.divider, "Divider", Icons.horizontal_rule),
+                  _componentTile(FormComponentType.spacer, "Spacer", Icons.space_bar),
+                ]),
+                _buildComponentGroup("Media", [
+                  _componentTile(FormComponentType.image, "Image", Icons.image_outlined),
+                ]),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _previewToggleOption(String label, bool isActive) {
-    return GestureDetector(
-      onTap: () => setState(() => _isPatientPreview = label == "Patient"),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isActive ? CustomColors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(6.r),
-          boxShadow: isActive ? AppShadows.xs(context) : [],
+  Widget _buildComponentGroup(String title, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 8.w, top: 16.h, bottom: 8.h),
+          child: Text(title.toUpperCase(), style: context.fonts.grey11w600ls12),
         ),
-        child: Text(
-          label,
-          style: isActive ? context.fonts.black12w600 : context.fonts.grey12w400,
+        ...children,
+        SizedBox(height: 8.h),
+      ],
+    );
+  }
+
+  Widget _componentTile(FormComponentType type, String label, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.h),
+      child: InkWell(
+        onTap: () => _addComponent(type),
+        borderRadius: BorderRadius.circular(8.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 20.sp, color: CustomColors.purple),
+              SizedBox(width: 12.w),
+              Text(label, style: context.fonts.black13w500),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildControlsPanel() {
-    return ListView(
-      padding: EdgeInsets.all(20.w),
-      children: [
-        Text("Form Elements", style: context.fonts.black16w600),
-        SizedBox(height: 16.h),
-        
-        _buildElementGroup("Text Fields", [
-          _elementTile(Icons.short_text, "Short Text", () {
-            _addElement(const PdfElement.text(text: "New Text Field", dataKey: 'new_field'));
-          }),
-          _elementTile(Icons.notes, "Multiline Text", () {
-             _addElement(const PdfElement.text(text: "New Notes Field", dataKey: 'new_notes'));
-          }),
-        ]),
-        
-        _buildElementGroup("Selection", [
-          _elementTile(Icons.check_box, "Checkbox", () {
-             // Simulating checkbox with text for now if PdfElement doesn't support it directly
-             _addElement(const PdfElement.text(text: "[ ] Agree to terms", dataKey: 'agree'));
-          }),
-          _elementTile(Icons.radio_button_checked, "Radio Group", () {
-             _addElement(const PdfElement.text(text: "( ) Option 1  ( ) Option 2"));
-          }),
-          _elementTile(Icons.arrow_drop_down_circle, "Dropdown", () {
-             _addElement(const PdfElement.text(text: "Select Option: _________"));
-          }),
-        ]),
-        
-        _buildElementGroup("Interactive", [
-          _elementTile(Icons.calendar_today, "Date Field", () {
-             _addElement(const PdfElement.text(text: "Date: _________"));
-          }),
-          _elementTile(Icons.gesture, "Signature", () {
-             _addElement(const PdfElement.text(text: "Signature: ________________", isBold: true));
-          }),
-          _elementTile(Icons.person_outline, "Initial Field", () {
-             _addElement(const PdfElement.text(text: "Initials: ___"));
-          }),
-        ]),
-        
-        _buildElementGroup("Layout", [
-          _elementTile(Icons.title, "Section Header", () {
-             _addElement(const PdfElement.text(text: "NEW SECTION", isBold: true));
-          }),
-          _elementTile(Icons.text_fields, "Static Text", () {
-             _addElement(const PdfElement.text(text: "Enter your content here..."));
-          }),
-          _elementTile(Icons.horizontal_rule, "Divider", () {
-             _addElement(const PdfElement.divider());
-          }),
-        ]),
-        
-        SizedBox(height: 32.h),
-        Text("Form Settings", style: context.fonts.black16w600),
-        SizedBox(height: 16.h),
-        _buildSwitchTile("Required Fields", true, (v) {}),
-        _buildSwitchTile("Auto-save Draft", true, (v) {}),
-      ],
-    );
-  }
-
-  Widget _buildElementGroup(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          child: Text(title, style: context.fonts.grey12w600),
-        ),
-        Wrap(
-          spacing: 12.w,
-          runSpacing: 12.h,
-          children: children,
-        ),
-        SizedBox(height: 16.h),
-      ],
-    );
-  }
-
-  Widget _elementTile(IconData icon, String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
-      child: Container(
-        width: 145.w,
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          border: Border.all(color: CustomColors.border),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
+  Widget _buildCanvasArea() {
+    return Container(
+      color: CustomColors.softGrey,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
         child: Column(
           children: [
-            Icon(icon, color: CustomColors.purple, size: 24.sp),
-            SizedBox(height: 8.h),
-            Text(label, style: context.fonts.black12w400, textAlign: TextAlign.center),
+            for (int i = 0; i < _design.pages.length; i++)
+              _buildPage(i),
+            if (!_isPreviewMode)
+              Padding(
+                padding: EdgeInsets.only(top: 20.h),
+                child: CustomOutlinedButton(
+                  label: "Add Page",
+                  onTap: () => setState(() {
+                    _design.pages.add(FormPage(components: []));
+                  }),
+                  width: 150.w,
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSwitchTile(String title, bool value, ValueChanged<bool> onChanged) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildPage(int pageIndex) {
+    return Center(
+      child: Container(
+        width: a4Width,
+        height: a4Height,
+        margin: EdgeInsets.only(bottom: 40.h),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Page Number Indicator (Visual only)
+            Positioned(
+              top: 10,
+              right: 20,
+              child: Text("Page ${pageIndex + 1}", style: context.fonts.grey11w600),
+            ),
+            
+            // Background grid (optional, for builder)
+            if (!_isPreviewMode)
+              CustomPaint(
+                size: const Size(a4Width, a4Height),
+                painter: GridPainter(),
+              ),
+
+            // Elements
+            for (var comp in _design.pages[pageIndex].components)
+              _buildPositionedComponent(comp, pageIndex),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPositionedComponent(FormComponent comp, int pageIndex) {
+    final bool isSelected = _selectedComponent?.id == comp.id && !_isPreviewMode;
+
+    return Positioned(
+      left: comp.dx,
+      top: comp.dy,
+      width: comp.width,
+      height: comp.height,
+      child: GestureDetector(
+        onTap: () {
+          if (!_isPreviewMode) {
+            setState(() {
+              _selectedComponent = comp;
+              _currentPageIndex = pageIndex;
+            });
+          }
+        },
+        onPanUpdate: (details) {
+          if (!_isPreviewMode) {
+            setState(() {
+              comp.dx += details.delta.dx;
+              comp.dy += details.delta.dy;
+              
+              // Bounds checking
+              comp.dx = comp.dx.clamp(0.0, a4Width - comp.width);
+              comp.dy = comp.dy.clamp(0.0, a4Height - comp.height);
+              
+              _selectedComponent = comp;
+            });
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            border: isSelected ? Border.all(color: CustomColors.purple, width: 2) : null,
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              FormElementRenderer(component: comp, isPreview: _isPreviewMode),
+              
+              // Controls overlay when selected
+              if (isSelected) ...[
+                // Resize Handle (Bottom Right)
+                Positioned(
+                  right: -5,
+                  bottom: -5,
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        comp.width = (comp.width + details.delta.dx).clamp(50.0, a4Width - comp.dx);
+                        comp.height = (comp.height + details.delta.dy).clamp(20.0, a4Height - comp.dy);
+                      });
+                    },
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: const BoxDecoration(color: CustomColors.purple, shape: BoxShape.circle),
+                    ),
+                  ),
+                ),
+                // Delete Button
+                Positioned(
+                  top: -15,
+                  right: -15,
+                  child: GestureDetector(
+                    onTap: () => setState(() {
+                      _design.pages[pageIndex].components.remove(comp);
+                      _selectedComponent = null;
+                    }),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRightPanel() {
+    final comp = _selectedComponent!;
+    return Container(
+      width: 320.w,
+      decoration: const BoxDecoration(
+        color: CustomColors.white,
+        border: Border(left: BorderSide(color: CustomColors.border)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: context.fonts.black14w400),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: CustomColors.purple,
+          Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Properties", style: context.fonts.black16w600),
+                IconButton(
+                  onPressed: () => setState(() => _selectedComponent = null),
+                  icon: const Icon(Icons.close, size: 20),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(20.w),
+              children: [
+                _buildPropGroup("General", [
+                  _propTextField("Label", comp.label, (val) => setState(() => comp.label = val)),
+                  _propTextField("Field Name", comp.fieldName, (val) => setState(() => comp.fieldName = val)),
+                  _propTextField("Help Text", comp.helpText, (val) => setState(() => comp.helpText = val)),
+                ]),
+                if (_isFormField(comp.type))
+                  _buildPropGroup("Validation", [
+                    _propSwitch("Required", comp.isRequired, (val) => setState(() => comp.isRequired = val)),
+                    _propTextField("Default Value", comp.defaultValue?.toString() ?? "", (val) => setState(() => comp.defaultValue = val)),
+                  ]),
+                _buildPropGroup("Layout", [
+                  Row(
+                    children: [
+                      Expanded(child: _propTextField("Width", comp.width.toInt().toString(), (val) => setState(() => comp.width = double.tryParse(val) ?? comp.width))),
+                      SizedBox(width: 12.w),
+                      Expanded(child: _propTextField("Height", comp.height.toInt().toString(), (val) => setState(() => comp.height = double.tryParse(val) ?? comp.height))),
+                    ],
+                  ),
+                ]),
+                _buildPropGroup("Styling", [
+                  _propSlider("Font Size", comp.fontSize, 8, 72, (val) => setState(() => comp.fontSize = val)),
+                  Row(
+                    children: [
+                      _propToggle("Bold", comp.isBold, (val) => setState(() => comp.isBold = val)),
+                      SizedBox(width: 12.w),
+                      _propToggle("Italic", comp.isItalic, (val) => setState(() => comp.isItalic = val)),
+                    ],
+                  ),
+                ]),
+                
+                SizedBox(height: 32.h),
+                CustomOutlinedButton(
+                  label: "Duplicate Element",
+                  onTap: () {
+                    final newComp = comp.copyWith(
+                      dx: comp.dx + 20,
+                      dy: comp.dy + 20,
+                    );
+                    setState(() {
+                      _design.pages[pageIndex].components.add(newComp);
+                      _selectedComponent = newComp;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEditorCanvas() {
-    if (_isPatientPreview) {
-      return Container(
-        padding: EdgeInsets.all(40.w),
-        child: Center(
-          child: Card(
-            elevation: 4,
-            child: Container(
-              width: 800.w,
-              padding: EdgeInsets.all(40.w),
-              child: PdfPreview(
-                build: (format) => PdfService.generateFromTemplate(_template, _previewData),
-                useActions: false,
-                allowPrinting: false,
-                allowSharing: false,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+  // Helper to determine if we need to get pageIndex for duplication
+  int get pageIndex => _currentPageIndex;
 
-    return PdfKitEditor(
-      data: _previewData,
-      initialTemplate: _template,
-      onSave: (template) {
-        setState(() {
-          _template = template;
-        });
-      },
-      showSaveButton: false,
-      showShareButton: false,
-      hideDataViewer: true,
+  bool _isFormField(FormComponentType type) {
+    return type != FormComponentType.heading &&
+           type != FormComponentType.subHeading &&
+           type != FormComponentType.paragraph &&
+           type != FormComponentType.divider &&
+           type != FormComponentType.spacer;
+  }
+
+  Widget _buildPropGroup(String title, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          child: Text(title, style: context.fonts.black12w600),
+        ),
+        ...children,
+        const Divider(),
+      ],
     );
   }
+
+  Widget _propTextField(String label, String value, ValueChanged<String> onChanged) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: TextFormField(
+        key: ValueKey("${_selectedComponent?.id}_$label"),
+        initialValue: value,
+        onChanged: onChanged,
+        decoration: AppDecorations.input(context, hint: label),
+        style: context.fonts.black12w400,
+      ),
+    );
+  }
+
+  Widget _propSwitch(String label, bool value, ValueChanged<bool> onChanged) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: context.fonts.black12w400),
+        Switch(value: value, onChanged: onChanged, activeTrackColor: CustomColors.purple),
+      ],
+    );
+  }
+
+  Widget _propSlider(String label, double value, double min, double max, ValueChanged<double> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("$label: ${value.toInt()}", style: context.fonts.black11w400),
+        Slider(value: value, min: min, max: max, onChanged: onChanged, activeColor: CustomColors.purple),
+      ],
+    );
+  }
+
+  Widget _propToggle(String label, bool active, ValueChanged<bool> onChanged) {
+    return FilterChip(
+      label: Text(label),
+      selected: active,
+      onSelected: onChanged,
+      selectedColor: CustomColors.purple.withValues(alpha: 0.2),
+      checkmarkColor: CustomColors.purple,
+    );
+  }
+}
+
+class FormElementRenderer extends StatelessWidget {
+  final FormComponent component;
+  final bool isPreview;
+  const FormElementRenderer({super.key, required this.component, required this.isPreview});
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle style = TextStyle(
+      fontSize: component.fontSize,
+      fontWeight: component.isBold ? FontWeight.bold : FontWeight.normal,
+      fontStyle: component.isItalic ? FontStyle.italic : FontStyle.normal,
+      color: component.textColor != null ? Color(component.textColor!) : Colors.black,
+    );
+
+    switch (component.type) {
+      case FormComponentType.heading:
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          alignment: _getAlignment(component.alignment),
+          child: Text(component.label, style: style.copyWith(fontSize: 24, fontWeight: FontWeight.bold)),
+        );
+      case FormComponentType.subHeading:
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          alignment: _getAlignment(component.alignment),
+          child: Text(component.label, style: style.copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
+        );
+      case FormComponentType.paragraph:
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          alignment: _getAlignment(component.alignment),
+          child: Text(component.label, style: style),
+        );
+      case FormComponentType.textField:
+      case FormComponentType.emailField:
+      case FormComponentType.numberField:
+      case FormComponentType.phoneField:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (component.label.isNotEmpty)
+              Text(component.label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Container(
+              height: 30,
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black45))),
+              alignment: Alignment.centerLeft,
+              child: Text(component.placeholder, style: const TextStyle(color: Colors.black26, fontSize: 12)),
+            ),
+          ],
+        );
+      case FormComponentType.checkbox:
+        return Row(
+          children: [
+            Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(border: Border.all(color: Colors.black45)),
+              child: isPreview ? null : const Icon(Icons.check, size: 14, color: Colors.transparent),
+            ),
+            const SizedBox(width: 8),
+            Text(component.label, style: style),
+          ],
+        );
+      case FormComponentType.radioGroup:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(component.label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Row(
+              children: [
+                _radioCircle(), const SizedBox(width: 4), const Text("Yes", style: TextStyle(fontSize: 10)),
+                const SizedBox(width: 12),
+                _radioCircle(), const SizedBox(width: 4), const Text("No", style: TextStyle(fontSize: 10)),
+              ],
+            ),
+          ],
+        );
+      case FormComponentType.dropdown:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(component.label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Container(
+              height: 30,
+              decoration: BoxDecoration(border: Border.all(color: Colors.black12), borderRadius: BorderRadius.circular(4)),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Text(component.placeholder.isNotEmpty ? component.placeholder : "Select Option", style: const TextStyle(color: Colors.black26, fontSize: 10)),
+                  const Spacer(),
+                  const Icon(Icons.arrow_drop_down, size: 16),
+                ],
+              ),
+            ),
+          ],
+        );
+      case FormComponentType.dateField:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(component.label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Container(
+              height: 30,
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black45))),
+              child: const Row(
+                children: [
+                  Text("DD / MM / YYYY", style: TextStyle(color: Colors.black26, fontSize: 10)),
+                  Spacer(),
+                  Icon(Icons.calendar_today, size: 14, color: Colors.black26),
+                ],
+              ),
+            ),
+          ],
+        );
+      case FormComponentType.signature:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(component.label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            Container(
+              height: 60,
+              width: double.infinity,
+              decoration: BoxDecoration(border: Border.all(color: Colors.black12, style: BorderStyle.solid)),
+              child: Center(child: Text("Signature Here", style: context.fonts.grey11w600)),
+            ),
+          ],
+        );
+      case FormComponentType.divider:
+        return const Center(child: Divider(color: Colors.black45));
+      case FormComponentType.spacer:
+        return const SizedBox.shrink();
+      case FormComponentType.image:
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black12),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Center(child: Icon(Icons.image_outlined, color: Colors.black12, size: 32)),
+        );
+      default:
+        return Center(child: Text(component.label, style: style));
+    }
+  }
+
+  Alignment _getAlignment(TextAlign align) {
+    switch (align) {
+      case TextAlign.center: return Alignment.center;
+      case TextAlign.right: return Alignment.centerRight;
+      default: return Alignment.centerLeft;
+    }
+  }
+
+  Widget _radioCircle() => Container(width: 14, height: 14, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.black45)));
+}
+
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.grey.withValues(alpha: 0.05)..strokeWidth = 0.5;
+    const double step = 20;
+    for (double i = 0; i < size.width; i += step) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+    for (double i = 0; i < size.height; i += step) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    }
+  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

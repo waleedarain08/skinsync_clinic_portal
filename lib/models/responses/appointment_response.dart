@@ -9,7 +9,7 @@ class AppointmentResponse extends BaseResponse<List<AppointmentData>> {
 
   AppointmentResponse({
     super.data,
-    required super.isSuccess,
+    required super.status,
     this.limit,
     required super.message,
     this.page,
@@ -18,7 +18,7 @@ class AppointmentResponse extends BaseResponse<List<AppointmentData>> {
 
   factory AppointmentResponse.fromJson(Map<String, dynamic> json) {
     return AppointmentResponse(
-      isSuccess: json['is_success'] ?? false,
+      status: json['is_success'] ?? false,
       message: json['message'] ?? '',
       data: json['data'] != null
           ? (json['data'] as List)

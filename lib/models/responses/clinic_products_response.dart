@@ -2,14 +2,14 @@ import 'base_response_model.dart';
 
 class ClinicProductsResponse extends BaseResponse<List<ClinicProduct>> {
   const ClinicProductsResponse({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
 
   factory ClinicProductsResponse.fromJson(Map<String, dynamic> json) {
     return ClinicProductsResponse(
-      isSuccess: json["is_success"] ?? false,
+      status: json["is_success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] != null
           ? List<ClinicProduct>.from(

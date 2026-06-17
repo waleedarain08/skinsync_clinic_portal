@@ -1,7 +1,7 @@
 import 'base_response_model.dart';
 
 class CatalogResponse extends BaseResponse<List<CatalogItem>> {
-  CatalogResponse({super.data, required super.isSuccess, required super.message});
+  CatalogResponse({super.data, required super.status, required super.message});
 
   factory CatalogResponse.fromJson(Map<String, dynamic> json) =>
       CatalogResponse(
@@ -10,7 +10,7 @@ class CatalogResponse extends BaseResponse<List<CatalogItem>> {
             : List<CatalogItem>.from(
                 json["data"]!.map((x) => CatalogItem.fromJson(x)),
               ),
-        isSuccess: json["is_success"] ?? false,
+        status: json["is_success"] ?? false,
         message: json["message"] ?? "",
       );
 }

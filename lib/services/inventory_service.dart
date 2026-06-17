@@ -13,7 +13,7 @@ class InventoryService {
       requestType: RequestType.get,
     );
     final response = CatalogResponse.fromJson(json);
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw Exception(response.message);
     }
     return response.data!;
@@ -25,7 +25,7 @@ class InventoryService {
       requestType: RequestType.get,
     );
     final response = ClinicProductsResponse.fromJson(json);
-    if (!response.isSuccess) {
+    if (!response.status) {
       throw Exception(response.message);
     }
     return response.data ?? [];
@@ -38,7 +38,7 @@ class InventoryService {
       requestBody: request,
     );
     final response = AddInventoryResponse.fromJson(json);
-    if (!response.isSuccess || response.data == null) {
+    if (!response.status || response.data == null) {
       throw Exception(response.message);
     }
     return response.data!;

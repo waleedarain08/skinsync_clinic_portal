@@ -3,20 +3,20 @@ import 'base_response_model.dart';
 
 class LoginResponseModel extends BaseResponse<AuthData> {
   const LoginResponseModel({
-    required super.isSuccess,
+    required super.status,
     required super.message,
     super.data,
   });
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) =>
       LoginResponseModel(
-        isSuccess: json["is_success"] ?? false,
+        status: json["status"] ?? false,
         message: json["message"] ?? "",
         data: json["data"] == null ? null : AuthData.fromJson(json["data"]),
       );
 
   Map<String, dynamic> toJson() => {
-    "is_success": isSuccess,
+    "is_success": status,
     "message": message,
     "data": data?.toJson(),
   };
