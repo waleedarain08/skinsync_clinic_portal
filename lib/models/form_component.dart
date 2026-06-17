@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 enum FormComponentType {
-  textLabel,
   textField,
   textArea,
   checkbox,
@@ -11,12 +10,12 @@ enum FormComponentType {
   signaturePad,
   imagePlaceholder,
   divider,
-  pageBreak,
 }
 
 class FormComponent {
   final String id;
   final FormComponentType type;
+  final double boxWidth;
   String label;
   String placeholder;
   bool isRequired;
@@ -29,16 +28,15 @@ class FormComponent {
   List<String> options;
   String? boxHeight; // small, medium, large
   double? aspectRatio;
+  dynamic value;
 
-  // Coordinate-based positioning
-  double dx; // X position (logical pixels on canvas)
-  double dy; // Y position (logical pixels on canvas)
-  double width;
-  double height;
+  // Position in document text
+  int textOffset;
 
   FormComponent({
     required this.id,
     required this.type,
+    required this.boxWidth,
     this.label = '',
     this.placeholder = '',
     this.isRequired = false,
@@ -51,15 +49,14 @@ class FormComponent {
     this.options = const [],
     this.boxHeight = 'medium',
     this.aspectRatio = 1.0,
-    this.dx = 0,
-    this.dy = 0,
-    this.width = 200,
-    this.height = 50,
+    this.value,
+    this.textOffset = 0,
   });
 
   FormComponent copyWith({
     String? label,
     String? placeholder,
+    double? boxWidth,
     bool? isRequired,
     double? fontSize,
     bool? isBold,
@@ -70,14 +67,13 @@ class FormComponent {
     List<String>? options,
     String? boxHeight,
     double? aspectRatio,
-    double? dx,
-    double? dy,
-    double? width,
-    double? height,
+    dynamic value,
+    int? textOffset,
   }) {
     return FormComponent(
       id: id,
       type: type,
+      boxWidth: boxWidth ?? this.boxWidth,
       label: label ?? this.label,
       placeholder: placeholder ?? this.placeholder,
       isRequired: isRequired ?? this.isRequired,
@@ -90,10 +86,8 @@ class FormComponent {
       options: options ?? this.options,
       boxHeight: boxHeight ?? this.boxHeight,
       aspectRatio: aspectRatio ?? this.aspectRatio,
-      dx: dx ?? this.dx,
-      dy: dy ?? this.dy,
-      width: width ?? this.width,
-      height: height ?? this.height,
+      value: value ?? this.value,
+      textOffset: textOffset ?? this.textOffset,
     );
   }
 }

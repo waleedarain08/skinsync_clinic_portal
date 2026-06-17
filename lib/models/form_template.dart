@@ -1,16 +1,18 @@
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
+
 class FormTemplate {
   final String id;
-  String name;
-  final String filePath;
+  final String name;
+  final XFile file;
   final DateTime createdAt;
   final bool isUserCreated;
 
   FormTemplate({
     required this.id,
     required this.name,
-    required this.filePath,
+    required this.file,
     required this.createdAt,
     required this.isUserCreated,
   });
@@ -19,7 +21,7 @@ class FormTemplate {
     return {
       'id': id,
       'name': name,
-      'filePath': filePath,
+      'filePath': file.path,
       'createdAt': createdAt.toIso8601String(),
       'isUserCreated': isUserCreated,
     };
@@ -29,7 +31,7 @@ class FormTemplate {
     return FormTemplate(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
-      filePath: map['filePath'] ?? '',
+      file: XFile(map['filePath'], mimeType: 'application/pdf'),
       createdAt: DateTime.parse(
         map['createdAt'] ?? DateTime.now().toIso8601String(),
       ),

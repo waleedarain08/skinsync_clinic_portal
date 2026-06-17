@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'route_generator.dart';
-import 'widgets/app_loader.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
+import 'route_generator.dart';
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
+import 'widgets/app_loader.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -42,6 +44,12 @@ class AppInit extends StatelessWidget {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'SkinSync Clinic',
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            FlutterQuillLocalizations.delegate,
+          ],
           routerConfig: RouteGenerator.router,
           themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,

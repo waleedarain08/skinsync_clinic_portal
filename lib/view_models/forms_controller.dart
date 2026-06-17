@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:camera/camera.dart' show XFile;
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:camera/camera.dart' show XFile;
+
 import '../models/form_template.dart';
 
 class FormsController {
@@ -41,7 +42,7 @@ class FormsController {
       final form = _forms[formIndex];
       if (!kIsWeb) {
         try {
-          final file = File(form.filePath);
+          final file = File(form.file.path);
           if (await file.exists()) {
             await file.delete();
           }
@@ -61,23 +62,22 @@ class FormsController {
   }
 
   Future<FormTemplate> uploadPdf(XFile pickedFile, String name) async {
-    String filePath = '';
-    if (kIsWeb) {
-      filePath = pickedFile.name;
-    } else {
-      final appDir = await getApplicationDocumentsDirectory();
-      final fileName =
-          "${name.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf";
-      final bytes = await pickedFile.readAsBytes();
-      final savedFile = File("${appDir.path}/$fileName");
-      await savedFile.writeAsBytes(bytes);
-      filePath = savedFile.path;
-    }
+    // if (kIsWeb) {
+    //   filePath = pickedFile.name;
+    // } else {
+    //   final appDir = await getApplicationDocumentsDirectory();
+    //   final fileName =
+    //       "${name.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+    //   final bytes = await pickedFile.readAsBytes();
+    //   final savedFile = File("${appDir.path}/$fileName");
+    //   await savedFile.writeAsBytes(bytes);
+    //   filePath = savedFile.path;
+    // }
 
     final newForm = FormTemplate(
       id: const Uuid().v4(),
       name: name,
-      filePath: filePath,
+      file: pickedFile,
       createdAt: DateTime.now(),
       isUserCreated: false,
     );

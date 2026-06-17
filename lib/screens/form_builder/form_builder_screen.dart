@@ -1,13 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:pdf/pdf.dart' as pdf;
 import 'package:uuid/uuid.dart';
 
 import '../../models/form_component.dart';
 import '../../models/form_template.dart';
-import '../../view_models/forms_controller.dart';
 import '../../services/locator.dart';
 import '../../services/pdf_service.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
+import '../../view_models/forms_controller.dart';
 
 class FormBuilderScreen extends StatefulWidget {
   const FormBuilderScreen({super.key});
@@ -21,19 +27,31 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
   final TextEditingController _nameController = TextEditingController(
     text: "Untitled Form",
   );
+  late final QuillController _quillController;
   final FormsController _formsController = locator<FormsController>();
   bool _isSaving = false;
 
   @override
+  void initState() {
+    super.initState();
+    _quillController = QuillController.basic();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
+    _quillController.dispose();
     super.dispose();
   }
 
-  Future<void> _onWillPop(_, _) async {
-    if (_components.isEmpty) return;
+  Future<void> _onWillPop(bool didPop, bool? result) async {
+    log('POP: $didPop');
+    if (_quillController.document.isEmpty() && _components.isEmpty) return;
+    if (didPop) {
+      return;
+    }
 
-    await showDialog<bool>(
+    final shouldPop = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Discard Changes?"),
@@ -52,12 +70,16 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
         ],
       ),
     );
+    if (shouldPop ?? false) {
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
+    return PopScope<bool>(
       onPopInvokedWithResult: _onWillPop,
+      canPop: false,
       child: Scaffold(
         appBar: AppBar(
           title: TextField(
@@ -84,6 +106,31 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
                     tooltip: "Save Form",
                   ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(50),
+            child: Container(
+              color: CustomColors.softGrey,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: QuillSimpleToolbar(
+                  controller: _quillController,
+                  config: const QuillSimpleToolbarConfig(
+                    showSearchButton: false,
+                    showLink: false,
+                    showQuote: false,
+                    showCodeBlock: false,
+                    showIndent: false,
+                    showListCheck: false,
+                    showSubscript: false,
+                    showSuperscript: false,
+                    showUndo: true,
+                    showRedo: true,
+                    showDirection: false,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
         body: Row(
           children: [
@@ -99,11 +146,6 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
 
   Widget _buildPalette({required bool isVertical}) {
     final List<_PaletteItem> items = [
-      _PaletteItem(
-        type: FormComponentType.textLabel,
-        icon: Icons.title,
-        label: "Text Label",
-      ),
       _PaletteItem(
         type: FormComponentType.textField,
         icon: Icons.short_text,
@@ -148,11 +190,6 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
         type: FormComponentType.divider,
         icon: Icons.horizontal_rule,
         label: "Divider",
-      ),
-      _PaletteItem(
-        type: FormComponentType.pageBreak,
-        icon: Icons.insert_page_break,
-        label: "Page Break",
       ),
     ];
 
@@ -211,287 +248,105 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
   }
 
   Widget _buildCanvas() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return DragTarget<FormComponentType>(
-          onAcceptWithDetails: (details) {
-            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-            final localOffset = renderBox.globalToLocal(details.offset);
-
-            // Adjust localOffset by the padding of the canvas container
-            _addComponentAt(
-              details.data,
-              localOffset.dx - 24.w,
-              localOffset.dy - 24.w,
-            );
-          },
-          builder: (context, candidateData, rejectedData) {
-            return Container(
-              color: Colors.grey[200],
-              padding: EdgeInsets.all(24.w),
-              child: SingleChildScrollView(
-                child: Center(
-                  child: Container(
-                    width: 500.w,
-                    height: 700
-                        .h, // Fixed height for visual consistency as a "page"
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: Offset(0, 5),
+    return Container(
+      color: Colors.grey[200],
+      padding: EdgeInsets.all(24.w),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: SingleChildScrollView(
+          child: Container(
+            // width: 500.w,
+            width: pdf.PdfPageFormat.a4.width,
+            constraints: BoxConstraints(minHeight: 700.h),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: DragTarget<FormComponentType>(
+              onAcceptWithDetails: (details) {
+                _addComponent(details.data);
+              },
+              builder: (context, candidateData, rejectedData) {
+                return Padding(
+                  padding: EdgeInsets.all(40.w),
+                  child: QuillEditor.basic(
+                    controller: _quillController,
+                    config: QuillEditorConfig(
+                      // readOnly: false,
+                      autoFocus: true,
+                      expands: false,
+                      padding: EdgeInsets.zero,
+                      scrollable: false,
+                      embedBuilders: [
+                        FormEmbedBuilder(
+                          onChanged: (comp) {
+                            final index = _components.indexWhere(
+                              (c) => c.id == comp.id,
+                            );
+                            if (index != -1) {
+                              setState(() {
+                                _components[index] = comp;
+                              });
+                            }
+                          },
+                          onDelete: (id) {
+                            setState(() {
+                              _components.removeWhere((c) => c.id == id);
+                            });
+                          },
                         ),
                       ],
                     ),
-                    child: _components.isEmpty
-                        ? _buildEmptyCanvas()
-                        : Stack(
-                            children: _components
-                                .map((c) => _buildPositionedComponent(c))
-                                .toList(),
-                          ),
                   ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildEmptyCanvas() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_to_photos_outlined, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text("Drag and drop components here", style: CustomFonts.grey14w500),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPositionedComponent(FormComponent component) {
-    return Positioned(
-      left: component.dx,
-      top: component.dy,
-      width: component.width,
-      height: component.height,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          setState(() {
-            component.dx += details.delta.dx;
-            component.dy += details.delta.dy;
-
-            // Boundary checks
-            if (component.dx < 0) component.dx = 0;
-            if (component.dy < 0) component.dy = 0;
-            if (component.dx + component.width > 500.w) {
-              component.dx = 500.w - component.width;
-            }
-            if (component.dy + component.height > 700.h) {
-              component.dy = 700.h - component.height;
-            }
-          });
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: CustomColors.purple.withValues(alpha: 0.3),
-              width: 1,
+                );
+              },
             ),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Stack(
-            children: [
-              _buildComponentPreview(component),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.edit,
-                        size: 16,
-                        color: Colors.blue,
-                      ),
-                      onPressed: () => _editProperties(component),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        size: 16,
-                        color: Colors.red,
-                      ),
-                      onPressed: () =>
-                          setState(() => _components.remove(component)),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildComponentPreview(FormComponent component) {
-    switch (component.type) {
-      case FormComponentType.textLabel:
-        return Center(
-          child: Text(
-            component.label,
-            style: TextStyle(
-              fontSize: component.fontSize,
-              fontWeight: component.isBold
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-              fontStyle: component.isItalic
-                  ? FontStyle.italic
-                  : FontStyle.normal,
-            ),
-          ),
-        );
-      case FormComponentType.textField:
-      case FormComponentType.textArea:
-      case FormComponentType.dropdown:
-      case FormComponentType.datePicker:
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (component.label.isNotEmpty)
-                Text(component.label, style: CustomFonts.black12w600),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: CustomColors.border),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    component.placeholder,
-                    style: CustomFonts.grey12w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      case FormComponentType.checkbox:
-      case FormComponentType.toggle:
-        return Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                component.type == FormComponentType.checkbox
-                    ? Icons.check_box_outline_blank
-                    : Icons.toggle_off,
-                color: CustomColors.purple,
-              ),
-              const SizedBox(width: 8),
-              Text(component.label, overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        );
-      case FormComponentType.signaturePad:
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.gesture, color: CustomColors.lightGrey),
-              Text(
-                component.label.isNotEmpty ? component.label : "Signature",
-                style: CustomFonts.grey12w400,
-              ),
-            ],
-          ),
-        );
-      case FormComponentType.imagePlaceholder:
-        return Center(
-          child: Icon(Icons.image, color: Colors.grey[300], size: 32),
-        );
-      case FormComponentType.divider:
-        return const Center(child: Divider());
-      case FormComponentType.pageBreak:
-        return Container(
-          color: Colors.blue.withValues(alpha: 0.1),
-          child: const Center(
-            child: Text(
-              "PAGE BREAK",
-              style: TextStyle(fontSize: 10, color: Colors.blue),
-            ),
-          ),
-        );
-    }
   }
 
   void _addComponent(FormComponentType type) {
-    _addComponentAt(type, 50, 50);
-  }
+    final id = const Uuid().v4();
+    final component = FormComponent(
+      id: id,
+      type: type,
+      label: _getDefaultLabel(type),
+      placeholder: "Enter",
+      boxWidth: switch (type) {
+        FormComponentType.textField => 200.w,
+        FormComponentType.textArea => 200.w,
+        FormComponentType.checkbox => 25.w,
+        FormComponentType.toggle => 100.w,
+        FormComponentType.dropdown => 200.w,
+        FormComponentType.datePicker => 200.w,
+        FormComponentType.signaturePad => 250.w,
+        FormComponentType.imagePlaceholder => 300.w,
+        FormComponentType.divider => 1.w,
+      },
+    );
 
-  void _addComponentAt(FormComponentType type, double x, double y) {
     setState(() {
-      _components.add(
-        FormComponent(
-          id: const Uuid().v4(),
-          type: type,
-          label: _getDefaultLabel(type),
-          placeholder: "Enter ${type.name}...",
-          dx: x,
-          dy: y,
-          width: _getDefaultWidth(type),
-          height: _getDefaultHeight(type),
-        ),
-      );
+      _components.add(component);
     });
-  }
 
-  double _getDefaultWidth(FormComponentType type) {
-    switch (type) {
-      case FormComponentType.divider:
-      case FormComponentType.pageBreak:
-        return 460.w;
-      case FormComponentType.signaturePad:
-        return 200.w;
-      default:
-        return 200.w;
-    }
-  }
-
-  double _getDefaultHeight(FormComponentType type) {
-    switch (type) {
-      case FormComponentType.textArea:
-        return 100.h;
-      case FormComponentType.divider:
-      case FormComponentType.pageBreak:
-        return 20.h;
-      case FormComponentType.signaturePad:
-        return 80.h;
-      default:
-        return 50.h;
-    }
+    final index = _quillController.selection.baseOffset;
+    _quillController.document.insert(index, BlockEmbed('form_component', id));
+    _quillController.updateSelection(
+      TextSelection.collapsed(offset: index + 1),
+      ChangeSource.local,
+    );
   }
 
   String _getDefaultLabel(FormComponentType type) {
     switch (type) {
-      case FormComponentType.textLabel:
-        return "Label Text";
       case FormComponentType.textField:
         return "First Name";
       case FormComponentType.textArea:
@@ -509,21 +364,8 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
       case FormComponentType.imagePlaceholder:
         return "Profile Photo";
       case FormComponentType.divider:
-        return "";
-      case FormComponentType.pageBreak:
-        return "";
+        return "Divider";
     }
-  }
-
-  void _editProperties(FormComponent component) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => _PropertiesPanel(
-        component: component,
-        onUpdate: () => setState(() {}),
-      ),
-    );
   }
 
   Future<void> _saveForm() async {
@@ -531,20 +373,26 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
       _showError("Please enter a form name");
       return;
     }
-    if (_components.isEmpty) {
-      _showError("Add at least one component before saving");
+    if (_quillController.document.isEmpty()) {
+      _showError("Document is empty");
       return;
     }
 
     setState(() => _isSaving = true);
     try {
       final name = _formsController.getUniqueName(_nameController.text);
-      final file = await PdfService.generateFormPdf(name, _components);
+      final rawText = _deltaToRawText(_quillController.document.toDelta());
+
+      final xFile = await PdfService.generateFormPdf(
+        name,
+        _components,
+        documentText: rawText,
+      );
 
       final template = FormTemplate(
         id: const Uuid().v4(),
         name: name,
-        filePath: file.path,
+        file: xFile,
         createdAt: DateTime.now(),
         isUserCreated: true,
       );
@@ -561,6 +409,30 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
     }
   }
 
+  String _deltaToRawText(Delta delta) {
+    final sb = StringBuffer();
+    for (final op in delta.toList()) {
+      if (op.isInsert) {
+        if (op.data is String) {
+          sb.write(op.data);
+        } else if (op.data is Map &&
+            (op.data as Map).containsKey('form_component')) {
+          final id = (op.data as Map)['form_component'];
+          final comp = _components.firstWhere(
+            (c) => c.id == id,
+            orElse: () => FormComponent(
+              id: id,
+              type: FormComponentType.textField,
+              boxWidth: 100.w,
+            ),
+          );
+          sb.write(" [[${comp.type.name}:$id]] ");
+        }
+      }
+    }
+    return sb.toString();
+  }
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -575,203 +447,203 @@ class _PaletteItem {
   _PaletteItem({required this.type, required this.icon, required this.label});
 }
 
-class _PropertiesPanel extends StatefulWidget {
-  final FormComponent component;
-  final VoidCallback onUpdate;
-  const _PropertiesPanel({required this.component, required this.onUpdate});
+class FormEmbedBuilder extends EmbedBuilder {
+  final void Function(FormComponent) onChanged;
+  final void Function(String) onDelete;
+
+  FormEmbedBuilder({required this.onChanged, required this.onDelete});
 
   @override
-  State<_PropertiesPanel> createState() => _PropertiesPanelState();
-}
-
-class _PropertiesPanelState extends State<_PropertiesPanel> {
-  late TextEditingController _labelController;
-  late TextEditingController _placeholderController;
-  late TextEditingController _optionsController;
-  late TextEditingController _widthController;
-  late TextEditingController _heightController;
+  String get key => 'form_component';
 
   @override
-  void initState() {
-    super.initState();
-    _labelController = TextEditingController(text: widget.component.label);
-    _placeholderController = TextEditingController(
-      text: widget.component.placeholder,
-    );
-    _optionsController = TextEditingController(
-      text: widget.component.options.join(', '),
-    );
-    _widthController = TextEditingController(
-      text: widget.component.width.toStringAsFixed(0),
-    );
-    _heightController = TextEditingController(
-      text: widget.component.height.toStringAsFixed(0),
-    );
-  }
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final node = embedContext.node;
+    final id = node.value.data;
+    final state = context.findAncestorStateOfType<_FormBuilderScreenState>();
+    if (state == null) return const SizedBox.shrink();
 
-  @override
-  void dispose() {
-    _labelController.dispose();
-    _placeholderController.dispose();
-    _optionsController.dispose();
-    _widthController.dispose();
-    _heightController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final comp = widget.component;
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20.w,
-        right: 20.w,
-        top: 20.h,
+    final component = state._components.firstWhere(
+      (c) => c.id == id,
+      orElse: () => FormComponent(
+        id: id,
+        type: FormComponentType.textField,
+        boxWidth: 100.w,
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Edit Properties", style: CustomFonts.black18w600),
-            SizedBox(height: 16.h),
+    );
 
-            // Positioning & Sizing
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _widthController,
-                    decoration: const InputDecoration(labelText: "Width"),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) {
-                      final double? value = double.tryParse(val);
-                      if (value != null) {
-                        setState(() => comp.width = value);
-                        widget.onUpdate();
-                      }
-                    },
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: TextField(
-                    controller: _heightController,
-                    decoration: const InputDecoration(labelText: "Height"),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) {
-                      final double? value = double.tryParse(val);
-                      if (value != null) {
-                        setState(() => comp.height = value);
-                        widget.onUpdate();
-                      }
-                    },
-                  ),
-                ),
-              ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onLongPress: () => _showEditDialog(context, component),
+        child: _buildComponentWidget(context, component),
+      ),
+    );
+  }
+
+  Widget _buildComponentWidget(BuildContext context, FormComponent comp) {
+    switch (comp.type) {
+      case FormComponentType.textField:
+        return SizedBox(
+          width: comp.boxWidth,
+          child: TextField(
+            decoration: InputDecoration.collapsed(
+              hintText: comp.placeholder,
+              enabled: false,
+              border: const UnderlineInputBorder(),
             ),
-            SizedBox(height: 12.h),
-
-            if (comp.type != FormComponentType.divider &&
-                comp.type != FormComponentType.pageBreak)
-              TextField(
-                controller: _labelController,
-                decoration: const InputDecoration(labelText: "Label Text"),
-                onChanged: (val) {
-                  comp.label = val;
-                  widget.onUpdate();
-                },
-              ),
-            if (comp.type == FormComponentType.textField ||
-                comp.type == FormComponentType.textArea)
-              Padding(
-                padding: EdgeInsets.only(top: 12.h),
-                child: TextField(
-                  controller: _placeholderController,
-                  decoration: const InputDecoration(labelText: "Placeholder"),
-                  onChanged: (val) {
-                    comp.placeholder = val;
-                    widget.onUpdate();
-                  },
+            onChanged: (val) => onChanged(comp.copyWith(value: val)),
+          ),
+        );
+      case FormComponentType.textArea:
+        return SizedBox(
+          width: comp.boxWidth,
+          child: TextField(
+            maxLines: 3,
+            decoration: InputDecoration.collapsed(
+              hintText: comp.placeholder,
+              enabled: false,
+              border: const UnderlineInputBorder(),
+            ),
+            onChanged: (val) => onChanged(comp.copyWith(value: val)),
+          ),
+        );
+      case FormComponentType.checkbox:
+        return Checkbox(
+          value: comp.value ?? false,
+          onChanged: (val) => onChanged(comp.copyWith(value: val)),
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+        );
+      case FormComponentType.toggle:
+        return Transform.scale(
+          scale: 0.7,
+          child: Switch(
+            value: comp.value ?? false,
+            onChanged: (val) => onChanged(comp.copyWith(value: val)),
+            padding: EdgeInsets.zero,
+            inactiveThumbColor: CustomColors.white,
+          ),
+        );
+      case FormComponentType.dropdown:
+        return DropdownButton<String>(
+          value: comp.value,
+          hint: Text(comp.placeholder),
+          items: comp.options
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
+          onChanged: (val) => onChanged(comp.copyWith(value: val)),
+        );
+      case FormComponentType.datePicker:
+        return const Text('__/__/____');
+      case FormComponentType.signaturePad:
+        return Row(
+          crossAxisAlignment: .start,
+          mainAxisSize: .min,
+          children: [
+            IntrinsicWidth(
+              child: Container(
+                width: comp.boxWidth.w,
+                height: 60.h,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Signature Pad (Click to draw)",
+                    style: TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
                 ),
               ),
-            if (comp.type == FormComponentType.textLabel) ...[
-              SizedBox(height: 12.h),
-              Row(
-                children: [
-                  const Text("Font Size"),
-                  Expanded(
-                    child: Slider(
-                      value: comp.fontSize,
-                      min: 8,
-                      max: 72,
-                      onChanged: (val) {
-                        setState(() => comp.fontSize = val);
-                        widget.onUpdate();
-                      },
-                    ),
-                  ),
-                  Text(comp.fontSize.toInt().toString()),
-                ],
-              ),
-              Row(
-                children: [
-                  FilterChip(
-                    label: const Text("Bold"),
-                    selected: comp.isBold,
-                    onSelected: (val) {
-                      setState(() => comp.isBold = val);
-                      widget.onUpdate();
-                    },
-                  ),
-                  SizedBox(width: 8.w),
-                  FilterChip(
-                    label: const Text("Italic"),
-                    selected: comp.isItalic,
-                    onSelected: (val) {
-                      setState(() => comp.isItalic = val);
-                      widget.onUpdate();
-                    },
-                  ),
-                ],
-              ),
-            ],
-            if (comp.type == FormComponentType.dropdown) ...[
-              SizedBox(height: 12.h),
+            ),
+          ],
+        );
+      case FormComponentType.imagePlaceholder:
+        return Container(
+          width: comp.boxWidth.w,
+          height: comp.boxWidth.w,
+          color: Colors.grey[200],
+          child: const Icon(Icons.add_a_photo, color: Colors.grey),
+        );
+      case FormComponentType.divider:
+        return const Divider(thickness: 2);
+    }
+  }
+
+  void _showEditDialog(BuildContext context, FormComponent comp) {
+    final labelController = TextEditingController(text: comp.label);
+    final placeholderController = TextEditingController(text: comp.placeholder);
+    final optionsController = TextEditingController(
+      text: comp.options.join(', '),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Edit ${comp.type.name}"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 10.h,
+          children: [
+            TextField(
+              controller: labelController,
+              decoration: const InputDecoration(labelText: "Label"),
+            ),
+            TextField(
+              controller: placeholderController,
+              decoration: const InputDecoration(labelText: "Placeholder/Text"),
+            ),
+            TextFormField(
+              initialValue: '${comp.boxWidth}',
+              decoration: const InputDecoration(labelText: "Width"),
+              onChanged: (value) {
+                final width = double.tryParse(value);
+                if (width != null) {
+                  log('Updated: $width');
+                  comp = comp.copyWith(boxWidth: width);
+                }
+              },
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
+            if (comp.type == FormComponentType.dropdown)
               TextField(
-                controller: _optionsController,
+                controller: optionsController,
                 decoration: const InputDecoration(
                   labelText: "Options (comma separated)",
                 ),
-                onChanged: (val) {
-                  comp.options = val.split(',').map((e) => e.trim()).toList();
-                  widget.onUpdate();
-                },
               ),
-            ],
-            if (comp.type == FormComponentType.signaturePad) ...[
-              SizedBox(height: 12.h),
-              DropdownButtonFormField<String>(
-                initialValue: comp.boxHeight,
-                decoration: const InputDecoration(labelText: "Box Height"),
-                items: ['small', 'medium', 'large']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() => comp.boxHeight = val);
-                  widget.onUpdate();
-                },
-              ),
-            ],
-            SizedBox(height: 24.h),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Center(child: Text("Done")),
-            ),
-            SizedBox(height: 20.h),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              onDelete(comp.id);
+              Navigator.pop(context);
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              onChanged(
+                comp.copyWith(
+                  label: labelController.text,
+                  placeholder: placeholderController.text,
+                  options: optionsController.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
+                      .toList(),
+                ),
+              );
+              Navigator.pop(context);
+            },
+            child: const Text("Save"),
+          ),
+        ],
       ),
     );
   }

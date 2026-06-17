@@ -8,10 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../models/form_template.dart';
-import '../../view_models/forms_controller.dart';
 import '../../services/locator.dart';
 import '../../utils/theme.dart';
+import '../../view_models/forms_controller.dart';
 import '../form_builder/form_builder_screen.dart';
+import '../form_builder/pdf_preview_screen.dart';
 
 class FormsScreen extends StatefulWidget {
   static const String routeName = '/forms';
@@ -81,7 +82,7 @@ class _FormsScreenState extends State<FormsScreen> {
   Widget _buildFormCard(FormTemplate form) {
     bool exists = true;
     if (!kIsWeb) {
-      exists = File(form.filePath).existsSync();
+      exists = File(form.file.path).existsSync();
     }
 
     return Card(
@@ -117,17 +118,30 @@ class _FormsScreenState extends State<FormsScreen> {
                 color: Colors.orange,
                 size: 20,
               ),
-            PopupMenuButton<String>(
-              onSelected: (value) => _handleMenuAction(value, form),
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'open', child: Text("Open")),
-                const PopupMenuItem(value: 'fill', child: Text("Fill Out")),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: Text("Delete", style: TextStyle(color: Colors.red)),
-                ),
-              ],
+            IconButton(
+              onPressed: () => _handleMenuAction('preview', form),
+              icon: const Icon(Icons.preview),
             ),
+            IconButton(
+              onPressed: () => _handleMenuAction('open', form),
+              icon: const Icon(Icons.open_in_browser),
+            ),
+            IconButton(
+              onPressed: () => _handleMenuAction('delete', form),
+              icon: const Icon(Icons.delete, color: CustomColors.red),
+            ),
+            // PopupMenuButton<String>(
+            //   onSelected: (value) => _handleMenuAction(value, form),
+            //   itemBuilder: (context) => [
+            //     const PopupMenuItem(value: 'open', child: Text("Open")),
+            //     const PopupMenuItem(value: 'preview', child: Text("Preview")),
+            //     const PopupMenuItem(value: 'fill', child: Text("Fill Out")),
+            //     const PopupMenuItem(
+            //       value: 'delete',
+            //       child: Text("Delete", style: TextStyle(color: Colors.red)),
+            //     ),
+            //   ],
+            // ),
           ],
         ),
         onTap: () => _openPdf(form),
@@ -165,6 +179,9 @@ class _FormsScreenState extends State<FormsScreen> {
       case 'open':
         _openPdf(form);
         break;
+      case 'preview':
+        _previewPdf(form);
+        break;
       case 'fill':
         _fillForm(form);
         break;
@@ -172,6 +189,34 @@ class _FormsScreenState extends State<FormsScreen> {
         _confirmDelete(form);
         break;
     }
+  }
+
+  Future<void> _previewPdf(FormTemplate form) async {
+    if (kIsWeb) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              PdfPreviewScreen(formName: form.name, file: form.file),
+        ),
+      );
+      return;
+    }
+
+    // final file = File(form.file.path);
+    // if (!await file.exists()) {
+    //   _showError("File not found on disk.");
+    //   return;
+    // }
+
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PdfPreviewScreen(formName: form.name, file: form.file),
+      ),
+    );
   }
 
   Future<void> _openPdf(FormTemplate form) async {
@@ -182,7 +227,7 @@ class _FormsScreenState extends State<FormsScreen> {
       return;
     }
 
-    final file = File(form.filePath);
+    final file = File(form.file.path);
     if (!await file.exists()) {
       _showError("File not found on disk.");
       return;
