@@ -4,14 +4,14 @@ import 'get_roles_response.dart';
 class GetFeatureResponse extends BaseResponse<List<Feature>> {
   GetFeatureResponse({
     super.data,
-    required super.status,
+    required super.isSuccess,
     required super.message,
   });
 
   factory GetFeatureResponse.fromJson(Map<String, dynamic> json) =>
       GetFeatureResponse(
-        status: json["is_success"],
-        message: json["message"],
+        isSuccess: json["is_success"] ?? false,
+        message: json["message"] ?? "",
         data: json["data"] == null
             ? []
             : List<Feature>.from(json["data"]!.map((x) => Feature.fromJson(x))),

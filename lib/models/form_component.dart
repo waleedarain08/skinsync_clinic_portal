@@ -5,13 +5,17 @@ enum FormComponentType {
   textField,
   textArea,
   checkbox,
-  toggle,
+  radioGroup,
   dropdown,
   datePicker,
   signaturePad,
+  initialField,
+  sectionHeader,
+  staticText,
   imagePlaceholder,
   divider,
   pageBreak,
+  toggle,
 }
 
 class FormComponent {

@@ -2,15 +2,15 @@ import 'base_response_model.dart';
 
 class RefreshTokenResponse extends BaseResponse {
   RefreshTokenResponse({
-    required super.status,
+    required super.isSuccess,
     required super.message,
     super.data,
   });
 
   factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) =>
       RefreshTokenResponse(
-        status: json["is_success"],
-        message: json["message"],
+        isSuccess: json["is_success"] ?? false,
+        message: json["message"] ?? "",
         data: json["data"] == null
             ? null
             : RefreshTokenData.fromJson(json["data"]),

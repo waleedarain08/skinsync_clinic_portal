@@ -1,4 +1,5 @@
 import 'dart:io' show File;
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart' show XFile;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -6,12 +7,22 @@ import 'package:flutter/material.dart' show TextAlign;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf_kit_editor/pdf_kit_editor.dart';
 import 'package:printing/printing.dart';
 
 import '../models/form_component.dart';
 
 class PdfService {
   static const double baseCanvasWidth = 500.0;
+
+  static Future<Uint8List> generateFromTemplate(
+    PdfTemplate template,
+    Map<String, dynamic> data,
+  ) async {
+    final generator = PdfLayoutGenerator();
+    await generator.init();
+    return await generator.generate(template, data);
+  }
 
   static Future<XFile> generateFormPdf(
     String formName,
@@ -81,7 +92,7 @@ class PdfService {
             if (comp.label.isNotEmpty)
               pw.Text(
                 comp.label,
-                style: pw.TextStyle(
+                style: const pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   fontSize: 10,
                 ),
@@ -154,7 +165,7 @@ class PdfService {
             if (comp.label.isNotEmpty)
               pw.Text(
                 comp.label,
-                style: pw.TextStyle(
+                style: const pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   fontSize: 10,
                 ),
@@ -191,7 +202,7 @@ class PdfService {
             if (comp.label.isNotEmpty)
               pw.Text(
                 comp.label,
-                style: pw.TextStyle(
+                style: const pw.TextStyle(
                   fontWeight: pw.FontWeight.bold,
                   fontSize: 10,
                 ),
@@ -259,6 +270,70 @@ class PdfService {
 
       case FormComponentType.pageBreak:
         return pw.SizedBox(height: 0);
+
+      case FormComponentType.radioGroup:
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            if (comp.label.isNotEmpty)
+              pw.Text(
+                comp.label,
+                style: const pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+              ),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              children: [
+                pw.Container(
+                  width: 10,
+                  height: 10,
+                  decoration: pw.BoxDecoration(
+                    shape: pw.BoxShape.circle,
+                    border: pw.Border.all(width: 0.5),
+                  ),
+                ),
+                pw.SizedBox(width: 4),
+                pw.Text("Option 1", style: const pw.TextStyle(fontSize: 10)),
+                pw.SizedBox(width: 12),
+                pw.Container(
+                  width: 10,
+                  height: 10,
+                  decoration: pw.BoxDecoration(
+                    shape: pw.BoxShape.circle,
+                    border: pw.Border.all(width: 0.5),
+                  ),
+                ),
+                pw.SizedBox(width: 4),
+                pw.Text("Option 2", style: const pw.TextStyle(fontSize: 10)),
+              ],
+            ),
+          ],
+        );
+
+      case FormComponentType.initialField:
+        return pw.Row(
+          children: [
+            pw.Text(
+              comp.label.isNotEmpty ? comp.label : "Initials:",
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+            pw.SizedBox(width: 4),
+            pw.Container(
+              width: 30,
+              decoration: const pw.BoxDecoration(
+                border: pw.Border(bottom: pw.BorderSide(width: 0.5)),
+              ),
+            ),
+          ],
+        );
+
+      case FormComponentType.sectionHeader:
+        return pw.Text(
+          comp.label,
+          style: const pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+        );
+
+      case FormComponentType.staticText:
+        return pw.Text(comp.label, style: const pw.TextStyle(fontSize: 10));
     }
   }
 

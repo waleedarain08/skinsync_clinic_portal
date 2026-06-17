@@ -4,6 +4,7 @@ class FormTemplate {
   final String id;
   String name;
   final String filePath;
+  final String? templateJson;
   final DateTime createdAt;
   final bool isUserCreated;
 
@@ -11,6 +12,7 @@ class FormTemplate {
     required this.id,
     required this.name,
     required this.filePath,
+    this.templateJson,
     required this.createdAt,
     required this.isUserCreated,
   });
@@ -20,6 +22,7 @@ class FormTemplate {
       'id': id,
       'name': name,
       'filePath': filePath,
+      'templateJson': templateJson,
       'createdAt': createdAt.toIso8601String(),
       'isUserCreated': isUserCreated,
     };
@@ -30,6 +33,7 @@ class FormTemplate {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       filePath: map['filePath'] ?? '',
+      templateJson: map['templateJson'],
       createdAt: DateTime.parse(
         map['createdAt'] ?? DateTime.now().toIso8601String(),
       ),

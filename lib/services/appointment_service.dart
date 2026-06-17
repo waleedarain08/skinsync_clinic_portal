@@ -29,7 +29,7 @@ class AppointmentService extends AppointmentRepository {
       },
     );
     final model = AppointmentResponse.fromJson(response);
-    if (!model.status) {
+    if (!model.isSuccess) {
       throw Exception(model.message);
     }
     return model;

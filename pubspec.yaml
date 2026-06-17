@@ -64,6 +64,7 @@ dependencies:
   syncfusion_flutter_signaturepad: ^33.1.49
   pdf: ^3.11.1
   printing: ^5.13.2
+  pdf_kit_editor: ^0.2.0
   file_picker: ^8.1.7
   path_provider: ^2.1.5
   uuid: ^4.5.1

@@ -175,6 +175,17 @@ class _FormsScreenState extends State<FormsScreen> {
   }
 
   Future<void> _openPdf(FormTemplate form) async {
+    if (form.templateJson != null) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FormBuilderScreen(initialForm: form),
+        ),
+      );
+      if (result == true) setState(() {});
+      return;
+    }
+
     if (kIsWeb) {
       _showError(
         "Opening existing PDFs from storage is limited on Web. Please download them on Mobile/Desktop.",
