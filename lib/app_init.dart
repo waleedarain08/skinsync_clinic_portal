@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'route_generator.dart';
 import 'widgets/app_loader.dart';
-
+import 'package:timetable/timetable.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'utils/screen_size.dart';
 import 'utils/theme.dart';
 
@@ -46,6 +47,15 @@ class AppInit extends StatelessWidget {
           themeMode: ThemeMode.light,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
+          localizationsDelegates: const [
+            TimetableLocalizationsDelegate(),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+          ],
           builder: (context, child) {
             return EasyLoading.init()(context, child);
           },

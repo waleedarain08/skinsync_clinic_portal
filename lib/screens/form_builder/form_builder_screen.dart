@@ -63,24 +63,56 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
     super.dispose();
   }
 
+  // void _addComponent(FormComponentType type) {
+  //   final id = const Uuid().v4();
+  //   final newComponent = FormComponent(
+  //     id: id,
+  //     type: type,
+  //     label: _getDefaultLabel(type),
+  //     dx: 50,
+  //     dy: 50 + (_design.pages[_currentPageIndex].components.length * 10),
+  //     width: _getDefaultWidth(type),
+  //     height: _getDefaultHeight(type),
+  //   );
+  //
+  //   setState(() {
+  //     _design.pages[_currentPageIndex].components.add(newComponent);
+  //     _selectedComponent = newComponent;
+  //   });
+  // }
   void _addComponent(FormComponentType type) {
     final id = const Uuid().v4();
+    final components = _design.pages[_currentPageIndex].components;
+
+    // Find bottom edge of lowest existing component
+    double nextDy = 20;
+    if (components.isNotEmpty) {
+      nextDy = components.fold(0.0, (prev, comp) {
+        final bottom = comp.dy + comp.height;
+        return bottom > prev ? bottom : prev;
+      }) + 12; // 12px gap
+    }
+
+    final height = _getDefaultHeight(type);
+
+    // Clamp so it doesn't overflow the A4 page
+    nextDy = nextDy.clamp(0.0, a4Height - height);
+
     final newComponent = FormComponent(
       id: id,
       type: type,
       label: _getDefaultLabel(type),
-      dx: 50,
-      dy: 50 + (_design.pages[_currentPageIndex].components.length * 10),
+      dx: 20,
+      dy: nextDy,
       width: _getDefaultWidth(type),
-      height: _getDefaultHeight(type),
+      height: height,
     );
 
     setState(() {
-      _design.pages[_currentPageIndex].components.add(newComponent);
+      components.add(newComponent);
       _selectedComponent = newComponent;
     });
   }
-
   String _getDefaultLabel(FormComponentType type) {
     switch (type) {
       case FormComponentType.heading: return "Heading";
@@ -320,6 +352,7 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
     );
   }
 
+
   Widget _buildPage(int pageIndex) {
     return Center(
       child: Container(
@@ -355,6 +388,7 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
             // Elements
             for (var comp in _design.pages[pageIndex].components)
               _buildPositionedComponent(comp, pageIndex),
+
           ],
         ),
       ),
@@ -363,7 +397,6 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
 
   Widget _buildPositionedComponent(FormComponent comp, int pageIndex) {
     final bool isSelected = _selectedComponent?.id == comp.id && !_isPreviewMode;
-
     return Positioned(
       left: comp.dx,
       top: comp.dy,
@@ -383,11 +416,9 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
             setState(() {
               comp.dx += details.delta.dx;
               comp.dy += details.delta.dy;
-              
               // Bounds checking
               comp.dx = comp.dx.clamp(0.0, a4Width - comp.width);
               comp.dy = comp.dy.clamp(0.0, a4Height - comp.height);
-              
               _selectedComponent = comp;
             });
           }
@@ -400,7 +431,7 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
             clipBehavior: Clip.none,
             children: [
               FormElementRenderer(component: comp, isPreview: _isPreviewMode),
-              
+
               // Controls overlay when selected
               if (isSelected) ...[
                 // Resize Handle (Bottom Right)
@@ -423,17 +454,18 @@ class _FormBuilderScreenState extends State<FormBuilderScreen> {
                 ),
                 // Delete Button
                 Positioned(
-                  top: -15,
-                  right: -15,
-                  child: GestureDetector(
+                  top: -10,
+                  right: -10,
+                  child: InkWell(
                     onTap: () => setState(() {
+                      print('hello world');
                       _design.pages[pageIndex].components.remove(comp);
                       _selectedComponent = null;
                     }),
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                      child: const Icon(Icons.close, size: 12, color: Colors.white),
+                      child: const Icon(Icons.close, size: 14, color: Colors.white),
                     ),
                   ),
                 ),

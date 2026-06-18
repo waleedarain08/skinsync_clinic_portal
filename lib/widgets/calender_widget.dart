@@ -222,15 +222,26 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
             ),
           ],
           selected: {_viewMode},
+          // onSelectionChanged: (Set<CalendarViewMode> newSelection) {
+          //   setState(() {
+          //     _viewMode = newSelection.first;
+          //   });
+          //   if (_viewMode == CalendarViewMode.day) {
+          //     _dateController.visibleRange = VisibleDateRange.days(1);
+          //   } else {
+          //     _dateController.visibleRange = VisibleDateRange.week();
+          //   }
+          // },
           onSelectionChanged: (Set<CalendarViewMode> newSelection) {
+            final selected = newSelection.first;
             setState(() {
-              _viewMode = newSelection.first;
+              _viewMode = selected;
+              if (selected == CalendarViewMode.day) {
+                _dateController.visibleRange = VisibleDateRange.days(1);
+              } else {
+                _dateController.visibleRange = VisibleDateRange.week();
+              }
             });
-            if (_viewMode == CalendarViewMode.day) {
-              _dateController.visibleRange = VisibleDateRange.days(1);
-            } else {
-              _dateController.visibleRange = VisibleDateRange.week();
-            }
           },
           style: const ButtonStyle(
             visualDensity: VisualDensity.compact,
@@ -305,6 +316,19 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
             .expand((e) => e.value)
             .map((appointment) => appointment.toUtc())
             .toList(),
+      ),
+      theme: TimetableThemeData(
+        context,
+        // Hour divider lines color
+        dateDividersStyle:DateDividersStyle(
+            context,
+            color: CustomColors.border
+        ),
+        hourDividersStyle: HourDividersStyle(
+            context,
+            color: CustomColors.border
+
+      ),
       ),
       child: MultiDateTimetable<Appointment>(),
     );

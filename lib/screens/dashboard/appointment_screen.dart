@@ -140,7 +140,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               SizedBox(height: context.h(14)),
               SizedBox(
                 height: context.h(800),
-                child: const AppointmentsCalendar(),
+                child: const Material(child: AppointmentsCalendar()),
               ),
               SizedBox(height: context.h(15)),
               BorderdContainerWidget(
