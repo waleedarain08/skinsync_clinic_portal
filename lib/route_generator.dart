@@ -28,6 +28,7 @@ import 'screens/dashboard/profile_screen.dart';
 import 'screens/dashboard/roles_screen.dart';
 import 'screens/dashboard/treatment_screen.dart';
 import 'screens/dashboard/treatment_detail_screen.dart';
+import 'screens/dashboard/doctor_detail_screen.dart';
 import 'screens/dynamic_pricing.dart';
 import 'screens/notification_screen.dart';
 import 'screens/sign_in_screen.dart';
@@ -132,6 +133,14 @@ class RouteGenerator {
             name: MangeDoctorsInjectorsScreen.routeName,
             path: MangeDoctorsInjectorsScreen.routeName,
             builder: (_, _) => const MangeDoctorsInjectorsScreen(),
+          ),
+          GoRoute(
+            name: DoctorDetailScreen.routeName,
+            path: DoctorDetailScreen.routeName,
+            builder: (_, state) {
+              final doctor = state.extra as Doctor;
+              return DoctorDetailScreen(doctor: doctor);
+            },
           ),
 
           GoRoute(
