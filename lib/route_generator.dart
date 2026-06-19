@@ -9,7 +9,7 @@ import 'screens/about_screen.dart';
 import 'screens/add_doctor_injector_screen.dart';
 import 'screens/business_info_screen.dart';
 import 'screens/change_password_screen.dart';
-import 'screens/clinic_add_treatment_screen.dart';
+import 'screens/add_treatment_screen.dart';
 import 'screens/create_staff_screen.dart';
 import 'screens/create_treatment_screen.dart';
 import 'screens/dashboard/appointment_screen.dart';
@@ -27,12 +27,14 @@ import 'screens/dashboard/payment_history_screen.dart';
 import 'screens/dashboard/profile_screen.dart';
 import 'screens/dashboard/roles_screen.dart';
 import 'screens/dashboard/treatment_screen.dart';
+import 'screens/dashboard/treatment_detail_screen.dart';
 import 'screens/dynamic_pricing.dart';
 import 'screens/notification_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/update_treatment_screen.dart';
+import 'models/treatment_model.dart' as model_treatment;
 import 'services/locator.dart';
 import 'services/storage_service.dart';
 
@@ -151,6 +153,14 @@ class RouteGenerator {
             name: TreatmentScreen.routeName,
             path: TreatmentScreen.routeName,
             builder: (_, _) => const TreatmentScreen(),
+          ),
+          GoRoute(
+            name: TreatmentDetailScreen.routeName,
+            path: TreatmentDetailScreen.routeName,
+            builder: (_, state) {
+              final treatment = state.extra as model_treatment.TreatmentModel;
+              return TreatmentDetailScreen(treatment: treatment);
+            },
           ),
           GoRoute(
             name: ClinicAddTreatmentScreen.routeName,
