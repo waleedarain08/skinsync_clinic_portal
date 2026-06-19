@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../utils/theme.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
-import '../widgets/header__with_back_btn.dart';
 import '../widgets/gradient_scaffold.dart';
-import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';
 
 class AddTreatmentScreen extends StatefulWidget {
@@ -64,63 +62,95 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     }
   }
 
+  void _handleNextStep() {
+    if (_currentStep == 0 && _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a treatment category.'),
+          backgroundColor: CustomColors.red,
+        ),
+      );
+      return;
+    }
+    if (_currentStep == 1 && _selectedAreas.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one treatment area.'),
+          backgroundColor: CustomColors.red,
+        ),
+      );
+      return;
+    }
+    if (_currentStep == 2) {
+      final incomplete = _selectedAreas.any((a) => _areaPriceControllers[a]?.text.isEmpty ?? true);
+      if (incomplete) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please set pricing for all selected areas.'),
+            backgroundColor: CustomColors.red,
+          ),
+        );
+        return;
+      }
+    }
+    _nextStep();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool isLandscape = context.isLandscape;
+    final bool isDesktop = context.screenWidth > 1200;
+    final bool isTablet = context.screenWidth > 800 && context.screenWidth <= 1200;
 
     return GradientScaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.w(20),
-                vertical: context.h(16),
-              ),
-              child: const BuildHeader(title: 'Treatment Builder'),
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left Sidebar - Stepper
-                  if (isLandscape) _buildLeftSidebar(),
-                  
-                  // Main Content
-                  Expanded(
-                    child: Column(
-                      children: [
-                        if (!isLandscape) _buildMobileProgress(),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            padding: EdgeInsets.all(context.w(24)),
-                            child: Center(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: context.w(800)),
-                                child: Column(
-                                  children: [
-                                    _buildStepHeader(),
-                                    SizedBox(height: context.h(24)),
-                                    _buildFormContainer(),
-                                    SizedBox(height: context.h(32)),
-                                    _buildNavigationButtons(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+      appBar: AppBar(
+        flexibleSpace: AppDecorations.appBarGradient,
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Treatment Builder', style: context.fonts.black18w600),
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: CustomColors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left Sidebar - Stepper (exactly matches CreateTreatmentScreen)
+          if (isDesktop || isTablet) _buildLeftSidebar(),
+          
+          // Main Content
+          Expanded(
+            child: Column(
+              children: [
+                if (!isDesktop && !isTablet) _buildMobileProgress(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: context.appEdgeInsets(horizontal: 24, vertical: 32),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: context.w(isDesktop ? 800 : 900)),
+                        child: Column(
+                          children: [
+                            _buildStepHeader(),
+                            context.verticalSpace(32),
+                            _buildFormContainer(),
+                            context.verticalSpace(48),
+                            _buildNavigationButtons(),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-
-                  // Right Sidebar - Live Preview
-                  if (isLandscape) _buildRightSidebar(),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Right Sidebar - Live Preview (exactly matches CreateTreatmentScreen)
+          if (isDesktop) _buildRightSidebar(),
+        ],
       ),
     );
   }
@@ -129,19 +159,19 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Container(
       width: context.w(280),
       decoration: const BoxDecoration(
-        color: CustomColors.white,
+        color: Colors.white,
         border: Border(right: BorderSide(color: CustomColors.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(context.w(24)),
+            padding: context.appEdgeInsets(all: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Builder Progress", style: context.fonts.grey12w600),
-                SizedBox(height: context.h(12)),
+                context.verticalSpace(12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -149,9 +179,9 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                     Text("${((_currentStep + 1) / _steps.length * 100).toInt()}%", style: context.fonts.purple14w700),
                   ],
                 ),
-                SizedBox(height: context.h(12)),
+                context.verticalSpace(12),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(context.r(10)),
+                  borderRadius: context.appBorderRadius(all: 10),
                   child: LinearProgressIndicator(
                     value: (_currentStep + 1) / _steps.length,
                     minHeight: context.h(8),
@@ -165,7 +195,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
           const Divider(height: 1),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: context.h(16)),
+              padding: context.appEdgeInsets(vertical: 16),
               itemCount: _steps.length,
               itemBuilder: (context, index) {
                 final bool isActive = _currentStep == index;
@@ -174,7 +204,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                 return InkWell(
                   onTap: index <= _currentStep ? () => setState(() => _currentStep = index) : null,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(16)),
+                    padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
                     decoration: BoxDecoration(
                       color: isActive ? CustomColors.purple.withValues(alpha: 0.05) : Colors.transparent,
                       border: Border(right: BorderSide(color: isActive ? CustomColors.purple : Colors.transparent, width: 3)),
@@ -195,7 +225,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                                 : Text("${index + 1}", style: isActive ? context.fonts.white10w700 : context.fonts.grey10w700),
                           ),
                         ),
-                        SizedBox(width: context.w(16)),
+                        context.horizontalSpace(16),
                         Expanded(
                           child: Text(
                             _steps[index],
@@ -216,8 +246,8 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   Widget _buildMobileProgress() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(12)),
-      color: CustomColors.white,
+      padding: context.appEdgeInsets(horizontal: 24, vertical: 12),
+      color: Colors.white,
       child: Column(
         children: [
           Row(
@@ -227,12 +257,15 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               Text("${((_currentStep + 1) / _steps.length * 100).toInt()}%", style: context.fonts.purple14w700),
             ],
           ),
-          SizedBox(height: context.h(8)),
-          LinearProgressIndicator(
-            value: (_currentStep + 1) / _steps.length,
-            minHeight: context.h(4),
-            backgroundColor: CustomColors.whiteGrey,
-            valueColor: const AlwaysStoppedAnimation<Color>(CustomColors.purple),
+          context.verticalSpace(8),
+          ClipRRect(
+            borderRadius: context.appBorderRadius(all: 4),
+            child: LinearProgressIndicator(
+              value: (_currentStep + 1) / _steps.length,
+              minHeight: context.h(4),
+              backgroundColor: CustomColors.whiteGrey,
+              valueColor: const AlwaysStoppedAnimation<Color>(CustomColors.purple),
+            ),
           ),
         ],
       ),
@@ -262,14 +295,14 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(context.w(12)),
+          padding: context.appEdgeInsets(all: 12),
           decoration: BoxDecoration(
             color: CustomColors.purple.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(context.r(12)),
+            borderRadius: context.appBorderRadius(all: 12),
           ),
           child: Icon(icons[_currentStep], color: CustomColors.purple, size: 24),
         ),
-        SizedBox(width: context.w(16)),
+        context.horizontalSpace(16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,18 +319,12 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   Widget _buildFormContainer() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(context.w(32)),
+      padding: context.appEdgeInsets(all: 32),
       decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(context.r(16)),
+        color: Colors.white,
+        borderRadius: context.appBorderRadius(all: 16),
         border: Border.all(color: CustomColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppShadows.card(context),
       ),
       child: _buildCurrentStepContent(),
     );
@@ -323,7 +350,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Treatment Category", style: context.fonts.black16w600),
-        SizedBox(height: context.h(24)),
+        context.verticalSpace(24),
         _buildDropdownField(
           label: 'Select Treatment',
           hintText: 'Select Treatment Type',
@@ -350,28 +377,19 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Mandatory Treatment Areas", style: context.fonts.black16w600),
-        SizedBox(height: context.h(12)),
+        context.verticalSpace(12),
         Text("Choose which sub-areas are available for this treatment in your clinic.", style: context.fonts.grey14w400),
-        SizedBox(height: context.h(24)),
+        context.verticalSpace(24),
         Wrap(
           spacing: context.w(12),
           runSpacing: context.h(12),
           children: areas.map((area) {
             final isSelected = _selectedAreas.contains(area);
 
-            return ChoiceChip(
-              label: Text(area),
-              selected: isSelected,
-              selectedColor: CustomColors.black,
-              checkmarkColor: CustomColors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? CustomColors.white : CustomColors.black,
-                fontSize: context.sp(14),
-                fontWeight: FontWeight.w500,
-              ),
-              onSelected: (selected) {
+            return InkWell(
+              onTap: () {
                 setState(() {
-                  if (selected) {
+                  if (!isSelected) {
                     _selectedAreas.add(area);
                     _areaPriceControllers[area] = TextEditingController();
                   } else {
@@ -381,6 +399,34 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
                   }
                 });
               },
+              borderRadius: context.appBorderRadius(all: 10),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? CustomColors.purple.withValues(alpha: 0.08) : Colors.white,
+                  borderRadius: context.appBorderRadius(all: 10),
+                  border: Border.all(
+                    color: isSelected ? CustomColors.purple : CustomColors.border,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                      size: 18,
+                      color: isSelected ? CustomColors.purple : CustomColors.grey,
+                    ),
+                    context.horizontalSpace(10),
+                    Text(
+                      area,
+                      style: isSelected ? context.fonts.purple14w600 : context.fonts.black14w400,
+                    ),
+                  ],
+                ),
+              ),
             );
           }).toList(),
         ),
@@ -395,17 +441,38 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Area-Specific Pricing", style: context.fonts.black16w600),
-        SizedBox(height: context.h(12)),
+        context.verticalSpace(12),
         Text("Define the clinical pricing per syringe or unit for each selected area.", style: context.fonts.grey14w400),
-        SizedBox(height: context.h(24)),
+        context.verticalSpace(24),
         ..._selectedAreas.map((area) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: context.h(20)),
-            child: BuildTextField(
-              label: '$area - Price Per Syringe (AED)',
-              controller: _areaPriceControllers[area]!,
-              hintText: 'e.g. 200',
-              keyboardType: TextInputType.number,
+          return Container(
+            margin: context.appEdgeInsets(bottom: 16),
+            padding: context.appEdgeInsets(all: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: context.appBorderRadius(all: 12),
+              border: Border.all(color: CustomColors.border),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: context.appEdgeInsets(all: 10),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.monetization_on_outlined, color: CustomColors.purple, size: 20),
+                ),
+                context.horizontalSpace(16),
+                Expanded(
+                  child: BuildTextField(
+                    label: '$area - Price Per Syringe (AED)',
+                    controller: _areaPriceControllers[area]!,
+                    hintText: 'e.g. 200',
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ],
             ),
           );
         }),
@@ -418,27 +485,46 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Final Review", style: context.fonts.black16w600),
-        SizedBox(height: context.h(24)),
-        _buildBlueprintItem("Category", _selectedCategory ?? "N/A"),
-        const Divider(height: 32),
-        Text("Configured Areas", style: context.fonts.black14w600.copyWith(color: CustomColors.purple)),
-        SizedBox(height: context.h(16)),
-        if (_selectedAreas.isEmpty)
-          Text("No areas configured", style: context.fonts.grey14w400)
-        else
-          ..._selectedAreas.map((area) {
-            final price = _areaPriceControllers[area]?.text.isEmpty ?? true ? "0" : _areaPriceControllers[area]!.text;
-            return Padding(
-              padding: EdgeInsets.only(bottom: context.h(8)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(area, style: context.fonts.black14w400),
-                  Text("AED $price / syringe", style: context.fonts.black14w600),
-                ],
-              ),
-            );
-          }),
+        context.verticalSpace(24),
+        Container(
+          padding: context.appEdgeInsets(all: 20),
+          decoration: BoxDecoration(
+            color: CustomColors.whiteGrey,
+            borderRadius: context.appBorderRadius(all: 12),
+            border: Border.all(color: CustomColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBlueprintItem("Category", _selectedCategory ?? "N/A"),
+              const Divider(height: 32, color: CustomColors.border),
+              Text("Configured Areas & Pricing", style: context.fonts.purple14w700),
+              context.verticalSpace(16),
+              if (_selectedAreas.isEmpty)
+                Text("No areas configured", style: context.fonts.grey14w400)
+              else
+                ..._selectedAreas.map((area) {
+                  final price = _areaPriceControllers[area]?.text.isEmpty ?? true ? "0" : _areaPriceControllers[area]!.text;
+                  return Padding(
+                    padding: context.appEdgeInsets(bottom: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle_outline, color: CustomColors.green, size: 16),
+                            context.horizontalSpace(8),
+                            Text(area, style: context.fonts.black14w400),
+                          ],
+                        ),
+                        Text("AED $price / syringe", style: context.fonts.black14w600),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -458,7 +544,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       child: Column(
         children: [
           const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 48),
-          SizedBox(height: context.h(16)),
+          context.verticalSpace(16),
           Text(message, style: context.fonts.grey14w400),
         ],
       ),
@@ -475,7 +561,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               label: 'Previous Step',
             ),
           ),
-        if (_currentStep > 0) SizedBox(width: context.w(16)),
+        if (_currentStep > 0) context.horizontalSpace(16),
         Expanded(
           flex: 2,
           child: CustomPrimaryButton(
@@ -483,7 +569,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
               if (_currentStep == _steps.length - 1) {
                 _handleSubmit();
               } else {
-                _nextStep();
+                _handleNextStep();
               }
             },
             label: _currentStep == _steps.length - 1 ? 'Finish & Create' : 'Next Step',
@@ -506,30 +592,43 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   Widget _buildRightSidebar() {
     return Container(
       width: context.w(350),
-      decoration: const BoxDecoration(
-        color: CustomColors.white,
-        border: Border(left: BorderSide(color: CustomColors.border)),
+      decoration: BoxDecoration(
+        color: CustomColors.whiteGrey.withValues(alpha: 0.5),
+        border: const Border(left: BorderSide(color: CustomColors.border)),
       ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(context.w(24)),
+        padding: context.appEdgeInsets(all: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Live Blueprint Summary", style: context.fonts.black16w600),
-            SizedBox(height: context.h(24)),
+            context.verticalSpace(20),
             _buildSummaryCard(),
-            SizedBox(height: context.h(32)),
+            context.verticalSpace(32),
             Text("Clinical Checklist", style: context.fonts.black16w600),
-            SizedBox(height: context.h(16)),
+            context.verticalSpace(16),
             _buildChecklistRow("Target Category Identified", _selectedCategory != null),
             _buildChecklistRow("Anatomical Areas Configured", _selectedAreas.isNotEmpty),
             _buildChecklistRow("Clinical Pricing Validated", _selectedAreas.isNotEmpty && _selectedAreas.every((a) => _areaPriceControllers[a]!.text.isNotEmpty)),
-            SizedBox(height: context.h(32)),
+            context.verticalSpace(32),
             const Divider(),
-            SizedBox(height: context.h(24)),
+            context.verticalSpace(24),
             Text("Audit Logs", style: context.fonts.black14w600),
-            SizedBox(height: context.h(12)),
-            Text("Blueprint initialization successful. Waiting for clinical data validation...", style: context.fonts.grey12w400),
+            context.verticalSpace(12),
+            Container(
+              padding: context.appEdgeInsets(all: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: context.appBorderRadius(all: 8),
+                border: Border.all(color: CustomColors.border),
+              ),
+              child: Text(
+                _selectedCategory == null 
+                    ? "Blueprint initialization successful. Waiting for clinical data validation..."
+                    : "Category updated to '$_selectedCategory'. Waiting for area selection and pricing configuration.",
+                style: context.fonts.grey12w400,
+              ),
+            ),
           ],
         ),
       ),
@@ -538,7 +637,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
 
   Widget _buildChecklistRow(String label, bool isDone) {
     return Padding(
-      padding: EdgeInsets.only(bottom: context.h(12)),
+      padding: context.appEdgeInsets(bottom: 12),
       child: Row(
         children: [
           Icon(
@@ -546,7 +645,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
             size: 18,
             color: isDone ? CustomColors.green : CustomColors.grey,
           ),
-          SizedBox(width: context.w(12)),
+          context.horizontalSpace(12),
           Expanded(child: Text(label, style: isDone ? context.fonts.black14w600 : context.fonts.grey14w400)),
         ],
       ),
@@ -554,44 +653,108 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
   }
 
   Widget _buildSummaryCard() {
+    final hasPrice = _selectedAreas.isNotEmpty && _selectedAreas.every((a) => _areaPriceControllers[a]?.text.isNotEmpty ?? false);
     return Container(
-      padding: EdgeInsets.all(context.w(20)),
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: CustomColors.whiteGrey,
-        borderRadius: BorderRadius.circular(context.r(12)),
-        border: Border.all(color: CustomColors.border),
+        color: Colors.white,
+        borderRadius: context.appBorderRadius(all: 16),
+        boxShadow: AppShadows.card(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Current Blueprint", style: context.fonts.purple12w700),
-          SizedBox(height: context.h(16)),
-          _blueprintSummaryRow("Type", _selectedCategory ?? "Not set"),
-          _blueprintSummaryRow("Areas", "${_selectedAreas.length} selected"),
-          if (_selectedAreas.isNotEmpty) ...[
-            const Divider(height: 24),
-            Text("Prices Overview:", style: context.fonts.black12w600),
-            SizedBox(height: context.h(8)),
-            ..._selectedAreas.take(3).map((a) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text("• $a: AED ${_areaPriceControllers[a]?.text ?? '0'}", style: context.fonts.grey12w400),
-            )),
-            if (_selectedAreas.length > 3)
-              Text("• ...and ${_selectedAreas.length - 3} more", style: context.fonts.grey12w400),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _blueprintSummaryRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: context.fonts.grey12w400),
-          Text(value, style: context.fonts.black12w600),
+          Container(
+            height: context.h(140),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: CustomColors.whiteGrey,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.image_outlined,
+                color: CustomColors.grey,
+                size: 36,
+              ),
+            ),
+          ),
+          Padding(
+            padding: context.appEdgeInsets(all: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedCategory ?? 'New Treatment',
+                        style: context.fonts.black16w700,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (_selectedAreas.isNotEmpty)
+                      Text(
+                        "AED ${_areaPriceControllers[_selectedAreas.first]?.text.isEmpty ?? true ? '0' : _areaPriceControllers[_selectedAreas.first]!.text}",
+                        style: context.fonts.purple16w700,
+                      )
+                    else
+                      Text(
+                        "AED 0",
+                        style: context.fonts.purple16w700,
+                      ),
+                  ],
+                ),
+                context.verticalSpace(8),
+                Text(
+                  _selectedCategory == null
+                      ? 'Select a treatment category to begin configuration.'
+                      : 'Clinical treatment category configured for $_selectedCategory.',
+                  style: context.fonts.grey12w400,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                context.verticalSpace(16),
+                const Divider(),
+                context.verticalSpace(16),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: CustomColors.grey,
+                    ),
+                    context.horizontalSpace(8),
+                    Text(
+                      '${_selectedAreas.length} Areas Selected',
+                      style: context.fonts.black12w600,
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: context.appEdgeInsets(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: hasPrice 
+                            ? CustomColors.green.withValues(alpha: 0.1)
+                            : CustomColors.purple.withValues(alpha: 0.1),
+                        borderRadius: context.appBorderRadius(all: 20),
+                      ),
+                      child: Text(
+                        hasPrice ? 'Ready' : 'Draft', 
+                        style: hasPrice ? context.fonts.green10w700 : context.fonts.purple11w600
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -608,7 +771,7 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: context.fonts.black14w500),
-        SizedBox(height: context.h(8)),
+        context.verticalSpace(8),
         DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
             isExpanded: true,
@@ -620,16 +783,23 @@ class _AddTreatmentScreenState extends State<AddTreatmentScreen> {
             items: items
                 .map(
                   (item) =>
-                      DropdownMenuItem<String>(value: item, child: Text(item)),
+                      DropdownMenuItem<String>(value: item, child: Text(item, style: context.fonts.black14w400)),
                 )
                 .toList(),
             onChanged: onChanged,
             buttonStyleData: ButtonStyleData(
               height: context.h(52),
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+              padding: context.appEdgeInsets(horizontal: 16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(context.r(12)),
+                color: Colors.white,
+                borderRadius: context.appBorderRadius(all: 12),
                 border: Border.all(color: CustomColors.border),
+              ),
+            ),
+            dropdownStyleData: DropdownStyleData(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: context.appBorderRadius(all: 12),
               ),
             ),
           ),
