@@ -30,7 +30,7 @@ class AuthService implements AuthRepository {
     );
     final response = LoginResponseModel.fromJson(jsonResponse);
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     if (response.data == null) {
@@ -66,7 +66,7 @@ class AuthService implements AuthRepository {
       jsonResponse,
       (json) => json,
     );
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
 
@@ -86,7 +86,7 @@ class AuthService implements AuthRepository {
       jsonResponse,
       (json) => json,
     );
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
 
@@ -104,7 +104,7 @@ class AuthService implements AuthRepository {
       (json) => LoginResponseModel.fromJson(json as Map<String, dynamic>),
     );
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
 
@@ -141,7 +141,7 @@ class AuthService implements AuthRepository {
       jsonResponse,
       (json) => json,
     );
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
 

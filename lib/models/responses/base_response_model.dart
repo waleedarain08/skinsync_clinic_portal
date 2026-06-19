@@ -1,16 +1,16 @@
 class BaseResponse<T> {
-  final bool status;
+  final bool success;
   final String message;
   final T? data;
 
-  const BaseResponse({required this.status, required this.message, this.data});
+  const BaseResponse({required this.success, required this.message, this.data});
 
   factory BaseResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) {
     return BaseResponse<T>(
-      status: json['status'] ?? false,
+      success: json['is_success'] ?? false,
       message: json['message'] ?? '',
       data: json['data'] != null ? fromJsonT(json['data']) : null,
     );
@@ -22,6 +22,6 @@ class BaseResponse<T> {
     String message = '',
     int statusCode = 400,
   }) {
-    return BaseResponse<T>(status: true, message: message, data: data);
+    return BaseResponse<T>(success: true, message: message, data: data);
   }
 }

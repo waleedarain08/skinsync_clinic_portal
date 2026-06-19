@@ -4,7 +4,7 @@ import 'clinic_products_response.dart';
 class AddInventoryResponse extends BaseResponse<ClinicProduct?> {
   AddInventoryResponse({
     super.data,
-    required super.status,
+    required super.success,
     required super.message,
   });
 
@@ -13,7 +13,7 @@ class AddInventoryResponse extends BaseResponse<ClinicProduct?> {
         data: json["data"] == null
             ? null
             : ClinicProduct.fromJson(json["data"]),
-        status: json["is_success"] ?? false,
+        success: json["is_success"] ?? false,
         message: json["message"] ?? "",
       );
 }

@@ -28,7 +28,7 @@ class TreatmentServices implements TreatmentRepository {
           .toList();
     });
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response.data ?? [];
@@ -49,7 +49,7 @@ class TreatmentServices implements TreatmentRepository {
           .toList();
     });
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response.data ?? [];
@@ -71,7 +71,7 @@ class TreatmentServices implements TreatmentRepository {
           .toList();
     });
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response.data ?? [];
@@ -89,7 +89,7 @@ class TreatmentServices implements TreatmentRepository {
       (treatment) => TreatmentModel.fromJson(treatment as Map<String, dynamic>),
     );
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response.data!;
@@ -107,7 +107,7 @@ class TreatmentServices implements TreatmentRepository {
       (treatment) => TreatmentModel.fromJson(treatment as Map<String, dynamic>),
     );
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response.data!;
@@ -125,9 +125,9 @@ class TreatmentServices implements TreatmentRepository {
       (treatment) => TreatmentModel.fromJson(treatment as Map<String, dynamic>),
     );
 
-    if (!response.status) {
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
-    return response.status;
+    return response.success;
   }
 }

@@ -3,7 +3,7 @@ import 'register_doctor_response.dart';
 
 class GetDoctorsResponse extends BaseResponse<List<Doctor>> {
   const GetDoctorsResponse({
-    required super.status,
+    required super.success,
     required super.message,
     super.data,
   });
@@ -11,7 +11,7 @@ class GetDoctorsResponse extends BaseResponse<List<Doctor>> {
   factory GetDoctorsResponse.fromJson(Map<String, dynamic> json) =>
       GetDoctorsResponse(
         data: List<Doctor>.from(json["data"].map((x) => Doctor.fromJson(x))),
-        status: json["is_success"] ?? false,
+        success: json["is_success"] ?? false,
         message: json["message"] ?? "",
       );
 }

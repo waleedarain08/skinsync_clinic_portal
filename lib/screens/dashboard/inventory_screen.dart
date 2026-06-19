@@ -151,7 +151,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               child: Stack(
                 children: [
                   CachedNetworkImage(
-                    imageUrl: item.image,
+                    imageUrl: item.image ??"" ,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorWidget: (context, error, stackTrace) {
@@ -179,9 +179,9 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                         borderRadius: BorderRadius.circular(context.r(20)),
                       ),
                       child: Text(
-                        'Qty: ${item.totalQuantity}',
+                        'Qty: ${item.totalQuantity ?? 0}',
                         style: context.fonts.black12w600.copyWith(
-                          color: item.totalQuantity < 20
+                          color: (item.totalQuantity ?? 0)  < 20
                               ? CustomColors.red
                               : CustomColors.grey,
                         ),
@@ -198,7 +198,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  item.name ?? "",
                   style: context.fonts.black16w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -207,16 +207,16 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 Row(
                   children: [
                     Text(
-                      'AED ${item.originalPrice.toStringAsFixed(2)}',
+                      'AED ${item.originalPrice?.toStringAsFixed(2)}',
                       style: context.fonts.black14w600.copyWith(
                         color: CustomColors.purple,
                       ),
                     ),
-                    if (item.discountedPrice > 0 &&
+                    if ((item.discountedPrice ?? 0) > 0 &&
                         item.discountedPrice != item.originalPrice) ...{
                       SizedBox(width: context.w(10)),
                       Text(
-                        'AED ${item.originalPrice.toStringAsFixed(2)}',
+                        'AED ${item.originalPrice?.toStringAsFixed(2)}',
                         style: context.fonts.black12w400.copyWith(
                           color: CustomColors.purple,
                           decoration: TextDecoration.lineThrough,
