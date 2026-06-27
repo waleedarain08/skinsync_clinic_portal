@@ -66,13 +66,14 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   pdf_kit_editor: ^0.2.0
-  file_picker: ^8.1.7
+  file_picker: ^3.0.4
   path_provider: ^2.1.5
   uuid: ^4.5.1
   country_code_picker: ^3.4.1
   timetable: ^1.0.0-alpha.15
   sidebarx: ^0.17.2
   mime: ^2.0.0
+  flutter_image_compress: ^2.4.0
 
 dev_dependencies:
   flutter_test:
