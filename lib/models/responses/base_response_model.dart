@@ -25,3 +25,13 @@ class BaseResponse<T> {
     return BaseResponse<T>(success: true, message: message, data: data);
   }
 }
+
+class BaseApiResponseModel<T> extends BaseResponse<T> {
+  const BaseApiResponseModel({
+    required super.success,
+    required super.message,
+    super.data,
+  });
+
+  bool get isSuccess => success;
+}

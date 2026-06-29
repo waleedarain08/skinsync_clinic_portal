@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/treatment_template_list_response.dart';
 import '../models/treatment_model.dart';
 import '../repositories/treatment_repository.dart';
 import '../utils/enums.dart';
@@ -129,5 +130,33 @@ class TreatmentServices implements TreatmentRepository {
       throw BadRequestException(response.message);
     }
     return response.success;
+  }
+
+  @override
+  Future<TreatmentTemplateListResponse> getTreatmentTemplates({
+    required int page,
+    int limit = 10,
+    String? search,
+  }) async {
+    final Map<String, String> queryParams = {
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.getTreatmentTemplates,
+      requestType: RequestType.get,
+      queryParams: queryParams,
+    );
+
+    final response = TreatmentTemplateListResponse.fromJson(jsonResponse);
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
   }
 }

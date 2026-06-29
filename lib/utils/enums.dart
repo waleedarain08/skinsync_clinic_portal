@@ -25,6 +25,7 @@ enum Endpoint {
   createDoctor('clinic/doctors/register'),
   getDoctors('clinic/doctors'),
   getAdminTreatments('treatments/masters'),
+  getTreatmentTemplates('clinic/treatments/admin'),
   getAdminTreatmentsSideAreas('clinic/side-areas/treatment/{treatmentId}'),
   addClinicTreatment('clinic/side-areas/bulk'),
   changePassword('clinic/change-password'),

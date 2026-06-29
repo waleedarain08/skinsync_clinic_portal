@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../utils/theme.dart';
+import '../widgets/app_network_image.dart';
 import '../widgets/build_textfield.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../view_models/clinic_add_treatment_view_model.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/number_paginator.dart';
 
 class ClinicAddTreatmentScreen extends ConsumerStatefulWidget {
   const ClinicAddTreatmentScreen({super.key});
@@ -37,6 +39,10 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
   // Form keys
   final _formKey = GlobalKey<FormState>();
 
+  // Scroll controller for infinite pagination & template search controller
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _templatesSearchController = TextEditingController();
+
   // Cached state versions to handle cursor position and synchronization
   ClinicDummyTreatmentTemplate? _lastTemplate;
   Map<int, bool>? _lastDefaults;
@@ -44,6 +50,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     // Reset state on entry
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(clinicAddTreatmentViewModelProvider.notifier).reset();
@@ -52,6 +59,9 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _templatesSearchController.dispose();
     _nameController.dispose();
     _displayNameController.dispose();
     _descController.dispose();
@@ -64,6 +74,15 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
       controller.dispose();
     }
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final state = ref.read(clinicAddTreatmentViewModelProvider);
+      if (state.activeStep == 0) {
+        ref.read(clinicAddTreatmentViewModelProvider.notifier).fetchTemplates();
+      }
+    }
   }
 
   void _syncControllers(ClinicAddTreatmentState state) {
@@ -148,6 +167,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
                 if (!isDesktop && !isTablet) _buildMobileProgress(state),
                 Expanded(
                   child: SingleChildScrollView(
+                    controller: _scrollController,
                     padding: context.appEdgeInsets(horizontal: 24, vertical: 32),
                     child: Center(
                       child: ConstrainedBox(
@@ -555,6 +575,67 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
   }
 
   // ==================== STEP 1: TEMPLATE SELECTION ====================
+  IconData _getIconData(String iconName) {
+    switch (iconName.toLowerCase()) {
+      case 'medication':
+      case 'vaccines':
+        return Icons.vaccines_outlined;
+      case 'spa':
+        return Icons.spa_outlined;
+      case 'science':
+        return Icons.science_outlined;
+      case 'face':
+        return Icons.face_outlined;
+      default:
+        return Icons.vaccines_outlined;
+    }
+  }
+
+  Widget _buildIconWidget(String iconSource) {
+    if (iconSource.startsWith('http') || iconSource.contains('/')) {
+      return AppNetworkImage(
+        imageUrl: iconSource,
+        fit: BoxFit.cover,
+        errorIcon: Icons.broken_image,
+      );
+    }
+    return Container(
+      color: Colors.white.withValues(alpha: 0.2),
+      child: Center(
+        child: Icon(
+          _getIconData(iconSource),
+          color: Colors.white,
+          size: context.sp(14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterPaginator(ClinicAddTreatmentState state) {
+    if (state.templatesTotalPages <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: context.appEdgeInsets(top: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Showing Results ${((state.templatesPage - 2) * 10 + 1).clamp(1, double.infinity).toInt()}-${((state.templatesPage - 2) * 10 + state.templates.length).clamp(0, double.infinity).toInt()}',
+            style: context.fonts.grey14w400,
+          ),
+          NumberPaginator(
+            totalPages: state.templatesTotalPages,
+            currentPage: (state.templatesPage - 2).clamp(0, state.templatesTotalPages - 1),
+            onPageChanged: (pageIndex) {
+              ref.read(clinicAddTreatmentViewModelProvider.notifier).setTemplatesPage(pageIndex + 1);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==================== STEP 1: TEMPLATE SELECTION ====================
   Widget _buildStep1TemplateSelection(ClinicAddTreatmentState state) {
     final notifier = ref.read(clinicAddTreatmentViewModelProvider.notifier);
     return Column(
@@ -568,79 +649,238 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
         ),
         context.verticalSpace(20),
 
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: ClinicDummyData.templates.length,
-          separatorBuilder: (context, index) => context.verticalSpace(12),
-          itemBuilder: (context, index) {
-            final temp = ClinicDummyData.templates[index];
-            final isSelected = state.selectedTemplate?.id == temp.id;
-
-            return InkWell(
-              onTap: () => notifier.selectTemplate(temp),
-              borderRadius: context.appBorderRadius(all: 10),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: context.appEdgeInsets(all: 16),
-                decoration: BoxDecoration(
-                  color: isSelected ? CustomColors.purple.withValues(alpha: 0.08) : Colors.white,
-                  borderRadius: context.appBorderRadius(all: 10),
-                  border: Border.all(
-                    color: isSelected ? CustomColors.purple : CustomColors.border,
-                    width: isSelected ? 1.5 : 1.0,
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(temp.name, style: isSelected ? context.fonts.purple16w600 : context.fonts.black16w600),
-                              context.horizontalSpace(8),
-                              Container(
-                                padding: context.appEdgeInsets(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: CustomColors.whiteGrey,
-                                  borderRadius: context.appBorderRadius(all: 4),
-                                ),
-                                child: Text(
-                                  temp.category,
-                                  style: context.fonts.grey10w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          context.verticalSpace(6),
-                          Text(temp.description, style: context.fonts.grey12w400),
-                          context.verticalSpace(8),
-                          Row(
-                            children: [
-                              Text("UOM: ", style: context.fonts.grey11w600),
-                              Text(temp.products.firstOrNull?.product.uom ?? "Unit", style: context.fonts.black12w600),
-                              context.horizontalSpace(16),
-                              Text("Base price: ", style: context.fonts.grey11w600),
-                              Text("\$${temp.basePrice.toStringAsFixed(2)}", style: context.fonts.black12w600),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
-                      color: isSelected ? CustomColors.purple : CustomColors.grey,
-                      size: 22,
-                    ),
-                  ],
-                ),
-              ),
-            );
+        TextFormField(
+          controller: _templatesSearchController,
+          style: context.fonts.black14w400,
+          decoration: AppDecorations.input(
+            context,
+            hint: "Search treatment templates by name...",
+            prefixIcon: const Icon(Icons.search_rounded, color: CustomColors.grey),
+            suffixIcon: _templatesSearchController.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.clear, color: CustomColors.grey),
+                    onPressed: () {
+                      _templatesSearchController.clear();
+                      setState(() {});
+                      notifier.onSearchChanged('');
+                    },
+                  )
+                : null,
+          ),
+          onChanged: (val) {
+            setState(() {});
+            notifier.onSearchChanged(val);
           },
         ),
+        context.verticalSpace(20),
+
+        if (state.isLoadingTemplates && state.templates.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: CircularProgressIndicator(color: CustomColors.purple),
+            ),
+          )
+        else if (state.templatesError != null && state.templates.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: Column(
+                children: [
+                  const Icon(Icons.error_outline, color: CustomColors.red, size: 40),
+                  context.verticalSpace(12),
+                  Text(
+                    state.templatesError!,
+                    style: context.fonts.black14w600,
+                    textAlign: TextAlign.center,
+                  ),
+                  context.verticalSpace(12),
+                  CustomOutlinedButton(
+                    onTap: () => notifier.fetchTemplates(isRefresh: true),
+                    label: "Retry",
+                  ),
+                ],
+              ),
+            ),
+          )
+        else if (state.templates.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: Column(
+                children: [
+                  const Icon(Icons.search_off_rounded, color: CustomColors.grey, size: 40),
+                  context.verticalSpace(12),
+                  Text(
+                    "No treatment templates found",
+                    style: context.fonts.black14w600,
+                  ),
+                ],
+              ),
+            ),
+          )
+        else ...[
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: context.screenWidth > 1200 ? 4 : (context.screenWidth > 800 ? 3 : 2),
+              crossAxisSpacing: context.w(16),
+              mainAxisSpacing: context.h(16),
+              childAspectRatio: 180 / 130,
+            ),
+            itemCount: state.templates.length,
+            itemBuilder: (context, index) {
+              final temp = state.templates[index];
+              final isSelected = state.selectedTemplate?.id == temp.id.toString();
+
+              return GestureDetector(
+                onTap: () => notifier.selectTemplate(temp),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: context.appBorderRadius(all: 16),
+                    border: Border.all(
+                      color: isSelected ? CustomColors.purple : CustomColors.border,
+                      width: isSelected ? 2.5 : 1,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: CustomColors.purple.withValues(alpha: 0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : AppShadows.xs(context),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: context.appBorderRadius(all: 14), // Account for border width
+                    child: Stack(
+                      children: [
+                        // 1. Full-Cover Image Background
+                        Positioned.fill(
+                          child: AppNetworkImage(
+                            imageUrl: temp.image ?? '',
+                            fit: BoxFit.cover,
+                            placeholderColor: CustomColors.whiteGrey,
+                          ),
+                        ),
+
+                        // 2. Selection Tint / Dark Overlay Gradient for readability
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: isSelected
+                                    ? [
+                                        CustomColors.purple.withValues(alpha: 0.25),
+                                        CustomColors.purple.withValues(alpha: 0.65),
+                                        CustomColors.purple.withValues(alpha: 0.9),
+                                      ]
+                                    : [
+                                        Colors.transparent,
+                                        Colors.black.withValues(alpha: 0.35),
+                                        Colors.black.withValues(alpha: 0.7),
+                                      ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // 3. Title Aligned to Bottom (and shortDescription under it if present)
+                        Positioned(
+                          bottom: context.h(12),
+                          left: context.w(12),
+                          right: context.w(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                temp.name ?? '',
+                                style: context.fonts.white14w600.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (temp.shortDescription != null && temp.shortDescription!.isNotEmpty) ...[
+                                context.verticalSpace(2),
+                                Text(
+                                  temp.shortDescription!,
+                                  style: context.fonts.grey10w400.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+
+                        // 4. Icon/Thumbnail Container on Top Left
+                        if (temp.icon != null && temp.icon!.isNotEmpty)
+                          Positioned(
+                            top: context.h(10),
+                            left: context.w(10),
+                            child: Container(
+                              width: context.w(28),
+                              height: context.w(28),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  width: 1,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(7),
+                                child: _buildIconWidget(temp.icon!),
+                              ),
+                            ),
+                          ),
+
+                        // 5. Check Indicator on Top Right
+                        Positioned(
+                          top: context.h(10),
+                          right: context.w(10),
+                          child: Container(
+                            padding: EdgeInsets.all(context.w(4)),
+                            decoration: BoxDecoration(
+                              color: isSelected ? CustomColors.purple : Colors.black.withValues(alpha: 0.4),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              isSelected ? Icons.check : Icons.circle_outlined,
+                              size: context.sp(12),
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          if (state.isLoadingTemplates)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: CircularProgressIndicator(color: CustomColors.purple),
+              ),
+            ),
+          _buildFooterPaginator(state),
+        ],
 
         if (state.selectedTemplate != null) ...[
           context.verticalSpace(24),

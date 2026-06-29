@@ -1,4 +1,8 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/responses/treatment_template_list_response.dart';
+import '../repositories/treatment_repository.dart';
+import '../services/locator.dart';
 import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
@@ -29,6 +33,15 @@ class ClinicAddTreatmentState {
   final List<ClinicDummyProductUsage> products;
   final double basePrice;
   final Map<String, double> uomPrices;
+
+  // Pagination states
+  final List<TreatmentTemplateItemModel> templates;
+  final bool isLoadingTemplates;
+  final int templatesPage;
+  final int templatesTotalPages;
+  final bool templatesHasMore;
+  final String templatesSearch;
+  final String? templatesError;
 
   ClinicAddTreatmentState({
     this.selectedTemplate,
@@ -62,6 +75,13 @@ class ClinicAddTreatmentState {
     this.products = const [],
     this.basePrice = 0.0,
     this.uomPrices = const {},
+    this.templates = const [],
+    this.isLoadingTemplates = false,
+    this.templatesPage = 1,
+    this.templatesTotalPages = 1,
+    this.templatesHasMore = true,
+    this.templatesSearch = '',
+    this.templatesError,
   });
 
   ClinicAddTreatmentState copyWith({
@@ -85,6 +105,13 @@ class ClinicAddTreatmentState {
     List<ClinicDummyProductUsage>? products,
     double? basePrice,
     Map<String, double>? uomPrices,
+    List<TreatmentTemplateItemModel>? templates,
+    bool? isLoadingTemplates,
+    int? templatesPage,
+    int? templatesTotalPages,
+    bool? templatesHasMore,
+    String? templatesSearch,
+    String? templatesError,
   }) {
     return ClinicAddTreatmentState(
       selectedTemplate: selectedTemplate ?? this.selectedTemplate,
@@ -107,6 +134,13 @@ class ClinicAddTreatmentState {
       products: products ?? this.products,
       basePrice: basePrice ?? this.basePrice,
       uomPrices: uomPrices ?? this.uomPrices,
+      templates: templates ?? this.templates,
+      isLoadingTemplates: isLoadingTemplates ?? this.isLoadingTemplates,
+      templatesPage: templatesPage ?? this.templatesPage,
+      templatesTotalPages: templatesTotalPages ?? this.templatesTotalPages,
+      templatesHasMore: templatesHasMore ?? this.templatesHasMore,
+      templatesSearch: templatesSearch ?? this.templatesSearch,
+      templatesError: templatesError ?? this.templatesError,
     );
   }
 
@@ -158,17 +192,111 @@ class ClinicAddTreatmentState {
 class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState> {
   ClinicAddTreatmentViewModel._();
 
+  Timer? _searchDebounce;
+
   @override
   ClinicAddTreatmentState build() {
     init();
     ref.onDispose(dispose);
+    // Fetch initial templates on build/entry
+    Future.microtask(() => fetchTemplates(isRefresh: true));
     return ClinicAddTreatmentState();
   }
 
-  void selectTemplate(ClinicDummyTreatmentTemplate template) {
-    // When selecting a template, pre-populate all local custom variables as well
-    // so if the user switches to Custom, they have a solid starting point instead of empty.
-    
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> fetchTemplates({bool isRefresh = false}) async {
+    if (state.isLoadingTemplates) return;
+
+    final int targetPage = isRefresh ? 1 : state.templatesPage;
+    if (!isRefresh && !state.templatesHasMore) return;
+
+    state = state.copyWith(
+      isLoadingTemplates: true,
+      templatesError: null,
+      templatesPage: targetPage,
+      templates: isRefresh ? [] : state.templates,
+    );
+
+    try {
+      final repository = locator<TreatmentRepository>();
+      final response = await repository.getTreatmentTemplates(
+        page: targetPage,
+        limit: 10,
+        search: state.templatesSearch,
+      );
+
+      final List<TreatmentTemplateItemModel> newTemplates = response.data ?? [];
+      final int totalPages = response.totalPages ?? 1;
+
+      state = state.copyWith(
+        templates: isRefresh ? newTemplates : [...state.templates, ...newTemplates],
+        isLoadingTemplates: false,
+        templatesPage: targetPage + 1,
+        templatesTotalPages: totalPages,
+        templatesHasMore: targetPage < totalPages && newTemplates.isNotEmpty,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingTemplates: false,
+        templatesError: e.toString().replaceAll('Exception:', '').trim(),
+        templatesHasMore: false,
+      );
+    }
+  }
+
+  void onSearchChanged(String query) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+
+    state = state.copyWith(templatesSearch: query);
+
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      fetchTemplates(isRefresh: true);
+    });
+  }
+
+  void selectTemplate(TreatmentTemplateItemModel item) {
+    // Convert to ClinicDummyTreatmentTemplate to preserve wizard compatibility
+    final template = ClinicDummyTreatmentTemplate(
+      id: item.id?.toString() ?? '',
+      name: item.name ?? '',
+      patientDisplayName: item.name ?? '',
+      category: 'Injectables',
+      subcategory: 'Neuromodulators',
+      sku: item.globalSku ?? '',
+      description: item.shortDescription ?? '',
+      status: item.status ?? 'Draft',
+      sessions: [
+        ClinicDummySession(
+          number: 1,
+          followUps: [
+            ClinicDummyFollowUp(
+              appointmentType: 'In-Person',
+              intervalValue: 1,
+              intervalUnit: 'Weeks',
+              isImageUploadMandatory: false,
+              clinicalInstructions: '',
+            )
+          ],
+        )
+      ],
+      consentFormName: 'Clinic_Standard_Clinical_Consent_Form.pdf',
+      preTreatmentNotificationTitle: 'Preparing for Treatment',
+      preTreatmentNotificationMessage: 'Please follow the preparation guidelines.',
+      preTreatmentNotificationTiming: '24 Hours Before',
+      postTreatmentNotificationTitle: 'Aftercare Instructions',
+      postTreatmentNotificationMessage: 'Please follow the aftercare guidelines.',
+      postTreatmentNotificationTiming: '24 Hours After',
+      downtimeLevel: 'None',
+      allowedRoles: ['Injector'],
+      products: [],
+      basePrice: 0.0,
+    );
+
     // Deep copy sessions
     final copiedSessions = template.sessions.map((s) {
       return ClinicDummySession(
@@ -180,19 +308,6 @@ class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState>
           isImageUploadMandatory: f.isImageUploadMandatory,
           clinicalInstructions: f.clinicalInstructions,
         )).toList(),
-      );
-    }).toList();
-
-    // Deep copy products
-    final copiedProducts = template.products.map((p) {
-      return ClinicDummyProductUsage(
-        product: p.product,
-        usageType: p.usageType,
-        deductionTiming: p.deductionTiming,
-        allowSubstitution: p.allowSubstitution,
-        minQty: p.minQty,
-        maxQty: p.maxQty,
-        targetAreas: List<String>.from(p.targetAreas),
       );
     }).toList();
 
@@ -212,7 +327,7 @@ class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState>
       postNotificationTiming: template.postTreatmentNotificationTiming,
       downtimeLevel: template.downtimeLevel,
       allowedRoles: List<String>.from(template.allowedRoles),
-      products: copiedProducts,
+      products: [],
       basePrice: template.basePrice,
       uomPrices: {
         'Unit': 12.0,
@@ -451,5 +566,13 @@ class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState>
 
   void reset() {
     state = ClinicAddTreatmentState();
+  }
+
+  void setTemplatesPage(int page) {
+    state = state.copyWith(
+      templatesPage: page,
+      templatesHasMore: true,
+    );
+    fetchTemplates(isRefresh: true);
   }
 }
