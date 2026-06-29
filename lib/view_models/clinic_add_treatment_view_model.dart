@@ -198,8 +198,6 @@ class ClinicAddTreatmentViewModel extends BaseViewModel<ClinicAddTreatmentState>
   ClinicAddTreatmentState build() {
     init();
     ref.onDispose(dispose);
-    // Fetch initial templates on build/entry
-    Future.microtask(() => fetchTemplates(isRefresh: true));
     return ClinicAddTreatmentState();
   }
 

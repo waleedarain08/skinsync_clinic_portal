@@ -51,9 +51,10 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Reset state on entry
+    // Reset state and fetch templates on entry
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(clinicAddTreatmentViewModelProvider.notifier).reset();
+      ref.read(clinicAddTreatmentViewModelProvider.notifier).fetchTemplates(isRefresh: true);
     });
   }
 
