@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
@@ -10,6 +11,7 @@ import '../../widgets/custom_primary_button.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
+import '../../widgets/app_network_image.dart';
 import '../../widgets/dialog_box/edit_treatment_dailogbox.dart';
 import 'treatment_detail_screen.dart';
 
@@ -24,21 +26,29 @@ class TreatmentScreen extends ConsumerStatefulWidget {
 
 class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  int _currentPage = 0;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(treatmentViewModelProvider.notifier).getTreatments();
+      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
     });
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(treatmentViewModelProvider.notifier).getTreatments();
+    }
   }
 
   @override
@@ -46,30 +56,68 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     final state = ref.watch(treatmentViewModelProvider);
     final viewModel = ref.read(treatmentViewModelProvider.notifier);
 
-    // Filter treatments dynamically based on search controller query
-    final filteredTreatments = state.treatments.where((t) {
-      final query = _searchQuery.toLowerCase();
-      return query.isEmpty ||
-          (t.name?.toLowerCase().contains(query) ?? false) ||
-          (t.description?.toLowerCase().contains(query) ?? false);
-    }).toList();
-
     return GradientScaffold(
-      body: SingleChildScrollView(
-        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(context),
-            context.verticalSpace(32),
-            _buildQuickInsights(state),
-            context.verticalSpace(32),
-            _buildFilters(context),
-            context.verticalSpace(24),
-            _buildTreatmentTable(filteredTreatments, viewModel),
-            context.verticalSpace(24),
-            _buildFooterPaginator(),
-          ],
+      body: RefreshIndicator(
+        color: CustomColors.purple,
+        onRefresh: () async {
+          await ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+        },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context),
+              context.verticalSpace(32),
+              _buildQuickInsights(state),
+              context.verticalSpace(32),
+              _buildFilters(context, state),
+              context.verticalSpace(24),
+              if (state.loading && state.treatments.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 80),
+                  child: Center(
+                    child: CircularProgressIndicator(color: CustomColors.purple),
+                  ),
+                )
+              else if (state.error != null && state.treatments.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 80),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.error_outline, color: CustomColors.red, size: 48),
+                        context.verticalSpace(16),
+                        Text(
+                          state.error!,
+                          style: context.fonts.black16w600,
+                          textAlign: TextAlign.center,
+                        ),
+                        context.verticalSpace(16),
+                        CustomOutlinedButton(
+                          onTap: () => viewModel.getTreatments(isRefresh: true),
+                          label: "Retry",
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else ...[
+                _buildTreatmentTable(state.treatments, viewModel),
+                if (state.loading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: CircularProgressIndicator(color: CustomColors.purple),
+                    ),
+                  ),
+                context.verticalSpace(24),
+                _buildFooterPaginator(state),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -185,7 +233,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     );
   }
 
-  Widget _buildFilters(BuildContext context) {
+  Widget _buildFilters(BuildContext context, TreatmentState state) {
+    final viewModel = ref.read(treatmentViewModelProvider.notifier);
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
       child: Row(
@@ -203,18 +252,56 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                         icon: const Icon(Icons.clear, color: CustomColors.grey),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
+                          setState(() {});
+                          viewModel.onSearchChanged('');
                         },
                       )
                     : null,
               ),
               onChanged: (val) {
-                setState(() {
-                  _searchQuery = val;
-                });
+                setState(() {});
+                viewModel.onSearchChanged(val);
               },
+            ),
+          ),
+          context.horizontalSpace(16),
+          SizedBox(
+            width: context.w(180),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                isExpanded: true,
+                hint: Text("All Status", style: context.fonts.grey14w400),
+                value: state.status.isEmpty ? null : state.status,
+                items: ["", "active", "inactive", "draft"].map((val) {
+                  return DropdownMenuItem<String>(
+                    value: val,
+                    child: Text(
+                      val.isEmpty ? "All Status" : val.toUpperCase(),
+                      style: context.fonts.black14w400,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    viewModel.onStatusChanged(val);
+                  }
+                },
+                buttonStyleData: ButtonStyleData(
+                  height: context.h(48),
+                  padding: context.appEdgeInsets(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: context.appBorderRadius(all: 8),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                ),
+                dropdownStyleData: DropdownStyleData(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: context.appBorderRadius(all: 12),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -278,7 +365,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                         : 'Single Standard Area',
                     style: context.fonts.grey14w400,
                   ),
-                  _statusBadgeCell(),
+                  _statusBadgeCell(t.status),
                   _actionsCell(t, viewModel),
                 ],
               );
@@ -311,8 +398,15 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               color: CustomColors.whiteGrey,
               borderRadius: context.appBorderRadius(all: 8),
             ),
-            child: const Center(
-              child: Icon(Icons.vaccines_outlined, color: CustomColors.purple),
+            child: ClipRRect(
+              borderRadius: context.appBorderRadius(all: 8),
+              child: (treatment.image != null && treatment.image!.isNotEmpty)
+                  ? AppNetworkImage(imageUrl: treatment.image!, fit: BoxFit.cover)
+                  : (treatment.icon != null && treatment.icon!.isNotEmpty)
+                      ? AppNetworkImage(imageUrl: treatment.icon!, fit: BoxFit.cover)
+                      : const Center(
+                          child: Icon(Icons.vaccines_outlined, color: CustomColors.purple),
+                        ),
             ),
           ),
           context.horizontalSpace(16),
@@ -327,12 +421,20 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 context.verticalSpace(2),
-                Text(
-                  treatment.isArea == true ? 'Anatomical Structure' : 'Standard Procedure',
-                  style: context.fonts.purple12w700,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                if (treatment.globalSku != null && treatment.globalSku!.isNotEmpty)
+                  Text(
+                    'SKU: ${treatment.globalSku}',
+                    style: context.fonts.grey11w400,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                else
+                  Text(
+                    treatment.isArea == true ? 'Anatomical Structure' : 'Standard Procedure',
+                    style: context.fonts.purple12w700,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
               ],
             ),
           ),
@@ -353,9 +455,15 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     );
   }
 
-  Widget _statusBadgeCell() {
+  Widget _statusBadgeCell(String? status) {
+    final s = (status ?? 'Active').toLowerCase();
     Color badgeColor = CustomColors.green;
-    String label = 'Active';
+    if (s == 'draft') {
+      badgeColor = Colors.orange;
+    } else if (s == 'inactive') {
+      badgeColor = CustomColors.grey;
+    }
+    String label = status ?? 'Active';
 
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
@@ -430,6 +538,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final viewModel = ref.read(treatmentViewModelProvider.notifier);
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 48),
       child: Center(
@@ -466,9 +575,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                 CustomOutlinedButton(
                   onTap: () {
                     _searchController.clear();
-                    setState(() {
-                      _searchQuery = '';
-                    });
+                    setState(() {});
+                    viewModel.onSearchChanged('');
                   },
                   label: 'Clear Search Filter',
                 ),
@@ -489,17 +597,24 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     );
   }
 
-  Widget _buildFooterPaginator() {
-    return Center(
-      child: NumberPaginator(
-        totalPages: 1,
-        currentPage: _currentPage,
-        onPageChanged: (pageIndex) {
-          setState(() {
-            _currentPage = pageIndex;
-          });
-        },
-      ),
+  Widget _buildFooterPaginator(TreatmentState state) {
+    if (state.totalPages <= 1) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Showing Results ${((state.page - 2) * 10 + 1).clamp(1, double.infinity).toInt()}-${((state.page - 2) * 10 + state.treatments.length).clamp(0, double.infinity).toInt()}',
+          style: context.fonts.grey14w400,
+        ),
+        NumberPaginator(
+          totalPages: state.totalPages,
+          currentPage: (state.page - 2).clamp(0, state.totalPages - 1),
+          onPageChanged: (pageIndex) {
+            ref.read(treatmentViewModelProvider.notifier).setPage(pageIndex + 1);
+          },
+        ),
+      ],
     );
   }
 }

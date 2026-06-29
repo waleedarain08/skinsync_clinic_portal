@@ -3,6 +3,11 @@ class TreatmentModel {
   int? price;
   String? name;
   String? description;
+  String? shortDescription;
+  String? globalSku;
+  String? icon;
+  String? image;
+  String? status;
   bool? isArea;
   List<SideAreaModel>? sideAreas;
 
@@ -10,6 +15,11 @@ class TreatmentModel {
     this.id,
     this.name,
     this.description,
+    this.shortDescription,
+    this.globalSku,
+    this.icon,
+    this.image,
+    this.status,
     this.isArea,
     this.sideAreas,
     this.price,
@@ -17,9 +27,14 @@ class TreatmentModel {
 
   TreatmentModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    price = json['treatment_price'];
+    price = json['treatment_price'] ?? json['price'];
     name = json['name'];
-    description = json['description'];
+    description = json['description'] ?? json['short_description'];
+    shortDescription = json['short_description'];
+    globalSku = json['global_sku'];
+    icon = json['icon'];
+    image = json['image'];
+    status = json['status'];
     isArea = json['is_area'];
     sideAreas = json['side_areas'] != null
         ? (json['side_areas'] as List)
@@ -32,6 +47,11 @@ class TreatmentModel {
     int? id,
     String? name,
     String? description,
+    String? shortDescription,
+    String? globalSku,
+    String? icon,
+    String? image,
+    String? status,
     bool? isArea,
     List<SideAreaModel>? sideAreas,
     int? price,
@@ -40,6 +60,11 @@ class TreatmentModel {
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      shortDescription: shortDescription ?? this.shortDescription,
+      globalSku: globalSku ?? this.globalSku,
+      icon: icon ?? this.icon,
+      image: image ?? this.image,
+      status: status ?? this.status,
       isArea: isArea ?? this.isArea,
       sideAreas: sideAreas ?? this.sideAreas,
       price: price ?? this.price,

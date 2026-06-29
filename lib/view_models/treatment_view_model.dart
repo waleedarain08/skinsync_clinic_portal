@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/treatment_model.dart';
 import '../models/requests/add_treatment_req_model.dart';
+import '../models/responses/clinic_treatment_list_response.dart';
+import '../repositories/treatment_repository.dart';
+import '../services/locator.dart';
 import 'base_view_model.dart';
 
 final treatmentViewModelProvider = NotifierProvider<TreamententViewModel, TreatmentState>(
@@ -10,6 +14,8 @@ final treatmentViewModelProvider = NotifierProvider<TreamententViewModel, Treatm
 class TreamententViewModel extends BaseViewModel<TreatmentState> {
   TreamententViewModel._();
 
+  Timer? _searchDebounce;
+
   @override
   TreatmentState build() {
     init();
@@ -17,126 +23,141 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     return TreatmentState();
   }
 
-  // Pre-configured realistic, high-fidelity medspa dummy treatments
-  final List<TreatmentModel> _dummyTreatments = [
-    TreatmentModel(
-      id: 1,
-      name: 'Botox Cosmetic Clinical Edition',
-      price: 1500,
-      description: 'Premium FDA-approved injectable treatment to temporarily reduce facial fine lines, forehead folds, and crow\'s feet wrinkles.',
-      isArea: true,
-      sideAreas: [
-        SideAreaModel(id: 101, name: 'Forehead', perSyringePrice: 350.0, maxSyringe: 2),
-        SideAreaModel(id: 102, name: 'Glabella Line', perSyringePrice: 400.0, maxSyringe: 1),
-        SideAreaModel(id: 103, name: 'Crows Feet', perSyringePrice: 300.0, maxSyringe: 2),
-      ],
-    ),
-    TreatmentModel(
-      id: 2,
-      name: 'Dermal Fillers (Juvederm Ultra)',
-      price: 2400,
-      description: 'Advanced hyaluronic acid volumizing filler treatment designed to restore skin elasticity, contour cheeks, and restore lip youthfulness.',
-      isArea: true,
-      sideAreas: [
-        SideAreaModel(id: 201, name: 'Temples', perSyringePrice: 800.0, maxSyringe: 2),
-        SideAreaModel(id: 202, name: 'Cheeks', perSyringePrice: 1200.0, maxSyringe: 3),
-      ],
-    ),
-    TreatmentModel(
-      id: 3,
-      name: 'Laser Skin Resurfacing',
-      price: 3500,
-      description: 'Advanced fractional laser skin rejuvenation therapy to significantly boost collagen production and repair micro-texture scars.',
-      isArea: false,
-    ),
-    TreatmentModel(
-      id: 4,
-      name: 'HydraFacial Platinum Therapy',
-      price: 850,
-      description: 'Ultra-smoothing multi-step deep cleansing, exfoliating, vacuum extraction, and antioxidant peptide hydration therapy.',
-      isArea: false,
-    ),
-  ];
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
 
-  Future<bool> getTreatments() async {
-    state = state.copyWith(loading: true);
-    // Simulate real network delay for high-fidelity visual loading state
-    await Future.delayed(const Duration(milliseconds: 400));
-    state = state.copyWith(treatments: [..._dummyTreatments], loading: false);
-    return true;
+  Future<void> getTreatments({bool isRefresh = false}) async {
+    if (state.loading) return;
+
+    final int targetPage = isRefresh ? 1 : state.page;
+    if (!isRefresh && !state.hasMore) return;
+
+    state = state.copyWith(
+      loading: true,
+      error: null,
+      page: targetPage,
+      treatments: isRefresh ? [] : state.treatments,
+    );
+
+    try {
+       final repository = locator<TreatmentRepository>();
+       final ClinicTreatmentListResponse response = await repository.getClinicTreatments(
+         page: targetPage,
+         limit: state.limit,
+         search: state.search,
+         status: state.status,
+       );
+
+       final List<TreatmentModel> newTreatments = response.data ?? [];
+       final int totalPages = response.totalPages ?? 1;
+
+       state = state.copyWith(
+         treatments: isRefresh ? newTreatments : [...state.treatments, ...newTreatments],
+         loading: false,
+         page: targetPage + 1,
+         totalPages: totalPages,
+         hasMore: targetPage < totalPages && newTreatments.isNotEmpty,
+       );
+    } catch (e) {
+       state = state.copyWith(
+         loading: false,
+         error: e.toString().replaceAll('Exception:', '').trim(),
+         hasMore: false,
+       );
+    }
+  }
+
+  void onSearchChanged(String query) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+
+    state = state.copyWith(search: query);
+
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      getTreatments(isRefresh: true);
+    });
+  }
+
+  void onStatusChanged(String status) {
+    state = state.copyWith(status: status);
+    getTreatments(isRefresh: true);
   }
 
   Future<List<TreatmentModel>> getAdminTreatments() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return [..._dummyTreatments];
+    final repository = locator<TreatmentRepository>();
+    final response = await repository.getTreatmentTemplates(page: 1, limit: 100);
+    return response.data?.map((item) => TreatmentModel(
+      id: item.id,
+      name: item.name,
+      description: item.shortDescription,
+      price: 0,
+      isArea: false,
+    )).toList() ?? [];
   }
 
   Future<List<SideAreaModel>> getTreatmentsSideAreas({
     required int treatmentId,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    final t = _dummyTreatments.firstWhere(
-      (e) => e.id == treatmentId,
-      orElse: () => _dummyTreatments.first,
-    );
-    return [...?t.sideAreas];
+    try {
+      final repository = locator<TreatmentRepository>();
+      return await repository.getTreatmentsSideArea(treatmentId);
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<bool> addClinicTreatment({
     required AddTreatmentReqModel treatment,
   }) async {
     state = state.copyWith(loading: true);
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    final template = _dummyTreatments.firstWhere(
-      (e) => e.id == treatment.treatmentId,
-      orElse: () => TreatmentModel(id: treatment.treatmentId, name: "Custom Treatment"),
-    );
-
-    final newT = template.copyWith(
-      price: treatment.treatmentPrice.toInt(),
-      sideAreas: treatment.sideareas,
-    );
-
-    // Update in-memory collections
-    if (!_dummyTreatments.any((e) => e.id == newT.id)) {
-      _dummyTreatments.add(newT);
+    try {
+      await locator<TreatmentRepository>().addTreatment(treatment);
+      await getTreatments(isRefresh: true);
+      return true;
+    } catch (e) {
+      state = state.copyWith(loading: false);
+      return false;
     }
-
-    state = state.copyWith(treatments: [..._dummyTreatments], loading: false);
-    return true;
   }
 
   Future<bool> editClinicTreatment({
     required AddTreatmentReqModel treatment,
   }) async {
     state = state.copyWith(loading: true);
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    final index = _dummyTreatments.indexWhere((e) => e.id == treatment.treatmentId);
-    if (index != -1) {
-      _dummyTreatments[index] = _dummyTreatments[index].copyWith(
-        price: treatment.treatmentPrice.toInt(),
-        sideAreas: treatment.sideareas,
-      );
+    try {
+      await locator<TreatmentRepository>().editTreatment(treatment);
+      await getTreatments(isRefresh: true);
+      return true;
+    } catch (e) {
+      state = state.copyWith(loading: false);
+      return false;
     }
-
-    state = state.copyWith(treatments: [..._dummyTreatments], loading: false);
-    return true;
   }
 
   Future<bool> deleteTreatment({required int treatmentId}) async {
     state = state.copyWith(loading: true);
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    _dummyTreatments.removeWhere((e) => e.id == treatmentId);
-
-    state = state.copyWith(treatments: [..._dummyTreatments], loading: false);
-    return true;
+    try {
+      await locator<TreatmentRepository>().deleteTreatment(treatmentId);
+      await getTreatments(isRefresh: true);
+      return true;
+    } catch (e) {
+      state = state.copyWith(loading: false);
+      return false;
+    }
   }
 
   void setTreatment(int treatmentId) {
     state = state.copyWith(selectedTreatmentId: treatmentId);
+  }
+
+  void setPage(int page) {
+    state = state.copyWith(
+      page: page,
+      hasMore: true,
+    );
+    getTreatments(isRefresh: true);
   }
 }
 
@@ -144,22 +165,50 @@ class TreatmentState {
   final List<TreatmentModel> treatments;
   final int? selectedTreatmentId;
   final bool loading;
+  final int page;
+  final int limit;
+  final String search;
+  final String status;
+  final int totalPages;
+  final bool hasMore;
+  final String? error;
 
   TreatmentState({
     this.treatments = const [],
     this.loading = false,
     this.selectedTreatmentId,
+    this.page = 1,
+    this.limit = 10,
+    this.search = '',
+    this.status = '',
+    this.totalPages = 1,
+    this.hasMore = true,
+    this.error,
   });
 
   TreatmentState copyWith({
     bool? loading,
     List<TreatmentModel>? treatments,
     int? selectedTreatmentId,
+    int? page,
+    int? limit,
+    String? search,
+    String? status,
+    int? totalPages,
+    bool? hasMore,
+    String? error,
   }) {
     return TreatmentState(
       loading: loading ?? this.loading,
       treatments: treatments ?? this.treatments,
       selectedTreatmentId: selectedTreatmentId ?? this.selectedTreatmentId,
+      page: page ?? this.page,
+      limit: limit ?? this.limit,
+      search: search ?? this.search,
+      status: status ?? this.status,
+      totalPages: totalPages ?? this.totalPages,
+      hasMore: hasMore ?? this.hasMore,
+      error: error,
     );
   }
 }

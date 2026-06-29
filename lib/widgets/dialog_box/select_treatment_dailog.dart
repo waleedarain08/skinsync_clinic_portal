@@ -26,12 +26,7 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(treatmentViewModelProvider.notifier).getTreatments().then((
-        success,
-      ) {
-        if (!success) {
-          return;
-        }
+      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true).then((_) {
         final treatments = ref.read(treatmentViewModelProvider).treatments;
         setState(() {
           _loadingTreatments = false;

@@ -3,6 +3,7 @@ import 'dart:async';
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/treatment_template_list_response.dart';
+import '../models/responses/clinic_treatment_list_response.dart';
 import '../models/treatment_model.dart';
 import '../repositories/treatment_repository.dart';
 import '../utils/enums.dart';
@@ -15,24 +16,35 @@ class TreatmentServices implements TreatmentRepository {
   TreatmentServices({required ApiBaseService api}) : _api = api;
 
   @override
-  Future<List<TreatmentModel>> getClinicTreatments() async {
+  Future<ClinicTreatmentListResponse> getClinicTreatments({
+    required int page,
+    int limit = 10,
+    String? search,
+    String? status,
+  }) async {
+    final Map<String, String> queryParams = {
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+    if (status != null && status.isNotEmpty) {
+      queryParams['status'] = status;
+    }
+
     final jsonResponse = await _api.httpRequest(
       endPoint: Endpoint.getClinicTreatments,
       requestType: RequestType.get,
+      queryParams: queryParams,
     );
-    final response = BaseResponse<List<TreatmentModel>>.fromJson(jsonResponse, (
-      treatmentList,
-    ) {
-      treatmentList as List;
-      return treatmentList
-          .map((json) => TreatmentModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    });
+
+    final response = ClinicTreatmentListResponse.fromJson(jsonResponse);
 
     if (!response.success) {
       throw BadRequestException(response.message);
     }
-    return response.data ?? [];
+    return response;
   }
 
   @override
