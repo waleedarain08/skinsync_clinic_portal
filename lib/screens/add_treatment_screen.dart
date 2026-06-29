@@ -882,47 +882,7 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<ClinicAddTreatmentScr
             ),
           _buildFooterPaginator(state),
         ],
-
-        if (state.selectedTemplate != null) ...[
-          context.verticalSpace(24),
-          const Divider(),
-          context.verticalSpace(16),
-          Text("Inherited Structural Metadata", style: context.fonts.black16w600),
-          context.verticalSpace(12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildReadonlyLabelValue("Category", state.selectedTemplate!.category),
-              ),
-              context.horizontalSpace(16),
-              Expanded(
-                child: _buildReadonlyLabelValue("Subcategory", state.selectedTemplate!.subcategory),
-              ),
-            ],
-          ),
-          context.verticalSpace(12),
-          _buildReadonlyLabelValue("Global SKU Identifier", state.selectedTemplate!.sku),
-        ],
       ],
-    );
-  }
-
-  Widget _buildReadonlyLabelValue(String label, String value) {
-    return Container(
-      padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: CustomColors.whiteGrey,
-        borderRadius: context.appBorderRadius(all: 6),
-        border: Border.all(color: CustomColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: context.fonts.grey10w700),
-          context.verticalSpace(4),
-          Text(value, style: context.fonts.black13w600),
-        ],
-      ),
     );
   }
 
