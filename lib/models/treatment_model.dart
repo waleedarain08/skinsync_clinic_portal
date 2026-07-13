@@ -104,3 +104,52 @@ class SideAreaModel {
     };
   }
 }
+
+
+class TreatmentProtocolNoteItem {
+  final String? title;
+  final String description;
+  final int order;
+
+  TreatmentProtocolNoteItem({
+    this.title,
+    required this.description,
+    required this.order,
+  });
+
+  factory TreatmentProtocolNoteItem.fromJson(Map<String, dynamic> json) =>
+      TreatmentProtocolNoteItem(
+        title: json['title'],
+        description: json['description'] ?? '',
+        order: json['order'] ?? 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'description': description,
+    'order': order,
+  };
+}
+
+class TreatmentProtocolNote {
+  final String protocolName;
+  final List<TreatmentProtocolNoteItem> notes;
+
+  TreatmentProtocolNote({required this.protocolName, required this.notes});
+
+  factory TreatmentProtocolNote.fromJson(Map<String, dynamic> json) =>
+      TreatmentProtocolNote(
+        protocolName: json['protocolName'] ?? '',
+        notes: json['notes'] != null
+            ? (json['notes'] as List)
+                  .map((e) => TreatmentProtocolNoteItem.fromJson(e))
+                  .toList()
+            : [],
+      );
+
+  Map<String, dynamic> toJson() => {
+    'protocolName': protocolName,
+    'notes': notes.map((e) => e.toJson()).toList(),
+  };
+}
+

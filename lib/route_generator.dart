@@ -35,7 +35,6 @@ import 'screens/sign_in_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/update_treatment_screen.dart';
-import 'models/treatment_model.dart' as model_treatment;
 import 'services/locator.dart';
 import 'services/storage_service.dart';
 
@@ -167,8 +166,8 @@ class RouteGenerator {
             name: TreatmentDetailScreen.routeName,
             path: TreatmentDetailScreen.routeName,
             builder: (_, state) {
-              final treatment = state.extra as model_treatment.TreatmentModel;
-              return TreatmentDetailScreen(treatment: treatment);
+            //  final treatment = state.extra as model_treatment.TreatmentModel;
+              return const TreatmentDetailScreen();
             },
           ),
           GoRoute(
