@@ -43,6 +43,7 @@ class ClinicAddTreatmentState {
   final String templatesSearch;
   final String? templatesError;
 
+
   ClinicAddTreatmentState({
     this.selectedTemplate,
     this.activeStep = 0,
