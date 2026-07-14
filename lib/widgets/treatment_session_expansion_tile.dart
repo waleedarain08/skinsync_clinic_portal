@@ -507,33 +507,33 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     int idx,
     SessionViewModelEntry entry,
   ) async {
-  //  context.push(CreateSessionScreen.routeName);
-    final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
-    sessionViewModel.reset();
+   context.push(CreateSessionScreen.routeName);
+  //   final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+  //   sessionViewModel.reset();
 
-   // Ensure session list has at least this entry
-   final currentSessions = ref.read(sessionViewModelProvider).sessions;
-    final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-    if (!exists && session != null) {
-      sessionViewModel.setSessions([session!]);
-      sessionViewModel.setActiveSessionIndex(0);
-    } else {
-      sessionViewModel.setActiveSessionIndex(idx);
-    }
+  //  // Ensure session list has at least this entry
+  //  final currentSessions = ref.read(sessionViewModelProvider).sessions;
+  //   final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+  //   if (!exists && session != null) {
+  //     sessionViewModel.setSessions([session!]);
+  //     sessionViewModel.setActiveSessionIndex(0);
+  //   } else {
+  //     sessionViewModel.setActiveSessionIndex(idx);
+  //   }
 
-    if (entry.sessionId != null) {
-      final success = await sessionViewModel.fetchAndPopulateSessionDetail(
-        entry.sessionId!,
-      );
-      if (success && context.mounted) {
-        context.push(CreateSessionScreen.routeName);
-      }
-    } else {
-      sessionViewModel.setSessionStep(1);
-      if (context.mounted) {
-        context.push(CreateSessionScreen.routeName);
-      }
-    }
+  //   if (entry.sessionId != null) {
+  //     final success = await sessionViewModel.fetchAndPopulateSessionDetail(
+  //       entry.sessionId!,
+  //     );
+  //     if (success && context.mounted) {
+  //       context.push(CreateSessionScreen.routeName);
+  //     }
+  //   } else {
+  //     sessionViewModel.setSessionStep(1);
+  //     if (context.mounted) {
+  //       context.push(CreateSessionScreen.routeName);
+  //     }
+  //   }
   }
 
   // Handle Default Expansion Dynamic API Call
