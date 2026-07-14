@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-
 import '../models/responses/session_model.dart';
 import '../screens/create_session_screen.dart';
 import '../utils/theme.dart';
@@ -35,14 +33,14 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     if (sessionEntry != null) {
       return _buildTileWithEntry(context, ref, sessionEntry!, index ?? 0);
     } else if (session != null) {
-  //    final sessionState = ref.watch(sessionViewModelProvider);
+      final sessionState = ref.watch(sessionViewModelProvider);
       SessionViewModelEntry? matchedEntry;
-      // for (final s in sessionState.sessions) {
-      //   if (s.sessionId == session!.id) {
-      //     matchedEntry = s;
-      //     break;
-      //   }
-      // }
+      for (final s in sessionState.sessions) {
+        if (s.sessionId == session!.id) {
+          matchedEntry = s;
+          break;
+        }
+      }
 
       final entryToUse =
           matchedEntry ??
@@ -51,7 +49,7 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
             sessionNumber: session!.sessionNumber,
             title: session!.title,
             status: session!.status,
-            isDetailedEntered: true,
+            isDetailedEntered: session?.status.toLowerCase() != 'draft',
           );
 
       return _buildTileWithEntry(context, ref, entryToUse, index ?? 0);
@@ -92,11 +90,15 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     SessionViewModelEntry entry,
     String newStatus,
   ) {
-    // if (entry.sessionId != null) {
-    //   ref
-    //       .read(sessionViewModelProvider.notifier)
-    //       .changeSessionStatus(entry.sessionId!, newStatus);
-    // }
+    if (entry.sessionId != null) {
+      // ref
+      //     .read(sessionViewModelProvider.notifier)
+      //     .changeSessionStatus(request: SessionStatusRequest(
+      //       sessionId:   entry.sessionId!,
+      //       status:  newStatus
+      //     )
+      //      );
+    }
   }
 
   Widget _buildTileWithEntry(
@@ -105,26 +107,10 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     SessionViewModelEntry entry,
     int idx,
   ) {
-    final String sessionTitle =
-      (entry.title?.trim().isNotEmpty ?? false)
-          ? entry.title!
-          : 'Session ${entry.sessionNumber}';
-
-  final bool hasSnapshotData =
-      entry.durationSnapshot.isNotEmpty ||
-      entry.priceSnapshot.isNotEmpty ||
-      entry.productUsageSnapshot.isNotEmpty ||
-      entry.followUps.isNotEmpty ||
-      entry.preInstructionsSnapshot.isNotEmpty ||
-      entry.postInstructionsSnapshot.isNotEmpty ||
-      entry.preNotificationsSnapshot.isNotEmpty ||
-      entry.postNotificationsSnapshot.isNotEmpty ||
-      entry.rolesSnapshot.isNotEmpty ||
-      entry.consentSnapshot.isNotEmpty ||
-      entry.downtimeSnapshot.isNotEmpty;
-
-  final bool isDetailed =
-      entry.isDetailedEntered || hasSnapshotData;
+    final bool isDetailed =
+        entry.isDetailedEntered ||
+        (entry.status.isNotEmpty && entry.status.toLowerCase() != 'draft');
+    final sessionTitle = entry.title ?? 'Session ${entry.sessionNumber}';
 
     if (!isDetailed) {
       return Container(
@@ -257,7 +243,7 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: context.appBorderRadius(all: 12),
-        border: Border.all(color: CustomColors.border , width: 1.5),
+        border: Border.all(color: CustomColors.border, width: 1.5),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -507,33 +493,32 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     int idx,
     SessionViewModelEntry entry,
   ) async {
-   context.push(CreateSessionScreen.routeName);
-  //   final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
-  //   sessionViewModel.reset();
+    final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+    sessionViewModel.reset();
 
-  //  // Ensure session list has at least this entry
-  //  final currentSessions = ref.read(sessionViewModelProvider).sessions;
-  //   final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-  //   if (!exists && session != null) {
-  //     sessionViewModel.setSessions([session!]);
-  //     sessionViewModel.setActiveSessionIndex(0);
-  //   } else {
-  //     sessionViewModel.setActiveSessionIndex(idx);
-  //   }
+    // Ensure session list has at least this entry
+    final currentSessions = ref.read(sessionViewModelProvider).sessions;
+    final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+    if (!exists && session != null) {
+      sessionViewModel.setSessions([session!]);
+      sessionViewModel.setActiveSessionIndex(0);
+    } else {
+      sessionViewModel.setActiveSessionIndex(idx);
+    }
 
-  //   if (entry.sessionId != null) {
-  //     final success = await sessionViewModel.fetchAndPopulateSessionDetail(
-  //       entry.sessionId!,
-  //     );
-  //     if (success && context.mounted) {
-  //       context.push(CreateSessionScreen.routeName);
-  //     }
-  //   } else {
-  //     sessionViewModel.setSessionStep(1);
-  //     if (context.mounted) {
-  //       context.push(CreateSessionScreen.routeName);
-  //     }
-  //   }
+    if (entry.sessionId != null) {
+      final success = await sessionViewModel.fetchAndPopulateSessionDetail(
+        entry.sessionId!,
+      );
+      if (success && context.mounted) {
+        context.push(CreateSessionScreen.routeName);
+      }
+    } else {
+      sessionViewModel.setSessionStep(1);
+      if (context.mounted) {
+        context.push(CreateSessionScreen.routeName);
+      }
+    }
   }
 
   // Handle Default Expansion Dynamic API Call
@@ -543,16 +528,16 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     SessionViewModelEntry entry,
   ) async {
     if (expanded && entry.sessionId != null) {
-     // final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+      final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
 
       // Ensure sessions list has this session
-      // final currentSessions = ref.read(sessionViewModelProvider).sessions;
-      // final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-      // if (!exists && session != null) {
-      //   sessionViewModel.setSessions([session!]);
-      // }
+      final currentSessions = ref.read(sessionViewModelProvider).sessions;
+      final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+      if (!exists && session != null) {
+        sessionViewModel.setSessions([session!]);
+      }
 
-      // await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
+      await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
     }
   }
 

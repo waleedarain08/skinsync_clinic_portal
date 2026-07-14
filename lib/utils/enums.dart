@@ -41,9 +41,9 @@ enum Endpoint {
   getAppointment('clinic/appointments'),
   treatmentDetail('clinic/treatments/{id}'),
   sessionUpdate('sessionUpdate'),
-  sessionDetail('admin/sessions/{id}'),
+  sessionDetail('clinic/sessions/{id}'),
    deleteSession('admin/sessions/{id}'),
-     sessionStatus('admin/sessions/status'),
+    sessionStatus('admin/sessions/status'),
   getMe("clinic/me");
 
   final String path;
