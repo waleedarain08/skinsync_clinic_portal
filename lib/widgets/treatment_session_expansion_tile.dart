@@ -543,16 +543,16 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     SessionViewModelEntry entry,
   ) async {
     if (expanded && entry.sessionId != null) {
-      final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+     // final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
 
       // Ensure sessions list has this session
-      final currentSessions = ref.read(sessionViewModelProvider).sessions;
-      final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-      if (!exists && session != null) {
-        sessionViewModel.setSessions([session!]);
-      }
+      // final currentSessions = ref.read(sessionViewModelProvider).sessions;
+      // final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+      // if (!exists && session != null) {
+      //   sessionViewModel.setSessions([session!]);
+      // }
 
-      await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
+      // await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
     }
   }
 
