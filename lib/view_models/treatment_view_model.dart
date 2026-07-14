@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/responses/treatment_detail_response.dart';
 import '../models/treatment_model.dart';
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/clinic_treatment_list_response.dart';
@@ -97,6 +98,24 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     )).toList() ?? [];
   }
 
+    Future<bool> fetchTreatmentDetail(int id, {bool loading = true}) async {
+        final repository = locator<TreatmentRepository>();
+    return await runSafely<bool>(showLoading: loading, () async {
+          final response = await repository.getTreatmentDetail(
+            id: id,
+          );
+          if (response.isSuccess && response.data != null) {
+            state = state.copyWith(selectedTreatmentDetail: response.data);
+            return true;
+          }
+          return false;
+        }) ??
+        false;
+  }
+
+
+  
+
   Future<List<SideAreaModel>> getTreatmentsSideAreas({
     required int treatmentId,
   }) async {
@@ -172,6 +191,7 @@ class TreatmentState {
   final int totalPages;
   final bool hasMore;
   final String? error;
+  final TreatmentDetailDto? selectedTreatmentDetail;
 
   TreatmentState({
     this.treatments = const [],
@@ -184,6 +204,7 @@ class TreatmentState {
     this.totalPages = 1,
     this.hasMore = true,
     this.error,
+    this.selectedTreatmentDetail
   });
 
   TreatmentState copyWith({
@@ -197,6 +218,7 @@ class TreatmentState {
     int? totalPages,
     bool? hasMore,
     String? error,
+    TreatmentDetailDto? selectedTreatmentDetail,
   }) {
     return TreatmentState(
       loading: loading ?? this.loading,
@@ -209,6 +231,7 @@ class TreatmentState {
       totalPages: totalPages ?? this.totalPages,
       hasMore: hasMore ?? this.hasMore,
       error: error,
+      selectedTreatmentDetail: selectedTreatmentDetail?? this.selectedTreatmentDetail
     );
   }
 }

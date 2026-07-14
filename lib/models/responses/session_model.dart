@@ -6,7 +6,7 @@ class SessionModel {
   final String title;
   final int sessionNumber;
   final String status;
-  final int currentStep;
+ // final int currentStep;
   final bool isCompleted;
   final String createdAt;
 
@@ -18,7 +18,7 @@ class SessionModel {
     required this.title,
     required this.sessionNumber,
     required this.status,
-    required this.currentStep,
+   // required this.currentStep,
     required this.isCompleted,
     required this.createdAt,
   });
@@ -26,13 +26,13 @@ class SessionModel {
   factory SessionModel.fromJson(Map<String, dynamic> json) {
     return SessionModel(
       id: json['id'] as int,
-      treatmentId: json['treatment_id'] as int,
+      treatmentId: json['clinic_treatment_id'] as int,
       areaId: json['area_id'] as int,
       areaName: json['area_name'] ?? '',
       title: json['title'] ?? '',
       sessionNumber: json['session_number'] as int,
       status: json['status'] ?? '',
-      currentStep: json['current_step'] as int,
+     // currentStep: json['current_step'] as int,
       isCompleted: (json['is_completed'] as bool?) ?? false,
       createdAt: json['created_at'] ?? '',
     );
@@ -47,7 +47,7 @@ class SessionModel {
       'title': title,
       'session_number': sessionNumber,
       'status': status,
-      'current_step': currentStep,
+     // 'current_step': currentStep,
       'is_completed': isCompleted,
       'created_at': createdAt,
     };

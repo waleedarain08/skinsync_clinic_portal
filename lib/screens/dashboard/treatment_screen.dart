@@ -502,8 +502,20 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               color: CustomColors.grey,
               size: 20,
             ),
-            onPressed: () {
-              context.push(TreatmentDetailScreen.routeName, extra: t);
+            onPressed: () async {
+                if (t.id != null) {
+                try {
+                  await ref
+                      .read(treatmentViewModelProvider.notifier)
+                      .fetchTreatmentDetail(t.id!);
+                  if (mounted) {
+                    await context.push(TreatmentDetailScreen.routeName);
+                  }
+                } catch (e) {
+                  // Error handled gracefully by runSafely wrapper
+                }
+              }
+             // context.push(TreatmentDetailScreen.routeName, );
             },
           ),
           IconButton(

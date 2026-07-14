@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 
 import '../models/responses/session_model.dart';
+import '../screens/create_session_screen.dart';
 import '../utils/theme.dart';
 import '../view_models/session_view_model.dart';
 import 'custom_outlined_button.dart';
@@ -505,31 +507,32 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     int idx,
     SessionViewModelEntry entry,
   ) async {
-    // final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
-    // sessionViewModel.reset();
+  //  context.push(CreateSessionScreen.routeName);
+    final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+    sessionViewModel.reset();
 
-    // Ensure session list has at least this entry
-  //  final currentSessions = ref.read(sessionViewModelProvider).sessions;
-    //final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-    // if (!exists && session != null) {
-    //   sessionViewModel.setSessions([session!]);
-    //   sessionViewModel.setActiveSessionIndex(0);
-    // } else {
-    //   sessionViewModel.setActiveSessionIndex(idx);
-    // }
+   // Ensure session list has at least this entry
+   final currentSessions = ref.read(sessionViewModelProvider).sessions;
+    final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+    if (!exists && session != null) {
+      sessionViewModel.setSessions([session!]);
+      sessionViewModel.setActiveSessionIndex(0);
+    } else {
+      sessionViewModel.setActiveSessionIndex(idx);
+    }
 
     if (entry.sessionId != null) {
-      // final success = await sessionViewModel.fetchAndPopulateSessionDetail(
-      //   entry.sessionId!,
-      // );
-    //   if (success && context.mounted) {
-    //     context.push(CreateSessionScreen.routeName);
-    //   }
-    // } else {
-    //   sessionViewModel.setSessionStep(1);
-    //   if (context.mounted) {
-    //     context.push(CreateSessionScreen.routeName);
-    //   }
+      final success = await sessionViewModel.fetchAndPopulateSessionDetail(
+        entry.sessionId!,
+      );
+      if (success && context.mounted) {
+        context.push(CreateSessionScreen.routeName);
+      }
+    } else {
+      sessionViewModel.setSessionStep(1);
+      if (context.mounted) {
+        context.push(CreateSessionScreen.routeName);
+      }
     }
   }
 
@@ -540,16 +543,16 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     SessionViewModelEntry entry,
   ) async {
     if (expanded && entry.sessionId != null) {
-      // final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+      final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
 
-      // // Ensure sessions list has this session
-      // final currentSessions = ref.read(sessionViewModelProvider).sessions;
-      // final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
-      // if (!exists && session != null) {
-      //   sessionViewModel.setSessions([session!]);
-      // }
+      // Ensure sessions list has this session
+      final currentSessions = ref.read(sessionViewModelProvider).sessions;
+      final exists = currentSessions.any((s) => s.sessionId == entry.sessionId);
+      if (!exists && session != null) {
+        sessionViewModel.setSessions([session!]);
+      }
 
-      // await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
+      await sessionViewModel.fetchAndPopulateSessionDetail(entry.sessionId!);
     }
   }
 

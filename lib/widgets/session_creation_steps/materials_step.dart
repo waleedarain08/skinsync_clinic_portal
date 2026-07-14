@@ -9,9 +9,14 @@ import '../../view_models/inventory_view_model.dart';
 import '../app_network_image.dart';
 import '../build_textfield.dart';
 
-class MaterialsStep extends ConsumerWidget {
+class MaterialsStep extends ConsumerStatefulWidget {
   const MaterialsStep({super.key});
 
+  @override
+  ConsumerState<MaterialsStep> createState() => _MaterialsStepState();
+}
+
+class _MaterialsStepState extends ConsumerState<MaterialsStep> {
   Widget _sectionTitle(BuildContext context, String title, {double? fontSize}) {
     return Text(
       title,
@@ -115,9 +120,9 @@ class MaterialsStep extends ConsumerWidget {
                 ),
               ),
               searchMatchFn: (item, searchValue) {
-                return item.value?.name
-                        ?.toLowerCase()
-                        .contains(searchValue.toLowerCase()) ??
+                return item.value?.name?.toLowerCase().contains(
+                      searchValue.toLowerCase(),
+                    ) ??
                     false;
               },
             ),
@@ -138,7 +143,9 @@ class MaterialsStep extends ConsumerWidget {
     final inventoryState = ref.watch(inventoryProvider);
     final ClinicProduct? productData =
         inventoryState.products.any((p) => p.productId == entry.productId)
-        ? inventoryState.products.firstWhere((p) => p.productId == entry.productId)
+        ? inventoryState.products.firstWhere(
+            (p) => p.productId == entry.productId,
+          )
         : null;
 
     final imageUrl = productData?.image;
@@ -199,7 +206,10 @@ class MaterialsStep extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Recommended Dosage', style: context.fonts.black14w600),
+                    Text(
+                      'Recommended Dosage',
+                      style: context.fonts.black14w600,
+                    ),
                     context.verticalSpace(10),
                     Row(
                       children: [
@@ -234,7 +244,10 @@ class MaterialsStep extends ConsumerWidget {
                 value: entry.allowSubstitution,
                 activeColor: CustomColors.purple,
                 onChanged: (val) {
-                  viewModel.updateProductUsageEntry(index, allowSubstitution: val ?? false);
+                  viewModel.updateProductUsageEntry(
+                    index,
+                    allowSubstitution: val ?? false,
+                  );
                 },
               ),
               context.horizontalSpace(8),
@@ -293,17 +306,29 @@ class MaterialsStep extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(sessionViewModelProvider);
-    final treatmentState = ref.watch(treatmentViewModelProvider);
-    final viewModel = ref.read(sessionViewModelProvider.notifier);
-    
-    final inventoryState = ref.watch(inventoryProvider);
+  void initState() {
+    final inventoryState = ref.read(inventoryProvider);
     final products = inventoryState.products;
 
     if (products.isEmpty && !inventoryState.loading) {
-      Future.microtask(() => ref.read(inventoryProvider.notifier).getData());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(inventoryProvider.notifier).getData();
+      });
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(sessionViewModelProvider);
+    final treatmentState = ref.watch(treatmentViewModelProvider);
+    final viewModel = ref.read(sessionViewModelProvider.notifier);
+    final inventoryState = ref.watch(inventoryProvider);
+    final products = inventoryState.products;
+
+    // if (products.isEmpty && !inventoryState.loading) {
+    //   Future.microtask(() => ref.read(inventoryProvider.notifier).getData());
+    // }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,6 +345,14 @@ class MaterialsStep extends ConsumerWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 24.0),
               child: CircularProgressIndicator(color: CustomColors.purple),
+            ),
+          ),
+        ] else if (state.products.isEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: Text(
+              'No inventory products available for selected category hierarchy.',
+              style: context.fonts.grey14w400,
             ),
           ),
         ] else ...[

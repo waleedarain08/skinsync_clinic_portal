@@ -45,7 +45,7 @@ final dummyTreatment = TreatmentDetailDto(
           title: "Consultation & Cleansing",
           sessionNumber: 1,
           status: "Active",
-          currentStep: 5,
+         
           isCompleted: true,
           createdAt: "2025-01-01",
         ),
@@ -57,7 +57,7 @@ final dummyTreatment = TreatmentDetailDto(
           title: "Hydration Session",
           sessionNumber: 2,
           status: "Draft",
-          currentStep: 2,
+         
           isCompleted: true,
           createdAt: "2025-01-02",
         ),
@@ -75,7 +75,7 @@ final dummyTreatment = TreatmentDetailDto(
           title: "Neck Tightening",
           sessionNumber: 1,
           status: "Active",
-          currentStep: 5,
+          
           isCompleted: true,
           createdAt: "2025-01-03",
         ),

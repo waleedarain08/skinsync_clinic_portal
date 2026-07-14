@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/treatment_detail_response.dart';
 import '../models/responses/treatment_template_list_response.dart';
 import '../models/responses/clinic_treatment_list_response.dart';
 import '../models/treatment_model.dart';
@@ -88,6 +89,22 @@ class TreatmentServices implements TreatmentRepository {
       throw BadRequestException(response.message);
     }
     return response.data ?? [];
+  }
+
+    @override
+  Future<TreatmentDetailResponse> getTreatmentDetail({
+    required int id,
+  }) async {
+   final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.treatmentDetail,
+      requestType: RequestType.get,
+      pathParams: {'id': id.toString()}
+    );
+    final response = TreatmentDetailResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
   }
 
   @override

@@ -39,6 +39,11 @@ enum Endpoint {
   catalog('clinic/products/catalog'),
   clinicProducts('clinic/products'),
   getAppointment('clinic/appointments'),
+  treatmentDetail('clinic/treatments/detail/{id}'),
+  sessionUpdate('sessionUpdate'),
+  sessionDetail('admin/sessions/{id}'),
+   deleteSession('admin/sessions/{id}'),
+     sessionStatus('admin/sessions/status'),
   getMe("clinic/me");
 
   final String path;
@@ -64,6 +69,33 @@ enum BaseUrls {
 }
 
 enum AuthScreen { login, forgetPassword, verifyOtp, createNewPassword }
+
+
+
+enum CreateTreatmentSteps {
+  allowedProviderRoles('allowed_provider_roles'),
+  patientConsent('patient_consent'),
+  phaseNotifications('phase_notifications'),
+  postTreatmentInstructions('post_treatment_instructions'),
+  preTreatmentInstructions('pre_treatment_instructions'),
+  inventoryProducts('inventory_products'),
+  protocols('protocols'),
+  sessionsSetup('sessions_setup'),
+  pricing('pricing'),
+  categories('categories'),
+  treatmentAreas('treatment_areas'),
+  scheduling('scheduling'),
+  postTreatmentPhotos('post_treatment_photos'),
+  downtimeLevel('downtime_level'),
+  followUpSetup('follow_up_setup'),
+  businessLogic('business_logic'),
+  basicInfo('basic_info'),
+  status("status");
+
+  final String name;
+
+  const CreateTreatmentSteps(this.name);
+}
 
 enum AppointmentStatus {
   allStatus,

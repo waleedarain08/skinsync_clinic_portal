@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../../models/dummy/dummy_treatment_detail_model.dart';
 import '../../models/responses/treatment_detail_response.dart';
 import '../../utils/theme.dart';
+import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_network_image.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -17,36 +17,36 @@ class TreatmentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final state = ref.watch(treatmentViewModelProvider);
-    // final detail = state.selectedTreatmentDetail;
+   final state = ref.watch(treatmentViewModelProvider);
+    final detail = state.selectedTreatmentDetail;
 
 
 
- final detail = dummyTreatment;
+ 
 
-    // if (state.loading) {
-    //   return Scaffold(
-    //     appBar: AppBar(
-    //       flexibleSpace: AppDecorations.appBarGradient,
-    //       title: const Text('Loading Details...'),
-    //       centerTitle: true,
-    //     ),
-    //     body: const Center(
-    //       child: CircularProgressIndicator(color: CustomColors.purple),
-    //     ),
-    //   );
-    // }
+    if (state.loading) {
+      return Scaffold(
+        appBar: AppBar(
+          flexibleSpace: AppDecorations.appBarGradient,
+          title: const Text('Loading Details...'),
+          centerTitle: true,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: CustomColors.purple),
+        ),
+      );
+    }
 
-    // if (detail == null) {
-    //   return Scaffold(
-    //     appBar: AppBar(
-    //       flexibleSpace: AppDecorations.appBarGradient,
-    //       title: const Text('Treatment Details'),
-    //       centerTitle: true,
-    //     ),
-    //     body: const Center(child: Text('No treatment details found (N/A)')),
-    //   );
-    // }
+    if (detail == null) {
+      return Scaffold(
+        appBar: AppBar(
+          flexibleSpace: AppDecorations.appBarGradient,
+          title: const Text('Treatment Details'),
+          centerTitle: true,
+        ),
+        body: const Center(child: Text('No treatment details found (N/A)')),
+      );
+    }
 
     final status = detail.status ?? 'Draft';
     final statusColor = status.toLowerCase() == 'active'
@@ -101,8 +101,8 @@ class TreatmentDetailScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildBusinessLogicCard(context, detail),
-                          context.verticalSpace(24),
+                          // _buildBusinessLogicCard(context, detail),
+                          // context.verticalSpace(24),
                           _buildMetadataCard(context, detail),
                         ],
                       ),
@@ -231,51 +231,52 @@ class TreatmentDetailScreen extends ConsumerWidget {
                             ),
                             const Spacer(),
 
-                            Consumer(
-                              builder: (context, ref, child) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    // ref
-                                    //     .read(
-                                    //       treatmentViewModelProvider.notifier,
-                                    //     )
-                                    //     .setBasicInfoControllers(detail);
-                                    // BasicInfoDialog.show(
-                                    //   context,
-                                    //   isEditMode: true,
-                                    //   treatmentId: detail.id,
-                                    // );
-                                  },
-                                  child: Container(
-                                    padding: context.appEdgeInsets(
-                                      horizontal: 6,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20.r),
-                                      border: Border.all(
-                                        color: CustomColors.purple,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.update,
-                                          size: 16.sp,
-                                          color: CustomColors.purple,
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          'Update Info',
-                                          style: context.fonts.purple12w700
-                                              .copyWith(fontSize: 12.sp),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                            // Consumer(
+                            //   builder: (context, ref, child) {
+                            //     return GestureDetector(
+                            //       onTap: () {
+                            //         // ref
+                            //         //     .read(
+                            //         //       treatmentViewModelProvider.notifier,
+                            //         //     )
+                            //         //     .setBasicInfoControllers(detail);
+                            //         // BasicInfoDialog.show(
+                            //         //   context,
+                            //         //   isEditMode: true,
+                            //         //   treatmentId: detail.id,
+                            //         // );
+                            //       },
+                            //       child: Container(
+                            //         padding: context.appEdgeInsets(
+                            //           horizontal: 6,
+                            //           vertical: 6,
+                            //         ),
+                            //         decoration: BoxDecoration(
+                            //           borderRadius: BorderRadius.circular(20.r),
+                            //           border: Border.all(
+                            //             color: CustomColors.purple,
+                            //           ),
+                            //         ),
+                            //         child: Row(
+                            //           children: [
+                            //             Icon(
+                            //               Icons.update,
+                            //               size: 16.sp,
+                            //               color: CustomColors.purple,
+                            //             ),
+                            //             SizedBox(width: 4.w),
+                            //             Text(
+                            //               'Update Info',
+                            //               style: context.fonts.purple12w700
+                            //                   .copyWith(fontSize: 12.sp),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     );
+                            //   },
+                            // ),
+                         
                           ],
                         ),
                       ],
@@ -460,91 +461,91 @@ class TreatmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBusinessLogicCard(
-    BuildContext context,
-    TreatmentDetailDto detail,
-  ) {
-    return BorderdContainerWidget(
-      padding: context.appEdgeInsets(all: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.settings_suggest_outlined,
-                color: CustomColors.purple,
-                size: 20,
-              ),
-              context.horizontalSpace(10),
-              Text('Business Logic & Rules', style: context.fonts.black16w700),
-              const Spacer(),
-              Consumer(
-                builder: (context, ref, _) {
-                  return GestureDetector(
-                    onTap: () {
-                      // ref
-                      //     .read(treatmentViewModelProvider.notifier)
-                      //     .setBusinessLogic(detail);
-                      // LogicStepDialog.show(
-                      //   context,
-                      //   ref,
-                      //   treatmentId: detail.id,
-                      // );
-                    },
-                    child: const Icon(
-                      Icons.edit,
-                      color: CustomColors.purple,
-                      size: 20,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          context.verticalSpace(16),
-          _logicRow(
-            context,
-            Icons.add_business_outlined,
-            'Enable by Default for New Clinics',
-            detail.enableByDefault ?? false,
-          ),
-          context.verticalSpace(12),
-          _logicRow(
-            context,
-            Icons.biotech_outlined,
-            'AI Face Simulator Compatibility',
-            detail.useInAiSimulator ?? false,
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildBusinessLogicCard(
+  //   BuildContext context,
+  //   TreatmentDetailDto detail,
+  // ) {
+  //   return BorderdContainerWidget(
+  //     padding: context.appEdgeInsets(all: 20),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             const Icon(
+  //               Icons.settings_suggest_outlined,
+  //               color: CustomColors.purple,
+  //               size: 20,
+  //             ),
+  //             context.horizontalSpace(10),
+  //             Text('Business Logic & Rules', style: context.fonts.black16w700),
+  //             const Spacer(),
+  //             Consumer(
+  //               builder: (context, ref, _) {
+  //                 return GestureDetector(
+  //                   onTap: () {
+  //                     // ref
+  //                     //     .read(treatmentViewModelProvider.notifier)
+  //                     //     .setBusinessLogic(detail);
+  //                     // LogicStepDialog.show(
+  //                     //   context,
+  //                     //   ref,
+  //                     //   treatmentId: detail.id,
+  //                     // );
+  //                   },
+  //                   child: const Icon(
+  //                     Icons.edit,
+  //                     color: CustomColors.purple,
+  //                     size: 20,
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //         context.verticalSpace(16),
+  //         _logicRow(
+  //           context,
+  //           Icons.add_business_outlined,
+  //           'Enable by Default for New Clinics',
+  //           detail.enableByDefault ?? false,
+  //         ),
+  //         context.verticalSpace(12),
+  //         _logicRow(
+  //           context,
+  //           Icons.biotech_outlined,
+  //           'AI Face Simulator Compatibility',
+  //           detail.useInAiSimulator ?? false,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _logicRow(
-    BuildContext context,
-    IconData icon,
-    String label,
-    bool isEnabled,
-  ) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: isEnabled ? CustomColors.purple : CustomColors.grey,
-          size: 20,
-        ),
-        context.horizontalSpace(12),
-        Expanded(child: Text(label, style: context.fonts.black13w600)),
-        Text(
-          isEnabled ? 'Enabled' : 'Disabled',
-          style: isEnabled
-              ? context.fonts.purple12w700
-              : context.fonts.grey13w500,
-        ),
-      ],
-    );
-  }
+  // Widget _logicRow(
+  //   BuildContext context,
+  //   IconData icon,
+  //   String label,
+  //   bool isEnabled,
+  // ) {
+  //   return Row(
+  //     children: [
+  //       Icon(
+  //         icon,
+  //         color: isEnabled ? CustomColors.purple : CustomColors.grey,
+  //         size: 20,
+  //       ),
+  //       context.horizontalSpace(12),
+  //       Expanded(child: Text(label, style: context.fonts.black13w600)),
+  //       Text(
+  //         isEnabled ? 'Enabled' : 'Disabled',
+  //         style: isEnabled
+  //             ? context.fonts.purple12w700
+  //             : context.fonts.grey13w500,
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildMetadataCard(BuildContext context, TreatmentDetailDto detail) {
     return BorderdContainerWidget(
