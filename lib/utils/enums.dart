@@ -39,7 +39,7 @@ enum Endpoint {
   catalog('clinic/products/catalog'),
   clinicProducts('clinic/products'),
   getAppointment('clinic/appointments'),
-  treatmentDetail('clinic/treatments/detail/{id}'),
+  treatmentDetail('clinic/treatments/{id}'),
   sessionUpdate('sessionUpdate'),
   sessionDetail('admin/sessions/{id}'),
    deleteSession('admin/sessions/{id}'),
