@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/models/responses/category_detail_response.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/view_models/treatment_view_model.dart';
+import '../../utils/theme.dart';
+import '../../view_models/session_view_model.dart';
 
 class DowntimeStep extends ConsumerWidget {
   const DowntimeStep({super.key});
@@ -90,12 +88,11 @@ class DowntimeStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    final CategoryDetailDto? selectedCategory = ref.watch(treatmentViewModelProvider).selectedCategoryDetail;
-    final presets = selectedCategory?.downtimePresets;
-    final lowDays = presets?.low ?? 2;
-    final moderateDays = presets?.moderate ?? 5;
-    final highDays = presets?.high ?? 10;
-    final noneDays = presets?.none ?? 0;
+    
+    const lowDays = 2;
+    const moderateDays = 5;
+    const highDays = 10;
+    const noneDays = 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,37 +1,11 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/models/responses/category_detail_response.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/view_models/treatment_view_model.dart';
+import '../../utils/theme.dart';
+import '../../view_models/session_view_model.dart';
 
 class ConsentStep extends ConsumerWidget {
   const ConsentStep({super.key});
-
-  Widget _radioOption(
-    BuildContext context,
-    String label,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: context.appBorderRadius(all: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Radio<bool>(
-            value: true,
-            groupValue: isSelected,
-            onChanged: (_) => onTap(),
-            activeColor: CustomColors.purple,
-          ),
-          Text(label, style: context.fonts.black14w600),
-        ],
-      ),
-    );
-  }
 
   Widget _buildConsentFormSection(
     BuildContext context,
@@ -147,74 +121,18 @@ class ConsentStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionState state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    final CategoryDetailDto? selectedCategory = ref.watch(treatmentViewModelProvider).selectedCategoryDetail;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Consent Form Selection', style: context.fonts.black18w600),
         context.verticalSpace(24),
-        Row(
-          children: [
-            _radioOption(
-              context,
-              'Use Category Default',
-              state.consentType == 'category',
-              () => viewModel.setConsentType('category'),
-            ),
-            context.horizontalSpace(32),
-            _radioOption(
-              context,
-              'Upload Custom Form',
-              state.consentType == 'custom',
-              () => viewModel.setConsentType('custom'),
-            ),
-          ],
+        _buildConsentFormSection(
+          context,
+          state.preTreatmentConsentForm,
+          viewModel.pickConsentForm,
+          viewModel.removeConsentForm,
         ),
-        context.verticalSpace(32),
-        if (state.consentType == 'category') ...[
-          Container(
-            padding: context.appEdgeInsets(all: 20),
-            decoration: BoxDecoration(
-              color: CustomColors.whiteGrey,
-              borderRadius: context.appBorderRadius(all: 12),
-              border: Border.all(color: CustomColors.border),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.info_outline_rounded,
-                  color: CustomColors.purple,
-                ),
-                context.horizontalSpace(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Default Category Form',
-                        style: context.fonts.black14w600,
-                      ),
-                      context.verticalSpace(4),
-                      Text(
-                        selectedCategory?.consentFormName ??
-                            'No default form found for this category.',
-                        style: context.fonts.grey12w400,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ] else ...[
-          _buildConsentFormSection(
-            context,
-            state.preTreatmentConsentForm,
-            viewModel.pickConsentForm,
-            viewModel.removeConsentForm,
-          ),
-        ],
         context.verticalSpace(24),
         Text(
           'Patients must digitally sign the selected consent form before the procedure begins.',

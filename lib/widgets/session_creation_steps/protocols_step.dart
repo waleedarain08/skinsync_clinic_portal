@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/models/treatment_data_models.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/treatment_data_view_model.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/widgets/borderd_container_widget.dart';
-import 'package:skinsync_admin/widgets/build_textfield.dart';
-import 'package:skinsync_admin/widgets/custom_primary_button.dart';
-import 'package:skinsync_admin/widgets/dailogbox/standard_dialog.dart';
+import '../../models/treatment_data_models.dart';
+import '../../models/treatment_model.dart';
+import '../../utils/theme.dart';
+import '../../view_models/treatment_data_view_model.dart';
+import '../../view_models/session_view_model.dart';
+import '../borderd_container_widget.dart';
+import '../build_textfield.dart';
+import '../custom_primary_button.dart';
+import '../dialog_box/standard_dialog.dart';
 
 class ProtocolsStep extends ConsumerWidget {
   const ProtocolsStep({super.key});

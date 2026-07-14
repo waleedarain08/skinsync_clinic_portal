@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/widgets/build_textfield.dart';
-import 'package:skinsync_admin/widgets/custom_dropdown_widget.dart';
+import '../../utils/theme.dart';
+import '../../view_models/session_view_model.dart';
+import '../build_textfield.dart';
+import '../custom_dropdown_widget.dart';
 
 class FollowUpStep extends ConsumerWidget {
   const FollowUpStep({super.key});
@@ -54,22 +54,28 @@ class FollowUpStep extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: CustomDropdown<String>(
-                  label: 'Appointment Type',
-                  hintText: 'Select type',
-                  value: entry.type.isEmpty ? null : entry.type,
-                  items: const [
-                    DropdownMenuItem(value: 'virtual', child: Text('Virtual')),
-                    DropdownMenuItem(
-                      value: 'in_person',
-                      child: Text('In-Person'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Appointment Type', style: context.fonts.black14w600),
+                    context.verticalSpace(10),
+                    CustomDropdown<String>(
+                      hint: 'Select type',
+                      value: entry.type.isEmpty ? null : entry.type,
+                      items: const ['virtual', 'in_person'],
+                      builder: (v) {
+                        return Text(
+                          v == 'virtual' ? 'Virtual' : 'In-Person',
+                          style: context.fonts.black14w400,
+                        );
+                      },
+                      onChanged: (val) => viewModel.updateSessionFollowUpEntry(
+                        sIdx,
+                        fuIdx,
+                        type: val,
+                      ),
                     ),
                   ],
-                  onChanged: (val) => viewModel.updateSessionFollowUpEntry(
-                    sIdx,
-                    fuIdx,
-                    type: val,
-                  ),
                 ),
               ),
               context.horizontalSpace(24),

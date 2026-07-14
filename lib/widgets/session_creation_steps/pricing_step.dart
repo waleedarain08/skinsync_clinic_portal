@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/utils/validators.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/widgets/build_textfield.dart';
+import '../../utils/theme.dart';
+import '../../utils/validators.dart';
+import '../../view_models/session_view_model.dart';
+import '../build_textfield.dart';
 
 class PricingStep extends ConsumerWidget {
   const PricingStep({super.key});

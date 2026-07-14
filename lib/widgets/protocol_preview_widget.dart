@@ -1,14 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart' as m;
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 
-import '../models/responses/category_detail_response.dart';
 import '../models/treatment_data_models.dart';
 import '../models/treatment_model.dart';
 import '../utils/theme.dart';
-import '../view_models/category_view_model.dart';
 import '../view_models/session_view_model.dart';
 import '../view_models/treatment_data_view_model.dart';
 import '../view_models/treatment_view_model.dart';
@@ -17,20 +15,17 @@ class ProtocolFormPreview extends StatelessWidget {
   final TreatmentState state;
   final SessionState sessionState;
   final TreatmentDataState dataState;
-  final CategoryState categoryState;
 
   ProtocolFormPreview({
     required this.state,
     required this.sessionState,
     required this.dataState,
-    required this.categoryState,
   });
 
   static Future<Uint8List> getPdfBytes({
     required TreatmentState state,
     required SessionState sessionState,
     required TreatmentDataState dataState,
-    required CategoryState categoryState,
   }) async {
     final document = Document();
     document.addPage(
@@ -42,7 +37,6 @@ class ProtocolFormPreview extends StatelessWidget {
               state: state,
               sessionState: sessionState,
               dataState: dataState,
-              categoryState: categoryState,
             ),
           ];
         },
@@ -65,14 +59,10 @@ class ProtocolFormPreview extends StatelessWidget {
         .where((p) => p.type == ProtocolType.text)
         .toList();
 
-    final CategoryDetailDto? selectedCategory = state.selectedCategoryDetail;
-
     List<TreatmentProtocolNoteItem> notesToShow = [];
 
     if (sessionState.standaloneNotes.isNotEmpty) {
       notesToShow = sessionState.standaloneNotes;
-    } else if (selectedCategory != null) {
-      notesToShow = _getCategoryDefaultNotes(selectedCategory);
     }
 
     final hasProtocols = selectedProtocols.isNotEmpty;
@@ -90,7 +80,7 @@ class ProtocolFormPreview extends StatelessWidget {
         child: Center(
           child: Text(
             'No clinical protocols configured yet.',
-            style:  TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.normal,
               color: PdfColors.grey,
@@ -114,7 +104,7 @@ class ProtocolFormPreview extends StatelessWidget {
             if (checkboxes.isNotEmpty) ...[
               Text(
                 'CHECKLIST',
-                style:  TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 12),
               ...checkboxes.map(
@@ -141,7 +131,7 @@ class ProtocolFormPreview extends StatelessWidget {
                           children: [
                             Text(
                               p.title,
-                              style:  TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -165,7 +155,7 @@ class ProtocolFormPreview extends StatelessWidget {
             if (textFields.isNotEmpty) ...[
               Text(
                 'NOTES',
-                style:  TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -180,7 +170,7 @@ class ProtocolFormPreview extends StatelessWidget {
                     children: [
                       Text(
                         p.title,
-                        style:  TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8),
                       Container(
@@ -210,7 +200,7 @@ class ProtocolFormPreview extends StatelessWidget {
               ],
               Text(
                 'NOTES / INSTRUCTIONS',
-                style:  TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -226,7 +216,7 @@ class ProtocolFormPreview extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            IconData(m.Icons.info_outline.codePoint),
+                            const IconData(0xe88f), // m.Icons.info_outline.codePoint (0xe88f)
                             size: 14,
                             color: PdfColor.fromInt(CustomColors.purple.toARGB32()),
                           ),
@@ -235,7 +225,7 @@ class ProtocolFormPreview extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 note.title!,
-                                style:  TextStyle(
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -264,12 +254,6 @@ class ProtocolFormPreview extends StatelessWidget {
       );
     }
   }
-
-  List<TreatmentProtocolNoteItem> _getCategoryDefaultNotes(
-    CategoryDetailDto category,
-  ) {
-    return [];
-  }
 }
 
 class _ProtocolNotesWidget extends StatelessWidget {
@@ -282,7 +266,7 @@ class _ProtocolNotesWidget extends StatelessWidget {
   Widget build(Context context) {
     final matching = notes.firstWhere(
       (n) => n.protocolName == protocolName,
-      orElse: () => TreatmentProtocolNote(protocolName: protocolName, notes: []),
+      orElse: () => TreatmentProtocolNote(protocolName: protocolName, notes: const []),
     );
     if (matching.notes.isEmpty) return SizedBox();
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../utils/custom_fonts.dart';
 import '../../utils/theme.dart';
+import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
-import '../../view_models/treatment_view_model.dart';
+import '../build_textfield.dart';
 
 class SchedulingStep extends ConsumerWidget {
   const SchedulingStep({super.key});
@@ -32,7 +32,7 @@ class SchedulingStep extends ConsumerWidget {
     return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
   }
 
-  double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
+  double _calculateProductUsageDuration(SessionState sessionState) {
     double total = 0.0;
     for (final entry in sessionState.productUsageEntries) {
       final minQty = _getProductMinQuantity(entry, const []);
@@ -52,7 +52,6 @@ class SchedulingStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionState state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    final treatmentState = ref.watch(treatmentViewModelProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +147,7 @@ class SchedulingStep extends ConsumerWidget {
             ...state.productUsageEntries.asMap().entries.map((item) {
               final idx = item.key;
               final entry = item.value;
-              final allSubAreas = treatmentState.areas.expand((a) => a.subAreas).toList();
+              const allSubAreas = <dynamic>[];
               final minQty = _getProductMinQuantity(entry, allSubAreas);
               final maxQty = _getProductMaxQuantity(entry, allSubAreas);
 
@@ -233,7 +232,7 @@ class SchedulingStep extends ConsumerWidget {
               final baseDuration =
                   double.tryParse(viewModel.treatmentDurationController.text) ??
                   0.0;
-              final productDuration = _calculateProductUsageDuration(treatmentState, state);
+              final productDuration = _calculateProductUsageDuration(state);
               final prepTime =
                   double.tryParse(viewModel.prepTimeController.text) ?? 0.0;
               final cleanupTime =
