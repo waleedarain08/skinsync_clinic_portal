@@ -402,3 +402,129 @@ class ClinicDummyData {
     ),
   ];
 }
+
+class ClinicDummySessionConfig {
+  static final Map<int, Map<String, dynamic>> stepConfigs = {
+    1: {
+      'title': 'Inventory Products Config',
+      'details': [
+        'Required Products: Botox Cosmetic (Allergan)',
+        'Dosage Range: Min 10 Units, Max 100 Units',
+        'Allow Substitution: No',
+        'Deduction Timing: On Completion of session',
+        'Target Areas: Forehead, Glabella, Crow\'s feet'
+      ],
+    },
+    2: {
+      'title': 'Scheduling Config',
+      'details': [
+        'Calculation Mode: Product Usage (Dynamic calculation)',
+        'Base Treatment Duration: 30 minutes',
+        'Preparation Time: 10 minutes',
+        'Cleanup / Reset Time: 5 minutes',
+        'Online Booking Allowed: Yes',
+        'Manual Approval Required: No'
+      ],
+    },
+    3: {
+      'title': 'Pricing Setup Config',
+      'details': [
+        'Base Price: AED 150.00',
+        'Sub-Area Pricing Overrides: Yes',
+        'Forehead: AED 350.00 per syringe',
+        'Glabella: AED 400.00 per syringe',
+        'Crow\'s Feet: AED 300.00 per syringe'
+      ],
+    },
+    4: {
+      'title': 'Clinical Protocols Config',
+      'details': [
+        'Required Checklists:',
+        '  - Cleanse and disinfect target area with alcohol swab',
+        '  - Verify patient identity and consent signature',
+        '  - Confirm lack of contraindications (pregnancy, neuromuscular disorders)',
+        'Required Notes / Input Fields:',
+        '  - Total injected units per anatomical area',
+        '  - Batch number and expiry date of vials used'
+      ],
+    },
+    5: {
+      'title': 'Pre-Treatment Instructions Config',
+      'details': [
+        'Mandatory Patient Warnings:',
+        '  - Avoid blood thinners (aspirin, fish oil) for 7 days before.',
+        '  - Do not consume alcohol for 24 hours prior.',
+        'Attached Informational Documents:',
+        '  - Botox_Preparation_Guide_v3.pdf (245 KB)'
+      ],
+    },
+    6: {
+      'title': 'Post-Treatment Instructions Config',
+      'details': [
+        'Mandatory Patient Aftercare:',
+        '  - Stay upright and avoid lying down for 4 hours.',
+        '  - Do not massage or apply pressure to treated areas.',
+        '  - Avoid strenuous exercise and excessive heat for 24 hours.',
+        'Attached Guidelines Documents:',
+        '  - Botox_Clinical_Aftercare_Instructions.pdf (180 KB)'
+      ],
+    },
+    7: {
+      'title': 'Post Treatment Photos Config',
+      'details': [
+        'Require Post-Treatment Photos: Yes',
+        'Minimum Required Photos: 3 angles',
+        'Anatomical Angles Mandatory:',
+        '  - Frontal View (Neutral & Maximum Frown)',
+        '  - Left Lateral View (45 Degrees)',
+        '  - Right Lateral View (45 Degrees)'
+      ],
+    },
+    8: {
+      'title': 'Phase Notifications Config',
+      'details': [
+        'Pre-Treatment Notification (24 Hours Before):',
+        '  - Title: Preparing for your wrinkle relaxation treatment',
+        '  - Message: Avoid aspirin and alcohol. See you tomorrow!',
+        'Post-Treatment Notification (4 Hours After):',
+        '  - Title: Quick Wrinkle relaxation aftercare checklist',
+        '  - Message: Stay upright for 4 hours. No intense workout today!'
+      ],
+    },
+    9: {
+      'title': 'Downtime Level Config',
+      'details': [
+        'Default Downtime Level: None (No booking restrictions)',
+        'Anatomical Booking Lockout Duration: 0 days',
+        'Override Permission: Clinic manager override allowed'
+      ],
+    },
+    10: {
+      'title': 'Allowed Provider Roles Config',
+      'details': [
+        'Authorized Aesthetic Specialists:',
+        '  - Injector (RN / Nurse Practitioner)',
+        '  - MD (Medical Doctor / Aesthetic Physician)',
+        '  - Nurse (Registered Aesthetic Nurse)'
+      ],
+    },
+    11: {
+      'title': 'Follow-Up Configuration Config',
+      'details': [
+        'Mandatory Follow-Ups: 1 session',
+        'Follow-Up #1 Timing: 14 days after procedure',
+        'Appointment Type: In-Person (Clinical assessment)',
+        'Mandatory Photo Submission: Yes (Check symmetry)',
+        'Doctor Instructions: Check Glabella action; touch-up if needed.'
+      ],
+    },
+    12: {
+      'title': 'Patient Consent Form Config',
+      'details': [
+        'Mandatory Informed Consent Document:',
+        '  - Botox_Neurotoxin_Informed_Consent_Form.pdf',
+        'Digital Signature Required: Yes (Patient must sign via portal)'
+      ],
+    },
+  };
+}

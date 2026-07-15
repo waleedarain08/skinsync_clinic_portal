@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../utils/theme.dart';
+import '../utils/clinic_dummy_data.dart';
 import '../view_models/session_view_model.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
@@ -25,6 +26,9 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sessionViewModelProvider.notifier).resetPresetStates();
+    });
   }
 
   int _getSessionOffsetStep(int sessionStep) {
@@ -324,10 +328,13 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
     ];
 
     final sessionState = ref.watch(sessionViewModelProvider);
+    final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
     final int stepIndex = _getSessionOffsetStep(sessionState.sessionStep);
     if (stepIndex < 0 || stepIndex >= titles.length) {
       return const SizedBox.shrink();
     }
+
+    final bool isOverridden = sessionViewModel.isStepOverridden(sessionState.sessionStep);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,6 +366,25 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                 ],
               ),
             ),
+            context.horizontalSpace(16),
+            isOverridden
+                ? CustomPrimaryButton(
+                    onTap: () {
+                      sessionViewModel.revertAdminPreset(sessionState.sessionStep);
+                      setState(() {});
+                    },
+                    icon: Icons.undo_rounded,
+                    label: 'Revert',
+                    width: context.w(130),
+                  )
+                : CustomOutlinedButton(
+                    onTap: () {
+                      _showAdminConfigDialog(context, sessionState.sessionStep);
+                    },
+                    icon: Icons.admin_panel_settings_outlined,
+                    label: 'Admin Config',
+                    width: context.w(150),
+                  ),
           ],
         ),
       ],
@@ -480,6 +506,118 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showAdminConfigDialog(BuildContext context, int step) {
+    final config = ClinicDummySessionConfig.stepConfigs[step];
+    if (config == null) return;
+
+    final String title = config['title'] as String;
+    final List<String> details = List<String>.from(config['details'] as List);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            width: context.w(500),
+            padding: context.appEdgeInsets(all: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: CustomColors.purple.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.admin_panel_settings_rounded,
+                        color: CustomColors.purple,
+                        size: 24,
+                      ),
+                    ),
+                    context.horizontalSpace(12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: context.fonts.black18w600,
+                      ),
+                    ),
+                  ],
+                ),
+                context.verticalSpace(20),
+                Text(
+                  'Admin session details configuration matching SessionDetailResponse:',
+                  style: context.fonts.grey12w600,
+                ),
+                context.verticalSpace(12),
+                Container(
+                  padding: context.appEdgeInsets(all: 16),
+                  decoration: BoxDecoration(
+                    color: CustomColors.whiteGrey,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: details.map((detail) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '• ',
+                              style: context.fonts.purple14w700,
+                            ),
+                            Expanded(
+                              child: Text(
+                                detail,
+                                style: context.fonts.black13w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                context.verticalSpace(24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomOutlinedButton(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      label: 'Close Config',
+                      width: context.w(130),
+                    ),
+                    context.horizontalSpace(12),
+                    CustomPrimaryButton(
+                      onTap: () {
+                        ref.read(sessionViewModelProvider.notifier).applyAdminPreset(step);
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
+                      label: 'Use This Configuration',
+                      width: context.w(200),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
