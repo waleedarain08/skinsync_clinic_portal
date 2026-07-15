@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/product_model.dart';
 import '../../models/responses/manufacturers_list_response.dart';
 import '../../utils/enums.dart';
@@ -16,6 +17,7 @@ import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../../widgets/status_toggle_switch.dart';
+import '../product_detail_screen.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   const InventoryScreen({super.key});
@@ -877,7 +879,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                       .read(productViewModelProvider.notifier)
                       .fetchProductDetail(product.id!);
                   if (context.mounted) {
-                    //  context.push(ProductDetailScreen.routeName);
+                    context.push(ProductDetailScreen.routeName);
                   }
                 } catch (e) {
                   // Error handled gracefully by runSafely wrapper
