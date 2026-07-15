@@ -1960,6 +1960,221 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     state = state.copyWith(sessionStep: step);
   }
 
+  final Map<int, bool> _overriddenSteps = {};
+  final Map<int, Map<String, dynamic>> _presetBackups = {};
+
+  void resetPresetStates() {
+    _overriddenSteps.clear();
+    _presetBackups.clear();
+  }
+
+  bool isStepOverridden(int step) {
+    return _overriddenSteps[step] ?? false;
+  }
+
+  void applyAdminPreset(int step) {
+    _overriddenSteps[step] = true;
+    _presetBackups[step] = {};
+
+    switch (step) {
+      case 1: // Inventory Products
+        _presetBackups[step]?['productUsageEntries'] = [...state.productUsageEntries];
+        final newEntry = ProductUsageEntry(
+          productId: 1,
+          productName: 'Botox Cosmetic (Allergan)',
+          unit: 'Unit',
+          allowSubstitution: false,
+        );
+        newEntry.minQuantityController.text = '10';
+        newEntry.maxQuantityController.text = '100';
+        newEntry.notesController.text = 'On Completion of session';
+        state = state.copyWith(productUsageEntries: [newEntry]);
+        break;
+
+      case 2: // Scheduling
+        _presetBackups[step]?['treatmentDuration'] = treatmentDurationController.text;
+        _presetBackups[step]?['prepTime'] = prepTimeController.text;
+        _presetBackups[step]?['cleanupTime'] = cleanupTimeController.text;
+        _presetBackups[step]?['isFixedDuration'] = state.isFixedDuration;
+
+        treatmentDurationController.text = '30';
+        prepTimeController.text = '10';
+        cleanupTimeController.text = '5';
+        state = state.copyWith(isFixedDuration: false);
+        break;
+
+      case 3: // Pricing
+        _presetBackups[step]?['basePrice'] = basePriceController.text;
+        basePriceController.text = '150.00';
+        break;
+
+      case 4: // Protocols
+        _presetBackups[step]?['standaloneNotes'] = [...state.standaloneNotes];
+        state = state.copyWith(standaloneNotes: [
+          TreatmentProtocolNoteItem(description: 'Cleanse and disinfect target area with alcohol swab', order: 1),
+          TreatmentProtocolNoteItem(description: 'Verify patient identity and consent signature', order: 2),
+          TreatmentProtocolNoteItem(description: 'Confirm lack of contraindications (pregnancy, neuromuscular disorders)', order: 3)
+        ]);
+        break;
+
+      case 5: // Pre-Treatment Instructions
+        _presetBackups[step]?['preInstructions'] = preTreatmentInstructionsController.text;
+        preTreatmentInstructionsController.text = 'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.';
+        break;
+
+      case 6: // Post-Treatment Instructions
+        _presetBackups[step]?['postInstructions'] = postTreatmentInstructionsController.text;
+        postTreatmentInstructionsController.text = 'Avoid lying down for 4 hours, and do not massage the treated area.';
+        break;
+
+      case 7: // Post Treatment Photos
+        _presetBackups[step]?['requirePhotos'] = state.requirePostTreatmentPhotos;
+        _presetBackups[step]?['photoCount'] = postTreatmentPhotoCountController.text;
+        state = state.copyWith(requirePostTreatmentPhotos: true);
+        postTreatmentPhotoCountController.text = '3';
+        break;
+
+      case 8: // Phase Notifications
+        _presetBackups[step]?['preNotifications'] = [...state.preNotificationEntries];
+        _presetBackups[step]?['postNotifications'] = [...state.postNotificationEntries];
+        final preEntry = NotificationEntry(
+          titleController: TextEditingController(text: 'Preparing for your Botox treatment'),
+          messageController: TextEditingController(text: 'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.'),
+          timingValueController: TextEditingController(text: '24'),
+          timingUnit: 'hours',
+          type: 'reminder',
+        );
+        final postEntry = NotificationEntry(
+          titleController: TextEditingController(text: 'Botox Aftercare Guide'),
+          messageController: TextEditingController(text: 'Avoid lying down for 4 hours, and do not massage the treated area.'),
+          timingValueController: TextEditingController(text: '4'),
+          timingUnit: 'hours',
+          type: 'instruction',
+        );
+        state = state.copyWith(
+          preNotificationEntries: [preEntry],
+          postNotificationEntries: [postEntry],
+        );
+        break;
+
+      case 9: // Downtime Level
+        _presetBackups[step]?['downtimeLevel'] = state.downtimeLevel;
+        state = state.copyWith(downtimeLevel: 'None');
+        break;
+
+      case 10: // Allowed Provider Roles
+        _presetBackups[step]?['selectedRoles'] = [...state.selectedRoles];
+        state = state.copyWith(selectedRoles: ['Injector', 'MD', 'Nurse']);
+        break;
+
+      case 11: // Follow-Up Setup
+        final sIdx = state.activeSessionIndex;
+        if (sIdx < state.sessions.length) {
+          final s = state.sessions[sIdx];
+          _presetBackups[step]?['totalFollowUps'] = s.totalFollowUpsController.text;
+          _presetBackups[step]?['followUps'] = [...s.followUps];
+          
+          s.totalFollowUpsController.text = '1';
+          final fu = FollowUpEntry(
+            durationValueController: TextEditingController(text: '15'),
+            durationUnit: 'minutes',
+            intervalValueController: TextEditingController(text: '14'),
+            intervalUnit: 'days',
+            isImageRequired: true,
+            notesController: TextEditingController(text: 'Check symmetry; touch-up if needed.'),
+            type: 'in_person',
+          );
+          s.followUps = [fu];
+        }
+        break;
+
+      case 12: // Patient Consent Form
+        _presetBackups[step]?['consentType'] = state.consentType;
+        state = state.copyWith(consentType: 'custom');
+        break;
+    }
+    _triggerRebuild();
+  }
+
+  void revertAdminPreset(int step) {
+    _overriddenSteps[step] = false;
+    final backup = _presetBackups[step];
+    if (backup == null) return;
+
+    switch (step) {
+      case 1:
+        if (backup.containsKey('productUsageEntries')) {
+          state = state.copyWith(productUsageEntries: backup['productUsageEntries'] as List<ProductUsageEntry>);
+        }
+        break;
+
+      case 2:
+        treatmentDurationController.text = backup['treatmentDuration'] ?? '';
+        prepTimeController.text = backup['prepTime'] ?? '';
+        cleanupTimeController.text = backup['cleanupTime'] ?? '';
+        state = state.copyWith(isFixedDuration: backup['isFixedDuration'] ?? false);
+        break;
+
+      case 3:
+        basePriceController.text = backup['basePrice'] ?? '';
+        break;
+
+      case 4:
+        if (backup.containsKey('standaloneNotes')) {
+          state = state.copyWith(standaloneNotes: backup['standaloneNotes'] as List<TreatmentProtocolNoteItem>);
+        }
+        break;
+
+      case 5:
+        preTreatmentInstructionsController.text = backup['preInstructions'] ?? '';
+        break;
+
+      case 6:
+        postTreatmentInstructionsController.text = backup['postInstructions'] ?? '';
+        break;
+
+      case 7:
+        state = state.copyWith(requirePostTreatmentPhotos: backup['requirePhotos'] ?? false);
+        postTreatmentPhotoCountController.text = backup['photoCount'] ?? '';
+        break;
+
+      case 8:
+        if (backup.containsKey('preNotifications')) {
+          state = state.copyWith(preNotificationEntries: backup['preNotifications'] as List<NotificationEntry>);
+        }
+        if (backup.containsKey('postNotifications')) {
+          state = state.copyWith(postNotificationEntries: backup['postNotifications'] as List<NotificationEntry>);
+        }
+        break;
+
+      case 9:
+        state = state.copyWith(downtimeLevel: backup['downtimeLevel'] ?? 'None');
+        break;
+
+      case 10:
+        if (backup.containsKey('selectedRoles')) {
+          state = state.copyWith(selectedRoles: backup['selectedRoles'] as List<String>);
+        }
+        break;
+
+      case 11:
+        final sIdx = state.activeSessionIndex;
+        if (sIdx < state.sessions.length) {
+          final s = state.sessions[sIdx];
+          s.totalFollowUpsController.text = backup['totalFollowUps'] ?? '0';
+          if (backup.containsKey('followUps')) {
+            s.followUps = backup['followUps'] as List<FollowUpEntry>;
+          }
+        }
+        break;
+
+      case 12:
+        state = state.copyWith(consentType: backup['consentType'] ?? 'custom');
+        break;
+    }
+    _triggerRebuild();
+  }
+
   @override
   void dispose() {
     basePriceController.dispose();
