@@ -44,6 +44,15 @@ enum Endpoint {
   sessionDetail('clinic/sessions/{id}'),
    deleteSession('admin/sessions/{id}'),
     sessionStatus('admin/sessions/status'),
+    products('admin/products'),
+    updateProduct('admin/products/{id}'),
+  deleteProduct('admin/products/{id}'),
+  getBrands('admin/brands'),
+  unitTypesList('admin/unit-types'),
+  packageTypeList('admin/package-types'),
+  usageType('admin/usage-types'),
+  manufacturersList('admin/manufacturers'),
+  suppliers('admin/suppliers'),
   getMe("clinic/me");
 
   final String path;
@@ -70,7 +79,15 @@ enum BaseUrls {
 
 enum AuthScreen { login, forgetPassword, verifyOtp, createNewPassword }
 
+enum ProductStatus {
+  all('All'),
+  active('Active'),
+  inactive('In Active');
 
+  final String label;
+
+  const ProductStatus(this.label);
+}
 
 enum CreateTreatmentSteps {
   allowedProviderRoles('allowed_provider_roles'),
@@ -90,7 +107,12 @@ enum CreateTreatmentSteps {
   followUpSetup('follow_up_setup'),
   businessLogic('business_logic'),
   basicInfo('basic_info'),
+   getBrands('admin/brands'),
+  unitTypesList('admin/unit-types'),
+  packageTypeList('admin/package-types'),
+  usageType('admin/usage-types'),
   status("status");
+
 
   final String name;
 
