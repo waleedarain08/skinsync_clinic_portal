@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/responses/catalog_response.dart';
 import '../../utils/enums.dart';
 import '../../utils/validators.dart';
-import '../../view_models/inventory_view_model.dart';
+import '../../view_models/product_view_model.dart';
 import '../custom_primary_button.dart';
 
 import '../../utils/responsive.dart';
@@ -45,7 +45,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
       return;
     }
     ref
-        .read(inventoryProvider.notifier)
+        .read(productViewModelProvider.notifier)
         .addInventoryItem(
           productId: _selectedProduct!.id!,
           quantity: _quantity,
@@ -88,7 +88,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     _discountedPriceController.text = discountedPrice.toStringAsFixed(2);
   }
 
-  void _listener(InventoryState? prev, InventoryState next) {
+  void _listener(ProductState? prev, ProductState next) {
     if (next.inventoryAdded) {
       Navigator.pop(context);
     }
@@ -106,7 +106,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(inventoryProvider, _listener);
+    ref.listen(productViewModelProvider, _listener);
     final bool isLandscape = context.isLandscape;
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -156,7 +156,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                 Consumer(
                   builder: (_, ref, _) {
                     final catalog = ref.read(
-                      inventoryProvider.select((s) => s.catalog),
+                      productViewModelProvider.select((s) => s.catalog),
                     );
                     return CustomDropdown<CatalogItem>(
                       builder: (catalogItem) => Text(
@@ -309,7 +309,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                 Consumer(
                   builder: (_, ref, _) {
                     final loading = ref.watch(
-                      inventoryProvider.select((s) => s.addProductLoading),
+                      productViewModelProvider.select((s) => s.addProductLoading),
                     );
                     return CustomPrimaryButton(
                       onTap: _onAddToInventory,

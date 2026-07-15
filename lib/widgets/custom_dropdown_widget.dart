@@ -10,6 +10,8 @@ class CustomDropdown<T> extends StatelessWidget {
   final Function(T?) onChanged;
   final Widget Function(T)? builder;
   final double? height;
+  final Color? fillColor;
+  final Color? borderColor;
 
   const CustomDropdown({
     super.key,
@@ -19,6 +21,9 @@ class CustomDropdown<T> extends StatelessWidget {
     required this.onChanged,
     this.height,
     this.builder,
+    this.fillColor,
+    this.borderColor
+
   });
 
   @override
@@ -31,22 +36,22 @@ class CustomDropdown<T> extends StatelessWidget {
         value: value,
         style: CustomFonts.black14w400,
         decoration: InputDecoration(
-          fillColor: CustomColors.softGrey,
+          fillColor:fillColor?? CustomColors.softGrey,
           filled: true,
           contentPadding: EdgeInsets.symmetric(
             horizontal: context.w(12),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(context.r(10)),
-            borderSide: const BorderSide(color: CustomColors.softGrey),
+            borderSide:  BorderSide(color:borderColor?? CustomColors.softGrey),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(context.r(10)),
-            borderSide: const BorderSide(color: CustomColors.softGrey),
+            borderSide:  BorderSide(color:borderColor?? CustomColors.softGrey),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(context.r(10)),
-            borderSide: const BorderSide(color: CustomColors.softGrey),
+            borderSide:  BorderSide(color:borderColor?? CustomColors.softGrey),
           ),
         ),
         hint: Text(hint, style: CustomFonts.grey14w400),

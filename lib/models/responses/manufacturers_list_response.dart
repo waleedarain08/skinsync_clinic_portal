@@ -1,0 +1,46 @@
+import 'base_response_model.dart';
+import 'brands_list_response.dart';
+
+class ManufacturersListResponse extends BaseApiResponseModel<List<ManufacturersModel>> {
+  const ManufacturersListResponse({
+    required super.success,
+    required super.message,
+    super.data,
+  });
+
+  factory ManufacturersListResponse.fromJson(Map<String, dynamic> json) {
+    return ManufacturersListResponse(
+      success: json['is_success'] as bool? ?? false,
+      message: json['message'] ?? '',
+      data: json['data'] == null
+          ? null
+          : (json['data'] as List)
+          .map((e) => ManufacturersModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ManufacturersModel {
+  final int id;
+  final String name;
+  final List<BrandModel> brand;
+
+  const ManufacturersModel({
+    required this.id,
+    required this.name,
+    required this.brand,
+  });
+
+  factory ManufacturersModel.fromJson(Map<String, dynamic> json) {
+    return ManufacturersModel(
+      id: json['id'] as int? ?? 0,
+      name: json['name'] ?? '',
+      brand: json['brands'] == null
+          ? []
+          : (json['brands'] as List)
+          .map((e) => BrandModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/responses/clinic_products_response.dart';
 import '../../utils/theme.dart';
+import '../../view_models/product_view_model.dart';
 import '../../view_models/session_view_model.dart';
 import '../../view_models/treatment_view_model.dart';
-import '../../view_models/inventory_view_model.dart';
 import '../app_network_image.dart';
 import '../build_textfield.dart';
 
@@ -140,10 +140,10 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
     SessionViewModel viewModel,
     TreatmentState state,
   ) {
-    final inventoryState = ref.watch(inventoryProvider);
+    final inventoryState = ref.watch(productViewModelProvider);
     final ClinicProduct? productData =
-        inventoryState.products.any((p) => p.productId == entry.productId)
-        ? inventoryState.products.firstWhere(
+        inventoryState.clinicProducts.any((p) => p.productId == entry.productId)
+        ? inventoryState.clinicProducts.firstWhere(
             (p) => p.productId == entry.productId,
           )
         : null;
@@ -307,12 +307,12 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
 
   @override
   void initState() {
-    final inventoryState = ref.read(inventoryProvider);
-    final products = inventoryState.products;
+    final inventoryState = ref.read(productViewModelProvider);
+    final products = inventoryState.clinicProducts;
 
     if (products.isEmpty && !inventoryState.loading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(inventoryProvider.notifier).getData();
+        ref.read(productViewModelProvider.notifier).getData();
       });
     }
     super.initState();
@@ -323,8 +323,8 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
     final state = ref.watch(sessionViewModelProvider);
     final treatmentState = ref.watch(treatmentViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    final inventoryState = ref.watch(inventoryProvider);
-    final products = inventoryState.products;
+    final inventoryState = ref.watch(productViewModelProvider);
+    final products = inventoryState.clinicProducts;
 
     // if (products.isEmpty && !inventoryState.loading) {
     //   Future.microtask(() => ref.read(inventoryProvider.notifier).getData());
