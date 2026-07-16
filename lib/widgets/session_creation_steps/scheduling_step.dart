@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skinsync_admin/utils/theme.dart';
+import 'package:skinsync_admin/utils/validators.dart';
+import 'package:skinsync_admin/view_models/session_view_model.dart';
+import 'package:skinsync_admin/view_models/treatment_view_model.dart';
+import 'package:skinsync_admin/widgets/build_textfield.dart';
+import 'package:skinsync_admin/widgets/session_creation_steps/authorized_roles_widget.dart';
 
+import '../../utils/custom_fonts.dart';
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
+import '../../view_models/treatment_view_model.dart';
 import '../build_textfield.dart';
 
 class SchedulingStep extends ConsumerWidget {
@@ -32,7 +40,7 @@ class SchedulingStep extends ConsumerWidget {
     return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
   }
 
-  double _calculateProductUsageDuration(SessionState sessionState) {
+  double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
     double total = 0.0;
     for (final entry in sessionState.productUsageEntries) {
       final minQty = _getProductMinQuantity(entry, const []);
@@ -52,6 +60,7 @@ class SchedulingStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionState state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
+    final treatmentState = ref.watch(treatmentViewModelProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +156,7 @@ class SchedulingStep extends ConsumerWidget {
             ...state.productUsageEntries.asMap().entries.map((item) {
               final idx = item.key;
               final entry = item.value;
-              const allSubAreas = <dynamic>[];
+              final allSubAreas = treatmentState.areas.expand((a) => a.subAreas).toList();
               final minQty = _getProductMinQuantity(entry, allSubAreas);
               final maxQty = _getProductMaxQuantity(entry, allSubAreas);
 
@@ -232,7 +241,7 @@ class SchedulingStep extends ConsumerWidget {
               final baseDuration =
                   double.tryParse(viewModel.treatmentDurationController.text) ??
                   0.0;
-              final productDuration = _calculateProductUsageDuration(state);
+              final productDuration = _calculateProductUsageDuration(treatmentState, state);
               final prepTime =
                   double.tryParse(viewModel.prepTimeController.text) ?? 0.0;
               final cleanupTime =
@@ -421,6 +430,15 @@ class SchedulingStep extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+        context.verticalSpace(32),
+        const Divider(),
+        context.verticalSpace(24),
+        AuthorizedRolesWidget(
+          title: 'Authorized Roles to Change Schedule',
+          description: 'Select which provider roles are authorized to override or modify treatment scheduling and duration controls.',
+          selectedRoles: state.schedulingRoles,
+          onRoleToggled: viewModel.toggleSchedulingRole,
         ),
       ],
     );
