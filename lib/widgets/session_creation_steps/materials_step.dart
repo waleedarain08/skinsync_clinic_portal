@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 
 import '../../models/responses/treatment_products_response.dart';
-import '../../models/responses/unit_types_list_response.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../utils/theme.dart';
 import '../../view_models/product_view_model.dart';
@@ -27,7 +26,6 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-     await ref.read(productViewModelProvider.notifier).fetchUnitTypes();
       await ref
           .read(sessionViewModelProvider.notifier)
           .fetchProductsByTreatmentCategory();
@@ -415,30 +413,13 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
     final state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
 
-    // ProductViewModel holds unit types list
-    final productState = ref.watch(productViewModelProvider);
-    final unitTypes = productState.unitTypes ?? [];
+    // Fixed placeholders for Unit configuration (can be connected to API later)
+    const String unitTypeName = 'Unit';
+    const double minUnits = 1.0;
+    const double maxUnits = 10.0;
 
-    // Dynamically retrieve selected Unit Type Name
-    final selectedUnitType = unitTypes.firstWhere(
-      (u) => u.id == state.selectedUnitTypeId,
-      orElse: () => const UnitTypeModel(id: 0, name: ''),
-    );
-    final unitTypeName = selectedUnitType.name.isNotEmpty
-        ? selectedUnitType.name
-        : (state.selectedUnitTypeName ?? 'Unit');
-
-    final minUnits = double.tryParse(viewModel.minUnitsController.text) ?? 0.0;
-    final maxUnits = double.tryParse(viewModel.maxUnitsController.text) ?? 0.0;
-
-    final String minLabel =
-        minUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
-        ? '${unitTypeName}s'
-        : unitTypeName;
-    final String maxLabel =
-        maxUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
-        ? '${unitTypeName}s'
-        : unitTypeName;
+    const String minLabel = 'Unit';
+    const String maxLabel = 'Units';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,54 +427,76 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
         _sectionTitle(context, 'Unit Configuration'),
         context.verticalSpace(8),
         Text(
-          'Select the unit type and consumption boundaries for this clinical session setup.',
+          'Clinical unit type and consumption boundaries for this session.',
           style: context.fonts.grey14w400,
         ),
-        context.verticalSpace(24),
-         CustomDropdown<int>(
-  hint: 'Select Unit Type',
-  value: state.selectedUnitTypeId,
-  items: unitTypes.map((u) => u.id!).toList(),
-  builder: (id) {
-    final unit = unitTypes.firstWhere(
-      (u) => u.id == id,
-      orElse: () => const UnitTypeModel(id: 0, name: ''),
-    );
-    return Text(unit.name, style: CustomFonts.black14w400);
-  },
-  onChanged: (id) {
-    final selected = unitTypes.firstWhere(
-      (u) => u.id == id,
-      orElse: () => const UnitTypeModel(id: 0, name: ''),
-    );
-    viewModel.selectUnitType(id, selected.name);
-  },
-),
-        context.verticalSpace(20),
-        Row(
-          children: [
-            Expanded(
-              child: BuildTextField(
-                label: 'Minimum $minLabel',
-                controller: viewModel.minUnitsController,
-                hintText: '0',
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+        context.verticalSpace(16),
+        Container(
+          padding: context.appEdgeInsets(all: 16),
+          decoration: BoxDecoration(
+            color: CustomColors.whiteGrey,
+            borderRadius: context.appBorderRadius(all: 12),
+            border: Border.all(color: CustomColors.border),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Unit Type', style: context.fonts.grey12w400),
+                    context.verticalSpace(4),
+                    Text(
+                      unitTypeName,
+                      style: context.fonts.black16w600,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            context.horizontalSpace(16),
-            Expanded(
-              child: BuildTextField(
-                label: 'Maximum $maxLabel',
-                controller: viewModel.maxUnitsController,
-                hintText: '0',
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+              Container(
+                width: 1,
+                height: 40,
+                color: CustomColors.border,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: context.appEdgeInsets(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Minimum Limit', style: context.fonts.grey12w400),
+                      context.verticalSpace(4),
+                      Text(
+                        '${minUnits % 1 == 0 ? minUnits.toInt() : minUnits} $minLabel',
+                        style: context.fonts.black16w600,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              Container(
+                width: 1,
+                height: 40,
+                color: CustomColors.border,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: context.appEdgeInsets(left: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Maximum Limit', style: context.fonts.grey12w400),
+                      context.verticalSpace(4),
+                      Text(
+                        '${maxUnits % 1 == 0 ? maxUnits.toInt() : maxUnits} $maxLabel',
+                        style: context.fonts.black16w600,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         context.verticalSpace(32),
 
@@ -538,7 +541,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: Text(
-                'No inventory products available for selected category hierarchy.',
+                'No inventory products available.',
                 style: context.fonts.grey14w400,
               ),
             ),

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 
@@ -80,7 +79,7 @@ class ProtocolFormPreview extends StatelessWidget {
         child: Center(
           child: Text(
             'No clinical protocols configured yet.',
-            style:   TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.normal,
               color: PdfColors.grey,
@@ -104,7 +103,10 @@ class ProtocolFormPreview extends StatelessWidget {
             if (checkboxes.isNotEmpty) ...[
               Text(
                 'CHECKLIST',
-                style:   TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: 12),
               ...checkboxes.map(
@@ -131,7 +133,7 @@ class ProtocolFormPreview extends StatelessWidget {
                           children: [
                             Text(
                               p.title,
-                              style:   TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -155,7 +157,7 @@ class ProtocolFormPreview extends StatelessWidget {
             if (textFields.isNotEmpty) ...[
               Text(
                 'NOTES',
-                style:   TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -170,7 +172,10 @@ class ProtocolFormPreview extends StatelessWidget {
                     children: [
                       Text(
                         p.title,
-                        style:   TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 8),
                       Container(
@@ -200,7 +205,7 @@ class ProtocolFormPreview extends StatelessWidget {
               ],
               Text(
                 'NOTES / INSTRUCTIONS',
-                style:  TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -216,16 +221,19 @@ class ProtocolFormPreview extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            const IconData(0xe88f), // m.Icons.info_outline.codePoint (0xe88f)
+                            const IconData(0xe88f),
+                            // m.Icons.info_outline.codePoint (0xe88f)
                             size: 14,
-                            color: PdfColor.fromInt(CustomColors.purple.toARGB32()),
+                            color: PdfColor.fromInt(
+                              CustomColors.purple.toARGB32(),
+                            ),
                           ),
                           SizedBox(width: 8),
                           if (note.title != null && note.title!.isNotEmpty)
                             Expanded(
                               child: Text(
                                 note.title!,
-                                style:   TextStyle(
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -266,7 +274,8 @@ class _ProtocolNotesWidget extends StatelessWidget {
   Widget build(Context context) {
     final matching = notes.firstWhere(
       (n) => n.protocolName == protocolName,
-      orElse: () => TreatmentProtocolNote(protocolName: protocolName, notes: const []),
+      orElse: () =>
+          TreatmentProtocolNote(protocolName: protocolName, notes: const []),
     );
     if (matching.notes.isEmpty) return SizedBox();
 
@@ -279,10 +288,7 @@ class _ProtocolNotesWidget extends StatelessWidget {
             padding: const EdgeInsets.only(left: 8.0, top: 4.0),
             child: Text(
               "• ${note.title != null && note.title!.isNotEmpty ? '${note.title}: ' : ''}${note.description}",
-              style: const TextStyle(
-                color: PdfColors.grey,
-                fontSize: 11,
-              ),
+              style: const TextStyle(color: PdfColors.grey, fontSize: 11),
             ),
           ),
         ),

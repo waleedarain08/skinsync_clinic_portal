@@ -1,4 +1,5 @@
 import '../models/product_model.dart';
+import '../models/responses/treatment_products_response.dart';
 
 class ClinicDummyProduct {
   final String id;
@@ -197,6 +198,57 @@ class ClinicDummyTreatmentTemplate {
 }
 
 class ClinicDummyData {
+  static const List<TreatmentProductData> dummyTreatmentProducts = [
+    TreatmentProductData(
+      id: 101,
+      name: 'Botox Cosmetic 100U',
+      brand: 'Allergan',
+      globalSku: 'BOTOX-100-ALLERGAN',
+      image: '',
+      status: 'Active',
+    ),
+    TreatmentProductData(
+      id: 102,
+      name: 'Juvederm Ultra XC 1mL',
+      brand: 'Allergan',
+      globalSku: 'JUVEDERM-ULTRA-XC-1ML',
+      image: '',
+      status: 'Active',
+    ),
+    TreatmentProductData(
+      id: 103,
+      name: 'Restylane Lyft 1mL',
+      brand: 'Galderma',
+      globalSku: 'RESTYLANE-LYFT-1ML',
+      image: '',
+      status: 'Active',
+    ),
+    TreatmentProductData(
+      id: 104,
+      name: 'Glycolic Acid Peel 30%',
+      brand: 'Perfect Derma',
+      globalSku: 'PEEL-GLYCOLIC-30',
+      image: '',
+      status: 'Active',
+    ),
+    TreatmentProductData(
+      id: 105,
+      name: 'SkinPen Microneedling Cartridges',
+      brand: 'Crown Aesthetics',
+      globalSku: 'SKINPEN-CARTRIDGE-12',
+      image: '',
+      status: 'Active',
+    ),
+    TreatmentProductData(
+      id: 106,
+      name: 'Hyaluronic Acid Healing Serum',
+      brand: 'SkinCeuticals',
+      globalSku: 'SKINC-HA-SERUM-50',
+      image: '',
+      status: 'Active',
+    ),
+  ];
+
   static const List<String> categories = [
     'Injectables',
     'Skin Treatments',
