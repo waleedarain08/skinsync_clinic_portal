@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:skinsync_admin/models/common_models.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/widgets/app_network_image.dart';
+
+
+import '../../models/common_models.dart';
+import '../../utils/theme.dart' show AppScreenUtilContext, CustomColors, CustomFontsExtension, ResponsiveSizeContext;
+import '../app_network_image.dart';
 
 class InstructionAttachmentsWidget extends StatelessWidget {
   final List<Attachment> files;

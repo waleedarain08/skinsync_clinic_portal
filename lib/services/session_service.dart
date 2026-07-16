@@ -1,5 +1,6 @@
 
 import '../models/responses/session_detail_response.dart';
+import '../models/responses/treatment_products_response.dart';
 import '../repositories/session_repository.dart';
 import '../utils/enums.dart';
 import '../utils/exception.dart';
@@ -11,6 +12,22 @@ class SessionServices implements SessionRepository {
   SessionServices({required ApiBaseService api}) : _api = api;
 
 
+ @override
+  Future<TreatmentProductsResponse> getProductsByTreatment(
+    // List<int> categoryIds,
+  ) async {
+   // final String idsParam = categoryIds.join(',');
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get, endPoint: 
+      Endpoint.clinicProducts,
+      // queryParams: {'category_ids': idsParam},
+    );
+    final response = TreatmentProductsResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
 
 
 
@@ -73,6 +90,8 @@ class SessionServices implements SessionRepository {
 
 //     return response;
 //   }
+
+
 
 //    @override
 //   Future<BaseResponse> protocol({
