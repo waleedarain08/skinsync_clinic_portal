@@ -183,9 +183,9 @@ class RouteGenerator {
             },
           ),
           GoRoute(
-            name: ClinicAddTreatmentScreen.routeName,
-            path: ClinicAddTreatmentScreen.routeName,
-            builder: (_, _) => const ClinicAddTreatmentScreen(),
+            name: AddTreatmentScreen.routeName,
+            path: AddTreatmentScreen.routeName,
+            builder: (_, _) => const AddTreatmentScreen(),
           ),
         ],
       ),
