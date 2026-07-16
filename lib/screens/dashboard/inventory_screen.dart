@@ -18,6 +18,7 @@ import '../../widgets/number_paginator.dart';
 import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../../widgets/status_toggle_switch.dart';
 import '../product_detail_screen.dart';
+import '../add_product_screen.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   const InventoryScreen({super.key});
@@ -131,26 +132,13 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             ),
           ],
         ),
-        Row(
-          children: [
-            CustomOutlinedButton(
-              onTap: () {},
-              //  => context.push(ManageInventoryDataScreen.routeName),
-              icon: Icons.tune_rounded,
-              label: 'Configure Meta-Data',
-              color: Colors.white,
-              textColor: CustomColors.purple,
-            ),
-            context.horizontalSpace(16),
-            CustomPrimaryButton(
-              onTap: () {
-                //   context.push(CreateProductScreen.routeName, extra: null);
-              },
-              icon: Icons.add_circle_outline,
-              label: 'Create Catalog Product',
-              width: context.w(240),
-            ),
-          ],
+        CustomPrimaryButton(
+          onTap: () {
+            context.push(ClinicAddProductScreen.routeName);
+          },
+          icon: Icons.add,
+          label: 'Add Product',
+          width: context.w(180),
         ),
       ],
     );
