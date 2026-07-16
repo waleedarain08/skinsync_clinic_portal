@@ -187,15 +187,15 @@ class RouteGenerator {
             path: AddTreatmentScreen.routeName,
             builder: (_, _) => const AddTreatmentScreen(),
           ),
+          GoRoute(
+            path: AddDoctorInjectorScreen.routeName,
+            name: AddDoctorInjectorScreen.routeName,
+            builder: (_, state) {
+              final doctor = state.extra as Doctor?;
+              return AddDoctorInjectorScreen(doctor: doctor);
+            },
+          ),
         ],
-      ),
-      GoRoute(
-        path: AddDoctorInjectorScreen.routeName,
-        name: AddDoctorInjectorScreen.routeName,
-        builder: (_, state) {
-          final doctor = state.extra as Doctor?;
-          return AddDoctorInjectorScreen(doctor: doctor);
-        },
       ),
       GoRoute(
         name: CreateTreatmentScreen.routeName,
