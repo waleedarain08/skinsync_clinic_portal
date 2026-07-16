@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -24,7 +23,6 @@ import '../widgets/custom_primary_button.dart';
 import '../widgets/dialog_box/add_slot_dialog_box.dart';
 import '../widgets/dialog_box/select_treatment_dailog.dart';
 import '../widgets/gradient_scaffold.dart';
-import '../widgets/header__with_back_btn.dart';
 import '../widgets/phone_widget.dart';
 
 class AddDoctorInjectorScreen extends ConsumerStatefulWidget {
@@ -119,22 +117,29 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen(doctorProvider, _listener);
+    final isEditing = widget.doctor != null;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (_, _) =>
           ref.read(doctorProvider.notifier).clearData(),
       child: GradientScaffold(
+        appBar: AppBar(
+          flexibleSpace: AppDecorations.appBarGradient,
+          title: Text(
+            isEditing ? 'Update Doctor / Injector' : 'Add Doctor / Injector',
+            style: context.fonts.black18w600,
+          ),
+          centerTitle: true,
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              vertical: context.h(20),
+              vertical: context.h(24),
               horizontal: context.isLandscape ? context.w(250) : context.w(20),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const BuildHeader(title: 'Add Doctor / Injector'),
-                SizedBox(height: context.h(24)),
                 _buildFormContainer(),
               ],
             ),
