@@ -15,6 +15,7 @@ import '../models/treatment_model.dart';
 import '../repositories/session_repository.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
+import '../utils/clinic_dummy_data.dart';
 import '../utils/list_utils.dart';
 import 'base_view_model.dart';
 import '../models/treatment_data_models.dart';
@@ -440,28 +441,27 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
 Future<void> fetchProductsByTreatmentCategory() async {
-    // final treatmentState = ref.read(treatmentViewModelProvider);
-    // if (treatmentState.selectedCategoryPath.isEmpty) {
-    //   state = state.copyWith(products: [], isLoadingProducts: false);
-    //   return;
-    // }
   final repository = locator<SessionRepository>();
     state = state.copyWith(isLoadingProducts: true);
 
     try {
-      final response = await repository.getProductsByTreatment(
-        // treatmentState.selectedCategoryPath,
-      );
-      if (response.isSuccess) {
+      final response = await repository.getProductsByTreatment();
+      if (response.isSuccess && response.data != null && response.data!.isNotEmpty) {
         state = state.copyWith(
-          products: response.data ?? [],
+          products: response.data!,
           isLoadingProducts: false,
         );
       } else {
-        state = state.copyWith(isLoadingProducts: false);
+        state = state.copyWith(
+          products: ClinicDummyData.dummyTreatmentProducts,
+          isLoadingProducts: false,
+        );
       }
     } catch (e) {
-      state = state.copyWith(isLoadingProducts: false);
+      state = state.copyWith(
+        products: ClinicDummyData.dummyTreatmentProducts,
+        isLoadingProducts: false,
+      );
     }
   }
 
