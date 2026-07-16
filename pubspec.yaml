@@ -61,7 +61,6 @@ dependencies:
   firebase_core: ^4.5.0
   cached_network_image: ^3.4.1
   firebase_storage: ^13.1.0
-  material_duration_picker: ^0.1.1
   syncfusion_flutter_signaturepad: ^33.1.49
   pdf: ^3.11.1
   printing: ^5.13.2
@@ -75,6 +74,7 @@ dependencies:
   mime: ^2.0.0
   flutter_image_compress: ^2.4.0
   animated_toggle_switch: ^0.8.2
+  duration_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:

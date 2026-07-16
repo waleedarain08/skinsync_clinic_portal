@@ -1,8 +1,8 @@
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:material_duration_picker/material_duration_picker.dart';
 import '../../models/requests/register_doctor_request.dart';
 import '../../view_models/doctor_view_model.dart';
 import '../../utils/theme.dart';
@@ -40,7 +40,8 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
       return;
     }
     if (endTime != null) {
-      if (picked.hour > endTime!.hour || (picked.hour == endTime!.hour && picked.minute >= endTime!.minute)) {
+      if (picked.hour > endTime!.hour ||
+          (picked.hour == endTime!.hour && picked.minute >= endTime!.minute)) {
         EasyLoading.showError('Start time should be before end time');
         return;
       }
@@ -62,7 +63,9 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
     if (picked == null) {
       return;
     }
-    if (picked.hour < startTime!.hour || (picked.hour == startTime!.hour && picked.minute <= startTime!.minute)) {
+    if (picked.hour < startTime!.hour ||
+        (picked.hour == startTime!.hour &&
+            picked.minute <= startTime!.minute)) {
       EasyLoading.showError('End time should be after start time');
       return;
     }
@@ -186,24 +189,40 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Gap Between Appointment', style: context.fonts.black14w500),
+                Text(
+                  'Gap Between Appointment',
+                  style: context.fonts.black14w500,
+                ),
                 SizedBox(height: context.h(8)),
                 InkWell(
                   onTap: () async {
-                    final picked = await showDurationPicker(
+                    final Duration? picked = await showDurationPicker(
                       context: context,
-                      initialDuration: _selectedDuration,
+                      initialTime: _selectedDuration,
+                      lowerBound: const Duration(minutes: 5),
+                      upperBound: const Duration(hours: 3),
                     );
-                    if (picked != null) {
-                      if (picked > const Duration(hours: 3)) {
-                        EasyLoading.showError(
-                          'Duration cannot exceed 3 hours!',
-                        );
-                        return;
-                      }
-                      setState(() => _selectedDuration = picked);
+
+                    if (picked == null) return;
+
+                    // Extra validation (optional)
+                    if (picked < const Duration(minutes: 5)) {
+                      EasyLoading.showError(
+                        'Duration must be at least 5 minutes!',
+                      );
+                      return;
                     }
+
+                    if (picked > const Duration(hours: 3)) {
+                      EasyLoading.showError('Duration cannot exceed 3 hours!');
+                      return;
+                    }
+
+                    setState(() {
+                      _selectedDuration = picked;
+                    });
                   },
+
                   child: Container(
                     height: context.h(48),
                     padding: EdgeInsets.symmetric(horizontal: context.w(16)),
@@ -260,7 +279,9 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                     label: Text(
                       day,
                       style: TextStyle(
-                        color: isSelected ? CustomColors.purple : CustomColors.black,
+                        color: isSelected
+                            ? CustomColors.purple
+                            : CustomColors.black,
                         fontSize: context.sp(14),
                         fontWeight: FontWeight.w500,
                       ),

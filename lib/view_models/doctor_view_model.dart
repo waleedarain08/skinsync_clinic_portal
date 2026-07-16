@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:camera/camera.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import '../exceptions/app_exception.dart';
 import '../models/requests/register_doctor_request.dart';
 import '../models/requests/update_doctors_treament_request.dart';
 import '../models/treatment_model.dart';
@@ -16,17 +18,21 @@ import 'base_view_model.dart';
 
 final doctorProvider =
     NotifierProvider.autoDispose<DoctorViewModel, DoctorState>(
-  () => DoctorViewModel._(),
-);
+      () => DoctorViewModel._(),
+    );
 
 class DoctorViewModel extends BaseViewModel<DoctorState> {
   DoctorViewModel._();
-
+  final ImagePicker _picker = ImagePicker();
   @override
   DoctorState build() {
     init();
     ref.onDispose(dispose);
-    return const DoctorState();
+    return DoctorState(
+      country: CountryCode.fromCountryCode(
+        'US',
+      ),
+    );
   }
 
   void changeRole(DoctorRole? role) {
@@ -36,11 +42,11 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     state = state.copyWith(role: role);
   }
 
-  void setCountry(CountryCode? country) {
+  void setCountry(CountryCode country) {
     state = state.copyWith(
       country: country,
-      cc: country?.dialCode,
-      countryIso: country?.code,
+      cc: country.dialCode,
+      countryIso: country.code,
     );
   }
 
@@ -65,13 +71,29 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     state = state.copyWith(treatments: [treatment, ...state.treatments]);
   }
 
+  Future<String?> pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return null;
+
+    return await runSafely(() async {
+      const path = 'doctor/';
+      final String? url = await MediaService().uploadImage(path, image);
+
+      if (url == null) {
+        throw const UnknownException(message: 'Failed to upload image');
+      }
+
+      return url;
+    });
+  }
+
   Future<void> registerDoctor({
     required String name,
     required String specialization,
     required String email,
     required String phone,
     required int consultationFee,
-    XFile? image,
+    String? image,
   }) async {
     return await runSafely(() async {
       if (state.role == null) {
@@ -84,21 +106,18 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
         throw Exception('Add slots first!');
       }
       state = state.copyWith(loading: true);
-      String? imageUrl;
-      if (image != null) {
-        imageUrl = await locator<MediaService>().uploadImage(email, image);
-      }
+
       await locator<DoctorService>().register(
         request: RegisterDoctorRequest(
           role: state.role!,
           name: name,
-          image: imageUrl,
+          image: image,
           specialization: specialization,
           contactInfo: ContactInfo(
             email: email,
             phone: phone,
-            cc: state.cc!,
-            country: state.countryCode!,
+            cc: state.country.dialCode!,
+            country: state.country.name!,
           ),
           treatments: state.treatments,
           availability: state.availability,
@@ -127,7 +146,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     required String name,
     required String specialization,
     required String phone,
-    XFile? image,
+    String? image,
   }) async {
     return await runSafely(() async {
       if (state.treatments.isEmpty) {
@@ -139,9 +158,6 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
 
       state = state.copyWith(loading: true);
       String? imageUrl;
-      if (image != null) {
-        imageUrl = await locator<MediaService>().uploadImage(email, image);
-      }
       final request = UpdateDoctorRequest(
         clinicUserId: clinicUserId,
         name: name,
@@ -209,7 +225,7 @@ class DoctorState {
   final Doctor? selectedDoctor;
   final bool success;
   final List<Availability> availability;
-  final CountryCode? country;
+  final CountryCode country;
   final String? cc;
   final String? countryCode;
 
@@ -221,7 +237,7 @@ class DoctorState {
     this.selectedDoctor,
     this.success = false,
     this.availability = const [],
-    this.country,
+    required this.country,
     this.cc,
     this.countryCode,
   });
@@ -265,6 +281,9 @@ class DoctorState {
       treatments: treatments ?? this.treatments,
       doctors: doctors ?? this.doctors,
       success: success ?? false,
+      country: country,
+      cc: cc,
+      countryCode: countryCode,
     );
   }
 }

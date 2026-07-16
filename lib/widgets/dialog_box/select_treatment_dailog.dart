@@ -129,7 +129,7 @@ class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                     ),
                   ),
             SizedBox(height: context.h(30)),
-            if (_selectedTreatment != null) ...[
+            if (_selectedTreatment != null && _sideAreas.isNotEmpty) ...[
               Text("Select Areas", style: CustomFonts.black14w500),
               SizedBox(height: context.h(16)),
               Wrap(

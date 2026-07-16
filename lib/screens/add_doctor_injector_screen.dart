@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../models/requests/register_doctor_request.dart';
 import '../models/responses/register_doctor_response.dart';
@@ -40,7 +40,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
   final _specializationController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _imageNotifier = ValueNotifier<XFile?>(null);
+  final _imageNotifier = ValueNotifier<String?>(null);
   final _feeController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -61,7 +61,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
         _phoneController.text = doctor.phone ?? '';
 
         ref.read(doctorProvider.notifier).changeRole(doctor.role);
-
+        ref.read(doctorProvider.notifier).setCountry(CountryCode.fromDialCode(doctor.cc!));
         // ✅ Convert properly
         final convertedTreatments =
             doctor.treatments?.map((t) {
@@ -94,12 +94,9 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
   }
 
   Future<void> _onImageTap() async {
-    final image = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 50,
-    );
+    final image = await ref.read(doctorProvider.notifier).pickImage();
     if (image != null) {
-      log('PATH: ${image.path}');
+      log('PATH: ${image}');
       _imageNotifier.value = image;
     }
   }
@@ -221,7 +218,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(context.r(50)),
                           child: CachedNetworkImage(
-                            imageUrl: image?.path ?? widget.doctor?.image ?? '',
+                            imageUrl: image ?? widget.doctor?.image ?? '',
                             errorWidget: (_, _, _) => CircleAvatar(
                               radius: context.r(50),
                               backgroundColor: CustomColors.softGrey,
@@ -296,8 +293,8 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                   PhoneWidget(
                     controller: _phoneController,
                     initialCountryCode:
-                        widget.doctor?.country ??
-                        ref.watch(doctorProvider).countryCode,
+                        widget.doctor?.cc ??
+                        ref.watch(doctorProvider).country.dialCode,
                     onCountryChanged: (country) {
                       ref.read(doctorProvider.notifier).setCountry(country);
                     },
