@@ -12,7 +12,7 @@ import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/app_network_image.dart';
-import '../../widgets/dialog_box/edit_treatment_dailogbox.dart';
+// import '../../widgets/dialog_box/edit_treatment_dailogbox.dart';
 import 'treatment_detail_screen.dart';
 
 class TreatmentScreen extends ConsumerStatefulWidget {
@@ -518,21 +518,21 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
              // context.push(TreatmentDetailScreen.routeName, );
             },
           ),
-          IconButton(
-            tooltip: 'Edit Treatment',
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: CustomColors.purple,
-              size: 20,
-            ),
-            onPressed: () {
-              viewModel.setTreatment(t.id!);
-              showDialog(
-                context: context,
-                builder: (context) => const EditTreatmentDialog(),
-              );
-            },
-          ),
+          // IconButton(
+          //   tooltip: 'Edit Treatment',
+          //   icon: const Icon(
+          //     Icons.edit_outlined,
+          //     color: CustomColors.purple,
+          //     size: 20,
+          //   ),
+          //   onPressed: () {
+          //     viewModel.setTreatment(t.id!);
+          //     showDialog(
+          //       context: context,
+          //       builder: (context) => const EditTreatmentDialog(),
+          //     );
+          //   },
+          // ),
           IconButton(
             tooltip: 'Delete',
             icon: const Icon(
