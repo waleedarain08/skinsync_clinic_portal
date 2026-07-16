@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/widgets/session_creation_steps/authorized_roles_widget.dart';
+
+
+import '../../view_models/session_view_model.dart';
+import 'authorized_roles_widget.dart';
 
 class RolesStep extends ConsumerWidget {
   const RolesStep({super.key});

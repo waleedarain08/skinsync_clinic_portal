@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:skinsync_admin/models/responses/treatment_products_response.dart';
-import 'package:skinsync_admin/models/responses/unit_types_list_response.dart';
-import 'package:skinsync_admin/screens/product_detail_screen.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/product_view_model.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/widgets/app_network_image.dart';
-import 'package:skinsync_admin/widgets/app_search_field.dart';
-import 'package:skinsync_admin/widgets/build_textfield.dart';
-import 'package:skinsync_admin/widgets/custom_dropdown_widget.dart';
-import 'package:skinsync_admin/widgets/session_creation_steps/authorized_roles_widget.dart';
 
+
+import '../../models/responses/treatment_products_response.dart';
+import '../../models/responses/unit_types_list_response.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../utils/theme.dart';
 import '../../view_models/product_view_model.dart';
 import '../../view_models/session_view_model.dart';
+import '../app_network_image.dart';
 import '../app_search_field.dart';
+import '../build_textfield.dart';
+import '../custom_dropdown_widget.dart';
 import 'authorized_roles_widget.dart';
 
 class MaterialsStep extends ConsumerStatefulWidget {
@@ -28,13 +23,14 @@ class MaterialsStep extends ConsumerStatefulWidget {
 }
 
 class _MaterialsStepState extends ConsumerState<MaterialsStep> {
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(productViewModelProvider.notifier).fetchUnitTypes();
-      await ref.read(sessionViewModelProvider.notifier).fetchProductsByTreatmentCategory();
+     await ref.read(productViewModelProvider.notifier).fetchUnitTypes();
+      await ref
+          .read(sessionViewModelProvider.notifier)
+          .fetchProductsByTreatmentCategory();
 
       final viewModel = ref.read(sessionViewModelProvider.notifier);
       viewModel.minUnitsController.addListener(_onUnitsChanged);
@@ -269,15 +265,22 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                         ),
                       ],
                     ),
-                    if (entry.packageType != null || entry.boxQuantity != null || entry.clinicCost != null || entry.retailPricePerUnit != null) ...[
+                    if (entry.packageType != null ||
+                        entry.boxQuantity != null ||
+                        entry.clinicCost != null ||
+                        entry.retailPricePerUnit != null) ...[
                       context.verticalSpace(8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          if (entry.packageType != null && entry.packageType!.isNotEmpty)
+                          if (entry.packageType != null &&
+                              entry.packageType!.isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: CustomColors.whiteGrey,
                                 borderRadius: BorderRadius.circular(6),
@@ -290,7 +293,10 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                             ),
                           if (entry.boxQuantity != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: CustomColors.whiteGrey,
                                 borderRadius: BorderRadius.circular(6),
@@ -303,7 +309,10 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                             ),
                           if (entry.clinicCost != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: CustomColors.whiteGrey,
                                 borderRadius: BorderRadius.circular(6),
@@ -316,7 +325,10 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                             ),
                           if (entry.retailPricePerUnit != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: CustomColors.whiteGrey,
                                 borderRadius: BorderRadius.circular(6),
@@ -348,21 +360,18 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
           if (!isOtherMaterial) ...[
             context.verticalSpace(20),
             CustomDropdown<String>(
-              label: 'Deduction Timing',
-              hintText: 'Select',
+              // label: 'Deduction Timing',
+              hint: 'Select Timing',
               value: entry.deductionTiming,
-              items: const [
-                DropdownMenuItem(
-                  value: 'On_Completion',
-                  child: Text('On Completion'),
-                ),
-                DropdownMenuItem(value: 'Manual', child: Text('Manual')),
-                DropdownMenuItem(
-                  value: 'Post_Confirmation',
-                  child: Text('Post Confirmation'),
-                ),
-              ],
-              onChanged: (val) => viewModel.updateProductUsageEntry(index, deductionTiming: val),
+              items: const ['On_Completion', 'Manual', 'Post_Confirmation'],
+              builder: (val) => Text(
+                val.replaceAll('_', ' '),
+                style: CustomFonts.black14w400,
+              ),
+              onChanged: (val) => viewModel.updateProductUsageEntry(
+                index,
+                deductionTiming: val,
+              ),
             ),
             context.verticalSpace(20),
             Row(
@@ -422,10 +431,12 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
     final minUnits = double.tryParse(viewModel.minUnitsController.text) ?? 0.0;
     final maxUnits = double.tryParse(viewModel.maxUnitsController.text) ?? 0.0;
 
-    final String minLabel = minUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
+    final String minLabel =
+        minUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
         ? '${unitTypeName}s'
         : unitTypeName;
-    final String maxLabel = maxUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
+    final String maxLabel =
+        maxUnits > 1 && !unitTypeName.toLowerCase().endsWith('s')
         ? '${unitTypeName}s'
         : unitTypeName;
 
@@ -439,24 +450,25 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
           style: context.fonts.grey14w400,
         ),
         context.verticalSpace(24),
-        CustomDropdown<int>(
-          label: 'Unit Type',
-          hintText: 'Select Unit Type',
-          value: state.selectedUnitTypeId,
-          items: unitTypes.map((u) {
-            return DropdownMenuItem<int>(
-              value: u.id,
-              child: Text(u.name),
-            );
-          }).toList(),
-          onChanged: (id) {
-            final selected = unitTypes.firstWhere(
-              (u) => u.id == id,
-              orElse: () => const UnitTypeModel(id: 0, name: ''),
-            );
-            viewModel.selectUnitType(id, selected.name);
-          },
-        ),
+         CustomDropdown<int>(
+  hint: 'Select Unit Type',
+  value: state.selectedUnitTypeId,
+  items: unitTypes.map((u) => u.id!).toList(),
+  builder: (id) {
+    final unit = unitTypes.firstWhere(
+      (u) => u.id == id,
+      orElse: () => const UnitTypeModel(id: 0, name: ''),
+    );
+    return Text(unit.name, style: CustomFonts.black14w400);
+  },
+  onChanged: (id) {
+    final selected = unitTypes.firstWhere(
+      (u) => u.id == id,
+      orElse: () => const UnitTypeModel(id: 0, name: ''),
+    );
+    viewModel.selectUnitType(id, selected.name);
+  },
+),
         context.verticalSpace(20),
         Row(
           children: [
@@ -465,7 +477,9 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                 label: 'Minimum $minLabel',
                 controller: viewModel.minUnitsController,
                 hintText: '0',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
             ),
             context.horizontalSpace(16),
@@ -474,7 +488,9 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                 label: 'Maximum $maxLabel',
                 controller: viewModel.maxUnitsController,
                 hintText: '0',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
             ),
           ],
@@ -511,7 +527,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                     ),
                     context.verticalSpace(12),
                     TextButton(
-                      onPressed: viewModel.fetchProductsByTreatmentCategory,
+                      onPressed:() =>  ref.read(productViewModelProvider.notifier).getData(),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -593,7 +609,8 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
         context.verticalSpace(24),
         AuthorizedRolesWidget(
           title: 'Authorized Roles to Change Materials',
-          description: 'Select which provider roles are authorized to modify products and materials for this session.',
+          description:
+              'Select which provider roles are authorized to modify products and materials for this session.',
           selectedRoles: state.materialsRoles,
           onRoleToggled: viewModel.toggleMaterialsRole,
         ),

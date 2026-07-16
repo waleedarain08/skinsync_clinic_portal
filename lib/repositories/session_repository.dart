@@ -1,6 +1,7 @@
 
 
 import '../models/responses/session_detail_response.dart';
+import '../models/responses/treatment_products_response.dart';
 
 abstract class SessionRepository {
   // Future<BaseApiResponseModel> createSession({
@@ -18,6 +19,7 @@ abstract class SessionRepository {
   //   required ProductUsagesRequest request,
   //   required int id,
   // });
+
 
   // Future<BaseApiResponseModel> createSchedule(
   //   TreatmentScheduleRequest request,
@@ -76,7 +78,9 @@ abstract class SessionRepository {
   //   required FinalFinishRequest request,
   //   required int id,
   // });
-
+ Future<TreatmentProductsResponse> getProductsByTreatment(
+    // List<int> categoryIds,
+  );
   Future<SessionDetailResponse> getSessionDetail({
     required int id,
   });

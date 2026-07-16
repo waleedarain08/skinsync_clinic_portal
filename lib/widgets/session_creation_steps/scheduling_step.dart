@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/utils/validators.dart';
-import 'package:skinsync_admin/view_models/session_view_model.dart';
-import 'package:skinsync_admin/view_models/treatment_view_model.dart';
-import 'package:skinsync_admin/widgets/build_textfield.dart';
-import 'package:skinsync_admin/widgets/session_creation_steps/authorized_roles_widget.dart';
+
 
 import '../../utils/custom_fonts.dart';
 import '../../utils/theme.dart';
@@ -13,6 +8,7 @@ import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../build_textfield.dart';
+import 'authorized_roles_widget.dart';
 
 class SchedulingStep extends ConsumerWidget {
   const SchedulingStep({super.key});
@@ -33,12 +29,12 @@ class SchedulingStep extends ConsumerWidget {
     return double.tryParse(entry.minQuantityController.text) ?? 0.0;
   }
 
-  double _getProductMaxQuantity(
-    ProductUsageEntry entry,
-    List<dynamic> allSubAreas,
-  ) {
-    return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
-  }
+  // double _getProductMaxQuantity(
+  //   ProductUsageEntry entry,
+  //   List<dynamic> allSubAreas,
+  // ) {
+  //   return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
+  // }
 
   double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
     double total = 0.0;
@@ -156,9 +152,9 @@ class SchedulingStep extends ConsumerWidget {
             ...state.productUsageEntries.asMap().entries.map((item) {
               final idx = item.key;
               final entry = item.value;
-              final allSubAreas = treatmentState.areas.expand((a) => a.subAreas).toList();
-              final minQty = _getProductMinQuantity(entry, allSubAreas);
-              final maxQty = _getProductMaxQuantity(entry, allSubAreas);
+              // final allSubAreas = treatmentState.areas.expand((a) => a.subAreas).toList();
+              // final minQty = _getProductMinQuantity(entry, allSubAreas);
+              // final maxQty = _getProductMaxQuantity(entry, allSubAreas);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -181,7 +177,8 @@ class SchedulingStep extends ConsumerWidget {
                           style: context.fonts.grey13w500,
                         ),
                         Text(
-                          'Min Qty: ${minQty.toStringAsFixed(minQty % 1 == 0 ? 0 : 1)} | Max Qty: ${maxQty.toStringAsFixed(maxQty % 1 == 0 ? 0 : 1)}',
+                          '  Min Qty: 0 | Max Qty:  1',
+                          //'Min Qty: ${minQty.toStringAsFixed(minQty % 1 == 0 ? 0 : 1)} | Max Qty: ${maxQty.toStringAsFixed(maxQty % 1 == 0 ? 0 : 1)}',
                           style: context.fonts.grey13w500,
                         ),
                       ],

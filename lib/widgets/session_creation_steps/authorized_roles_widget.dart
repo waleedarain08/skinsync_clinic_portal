@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skinsync_admin/models/responses/category_detail_response.dart';
-import 'package:skinsync_admin/utils/theme.dart';
-import 'package:skinsync_admin/view_models/treatment_view_model.dart';
+
+import '../../utils/theme.dart';
+
 
 class AuthorizedRolesWidget extends ConsumerWidget {
   final String title;
@@ -102,7 +102,7 @@ class AuthorizedRolesWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final CategoryDetailDto? selectedCategory = ref.watch(treatmentViewModelProvider).selectedCategoryDetail;
+  //  final CategoryDetailDto? selectedCategory = ref.watch(treatmentViewModelProvider).selectedCategoryDetail;
 
     final List<String> availableRoles = [
       'Injector',
@@ -111,11 +111,11 @@ class AuthorizedRolesWidget extends ConsumerWidget {
       'Nurse',
       'Specialist',
     ];
-    final List<String> categoryRoles =
-        selectedCategory?.defaultRoles
-            ?.map((r) => defaultRoleValues.reverse[r] ?? '')
-            .toList() ??
-        [];
+    // final List<String> categoryRoles =
+    //     selectedCategory?.defaultRoles
+    //         ?.map((r) => defaultRoleValues.reverse[r] ?? '')
+    //         .toList() ??
+    //     [];
 
     final isCategoryDefault = showCategorySwitcher && (providerRolesSource == 'category');
 
@@ -141,9 +141,9 @@ class AuthorizedRolesWidget extends ConsumerWidget {
                   if (onProviderRolesSourceChanged != null) {
                     onProviderRolesSourceChanged!('category');
                   }
-                  if (onSetRoles != null) {
-                    onSetRoles!(categoryRoles);
-                  }
+                  // if (onSetRoles != null) {
+                  //   onSetRoles!(categoryRoles);
+                  // }
                 },
               ),
               context.horizontalSpace(32),
@@ -168,21 +168,22 @@ class AuthorizedRolesWidget extends ConsumerWidget {
             style: context.fonts.grey10w700ls1,
           ),
           context.verticalSpace(16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: categoryRoles.isEmpty
-                ? [
-                    Text(
-                      'No roles defined in category.',
-                      style: context.fonts.grey14w400,
-                    ),
-                  ]
-                : categoryRoles
-                      .map((role) => _roleChip(context, role, true, null))
-                      .toList(),
-          ),
-        ] else ...[
+          // Wrap(
+          //   spacing: 12,
+          //   runSpacing: 12,
+          //   children: 
+        //     categoryRoles.isEmpty
+        //         ? [
+        //             Text(
+        //               'No roles defined in category.',
+        //               style: context.fonts.grey14w400,
+        //             ),
+        //           ]
+        //         : categoryRoles
+        //               .map((role) => _roleChip(context, role, true, null))
+        //               .toList(),
+        //   ),
+        // ] else ...[
           if (showCategorySwitcher) ...[
             Text('Select Authorized Roles', style: context.fonts.black16w600),
             context.verticalSpace(16),

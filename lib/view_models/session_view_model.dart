@@ -35,10 +35,15 @@ class SessionState {
   final bool isLoadingProducts;
   final String? error;
 
+
   // Protocols
   final List<String> selectedProtocolIds;
   final List<TreatmentProtocolNote> selectedProtocolNotes;
   final List<TreatmentProtocolNoteItem> standaloneNotes;
+
+// New redesigned MaterialsStep properties
+  final int? selectedUnitTypeId;
+  final String? selectedUnitTypeName;
 
   // Notifications
   final String preNotificationSource;
@@ -82,6 +87,13 @@ class SessionState {
   final String sessionSource;
   final bool isFollowUpRequired;
 
+  final List<String> materialsRoles;
+  final String materialsRolesSource;
+  final List<String> schedulingRoles;
+  final String schedulingRolesSource;
+  final List<String> pricingRoles;
+  final String pricingRolesSource;
+
   SessionState({
     // super.loading,
     // super.currentPage,
@@ -95,7 +107,8 @@ class SessionState {
 
     this.otherMaterialsUsageEntries = const [],
     this.products = const [],
-
+     this.selectedUnitTypeId,
+    this.selectedUnitTypeName,
     this.isLoadingProducts = false,
     this.error,
     this.selectedProtocolIds = const [],
@@ -128,6 +141,13 @@ class SessionState {
     this.postNotificationOffset,
     this.sessionSource = 'custom',
     this.isFollowUpRequired = false,
+
+    this.materialsRoles = const [],
+    this.materialsRolesSource = 'category',
+    this.schedulingRoles = const [],
+    this.schedulingRolesSource = 'category',
+    this.pricingRoles = const [],
+    this.pricingRolesSource = 'category',
   });
 
   SessionState copyWith({
@@ -143,6 +163,8 @@ class SessionState {
     List<TreatmentProductData>? products,
     bool? isLoadingProducts,
     String? error,
+    int? selectedUnitTypeId,
+    String? selectedUnitTypeName,
     List<String>? selectedProtocolIds,
     List<TreatmentProtocolNote>? selectedProtocolNotes,
     List<TreatmentProtocolNoteItem>? standaloneNotes,
@@ -174,6 +196,13 @@ class SessionState {
     String? sessionSource,
     bool? isFollowUpRequired,
     int? sessionId,
+
+    List<String>? materialsRoles,
+    String? materialsRolesSource,
+    List<String>? schedulingRoles,
+    String? schedulingRolesSource,
+    List<String>? pricingRoles,
+    String? pricingRolesSource,
   }) {
     return SessionState(
       // loading: loading ?? this.loading,
@@ -236,6 +265,10 @@ class SessionState {
       sessionSource: sessionSource ?? this.sessionSource,
       isFollowUpRequired: isFollowUpRequired ?? this.isFollowUpRequired,
       sessionId: sessionId ?? this.sessionId,
+      materialsRoles: materialsRoles ?? this.materialsRoles,
+      selectedUnitTypeId: selectedUnitTypeId ?? this.selectedUnitTypeId,
+      selectedUnitTypeName: selectedUnitTypeName ?? this.selectedUnitTypeName,
+
     );
   }
 }
@@ -250,6 +283,8 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     fixedDurationController.addListener(_triggerRebuild);
     preTreatmentInstructionsController.addListener(_triggerRebuild);
     postTreatmentInstructionsController.addListener(_triggerRebuild);
+     minUnitsController.addListener(_triggerRebuild);
+    maxUnitsController.addListener(_triggerRebuild);
   }
 
   @override
@@ -278,7 +313,8 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
   final durationHoursController = TextEditingController();
   final durationMinutesController = TextEditingController();
-
+    final minUnitsController = TextEditingController(text: '0');
+  final maxUnitsController = TextEditingController(text: '0');
   final treatmentDurationController = TextEditingController();
   final prepTimeController = TextEditingController();
   final cleanupTimeController = TextEditingController();
@@ -403,298 +439,337 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     state = state.copyWith(activeSessionIndex: index);
   }
 
+Future<void> fetchProductsByTreatmentCategory() async {
+    // final treatmentState = ref.read(treatmentViewModelProvider);
+    // if (treatmentState.selectedCategoryPath.isEmpty) {
+    //   state = state.copyWith(products: [], isLoadingProducts: false);
+    //   return;
+    // }
+  final repository = locator<SessionRepository>();
+    state = state.copyWith(isLoadingProducts: true);
+
+    try {
+      final response = await repository.getProductsByTreatment(
+        // treatmentState.selectedCategoryPath,
+      );
+      if (response.isSuccess) {
+        state = state.copyWith(
+          products: response.data ?? [],
+          isLoadingProducts: false,
+        );
+      } else {
+        state = state.copyWith(isLoadingProducts: false);
+      }
+    } catch (e) {
+      state = state.copyWith(isLoadingProducts: false);
+    }
+  }
+
+
   Future<bool> fetchAndPopulateSessionDetail(int sessionId) async {
-    final repository = locator<SessionRepository>();
-    return await runSafely<bool>(showLoading: true, () async {
-          final response = await repository.getSessionDetail(id: sessionId);
-          if (response.isSuccess && response.data != null) {
-            final SessionDetailDto detail = response.data!;
+     final repository = locator<SessionRepository>();
+    return await runSafely<bool>(
+          showLoading: true,
+          () async {
+            final response = await repository.getSessionDetail(
+              id: sessionId,
+            );
+            if (response.isSuccess && response.data != null) {
+              final SessionDetailDto detail = response.data!;
 
-            // Set Session ID
-            setSessionId(detail.id);
+              // Set Session ID
+              setSessionId(detail.id);
 
-            // 1. Materials Step
-            final mappedUsages = detail.productUsages.map((e) {
-              final durationMatch = detail.productDurations.firstWhereOrNull(
-                (d) => d.productId == e.productId,
-              );
-              final perUnitDuration = durationMatch?.perUnitDuration ?? 0.0;
+              // 1. Materials Step
+              final mappedUsages = detail.productUsages.map((e) {
+                final durationMatch = detail.productDurations.firstWhereOrNull(
+                  (d) => d.productId == e.productId,
+                );
+                final perUnitDuration = durationMatch?.perUnitDuration ?? 0.0;
 
-              return ProductUsageEntry(
-                productId: e.productId,
-                productName: e.productName,
-                unit: 'Unit',
-                notesController: TextEditingController(text: e.notes),
-                minQuantityController: TextEditingController(
-                  text: e.minQuantity.toString(),
-                ),
-                maxQuantityController: TextEditingController(
-                  text: e.maxQuantity.toString(),
-                ),
-                perUnitDurationController: TextEditingController(
-                  text: perUnitDuration.toString(),
-                ),
-                allowSubstitution: e.allowSubstitution,
-                deductionTiming: e.deductionTiming,
-              );
-            }).toList();
+                return ProductUsageEntry(
+                  productId: e.productId,
+                  productName: e.productName,
+                  unit: 'Unit',
+                  notesController: TextEditingController(text: e.notes),
+                  minQuantityController: TextEditingController(
+                    text: e.minQuantity.toString(),
+                  ),
+                  maxQuantityController: TextEditingController(
+                    text: e.maxQuantity.toString(),
+                  ),
+                  perUnitDurationController: TextEditingController(
+                    text: perUnitDuration.toString(),
+                  ),
+                  allowSubstitution: e.allowSubstitution,
+                  deductionTiming: e.deductionTiming,
+                );
+              }).toList();
 
-            final mappedOtherUsages = detail.otherMaterials.map((id) {
+              final mappedOtherUsages = detail.otherMaterials.map((id) {
                 final product = state.products.firstWhereOrNull(
                   (p) => p.id == id,
                 );
-              return ProductUsageEntry(
-                productId: id,
-                productName: product?.name ?? 'Product #$id',
-                unit: 'Unit',
-                notesController: TextEditingController(),
-                minQuantityController: TextEditingController(text: '0'),
-                maxQuantityController: TextEditingController(text: '0'),
-                perUnitDurationController: TextEditingController(text: '0'),
-                allowSubstitution: false,
-                deductionTiming: 'On_Completion',
-              );
-            }).toList();
-
-            // minUnitsController.text = (detail.minimumUnits ?? 0.0)
-            //     .toStringAsFixed(0);
-            // maxUnitsController.text = (detail.maximumUnits ?? 0.0)
-            //     .toStringAsFixed(0);
-
-            state = state.copyWith(
-              productUsageEntries: mappedUsages,
-               otherMaterialsUsageEntries: mappedOtherUsages,
-            // selectedUnitTypeId: detail.selectedUnitTypeId,
-            );
-
-            // 2. Schedule Step
-            treatmentDurationController.text = detail.baseDuration.toString();
-            prepTimeController.text = detail.prepTime.toString();
-            cleanupTimeController.text = detail.cleanupTime.toString();
-            minimumBookingNoticeController.text = detail.minimumBookingNotice
-                .toString();
-            maximumDaysInAdvanceController.text = detail.maximumDaysInAdvance
-                .toString();
-            fixedDurationController.text = detail.fixedDuration.toString();
-
-            state = state.copyWith(
-              allowClinicOverride: detail.allowClinicOverride,
-              allowProviderOverride: detail.allowProviderOverride,
-              onlineBookable: detail.onlineBookable,
-              manualApprovalRequired: detail.manualApprovalRequired,
-              isFixedDuration: detail.isFixedDuration,
-            );
-
-            // 3. Pricing Step
-            basePriceController.text = detail.basePrice.toString();
-            fixedPriceController.text = detail.fixedPrice.toString();
-            state = state.copyWith(isFixedPrice: detail.isFixedPrice);
-
-            unitPriceControllers.forEach((_, c) => c.dispose());
-            unitPriceControllers.clear();
-
-            for (final override in detail.unitPriceOverrides) {
-              final entry = mappedUsages.firstWhereOrNull(
-                (e) => e.productId == override.productId,
-              );
-              if (entry != null) {
-                final controller = getControllerForUnit(entry.unit);
-                controller.text = override.pricePerUnit.toString();
-              }
-            }
-
-            // 5. Pre-Treatment Instructions
-            preTreatmentInstructionsController.text =
-                detail.preTreatmentInstructions;
-            final List<Attachment> preAttachments = detail
-                .preTreatmentAttachments
-                .map((a) {
-                  return Attachment(
-                    url: a.url,
-                    type: a.type ?? 'pdf',
-                    name: a.name,
-                  );
-                })
-                .toList();
-
-            // 6. Post-Treatment Instructions
-            postTreatmentInstructionsController.text =
-                detail.postTreatmentInstructions;
-            final List<Attachment> postAttachments = detail
-                .postTreatmentAttachments
-                .map((a) {
-                  return Attachment(
-                    url: a.url,
-                    type: a.type ?? 'pdf',
-                    name: a.name,
-                  );
-                })
-                .toList();
-
-            // 7. Post-Treatment Photos
-            postTreatmentPhotoCountController.text = detail
-                .photoMilestone
-                .length
-                .toString();
-            final List<PostTreatmentPhotoConfig> photoConfigs = detail
-                .photoMilestone
-                .map((m) {
-                  return PostTreatmentPhotoConfig(
-                    days: m.numberOfDays.toString(),
-                    count: m.requiredPhotos.toString(),
-                  );
-                })
-                .toList();
-
-            state = state.copyWith(
-              existingPreAttachments: preAttachments,
-              existingPostAttachments: postAttachments,
-              requirePostTreatmentPhotos: detail.requirePostTreatmentPhotos,
-              postTreatmentPhotoConfigs: photoConfigs,
-            );
-
-            // 8 & 9. Phase Notifications
-            final List<NotificationEntry> preNotifs = detail.preNotifications
-                .map((n) {
-                  return NotificationEntry(
-                    titleController: TextEditingController(text: n.title),
-                    messageController: TextEditingController(text: n.message),
-                    timingValueController: TextEditingController(
-                      text: n.timing.toString(),
-                    ),
-                    timingUnit: n.timingUnit,
-                    type: n.type,
-                  );
-                })
-                .toList();
-
-            final List<NotificationEntry> postNotifs = detail.postNotifications
-                .map((n) {
-                  return NotificationEntry(
-                    titleController: TextEditingController(text: n.title),
-                    messageController: TextEditingController(text: n.message),
-                    timingValueController: TextEditingController(
-                      text: n.timing.toString(),
-                    ),
-                    timingUnit: n.timingUnit,
-                    type: n.type,
-                  );
-                })
-                .toList();
-
-            state = state.copyWith(
-              preNotificationEntries: preNotifs,
-              postNotificationEntries: postNotifs,
-            );
-
-            // 10. Downtime Level & Provider Roles
-            state = state.copyWith(
-              downtimeLevel: detail.downtimeLevel,
-              selectedRoles: detail.allowedRoles,
-            );
-
-            // 11. Follow ups
-            final List<FollowUpEntry> mappedFollowUps = detail.followUps.map((
-              f,
-            ) {
-              return FollowUpEntry(
-                type: f.type,
-                durationUnit: f.durationUnit,
-                durationValueController: TextEditingController(
-                  text: f.durationValue.toString(),
-                ),
-                notesController: TextEditingController(text: f.notes),
-                intervalValueController: TextEditingController(
-                  text: f.intervalValue.toString(),
-                ),
-                intervalUnit: f.intervalUnit,
-                isImageRequired: f.isImageRequired,
-              );
-            }).toList();
-
-            final bool hasFollowUps = mappedFollowUps.isNotEmpty;
-
-            final updatedSessions = state.sessions.map((s) {
-              if (s.sessionId == detail.id) {
-                final durationText = detail.isFixedDuration
-                    ? "Fixed: ${detail.fixedDuration} mins"
-                    : "Total: ${detail.calculatedTotalDuration} mins (Base: ${detail.baseDuration}, Prep: ${detail.prepTime}, Cleanup: ${detail.cleanupTime})";
-
-                final priceText = detail.isFixedPrice
-                    ? "\$${detail.fixedPrice} (Fixed Rate)"
-                    : "\$${detail.basePrice} (Base) + Custom Overrides";
-
-                final List<String> protocols = [];
-                if (detail.clinicalProtocolPdf != null) {
-                  protocols.add(
-                    "${detail.clinicalProtocolPdf!.name} (Clinical Protocol)",
-                  );
-                } else {
-                  protocols.add("No clinical protocols configured");
-                }
-
-                final List<String> preNotifs = detail.preNotifications
-                    .map(
-                      (n) =>
-                          "${n.title} - Send ${n.timing} ${n.timingUnit}(s) before",
-                    )
-                    .toList();
-
-                final List<String> postNotifs = detail.postNotifications
-                    .map(
-                      (n) =>
-                          "${n.title} - Send ${n.timing} ${n.timingUnit}(s) after",
-                    )
-                    .toList();
-
-                final newS = SessionViewModelEntry(
-                  sessionId: s.sessionId,
-                  sessionNumber: s.sessionNumber,
-                  title: s.title,
-                  status: detail.status,
-                  totalFollowUpsController: s.totalFollowUpsController,
-                  followUps: mappedFollowUps,
-                  isDetailedEntered: true,
-                  productUsageSnapshot: List<ProductUsageEntry>.from(
-                    mappedUsages,
-                  ),
-                  durationSnapshot: durationText,
-                  priceSnapshot: priceText,
-                  protocolSnapshot: protocols,
-                  preInstructionsSnapshot: detail.preTreatmentInstructions,
-                  postInstructionsSnapshot: detail.postTreatmentInstructions,
-                  requirePhotosSnapshot: detail.requirePostTreatmentPhotos,
-                  photosCountSnapshot: detail.photoMilestone.length,
-                  preNotificationsSnapshot: preNotifs,
-                  postNotificationsSnapshot: postNotifs,
-                  downtimeSnapshot: detail.downtimeLevel,
-                  rolesSnapshot: List.from(detail.allowedRoles),
-                  consentSnapshot: detail.preTreatmentConsentForm?.name ?? '',
+                return ProductUsageEntry(
+                  productId: id,
+                  productName: product?.name ?? 'Product #$id',
+                  unit: 'Unit',
+                  notesController: TextEditingController(),
+                  minQuantityController: TextEditingController(text: '0'),
+                  maxQuantityController: TextEditingController(text: '0'),
+                  perUnitDurationController: TextEditingController(text: '0'),
+                  allowSubstitution: false,
+                  deductionTiming: 'On_Completion',
                 );
-                newS.totalFollowUpsController.text = mappedFollowUps.length
-                    .toString();
-                return newS;
+              }).toList();
+
+              minUnitsController.text = (detail.minimumUnits ?? 0.0)
+                  .toStringAsFixed(0);
+              maxUnitsController.text = (detail.maximumUnits ?? 0.0)
+                  .toStringAsFixed(0);
+
+              state = state.copyWith(
+                productUsageEntries: mappedUsages,
+                otherMaterialsUsageEntries: mappedOtherUsages,
+                selectedUnitTypeId: detail.selectedUnitTypeId,
+              );
+
+              // 2. Schedule Step
+              treatmentDurationController.text = detail.baseDuration.toString();
+              prepTimeController.text = detail.prepTime.toString();
+              cleanupTimeController.text = detail.cleanupTime.toString();
+              minimumBookingNoticeController.text = detail.minimumBookingNotice
+                  .toString();
+              maximumDaysInAdvanceController.text = detail.maximumDaysInAdvance
+                  .toString();
+              fixedDurationController.text = detail.fixedDuration.toString();
+
+              state = state.copyWith(
+                allowClinicOverride: detail.allowClinicOverride,
+                allowProviderOverride: detail.allowProviderOverride,
+                onlineBookable: detail.onlineBookable,
+                manualApprovalRequired: detail.manualApprovalRequired,
+                isFixedDuration: detail.isFixedDuration,
+              );
+
+              // 3. Pricing Step
+              basePriceController.text = detail.basePrice.toString();
+              fixedPriceController.text = detail.fixedPrice.toString();
+              state = state.copyWith(isFixedPrice: detail.isFixedPrice);
+
+              unitPriceControllers.forEach((_, c) => c.dispose());
+              unitPriceControllers.clear();
+
+              for (final override in detail.unitPriceOverrides) {
+                final entry = mappedUsages.firstWhereOrNull(
+                  (e) => e.productId == override.productId,
+                );
+                if (entry != null) {
+                  final controller = getControllerForUnit(entry.unit);
+                  controller.text = override.pricePerUnit.toString();
+                }
               }
-              return s;
-            }).toList();
 
-            state = state.copyWith(
-              sessions: updatedSessions,
-              isFollowUpRequired: hasFollowUps,
-            );
+              // 5. Pre-Treatment Instructions
+              preTreatmentInstructionsController.text =
+                  detail.preTreatmentInstructions;
+              final List<Attachment> preAttachments = detail
+                  .preTreatmentAttachments
+                  .map((a) {
+                    return Attachment(
+                      url: a.url,
+                      type: a.type ?? 'pdf',
+                      name: a.name,
+                    );
+                  })
+                  .toList();
 
-            // 12. Pre-Treatment Consent Form
-            state = state.copyWith(
-              consentFormUrl: detail.preTreatmentConsentForm?.url ?? '',
-            );
+              // 6. Post-Treatment Instructions
+              postTreatmentInstructionsController.text =
+                  detail.postTreatmentInstructions;
+              final List<Attachment> postAttachments = detail
+                  .postTreatmentAttachments
+                  .map((a) {
+                    return Attachment(
+                      url: a.url,
+                      type: a.type ?? 'pdf',
+                      name: a.name,
+                    );
+                  })
+                  .toList();
 
-            // Now let's set the Step open index
-            setSessionStep(detail.currentStep);
+              // 7. Post-Treatment Photos
+              postTreatmentPhotoCountController.text = detail
+                  .photoMilestone
+                  .length
+                  .toString();
+              final List<PostTreatmentPhotoConfig> photoConfigs = detail
+                  .photoMilestone
+                  .map((m) {
+                    return PostTreatmentPhotoConfig(
+                      days: m.numberOfDays.toString(),
+                      count: m.requiredPhotos.toString(),
+                    );
+                  })
+                  .toList();
 
-            return true;
-          }
-          return false;
-        }) ??
+              state = state.copyWith(
+                existingPreAttachments: preAttachments,
+                existingPostAttachments: postAttachments,
+                requirePostTreatmentPhotos: detail.requirePostTreatmentPhotos,
+                postTreatmentPhotoConfigs: photoConfigs,
+              );
+
+              // 8 & 9. Phase Notifications
+              final List<NotificationEntry> preNotifs = detail.preNotifications
+                  .map((n) {
+                    return NotificationEntry(
+                      titleController: TextEditingController(text: n.title),
+                      messageController: TextEditingController(text: n.message),
+                      timingValueController: TextEditingController(
+                        text: n.timing.toString(),
+                      ),
+                      timingUnit: n.timingUnit,
+                      type: n.type,
+                    );
+                  })
+                  .toList();
+
+              final List<NotificationEntry> postNotifs = detail
+                  .postNotifications
+                  .map((n) {
+                    return NotificationEntry(
+                      titleController: TextEditingController(text: n.title),
+                      messageController: TextEditingController(text: n.message),
+                      timingValueController: TextEditingController(
+                        text: n.timing.toString(),
+                      ),
+                      timingUnit: n.timingUnit,
+                      type: n.type,
+                    );
+                  })
+                  .toList();
+
+              state = state.copyWith(
+                preNotificationEntries: preNotifs,
+                postNotificationEntries: postNotifs,
+              );
+
+              // 10. Downtime Level & Provider Roles
+              state = state.copyWith(
+                downtimeLevel: detail.downtimeLevel,
+                selectedRoles: detail.allowedRoles,
+                materialsRoles: detail.allowedRoles,
+                materialsRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
+                schedulingRoles: detail.allowedRoles,
+                schedulingRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
+                pricingRoles: detail.allowedRoles,
+                pricingRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
+              );
+
+              // 11. Follow ups
+              final List<FollowUpEntry> mappedFollowUps = detail.followUps.map((
+                f,
+              ) {
+                return FollowUpEntry(
+                  type: f.type,
+                  durationUnit: f.durationUnit,
+                  durationValueController: TextEditingController(
+                    text: f.durationValue.toString(),
+                  ),
+                  notesController: TextEditingController(text: f.notes),
+                  intervalValueController: TextEditingController(
+                    text: f.intervalValue.toString(),
+                  ),
+                  intervalUnit: f.intervalUnit,
+                  isImageRequired: f.isImageRequired,
+                );
+              }).toList();
+
+              final bool hasFollowUps = mappedFollowUps.isNotEmpty;
+
+              final updatedSessions = state.sessions.map((s) {
+                if (s.sessionId == detail.id) {
+                  final durationText = detail.isFixedDuration
+                      ? "Fixed: ${detail.fixedDuration} mins"
+                      : "Total: ${detail.calculatedTotalDuration} mins (Base: ${detail.baseDuration}, Prep: ${detail.prepTime}, Cleanup: ${detail.cleanupTime})";
+
+                  final priceText = detail.isFixedPrice
+                      ? "\$${detail.fixedPrice} (Fixed Rate)"
+                      : "\$${detail.basePrice} (Base) + Custom Overrides";
+
+                  final List<String> protocols = [];
+                  if (detail.clinicalProtocolPdf != null) {
+                    protocols.add(
+                      "${detail.clinicalProtocolPdf!.name} (Clinical Protocol)",
+                    );
+                  } else {
+                    protocols.add("No clinical protocols configured");
+                  }
+
+                  final List<String> preNotifs = detail.preNotifications
+                      .map(
+                        (n) =>
+                            "${n.title} - Send ${n.timing} ${n.timingUnit}(s) before",
+                      )
+                      .toList();
+
+                  final List<String> postNotifs = detail.postNotifications
+                      .map(
+                        (n) =>
+                            "${n.title} - Send ${n.timing} ${n.timingUnit}(s) after",
+                      )
+                      .toList();
+
+                  final newS = SessionViewModelEntry(
+                    sessionId: s.sessionId,
+                    sessionNumber: s.sessionNumber,
+                    title: s.title,
+                    status: detail.status,
+                    totalFollowUpsController: s.totalFollowUpsController,
+                    followUps: mappedFollowUps,
+                    isDetailedEntered: true,
+                    productUsageSnapshot: List<ProductUsageEntry>.from(
+                      mappedUsages,
+                    ),
+                    durationSnapshot: durationText,
+                    priceSnapshot: priceText,
+                    protocolSnapshot: protocols,
+                    preInstructionsSnapshot: detail.preTreatmentInstructions,
+                    postInstructionsSnapshot: detail.postTreatmentInstructions,
+                    requirePhotosSnapshot: detail.requirePostTreatmentPhotos,
+                    photosCountSnapshot: detail.photoMilestone.length,
+                    preNotificationsSnapshot: preNotifs,
+                    postNotificationsSnapshot: postNotifs,
+                    downtimeSnapshot: detail.downtimeLevel,
+                    rolesSnapshot: List.from(detail.allowedRoles),
+                    consentSnapshot: detail.preTreatmentConsentForm?.name ?? '',
+                  );
+                  newS.totalFollowUpsController.text = mappedFollowUps.length
+                      .toString();
+                  return newS;
+                }
+                return s;
+              }).toList();
+
+              state = state.copyWith(
+                sessions: updatedSessions,
+                isFollowUpRequired: hasFollowUps,
+              );
+
+              // 12. Pre-Treatment Consent Form
+              state = state.copyWith(
+                consentFormUrl: detail.preTreatmentConsentForm?.url ?? '',
+              );
+
+              // Now let's set the Step open index
+              setSessionStep(detail.currentStep);
+
+              return true;
+            }
+            return false;
+          },
+        ) ??
         false;
   }
 
@@ -967,6 +1042,8 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     state = state.copyWith(sessions: const [], activeSessionIndex: 0);
   }
 
+   
+
   // Products and Inventory Original Implementations
   // Future<void> fetchProductsByTreatmentCategory() async {
   //   // final treatmentState = ref.read(treatmentViewModelProvider);
@@ -1084,24 +1161,69 @@ class SessionViewModel extends BaseViewModel<SessionState> {
           .toList(),
     );
   }
+  void selectUnitType(int? id, String? name) {
+    state = state.copyWith(selectedUnitTypeId: id, selectedUnitTypeName: name);
+  }
+
+  void addOtherMaterial(int productId, String name) {
+    final alreadyExists = state.otherMaterialsUsageEntries.any(
+      (e) => e.productId == productId,
+    );
+    if (alreadyExists) return;
+
+    final newEntry = ProductUsageEntry(
+      productId: productId,
+      productName: name,
+      unit: 'Unit',
+      notesController: TextEditingController(),
+      minQuantityController: TextEditingController(text: '0'),
+      maxQuantityController: TextEditingController(text: '0'),
+      perUnitDurationController: TextEditingController(text: '0'),
+      onChanged: _triggerRebuild,
+    );
+    state = state.copyWith(
+      otherMaterialsUsageEntries: [
+        ...state.otherMaterialsUsageEntries,
+        newEntry,
+      ],
+    );
+  }
+
+  
+   void removeOtherMaterial(int productId) {
+    final entry = state.otherMaterialsUsageEntries.firstWhere(
+      (e) => e.productId == productId,
+    );
+    entry.dispose();
+    state = state.copyWith(
+      otherMaterialsUsageEntries: state.otherMaterialsUsageEntries
+          .where((e) => e.productId != productId)
+          .toList(),
+    );
+  }
+
 
   // Future<bool?> callProductUsage({required int stepNumber}) async {
-  //   // final treatmentState = ref.read(treatmentViewModelProvider);
+  //   final minUnits = double.tryParse(minUnitsController.text) ?? 0.0;
+  //   final maxUnits = double.tryParse(maxUnitsController.text) ?? 0.0;
+
   //   final request = ProductUsagesRequest(
   //     stepNumber: stepNumber,
-  //     productUsages: state.productUsageEntries.map((e) {
-  //       final minQty = double.tryParse(e.minQuantityController.text);
-  //       final maxQty = double.tryParse(e.maxQuantityController.text);
-
+  //     selectedUnitTypeId: state.selectedUnitTypeId,
+  //     minimumUnits: minUnits,
+  //     maximumUnits: maxUnits,
+  //     billableMaterials: state.productUsageEntries.map((e) {
   //       return ProductUsage(
   //         productId: e.productId,
   //         deductionTiming: e.deductionTiming,
   //         allowSubstitution: e.allowSubstitution,
   //         notes: e.notesController.text,
-  //         minQuantity: minQty,
-  //         maxQuantity: maxQty,
   //       );
   //     }).toList(),
+  //     otherMaterials: state.otherMaterialsUsageEntries
+  //         .map((e) => e.productId)
+  //         .toList(),
+  //     allowedRoles: state.materialsRoles,
   //   );
 
   //   return await runSafely<bool>(() async {
@@ -1177,59 +1299,66 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   //     },
   //   );
   // }
-  //   Future<bool?> callStepPricing({required int stepNumber}) async {
-  //     final request = StepPricingRequest(
-  //       stepNumber: stepNumber,
-  //       basePrice: state.isFixedPrice
-  //           ? null
-  //           : int.tryParse(basePriceController.text.trim()),
-  //       unitPriceOverrides: state.isFixedPrice
-  //           ? []
-  //           : state.productUsageEntries
-  //                 .map((entry) {
-  //                   final maxQty = (double.tryParse(entry.maxQuantityController.text) ?? 1.0).ceil();
-  //                   entry.syncUnitPriceControllers(maxQty);
+//   Future<bool?> callStepPricing({required int stepNumber}) async {
+//     final request = StepPricingRequest(
+//       stepNumber: stepNumber,
+//       basePrice: state.isFixedPrice
+//           ? null
+//           : int.tryParse(basePriceController.text.trim()),
+//       unitPriceOverrides: state.isFixedPrice
+//           ? []
+//           : state.productUsageEntries.map((entry) {
+//               final maxQty =
+//                   (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
+//                       .ceil();
+//               entry.syncUnitPriceControllers(maxQty);
 
-  //                   final List<int> prices = [];
-  //                   if (entry.useDifferentPricingPerUnit) {
-  //                     for (final c in entry.unitPriceControllers) {
-  //                       prices.add(int.tryParse(c.text.trim()) ?? 0);
-  //                     }
-  //                   } else {
-  //                     final singlePrice = int.tryParse(entry.unitPriceControllers.isEmpty ? '0' : entry.unitPriceControllers[0].text.trim()) ?? 0;
-  //                     prices.addAll(List.filled(maxQty, singlePrice));
-  //                   }
+//               final List<int> prices = [];
+//               if (entry.useDifferentPricingPerUnit) {
+//                 for (final c in entry.unitPriceControllers) {
+//                   prices.add(int.tryParse(c.text.trim()) ?? 0);
+//                 }
+//               } else {
+//                 final singlePrice =
+//                     int.tryParse(
+//                       entry.unitPriceControllers.isEmpty
+//                           ? '0'
+//                           : entry.unitPriceControllers[0].text.trim(),
+//                     ) ??
+//                     0;
+//                 prices.addAll(List.filled(maxQty, singlePrice));
+//               }
 
-  //                   return UnitPriceOverride(
-  //                     productId: entry.productId,
-  //                     pricePerUnit: prices,
-  //                   );
-  //                 })
-  //                 .toList(),
-  //       isFixedPrice: state.isFixedPrice,
-  //       fixedPrice: state.isFixedPrice
-  //           ? int.tryParse(fixedPriceController.text.trim())
-  //           : null,
-  //     );
-  //     log('''
-  // =========== PRODUCT USAGE REQUEST ===========
+//               return UnitPriceOverride(
+//                 productId: entry.productId,
+//                 pricePerUnit: prices,
+//               );
+//             }).toList(),
+//       isFixedPrice: state.isFixedPrice,
+//       fixedPrice: state.isFixedPrice
+//           ? int.tryParse(fixedPriceController.text.trim())
+//           : null,
+//       allowedRoles: state.pricingRoles,
+//     );
+//     log('''
+// =========== PRODUCT USAGE REQUEST ===========
 
-  // Step No    : $stepNumber
-  // Body       : ${request.toJson()}
-  // ============================================
-  // ''');
+// Step No    : $stepNumber
+// Body       : ${request.toJson()}
+// ============================================
+// ''');
 
-  //     return await runSafely<bool>(() async {
-  //       await _sessionRepository.stepPricing(
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+//     return await runSafely<bool>(() async {
+//       await _sessionRepository.stepPricing(
+//         request: request,
+//         id: state.sessionId!,
+//       );
 
-  //       log('Step Pricing Created : ${state.sessionId!}');
+//       log('Step Pricing Created : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+//       return true;
+//     });
+//   }
 
   //   Future<bool?> callDownTimeLevels({required int stepNumber}) async {
   //     // Resolve the actual days from the selected level + category presets
@@ -1476,6 +1605,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   //             ? (int.tryParse(fixedDurationController.text) ?? 0)
   //             : null,
   //         isFixedDuration: state.isFixedDuration,
+  //         allowedRoles: state.schedulingRoles,
   //       ),
   //       state.sessionId!,
   //     );
@@ -1617,6 +1747,60 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
   void updateSelectedProtocolIds(List<String> ids) {
     state = state.copyWith(selectedProtocolIds: ids);
+  }
+
+    void toggleMaterialsRole(String role) {
+    final List<String> current = List.from(state.materialsRoles);
+    if (current.contains(role)) {
+      current.remove(role);
+    } else {
+      current.add(role);
+    }
+    state = state.copyWith(materialsRoles: current);
+  }
+
+  void setMaterialsRoles(List<String> roles) {
+    state = state.copyWith(materialsRoles: roles);
+  }
+
+  void setMaterialsRolesSource(String source) {
+    state = state.copyWith(materialsRolesSource: source);
+  }
+
+  void toggleSchedulingRole(String role) {
+    final List<String> current = List.from(state.schedulingRoles);
+    if (current.contains(role)) {
+      current.remove(role);
+    } else {
+      current.add(role);
+    }
+    state = state.copyWith(schedulingRoles: current);
+  }
+
+  void setSchedulingRoles(List<String> roles) {
+    state = state.copyWith(schedulingRoles: roles);
+  }
+
+  void setSchedulingRolesSource(String source) {
+    state = state.copyWith(schedulingRolesSource: source);
+  }
+
+  void togglePricingRole(String role) {
+    final List<String> current = List.from(state.pricingRoles);
+    if (current.contains(role)) {
+      current.remove(role);
+    } else {
+      current.add(role);
+    }
+    state = state.copyWith(pricingRoles: current);
+  }
+
+  void setPricingRoles(List<String> roles) {
+    state = state.copyWith(pricingRoles: roles);
+  }
+
+  void setPricingRolesSource(String source) {
+    state = state.copyWith(pricingRolesSource: source);
   }
 
   void updateProtocolNotes(
