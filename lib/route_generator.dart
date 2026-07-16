@@ -10,6 +10,7 @@ import 'screens/add_doctor_injector_screen.dart';
 import 'screens/business_info_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/add_treatment_screen.dart';
+import 'screens/add_product_screen.dart';
 import 'screens/create_session_screen.dart';
 import 'screens/create_staff_screen.dart';
 import 'screens/create_treatment_screen.dart';
@@ -194,6 +195,11 @@ class RouteGenerator {
               final doctor = state.extra as Doctor?;
               return AddDoctorInjectorScreen(doctor: doctor);
             },
+          ),
+          GoRoute(
+            path: ClinicAddProductScreen.routeName,
+            name: ClinicAddProductScreen.routeName,
+            builder: (_, _) => const ClinicAddProductScreen(),
           ),
         ],
       ),

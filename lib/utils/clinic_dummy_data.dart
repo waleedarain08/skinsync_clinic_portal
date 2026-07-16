@@ -1,3 +1,5 @@
+import '../models/product_model.dart';
+
 class ClinicDummyProduct {
   final String id;
   final String name;
@@ -527,4 +529,81 @@ class ClinicDummySessionConfig {
       ],
     },
   };
+}
+
+class ClinicDummyMasterProducts {
+  static final List<ProductModel> masterCatalog = [
+    ProductModel(
+      id: 101,
+      name: 'Botox Cosmetic 100U',
+      brand: 'Allergan',
+      globalSku: 'BOTOX-100-ALLERGAN',
+      image: '',
+      description: 'OnabotulinumtoxinA injection vial for cosmetic wrinkle relaxation.',
+      unit: 'Vial',
+      category: 'Injectables',
+      packageType: 'Box of 1 Vial',
+      unitsPerPackage: 1,
+    ),
+    ProductModel(
+      id: 102,
+      name: 'Juvederm Ultra XC 1mL',
+      brand: 'Allergan',
+      globalSku: 'JUVEDERM-ULTRA-XC-1ML',
+      image: '',
+      description: 'Hyaluronic acid dermal filler syringe for lip contouring and volume.',
+      unit: 'Syringe',
+      category: 'Injectables',
+      packageType: 'Box of 2 Syringes',
+      unitsPerPackage: 2,
+    ),
+    ProductModel(
+      id: 103,
+      name: 'Restylane Lyft 1mL',
+      brand: 'Galderma',
+      globalSku: 'RESTYLANE-LYFT-1ML',
+      image: '',
+      description: 'Deep hyaluronic acid filler for cheek augmentation and mid-face support.',
+      unit: 'Syringe',
+      category: 'Injectables',
+      packageType: 'Box of 1 Syringe',
+      unitsPerPackage: 1,
+    ),
+    ProductModel(
+      id: 104,
+      name: 'Glycolic Acid Peel 30%',
+      brand: 'Perfect Derma',
+      globalSku: 'PEEL-GLYCOLIC-30',
+      image: '',
+      description: 'Medical-grade glycolic acid skin resurfacing chemical peel solution.',
+      unit: 'Bottle',
+      category: 'Chemical Peels',
+      packageType: '50mL Bottle',
+      unitsPerPackage: 1,
+    ),
+    ProductModel(
+      id: 105,
+      name: 'SkinPen Microneedling Cartridges',
+      brand: 'Crown Aesthetics',
+      globalSku: 'SKINPEN-CARTRIDGE-12',
+      image: '',
+      description: 'Sterile 12-needle disposable cartridges for SkinPen microneedling device.',
+      unit: 'Cartridge',
+      category: 'Consumables',
+      packageType: 'Box of 12 Cartridges',
+      unitsPerPackage: 12,
+    ),
+    ProductModel(
+      id: 106,
+      name: 'Hyaluronic Acid Healing Serum',
+      brand: 'SkinCeuticals',
+      globalSku: 'SKINC-HA-SERUM-50',
+      image: '',
+      description: 'Post-treatment deeply hydrating recovery hyaluronic acid serum.',
+      unit: 'Bottle',
+      category: 'Skincare / Retail',
+      packageType: '50mL Dropper Bottle',
+      unitsPerPackage: 1,
+    ),
+  ];
 }
