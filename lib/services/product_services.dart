@@ -5,6 +5,7 @@ import 'dart:async';
 
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/add_inventory_response.dart';
+import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -239,5 +240,46 @@ endPoint:       Endpoint.products,
     return response.data!;
   }
 
+  @override
+  Future<AdminProductListResponse> getAdminProductList({
+    required int page,
+    required int limit,
+    String search = '',
+  }) async {
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.adminProductList,
+        queryParams: {
+          'page': page.toString(),
+          'limit': limit.toString(),
+          'search': search,
+        },
+      );
+      final response = AdminProductListResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      // Sliced mock paginated list
+      final list = AdminDummyProducts.getDummyProductsForPage(page, limit);
+      final filteredList = search.isEmpty
+          ? list
+          : list.where((p) =>
+              p.name.toLowerCase().contains(search.toLowerCase()) ||
+              (p.brand ?? '').toLowerCase().contains(search.toLowerCase()) ||
+              (p.globalSku ?? '').toLowerCase().contains(search.toLowerCase())).toList();
+
+      return AdminProductListResponse(
+        success: true,
+        message: 'Loaded paginated dummy admin products',
+        page: page,
+        limit: limit,
+        totalPages: 3, // 20 items / 8 per page = 3 pages
+        data: filteredList,
+      );
+    }
+  }
 
 }

@@ -53,6 +53,7 @@ enum Endpoint {
   usageType('admin/usage-types'),
   manufacturersList('admin/manufacturers'),
   suppliers('admin/suppliers'),
+  adminProductList('admin/products/list'),
   getMe("clinic/me");
 
   final String path;

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
-import '../utils/clinic_dummy_data.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
-import '../widgets/build_textfield.dart';
 import '../widgets/custom_primary_button.dart';
-import '../widgets/custom_outlined_button.dart';
 import '../widgets/gradient_scaffold.dart';
-import '../models/product_model.dart';
+import '../models/responses/admin_product_list_response.dart';
+import '../view_models/product_view_model.dart';
 
 class ClinicAddProductScreen extends ConsumerStatefulWidget {
   const ClinicAddProductScreen({super.key});
@@ -23,34 +20,66 @@ class ClinicAddProductScreen extends ConsumerStatefulWidget {
 
 class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<ProductModel> _filteredProducts = [];
+  final ScrollController _scrollController = ScrollController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _filteredProducts = List.from(ClinicDummyMasterProducts.masterCatalog);
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(productViewModelProvider.notifier).fetchAdminProducts(isRefresh: true, search: '');
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(productViewModelProvider.notifier).fetchMoreAdminProducts(search: _searchQuery);
+    }
   }
 
   void _onSearchChanged(String query) {
     setState(() {
-      _filteredProducts = ClinicDummyMasterProducts.masterCatalog.where((product) {
-        final nameMatch = product.name.toLowerCase().contains(query.toLowerCase());
-        final brandMatch = (product.brand ?? '').toLowerCase().contains(query.toLowerCase());
-        final skuMatch = (product.globalSku ?? '').toLowerCase().contains(query.toLowerCase());
-        return nameMatch || brandMatch || skuMatch;
-      }).toList();
+      _searchQuery = query;
     });
+    ref.read(productViewModelProvider.notifier).fetchAdminProducts(isRefresh: true, search: query);
+  }
+
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: context.w(180),
+            child: Text(
+              label,
+              style: context.fonts.grey12w400,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isNotEmpty ? value : 'N/A',
+              style: context.fonts.black14w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = context.screenWidth > 1200;
+    final state = ref.watch(productViewModelProvider);
 
     return GradientScaffold(
       appBar: AppBar(
@@ -105,7 +134,7 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
                                   style: context.fonts.black16w600,
                                 ),
                                 Text(
-                                  'Find platform-wide products to configure and add to your clinic inventory.',
+                                  'Find platform-wide products to add directly to your clinic inventory.',
                                   style: context.fonts.grey12w400,
                                 ),
                               ],
@@ -150,94 +179,145 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
 
               // Product template list
               Expanded(
-                child: _filteredProducts.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No matching master products found.',
-                          style: context.fonts.grey14w400,
+                child: state.loadingAdminProducts
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: CustomColors.purple,
                         ),
                       )
-                    : ListView.builder(
-                        padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-                        itemCount: _filteredProducts.length,
-                        itemBuilder: (context, index) {
-                          final product = _filteredProducts[index];
+                    : state.adminProducts.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No matching master products found.',
+                              style: context.fonts.grey14w400,
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+                            itemCount: state.adminProducts.length + (state.loadingMoreAdminProducts ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index >= state.adminProducts.length) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: CustomColors.purple,
+                                    ),
+                                  ),
+                                );
+                              }
 
-                          return BorderdContainerWidget(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: context.appEdgeInsets(all: 16),
-                            borderRadius: 12,
-                            child: Row(
-                              children: [
-                                // Leading circular icon
-                                Container(
-                                  width: context.w(48),
-                                  height: context.w(48),
-                                  decoration: BoxDecoration(
-                                    color: CustomColors.purple.withValues(alpha: 0.1),
-                                    shape: BoxShape.circle,
+                              final product = state.adminProducts[index];
+
+                              return BorderdContainerWidget(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: context.appEdgeInsets(all: 0),
+                                borderRadius: 12,
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    dividerColor: Colors.transparent,
                                   ),
-                                  child: const Icon(
-                                    Icons.inventory_2_outlined,
-                                    color: CustomColors.purple,
-                                  ),
-                                ),
-                                context.horizontalSpace(16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product.name,
-                                        style: context.fonts.black16w600,
+                                  child: ExpansionTile(
+                                    tilePadding: context.appEdgeInsets(all: 16),
+                                    childrenPadding: context.appEdgeInsets(horizontal: 16, bottom: 16),
+                                    leading: Container(
+                                      width: context.w(48),
+                                      height: context.w(48),
+                                      decoration: BoxDecoration(
+                                        color: CustomColors.purple.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
                                       ),
-                                      context.verticalSpace(4),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            product.brand ?? 'N/A',
-                                            style: context.fonts.purple12w700,
-                                          ),
-                                          context.horizontalSpace(12),
-                                          Container(
-                                            width: 4,
-                                            height: 4,
-                                            decoration: const BoxDecoration(
-                                              color: CustomColors.grey,
-                                              shape: BoxShape.circle,
+                                      child: const Icon(
+                                        Icons.inventory_2_outlined,
+                                        color: CustomColors.purple,
+                                      ),
+                                    ),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.name,
+                                          style: context.fonts.black16w600,
+                                        ),
+                                        context.verticalSpace(4),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              product.brand ?? 'N/A',
+                                              style: context.fonts.purple12w700,
                                             ),
-                                          ),
-                                          context.horizontalSpace(12),
-                                          Text(
-                                            'SKU: ${product.globalSku ?? "N/A"}',
-                                            style: context.fonts.grey12w400,
-                                          ),
+                                            context.horizontalSpace(12),
+                                            Container(
+                                              width: 4,
+                                              height: 4,
+                                              decoration: const BoxDecoration(
+                                                color: CustomColors.grey,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            context.horizontalSpace(12),
+                                            Text(
+                                              product.manufacturer ?? 'N/A',
+                                              style: context.fonts.grey12w400,
+                                            ),
+                                            context.horizontalSpace(12),
+                                            Container(
+                                              width: 4,
+                                              height: 4,
+                                              decoration: const BoxDecoration(
+                                                color: CustomColors.grey,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            context.horizontalSpace(12),
+                                            Text(
+                                              'SKU: ${product.globalSku ?? "N/A"}',
+                                              style: context.fonts.grey12w400,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    children: [
+                                      const Divider(color: CustomColors.border, height: 24),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          _buildDetailRow(context, 'Usage Type', (product.usageType ?? '').toUpperCase()),
+                                          _buildDetailRow(context, 'Category', product.category ?? ''),
+                                          _buildDetailRow(context, 'Status', (product.status ?? '').toUpperCase()),
+                                          _buildDetailRow(context, 'Description', product.description),
+                                          _buildDetailRow(context, 'Unit Type', (product.unitType ?? '').toUpperCase()),
+                                          _buildDetailRow(context, 'Box Quantity', product.boxQuantity?.toString() ?? '0'),
+                                          _buildDetailRow(context, 'Item Qty Per Box', product.itemQuantityPerBox?.toString() ?? '0'),
+                                          _buildDetailRow(context, 'Package Type', (product.packageType ?? '').toUpperCase()),
+                                          _buildDetailRow(context, 'Billable Unit', product.billableUnit ?? ''),
+                                          _buildDetailRow(context, 'Billable Qty Per Item', product.billableQuantityPerItem?.toString() ?? '0'),
+                                          _buildDetailRow(context, 'Total Billable Qty', product.totalBillableQuantity?.toString() ?? '0'),
+                                          _buildDetailRow(context, 'Enforce Lot Tracking', product.enforceLotTracking ? 'YES' : 'NO'),
                                         ],
                                       ),
-                                      context.verticalSpace(6),
-                                      Text(
-                                        product.description,
-                                        style: context.fonts.grey12w400,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                      const Divider(color: CustomColors.border, height: 24),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          CustomPrimaryButton(
+                                            onTap: () {
+                                              _showAddSuccessDialog(product);
+                                            },
+                                            label: 'Select',
+                                            width: context.w(120),
+                                            height: context.h(40),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
-                                context.horizontalSpace(16),
-                                CustomPrimaryButton(
-                                  onTap: () {
-                                    _showConfigureProductDialog(context, product);
-                                  },
-                                  label: 'Select',
-                                  width: context.w(90),
-                                  height: context.h(40),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                              );
+                            },
+                          ),
               ),
             ],
           ),
@@ -246,241 +326,7 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
     );
   }
 
-  void _showConfigureProductDialog(BuildContext context, ProductModel product) {
-    final formKey = GlobalKey<FormState>();
-    final quantityController = TextEditingController();
-    final retailPriceController = TextEditingController();
-    final barcodeController = TextEditingController();
-    final supplierController = TextEditingController();
-    final lotController = TextEditingController();
-    final expiryController = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            width: context.w(600),
-            padding: context.appEdgeInsets(all: 24),
-            child: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Dialog Header with Basic Admin Config Details at Top
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: CustomColors.purple.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.app_registration_rounded,
-                            color: CustomColors.purple,
-                            size: 28,
-                          ),
-                        ),
-                        context.horizontalSpace(16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product.name,
-                                style: context.fonts.black18w600,
-                              ),
-                              context.verticalSpace(4),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Brand: ${product.brand ?? "N/A"}',
-                                    style: context.fonts.purple12w700,
-                                  ),
-                                  context.horizontalSpace(12),
-                                  Text(
-                                    '• SKU: ${product.globalSku ?? "N/A"}',
-                                    style: context.fonts.grey12w400,
-                                  ),
-                                ],
-                              ),
-                              context.verticalSpace(4),
-                              Text(
-                                'Packaging: ${product.packageType ?? "Standard"} (${product.unitsPerPackage ?? 1} Units per package)',
-                                style: context.fonts.grey12w400.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    context.verticalSpace(12),
-                    Text(
-                      product.description,
-                      style: context.fonts.grey12w400,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Divider(color: CustomColors.border, height: 1),
-                    ),
-
-                    // Title for clinic inputs
-                    Text(
-                      'Configure Clinic Inventory Fields:',
-                      style: context.fonts.black14w600,
-                    ),
-                    context.verticalSpace(16),
-
-                    // Inputs Grid
-                    Row(
-                      children: [
-                        Expanded(
-                          child: BuildTextField(
-                            label: 'Quantity *',
-                            controller: quantityController,
-                            hintText: 'e.g. 50',
-                            keyboardType: TextInputType.number,
-                            validator: (val) {
-                              if (val == null || val.trim().isEmpty) return 'Required';
-                              if (int.tryParse(val.trim()) == null) return 'Must be an integer';
-                              return null;
-                            },
-                          ),
-                        ),
-                        context.horizontalSpace(16),
-                        Expanded(
-                          child: BuildTextField(
-                            label: 'Retail Price (AED) *',
-                            controller: retailPriceController,
-                            hintText: 'e.g. 250.00',
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            validator: (val) {
-                              if (val == null || val.trim().isEmpty) return 'Required';
-                              if (double.tryParse(val.trim()) == null) return 'Must be a number';
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    context.verticalSpace(16),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: BuildTextField(
-                            label: 'Barcode',
-                            controller: barcodeController,
-                            hintText: 'Scan or enter barcode...',
-                          ),
-                        ),
-                        context.horizontalSpace(16),
-                        Expanded(
-                          child: BuildTextField(
-                            label: 'Supplier *',
-                            controller: supplierController,
-                            hintText: 'e.g. Medica Group',
-                            validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    context.verticalSpace(16),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: BuildTextField(
-                            label: 'Lot Number *',
-                            controller: lotController,
-                            hintText: 'e.g. LOT-2026-X8',
-                            validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
-                          ),
-                        ),
-                        context.horizontalSpace(16),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now().add(const Duration(days: 365)),
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime.now().add(const Duration(days: 3650)),
-                                builder: (context, child) {
-                                  return Theme(
-                                    data: Theme.of(context).copyWith(
-                                      colorScheme: const ColorScheme.light(
-                                        primary: CustomColors.purple,
-                                        onPrimary: Colors.white,
-                                        onSurface: CustomColors.black,
-                                      ),
-                                    ),
-                                    child: child!,
-                                  );
-                                },
-                              );
-                              if (picked != null) {
-                                expiryController.text = DateFormat('yyyy-MM-dd').format(picked);
-                              }
-                            },
-                            child: IgnorePointer(
-                              child: BuildTextField(
-                                label: 'Expiration Date *',
-                                controller: expiryController,
-                                hintText: 'YYYY-MM-DD',
-                                suffixIcon: const Icon(Icons.calendar_today, color: CustomColors.purple),
-                                validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    context.verticalSpace(32),
-
-                    // Dialog Actions
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomOutlinedButton(
-                          onTap: () {
-                            Navigator.pop(dialogContext);
-                          },
-                          label: 'Cancel',
-                          width: context.w(100),
-                        ),
-                        context.horizontalSpace(12),
-                        CustomPrimaryButton(
-                          onTap: () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.pop(dialogContext);
-                              _showAddSuccessDialog(product, quantityController.text);
-                            }
-                          },
-                          label: 'Add to Inventory',
-                          width: context.w(180),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showAddSuccessDialog(ProductModel product, String qty) {
+  void _showAddSuccessDialog(AdminProduct product) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -508,7 +354,7 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
                 ),
                 context.verticalSpace(12),
                 Text(
-                  "Successfully added $qty units of ${product.name} (${product.brand}) into your clinic inventory.",
+                  "Successfully added ${product.name} (${product.brand}) into your clinic inventory.",
                   style: context.fonts.grey14w400,
                   textAlign: TextAlign.center,
                 ),

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
 import '../models/product_model.dart';
 import '../models/requests/add_inventory_request.dart';
+import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -43,10 +44,18 @@ class ProductState {
   final bool loading;
   final int currentPage;
   final int totalPages;
-   final bool  addProductLoading;
+  final bool addProductLoading;
   final List<CatalogItem> catalog;
   final List<ClinicProduct> clinicProducts;
   final bool inventoryAdded;
+
+  // Admin Paginated Products
+  final List<AdminProduct> adminProducts;
+  final int adminPage;
+  final int adminTotalPages;
+  final bool loadingAdminProducts;
+  final bool loadingMoreAdminProducts;
+
   ProductState({
     this.loading = false,
     this.currentPage = 1,
@@ -67,6 +76,11 @@ class ProductState {
     this.catalog = const [],
     this.clinicProducts = const [],
     this.inventoryAdded = false,
+    this.adminProducts = const [],
+    this.adminPage = 1,
+    this.adminTotalPages = 1,
+    this.loadingAdminProducts = false,
+    this.loadingMoreAdminProducts = false,
   });
 
   ProductState copyWith({
@@ -81,7 +95,7 @@ class ProductState {
     List<UnitTypeModel>? unitTypes,
     List<PackageTypeModel>? packageTypes,
     String? imageUrl,
-     bool? addProductLoading,
+    bool? addProductLoading,
     List<CatalogItem>? catalog,
     List<ClinicProduct>? clinicProducts,
     bool? inventoryAdded,
@@ -89,6 +103,11 @@ class ProductState {
     List<ManufacturersModel>? manufacturers,
     List<UsageTypeModel>? usageType,
     List<SupplierModel>? suppliers,
+    List<AdminProduct>? adminProducts,
+    int? adminPage,
+    int? adminTotalPages,
+    bool? loadingAdminProducts,
+    bool? loadingMoreAdminProducts,
   }) {
     return ProductState(
       loading: loading ?? this.loading,
@@ -110,6 +129,11 @@ class ProductState {
       catalog: catalog ?? this.catalog,
       clinicProducts: clinicProducts ?? this.clinicProducts,
       inventoryAdded: inventoryAdded ?? false,
+      adminProducts: adminProducts ?? this.adminProducts,
+      adminPage: adminPage ?? this.adminPage,
+      adminTotalPages: adminTotalPages ?? this.adminTotalPages,
+      loadingAdminProducts: loadingAdminProducts ?? this.loadingAdminProducts,
+      loadingMoreAdminProducts: loadingMoreAdminProducts ?? this.loadingMoreAdminProducts,
     );
   }
 }
@@ -130,6 +154,8 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       loading: false,
       addProductLoading: false,
       inventoryAdded: false,
+      loadingAdminProducts: false,
+      loadingMoreAdminProducts: false,
     );
     super.onError(message);
   }
@@ -233,9 +259,6 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     });
   }
 
-
-  
-
   Future<void> fetchProducts({
     String search = '',
     int page = 1,
@@ -270,6 +293,78 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         rethrow;
       }
     });
+  }
+
+  // --- Admin Product List API Pagination ---
+
+  Future<void> fetchAdminProducts({bool isRefresh = false, String search = ''}) async {
+    if (isRefresh) {
+      state = state.copyWith(
+        adminPage: 1,
+        adminTotalPages: 1,
+        adminProducts: [],
+      );
+    }
+    
+    state = state.copyWith(loadingAdminProducts: true);
+
+    try {
+      final response = await _productRepository.getAdminProductList(
+        page: state.adminPage,
+        limit: 8,
+        search: search,
+      );
+      
+      state = state.copyWith(
+        adminProducts: response.data ?? [],
+        adminPage: response.page,
+        adminTotalPages: response.totalPages,
+        loadingAdminProducts: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        loadingAdminProducts: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  Future<void> fetchMoreAdminProducts({String search = ''}) async {
+    if (state.loadingAdminProducts || state.loadingMoreAdminProducts) return;
+    if (state.adminPage >= state.adminTotalPages) return;
+
+    state = state.copyWith(loadingMoreAdminProducts: true);
+
+    try {
+      final nextPage = state.adminPage + 1;
+      final response = await _productRepository.getAdminProductList(
+        page: nextPage,
+        limit: 8,
+        search: search,
+      );
+
+      final currentList = List<AdminProduct>.from(state.adminProducts);
+      final newItems = response.data ?? [];
+      
+      // Prevent duplicates by checking ID
+      for (final item in newItems) {
+        if (!currentList.any((p) => p.id == item.id)) {
+          currentList.add(item);
+        }
+      }
+
+      state = state.copyWith(
+        adminProducts: currentList,
+        adminPage: response.page,
+        adminTotalPages: response.totalPages,
+        loadingMoreAdminProducts: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        loadingMoreAdminProducts: false,
+        errorMessage: e.toString(),
+      );
+    }
   }
 
   Future<void> fetchProductDetail(int productId) async {
@@ -357,115 +452,6 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       state = state.copyWith(imageUrl: url);
     }, showLoading: showLoading);
   }
-  // List<DropdownMenuItem<int>> getProductDropdownItems() {
-  //   return state.products
-  //       .map(
-  //         (prod) =>
-  //             DropdownMenuItem(value: prod.id ?? 0, child: Text(prod.name)),
-  //       )
-  //       .toList();
-  // }
-
-  // CRUD Actions backed by the actual API repository
-  // Future<bool?> createProduct(ProductModel req) async {
-  //   return await runSafely<bool?>(showLoading: true, () async {
-  //     final createRequest = CreateProductRequest(
-  //       image: req.image,
-  //       name: req.name,
-  //       brand: req.brand,
-  //       manufacturer: req.manufacturer,
-  //       globalSku: req.globalSku,
-  //       barcode: req.barcode,
-  //       usageType: req.productPurpose ?? req.usageType,
-  //       category: req.category,
-  //       selectedCategoryIds: req.selectedCategoryIds,
-  //       status: req.status,
-  //       description: req.description,
-  //       unitType: req.unitType,
-  //       boxQuantity: req.boxQuantity,
-  //       itemQuantityPerBox: req.itemQuantityPerBox,
-  //       packageType: req.packageType,
-  //       billableUnit: req.billableUnit,
-  //       billableQuantityPerItem: req.billableQuantityPerItem,
-  //       totalBillableQuantity: req.totalBillableQuantity,
-  //       enforceLotTracking: req.enforceLotTracking,
-  //       clinicCost: req.clinicCost,
-  //       retailPricePerUnit: req.retailPricePerUnit,
-  //       supplier: req.supplier,
-  //       lotNumber: req.lotNumber,
-  //       expirationDate: req.expirationDate?.toIso8601String(),
-  //     );
-  //     await _productRepository.addProduct(req: createRequest);
-  //     await refreshProducts();
-  //     EasyLoading.showSuccess('Product created successfully');
-  //     return true;
-  //   });
-  // }
-
-  // Future<bool> updateProduct(ProductModel req) async {
-  //   return await runSafely<bool>(showLoading: true, () async {
-  //         final updateRequest = CreateProductRequest(
-  //           image: req.image,
-  //           name: req.name,
-  //           brand: req.brand,
-  //           manufacturer: req.manufacturer,
-  //           globalSku: req.globalSku,
-  //           barcode: req.barcode,
-  //           usageType: req.productPurpose ?? req.usageType,
-  //           category: req.category,
-  //           selectedCategoryIds: req.selectedCategoryIds,
-  //           status: req.status,
-  //           description: req.description,
-  //           unitType: req.unitType,
-  //           boxQuantity: req.boxQuantity,
-  //           itemQuantityPerBox: req.itemQuantityPerBox,
-  //           packageType: req.packageType,
-  //           billableUnit: req.billableUnit,
-  //           billableQuantityPerItem: req.billableQuantityPerItem,
-  //           totalBillableQuantity: req.totalBillableQuantity,
-  //           enforceLotTracking: req.enforceLotTracking,
-  //           clinicCost: req.clinicCost,
-  //           retailPricePerUnit: req.retailPricePerUnit,
-  //           supplier: req.supplier,
-  //           lotNumber: req.lotNumber,
-  //           expirationDate: req.expirationDate?.toIso8601String(),
-  //         );
-  //         await _productRepository.updateProduct(
-  //           id: req.id!,
-  //           req: updateRequest,
-  //         );
-  //         await refreshProducts();
-  //         EasyLoading.showSuccess('Product updated successfully');
-  //         return true;
-  //       }) ??
-  //       false;
-  // }
-
-  // Future<bool> deleteProduct(int id) async {
-  //   return await runSafely<bool>(showLoading: true, () async {
-  //         await _productRepository.deleteProduct(id: id);
-  //         await refreshProducts();
-  //         EasyLoading.showSuccess('Product deleted successfully');
-  //         return true;
-  //       }) ??
-  //       false;
-  // }
-
-  // Future<bool> updateProductStatus(int productId, String status) async {
-  //   return await runSafely<bool>(showLoading: true, () async {
-  //         await _productRepository.updateProductStatus(
-  //           productId: productId,
-  //           status: status,
-  //         );
-  //         await refreshProducts();
-  //         if (state.selectedProduct?.id == productId) {
-  //           await fetchProductDetail(productId);
-  //         }
-  //         EasyLoading.showSuccess('Product status updated successfully');
-  //         return true;
-  //       }) ??
-  //       false;
-  // }
 
   Future<void> fetchBrand() async {
     await runSafely(showLoading: true, () async {

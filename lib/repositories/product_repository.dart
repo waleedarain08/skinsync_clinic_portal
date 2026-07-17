@@ -1,5 +1,6 @@
 
 import '../models/requests/add_inventory_request.dart';
+import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -13,6 +14,11 @@ import '../models/responses/usage_type_list_response.dart';
 import '../utils/enums.dart';
 
 abstract class ProductRepository {
+  Future<AdminProductListResponse> getAdminProductList({
+    required int page,
+    required int limit,
+    String search = '',
+  });
   // Future<ProductModel> addProduct({required CreateProductRequest req});
   // Future<ProductModel> updateProduct({required int id, required CreateProductRequest req});
   // Future<BaseApiResponseModel> deleteProduct({required int id});
