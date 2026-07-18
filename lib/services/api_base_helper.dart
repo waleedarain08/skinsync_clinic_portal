@@ -10,6 +10,7 @@ import '../app_init.dart';
 import '../exceptions/app_exception.dart';
 import '../models/requests/base_request.dart';
 import '../models/requests/multi_part_model.dart';
+import '../models/responses/refresh_token_response.dart';
 import '../screens/sign_in_screen.dart';
 import '../utils/enums.dart';
 import '../utils/http_utils.dart';
@@ -31,6 +32,7 @@ class ApiBaseService {
     List<MultiPartImageModel>? imagePath,
   }) async {
     try {
+      await _refreshToken();
       final params = queryParams?.entries
           .map((entry) {
             return '${entry.key}=${entry.value}';
@@ -170,23 +172,14 @@ class ApiBaseService {
     return http.Response.fromStream(response);
   }
 
-  // Future<bool> get _isAccessTokenExpired async {
-  //   final expiry = await locator<SecureStorageService>().getExpiry();
-  //   log('EXPIRY: $expiry');
-  //   if (expiry == null) {
-  //     return false;
-  //   }
-  //   return expiry.isBefore(DateTime.now());
-  // }
-
   Future<Map<String, String>> getHeaders(
     Endpoint endpoint,
     RequestType requestType,
   ) async {
-    final authToken = _secureStorage.token;
-    // final authToken = endpoint == Endpoint.refreshToken
-    //     ? await _secureStorage.getRefreshToken()
-    //     : this.authToken ?? await _secureStorage.readAuthToken();
+    // final authToken = _secureStorage.token;
+    final authToken = endpoint == Endpoint.refreshToken
+        ? await _secureStorage.getRefreshToken()
+        : _secureStorage.token;
     log('ACCESS TOKEN: $authToken');
     final data = {
       'Content-Type':
@@ -203,28 +196,44 @@ class ApiBaseService {
     return data;
   }
 
-  // Future<void> _refreshToken() async {
-  //   final refreshToken = await locator<SecureStorageService>()
-  //       .getRefreshToken();
-  //   if (refreshToken == null) {
-  //     throw const UnauthorizedException(message: 'UNAUTHORIZED');
-  //   }
-  //   final uri = Uri.parse('$_baseUrl${Endpoint.refreshToken.url}');
-  //   log('REFRESH TOKEN URI: $uri');
-  //   final response = await http.post(
-  //     uri,
-  //     body: {'refreshToken': refreshToken},
-  //     headers: {'Authorization': 'Bearer $refreshToken'},
-  //   );
-  //   final model = AuthResponse.fromJson(jsonDecode(response.body));
-  //   if (model.status != 'success') {
-  //     throw const ApiHttpException(message: 'Something went wrong!');
-  //   }
-  //   await locator<SecureStorageService>().saveToken(model.data!.token!);
-  //   await locator<SecureStorageService>().saveRefreshToken(
-  //     model.data!.refreshToken!,
-  //   );
-  //   await locator<SecureStorageService>().saveExpiry(DateTime.now());
-  //   log('ACCESS TOKEN REFRESHED');
-  // }
+  Future<void> _refreshToken() async {
+    if (_secureStorage.token == null) {
+      return;
+    }
+    final expiry = await _secureStorage.getAccessTokenExpiry();
+    final now = DateTime.now();
+    if (expiry?.isAfter(now) ?? false) {
+      return;
+    }
+    final refreshExpiry = await _secureStorage.getRefreshTokenExpiry();
+    if (refreshExpiry?.isBefore(now) ?? true) {
+      throw const UnauthorizedException(message: 'Unauthorized');
+    }
+    final refreshToken = await _secureStorage.getRefreshToken();
+    if (refreshToken == null) {
+      throw const UnauthorizedException(message: 'Unauthorized');
+    }
+    log('EXPIRY: $expiry');
+    log('REFRESH EXPIRY: $refreshExpiry');
+    final uri = Uri.parse('$_baseUrl${Endpoint.refreshToken.path}');
+    log('URL: $uri');
+    final request = {'refresh_token': refreshToken};
+    log('REQUEST: $request');
+    final response = await http.post(uri, body: jsonEncode(request));
+    log('RESPONSE: ${response.body}');
+    final model = RefreshTokenResponse.fromJson(jsonDecode(response.body));
+    if (!model.success) {
+      throw const UnauthorizedException(message: 'Unauthorized');
+    }
+    final secureStorage = locator<SecureStorageService>();
+    await secureStorage.saveToken(model.data!.accessToken);
+    await secureStorage.saveRefreshToken(model.data!.refreshToken);
+    await secureStorage.saveAccessTokenExpiry(
+      DateTime.fromMillisecondsSinceEpoch(model.data!.accessExpiresAt * 1000),
+    );
+    await secureStorage.saveRefreshTokenExpiry(
+      DateTime.fromMillisecondsSinceEpoch(model.data!.refreshExpiresAt * 1000),
+    );
+    log('TOKEN REFRESHED');
+  }
 }
