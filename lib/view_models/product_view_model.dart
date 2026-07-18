@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
 import '../models/product_model.dart';
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/lot_item_update_request.dart';
+import '../models/requests/product_batch_request.dart';
+import '../models/requests/product_lot_request.dart';
 import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
@@ -238,6 +241,83 @@ class ProductViewModel extends BaseViewModel<ProductState> {
   int get totalPages => state.totalPages;
   String get searchKeyword => state.searchKeyword;
   ProductDetailModel? get selectedProduct => state.selectedProduct;
+
+  Future<bool> addBatch({
+    required int productId,
+    required String batchNumber,
+    required String manufactureDate,
+  }) async {
+    final result = await runSafely(showLoading: true, () async {
+      final request = ProductBatchRequest(
+        productId: productId,
+        batchNumber: batchNumber,
+        manufactureDate: manufactureDate,
+      );
+      await _productRepository.addBatch(request: request);
+      
+      // Refresh batches
+      await fetchProductBatches(productId: productId, page: 1);
+      return true;
+    });
+    return result ?? false;
+  }
+
+  Future<bool> addLot({
+    required int batchId,
+    required String lotNumber,
+    required String lotBarcode,
+    required String expirationDate,
+    required double clinicCost,
+    required double retailPricePerUnit,
+    required String supplier,
+    required int quantityReceived,
+  }) async {
+    final result = await runSafely(showLoading: true, () async {
+      final request = ProductLotRequest(
+        batchId: batchId,
+        lotNumber: lotNumber,
+        lotBarcode: lotBarcode,
+        expirationDate: expirationDate,
+        clinicCost: clinicCost,
+        retailPricePerUnit: retailPricePerUnit,
+        supplier: supplier,
+        quantityReceived: quantityReceived,
+      );
+      await _productRepository.addLot(request: request);
+
+      // Refresh lots for this specific batch
+      final currentPage = state.batchLotPages[batchId] ?? 1;
+      await fetchLotsForBatch(batchId: batchId, page: currentPage);
+      return true;
+    });
+    return result ?? false;
+  }
+
+  Future<bool> updateLotItem({
+    required int itemId,
+    required String serialNumber,
+    required String itemBarcode,
+  }) async {
+    final result = await runSafely(showLoading: true, () async {
+      final request = LotItemUpdateRequest(
+        itemId: itemId,
+        serialNumber: serialNumber,
+        itemBarcode: itemBarcode,
+      );
+      await _productRepository.updateLotItem(request: request);
+
+      // Refresh lot items preserving current search and page
+      if (state.activeLotId != null) {
+        await fetchLotItems(
+          lotId: state.activeLotId!,
+          page: state.lotItemPage,
+          search: state.searchKeyword,
+        );
+      }
+      return true;
+    });
+    return result ?? false;
+  }
 
   Future<void> initialize() async {
     await fetchProducts(page: 1, limit: 20);

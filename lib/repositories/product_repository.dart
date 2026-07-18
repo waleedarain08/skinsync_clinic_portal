@@ -1,6 +1,10 @@
 
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/lot_item_update_request.dart';
+import '../models/requests/product_batch_request.dart';
+import '../models/requests/product_lot_request.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
 import '../models/responses/product_lots_response.dart';
@@ -17,6 +21,12 @@ import '../models/responses/usage_type_list_response.dart';
 import '../utils/enums.dart';
 
 abstract class ProductRepository {
+  Future<BaseApiResponseModel> addBatch({required ProductBatchRequest request});
+
+  Future<BaseApiResponseModel> addLot({required ProductLotRequest request});
+
+  Future<BaseApiResponseModel> updateLotItem({required LotItemUpdateRequest request});
+
   Future<LotItemsListResponse> getLotItems({
     required int lotId,
     required int page,

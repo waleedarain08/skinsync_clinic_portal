@@ -18,6 +18,7 @@ class BuildTextField extends StatelessWidget {
   final double? width;
   final String? tooltip;
   final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
 
 
   const BuildTextField({
@@ -36,6 +37,7 @@ class BuildTextField extends StatelessWidget {
     this.obscureText = false,
     this.width,
     this.tooltip,
+    this.inputFormatters,
   
   });
 
@@ -72,7 +74,7 @@ class BuildTextField extends StatelessWidget {
             validator: validator,
             readOnly: readOnly,
             enabled: enabled,
-            inputFormatters: [
+            inputFormatters: inputFormatters ?? [
               if (keyboardType == TextInputType.phone || keyboardType == TextInputType.number)
                 FilteringTextInputFormatter.digitsOnly,
             ],

@@ -6,7 +6,7 @@ import '../models/responses/lot_items_list_response.dart';
 import '../utils/theme.dart';
 import '../view_models/product_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
-import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/edit_lot_item_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class LotItemsScreen extends ConsumerStatefulWidget {
@@ -84,19 +84,35 @@ class _LotItemsScreenState extends ConsumerState<LotItemsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: CustomColors.purple.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.tag_rounded,
-                  color: CustomColors.purple,
-                  size: 16,
-                ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: CustomColors.purple.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.tag_rounded,
+                      color: CustomColors.purple,
+                      size: 16,
+                    ),
+                  ),
+                  context.horizontalSpace(8),
+                  _buildStatusBadge(context, item.status),
+                ],
               ),
-              _buildStatusBadge(context, item.status),
+              IconButton(
+                onPressed: () => EditLotItemDialog.show(context, item),
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: CustomColors.purple,
+                  size: 20,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                tooltip: 'Edit Item',
+              ),
             ],
           ),
           context.verticalSpace(12),
@@ -196,61 +212,40 @@ class _LotItemsScreenState extends ConsumerState<LotItemsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Controls (Search & Add Button)
+              // Header Controls (Search)
               Padding(
                 padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
                 child: BorderdContainerWidget(
                   padding: context.appEdgeInsets(all: 16),
                   backgroundColor: Colors.white,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search items by serial number or item barcode...',
-                            hintStyle: context.fonts.grey14w400,
-                            prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, color: CustomColors.grey),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      _onSearchChanged('');
-                                    },
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: context.appBorderRadius(all: 12),
-                              borderSide: const BorderSide(color: CustomColors.border),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: context.appBorderRadius(all: 12),
-                              borderSide: const BorderSide(color: CustomColors.purple, width: 2),
-                            ),
-                            filled: true,
-                            fillColor: CustomColors.whiteGrey,
-                            contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
-                          ),
-                          onChanged: _onSearchChanged,
-                        ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search items by serial number or item barcode...',
+                      hintStyle: context.fonts.grey14w400,
+                      prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: CustomColors.grey),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchChanged('');
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.border),
                       ),
-                      context.horizontalSpace(16),
-                      CustomPrimaryButton(
-                        onTap: () {
-                          // TODO: Implement add items flow
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Add items module placeholder triggered.'),
-                            ),
-                          );
-                        },
-                        label: 'Add Items',
-                        icon: Icons.add,
-                        width: context.w(150),
-                        height: context.h(45),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.purple, width: 2),
                       ),
-                    ],
+                      filled: true,
+                      fillColor: CustomColors.whiteGrey,
+                      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                    ),
+                    onChanged: _onSearchChanged,
                   ),
                 ),
               ),

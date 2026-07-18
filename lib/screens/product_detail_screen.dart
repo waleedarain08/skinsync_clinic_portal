@@ -9,6 +9,9 @@ import 'lot_items_screen.dart';
 import '../utils/theme.dart';
 import '../view_models/product_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
+import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/add_batch_dialog.dart';
+import '../widgets/dialog_box/add_lot_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -423,10 +426,26 @@ class ProductDetailScreen extends ConsumerWidget {
 
                 // Batches & Lots Section Header
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.inventory_outlined, color: CustomColors.purple),
-                    context.horizontalSpace(8),
-                    Text('Batches & Lots tracking (Paginated)', style: context.fonts.black18w600),
+                    Row(
+                      children: [
+                        const Icon(Icons.inventory_outlined, color: CustomColors.purple),
+                        context.horizontalSpace(8),
+                        Text('Batches & Lots tracking (Paginated)', style: context.fonts.black18w600),
+                      ],
+                    ),
+                    SizedBox(
+                      width: context.w(150),
+                      child: CustomPrimaryButton(
+                        label: '+ Add Batch',
+                        onTap: () {
+                          if (product.id != null) {
+                            AddBatchDialog.show(context, product.id!);
+                          }
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 context.verticalSpace(16),
@@ -532,12 +551,28 @@ class ProductDetailScreen extends ConsumerWidget {
                             children: [
                               const Divider(color: CustomColors.border, height: 24),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Icon(Icons.qr_code_scanner_outlined, size: 16, color: CustomColors.grey),
-                                  context.horizontalSpace(8),
-                                  Text(
-                                    'Associated Lots (${batch.totalLots})',
-                                    style: context.fonts.black14w600,
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.qr_code_scanner_outlined, size: 16, color: CustomColors.grey),
+                                      context.horizontalSpace(8),
+                                      Text(
+                                        'Associated Lots (${batch.totalLots})',
+                                        style: context.fonts.black14w600,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: context.w(120),
+                                    child: CustomPrimaryButton(
+                                      height: context.h(36),
+                                      padding: EdgeInsets.zero,
+                                      label: '+ Add Lot',
+                                      onTap: () {
+                                        AddLotDialog.show(context, batch.id);
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),

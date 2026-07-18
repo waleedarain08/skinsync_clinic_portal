@@ -4,8 +4,12 @@ import 'dart:async';
 
 
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/lot_item_update_request.dart';
+import '../models/requests/product_batch_request.dart';
+import '../models/requests/product_lot_request.dart';
 import '../models/responses/add_inventory_response.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
 import '../models/responses/product_lots_response.dart';
@@ -28,6 +32,63 @@ class ProductServices implements ProductRepository {
   final ApiBaseService _api;
 
   ProductServices({required ApiBaseService api}) : _api = api;
+
+  @override
+  Future<BaseApiResponseModel> addBatch({required ProductBatchRequest request}) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.post,
+      endPoint: Endpoint.productBatches,
+      pathParams: {'productId': request.productId.toString()},
+      requestBody: request,
+    );
+    final response = BaseApiResponseModel(
+      success: jsonResponse['is_success'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      data: jsonResponse['data'],
+    );
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
+  @override
+  Future<BaseApiResponseModel> addLot({required ProductLotRequest request}) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.post,
+      endPoint: Endpoint.batchLots,
+      pathParams: {'batchId': request.batchId.toString()},
+      requestBody: request,
+    );
+    final response = BaseApiResponseModel(
+      success: jsonResponse['is_success'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      data: jsonResponse['data'],
+    );
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
+  @override
+  Future<BaseApiResponseModel> updateLotItem({required LotItemUpdateRequest request}) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.patch,
+      endPoint: Endpoint.updateLotItem,
+      pathParams: {'id': request.itemId.toString()},
+      requestBody: request,
+    );
+    final response = BaseApiResponseModel(
+      success: jsonResponse['is_success'] ?? false,
+      message: jsonResponse['message'] ?? '',
+      data: jsonResponse['data'],
+    );
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
 
   // @override
   // Future<ProductModel> addProduct({required CreateProductRequest req}) async {
