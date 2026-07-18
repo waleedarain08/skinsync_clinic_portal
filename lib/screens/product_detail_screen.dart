@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../models/responses/product_batch_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/product_detail_response.dart';
+import 'lot_items_screen.dart';
 import '../utils/theme.dart';
 import '../view_models/product_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -598,18 +599,18 @@ class ProductDetailScreen extends ConsumerWidget {
                                                 ],
                                               ),
                                               IconButton(
-                                                tooltip: 'View Lot Details',
+                                                tooltip: 'View Lot Items',
                                                 icon: const Icon(
-                                                  Icons.info_outline_rounded,
+                                                  Icons.visibility_outlined,
                                                   color: CustomColors.purple,
                                                 ),
-                                                onPressed: () {
-                                                  // TODO: Navigation to Lot Detail screen
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text('Lot detail view placeholder for ${lot.lotNumber}'),
-                                                    ),
-                                                  );
+                                                onPressed: () async {
+                                                  final success = await ref
+                                                      .read(productViewModelProvider.notifier)
+                                                      .fetchLotItems(lotId: lot.id, page: 1);
+                                                  if (success && context.mounted) {
+                                                    context.push(LotItemsScreen.routeName);
+                                                  }
                                                 },
                                               ),
                                             ],

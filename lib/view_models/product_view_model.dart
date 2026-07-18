@@ -7,6 +7,7 @@ import '../exceptions/app_exception.dart';
 import '../models/product_model.dart';
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
@@ -71,6 +72,13 @@ class ProductState {
   final Map<int, bool> batchLotLoading;
   final Map<int, bool> batchLotLoadingMore;
 
+  // Paginated Lot Items
+  final List<LotItemModel> lotItems;
+  final int lotItemPage;
+  final int lotItemTotalPages;
+  final bool loadingLotItems;
+  final int? activeLotId;
+
   ProductState({
     this.loading = false,
     this.currentPage = 1,
@@ -105,6 +113,11 @@ class ProductState {
     this.batchLotTotalPages = const {},
     this.batchLotLoading = const {},
     this.batchLotLoadingMore = const {},
+    this.lotItems = const [],
+    this.lotItemPage = 1,
+    this.lotItemTotalPages = 1,
+    this.loadingLotItems = false,
+    this.activeLotId,
   });
 
   ProductState copyWith({
@@ -141,6 +154,11 @@ class ProductState {
     Map<int, int>? batchLotTotalPages,
     Map<int, bool>? batchLotLoading,
     Map<int, bool>? batchLotLoadingMore,
+    List<LotItemModel>? lotItems,
+    int? lotItemPage,
+    int? lotItemTotalPages,
+    bool? loadingLotItems,
+    int? activeLotId,
   }) {
     return ProductState(
       loading: loading ?? this.loading,
@@ -176,6 +194,11 @@ class ProductState {
       batchLotTotalPages: batchLotTotalPages ?? this.batchLotTotalPages,
       batchLotLoading: batchLotLoading ?? this.batchLotLoading,
       batchLotLoadingMore: batchLotLoadingMore ?? this.batchLotLoadingMore,
+      lotItems: lotItems ?? this.lotItems,
+      lotItemPage: lotItemPage ?? this.lotItemPage,
+      lotItemTotalPages: lotItemTotalPages ?? this.lotItemTotalPages,
+      loadingLotItems: loadingLotItems ?? this.loadingLotItems,
+      activeLotId: activeLotId ?? this.activeLotId,
     );
   }
 }
@@ -199,6 +222,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       loadingAdminProducts: false,
       loadingMoreAdminProducts: false,
       loadingSelectedProductBatches: false,
+      loadingLotItems: false,
     );
     super.onError(message);
   }
@@ -530,6 +554,55 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     final currentPage = state.batchLotPages[batchId] ?? 1;
     if (currentPage > 1) {
       await goToLotPage(batchId, currentPage - 1);
+    }
+  }
+
+  // --- Paginated Lot Items API Flow ---
+
+  Future<bool> fetchLotItems({required int lotId, int page = 1, String search = ''}) async {
+    state = state.copyWith(
+      loadingLotItems: true,
+      activeLotId: lotId,
+    );
+    try {
+      final response = await _productRepository.getLotItems(
+        lotId: lotId,
+        page: page,
+        limit: 12, // Responsive grid loads 12 items per page
+        search: search,
+      );
+      state = state.copyWith(
+        lotItems: response.data ?? [],
+        lotItemPage: response.page,
+        lotItemTotalPages: response.totalPages,
+        loadingLotItems: false,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        loadingLotItems: false,
+        errorMessage: e.toString(),
+      );
+      return false;
+    }
+  }
+
+  Future<void> goToLotItemPage(int page) async {
+    if (state.activeLotId == null) return;
+    if (page >= 1 && page <= state.lotItemTotalPages) {
+      await fetchLotItems(lotId: state.activeLotId!, page: page);
+    }
+  }
+
+  Future<void> nextLotItemPage() async {
+    if (state.lotItemPage < state.lotItemTotalPages) {
+      await goToLotItemPage(state.lotItemPage + 1);
+    }
+  }
+
+  Future<void> previousLotItemPage() async {
+    if (state.lotItemPage > 1) {
+      await goToLotItemPage(state.lotItemPage - 1);
     }
   }
 

@@ -6,6 +6,7 @@ import 'dart:async';
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/add_inventory_response.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
@@ -374,6 +375,43 @@ class ProductServices implements ProductRepository {
         page: page,
         limit: limit,
         totalPages: 2,
+        data: list,
+      );
+    }
+  }
+
+  @override
+  Future<LotItemsListResponse> getLotItems({
+    required int lotId,
+    required int page,
+    required int limit,
+    String search = '',
+  }) async {
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.lotItems,
+        pathParams: {'lotId': lotId.toString()},
+        queryParams: {
+          'page': page.toString(),
+          'limit': limit.toString(),
+          'search': search,
+        },
+      );
+      final response = LotItemsListResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      final list = LotItemsDummy.getDummyLotItems(lotId, page, limit, search);
+      final totalPages = LotItemsDummy.getTotalPages(lotId, limit, search);
+      return LotItemsListResponse(
+        success: true,
+        message: 'Loaded paginated dummy lot items',
+        page: page,
+        limit: limit,
+        totalPages: totalPages,
         data: list,
       );
     }
