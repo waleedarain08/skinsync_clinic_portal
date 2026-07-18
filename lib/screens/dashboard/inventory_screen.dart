@@ -638,10 +638,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         child: Table(
           columnWidths: const {
             0: FlexColumnWidth(4), // Product & Brand
-            1: FlexColumnWidth(2), // SKU
-            2: FlexColumnWidth(2), // Purpose / Usage Type
-            3: FlexColumnWidth(2), // Status
-            4: FlexColumnWidth(2), // Actions
+            1: FlexColumnWidth(3), // SKU & Unit Type
+            2: FlexColumnWidth(3), // Stock & Lots
+            3: FlexColumnWidth(3), // Expiry & Usage Type
+            4: FlexColumnWidth(2.5), // Status & Actions
           },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
@@ -653,10 +653,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               ),
               children: [
                 _tableHeaderCell('PRODUCT & BRAND'),
-                _tableHeaderCell('GLOBAL SKU'),
-                _tableHeaderCell('USAGE TYPE'),
-                _tableHeaderCell('STATUS'),
-                _tableHeaderCell('ACTIONS'),
+                _tableHeaderCell('GLOBAL SKU & UNIT'),
+                _tableHeaderCell('STOCK & LOTS'),
+                _tableHeaderCell('EXPIRY & TYPE'),
+                _tableHeaderCell('STATUS & ACTIONS'),
               ],
             ),
             // Data Rows
@@ -669,16 +669,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                 ),
                 children: [
                   _productNameCell(p),
-                  _tableTextCell(
-                    (() {
-                      final sku = p.globalSku ?? p.sku ?? '';
-                      return sku.trim().isEmpty ? 'N/A' : sku;
-                    })(),
-                    style: context.fonts.grey14w400,
-                  ),
-                  _usageBadgeCell(p.usageType ?? ''),
-                  _statusCell(p, ref),
-                  _actionsCell(p),
+                  _skuAndUnitCell(p),
+                  _stockAndLotsCell(p),
+                  _expiryAndUsageCell(p),
+                  _statusAndActionsCell(p, ref),
                 ],
               );
             }),
@@ -741,44 +735,114 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     );
   }
 
-  Widget _tableTextCell(String text, {required TextStyle style}) {
+  Widget _skuAndUnitCell(ProductModel p) {
+    final sku = p.globalSku ?? '';
+    final unitType = p.unitType ?? 'N/A';
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: Text(
-        text,
-        style: style,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            sku.trim().isEmpty ? 'N/A' : sku,
+            style: context.fonts.black14w600,
+          ),
+          context.verticalSpace(4),
+          Text(
+            'Unit: ${unitType.toUpperCase()}',
+            style: context.fonts.grey12w400,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _usageBadgeCell(String purpose) {
+  Widget _stockAndLotsCell(ProductModel p) {
+    final qty = p.totalQuantityRemaining ?? 0;
+    final lots = p.totalLots ?? 0;
+    final isLow = p.lowStockAlert ?? false;
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$qty remaining',
+                style: context.fonts.black14w600,
+              ),
+              if (isLow) ...[
+                context.horizontalSpace(8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: CustomColors.red.withValues(alpha: 0.1),
+                    borderRadius: context.appBorderRadius(all: 4),
+                    border: Border.all(
+                      color: CustomColors.red.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    'LOW STOCK',
+                    style: TextStyle(
+                      color: CustomColors.red,
+                      fontSize: context.sp(9),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          context.verticalSpace(4),
+          Text(
+            '$lots ${lots == 1 ? "Lot" : "Lots"}',
+            style: context.fonts.grey12w400,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _expiryAndUsageCell(ProductModel p) {
+    final expiry = p.nearestExpiryDate ?? 'N/A';
+    final usageType = p.usageType ?? '';
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Expiry: $expiry',
+            style: context.fonts.black13w600,
+          ),
+          context.verticalSpace(6),
+          _usageBadge(usageType),
+        ],
+      ),
+    );
+  }
+
+  Widget _usageBadge(String purpose) {
     final trimmed = purpose.trim();
     if (trimmed.isEmpty) {
-      return Padding(
-        padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: CustomColors.grey.withValues(alpha: 0.1),
-                borderRadius: context.appBorderRadius(all: 20),
-                border: Border.all(
-                  color: CustomColors.grey.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Text(
-                'N/A',
-                style: context.fonts.amber10w800ls1.copyWith(
-                  color: CustomColors.grey,
-                  fontSize: context.sp(10),
-                ),
-              ),
-            ),
-          ],
+      return Container(
+        padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: CustomColors.grey.withValues(alpha: 0.1),
+          borderRadius: context.appBorderRadius(all: 20),
+          border: Border.all(
+            color: CustomColors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Text(
+          'N/A',
+          style: context.fonts.amber10w800ls1.copyWith(
+            color: CustomColors.grey,
+            fontSize: context.sp(10),
+          ),
         ),
       );
     }
@@ -787,7 +851,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     Color badgeColor = CustomColors.purple;
     String label = trimmed;
 
-    if (lower == 'required') {
+    if (lower == 'required' || lower == 'treatment') {
       badgeColor = CustomColors.green;
       label = 'Required';
     } else if (lower == 'setup/supply') {
@@ -804,117 +868,56 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
       label = 'Variable';
     }
 
-    return Padding(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.1),
-              borderRadius: context.appBorderRadius(all: 20),
-              border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              label,
-              style: context.fonts.amber10w800ls1.copyWith(
-                color: badgeColor,
-                fontSize: context.sp(10),
-              ),
-            ),
-          ),
-        ],
+    return Container(
+      padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: badgeColor.withValues(alpha: 0.1),
+        borderRadius: context.appBorderRadius(all: 20),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
       ),
-    );
-  }
-
-  Widget _statusCell(ProductModel p, WidgetRef ref) {
-    return Padding(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: StatusToggleSwitch(
-          status: p.status,
-          onChanged: (newStatus) {
-            // ref
-            //     .read(productViewModelProvider.notifier)
-            //     .updateProductStatus(p.id!, newStatus);
-          },
-          width: context.w(100),
-          height: context.h(45),
+      child: Text(
+        label,
+        style: context.fonts.amber10w800ls1.copyWith(
+          color: badgeColor,
+          fontSize: context.sp(10),
         ),
       ),
     );
   }
 
-  Widget _actionsCell(ProductModel product) {
+  Widget _statusAndActionsCell(ProductModel p, WidgetRef ref) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
         children: [
+          StatusToggleSwitch(
+            status: p.status,
+            onChanged: (newStatus) {
+              // Action status update
+            },
+            width: context.w(80),
+            height: context.h(35),
+          ),
+          context.horizontalSpace(8),
           IconButton(
             tooltip: 'View Details',
             icon: Icon(
               Icons.visibility_outlined,
               color: CustomColors.grey,
-              size: context.sp(20),
+              size: context.sp(18),
             ),
             onPressed: () async {
-              if (product.id != null) {
+              if (p.id != null) {
                 try {
                   await ref
                       .read(productViewModelProvider.notifier)
-                      .fetchProductDetail(product.id!);
+                      .fetchProductDetail(p.id!);
                   if (context.mounted) {
                     context.push(ProductDetailScreen.routeName);
                   }
                 } catch (e) {
                   // Error handled gracefully by runSafely wrapper
                 }
-              }
-            },
-          ),
-          IconButton(
-            tooltip: 'Edit Template',
-            icon: Icon(
-              Icons.edit_road_rounded,
-              color: CustomColors.purple,
-              size: context.sp(20),
-            ),
-            onPressed: () async {
-              if (product.id != null) {
-                try {
-                  await ref
-                      .read(productViewModelProvider.notifier)
-                      .fetchProductDetail(product.id!);
-                  final detailedProduct = ref
-                      .read(productViewModelProvider)
-                      .selectedProduct;
-                  if (context.mounted && detailedProduct != null) {
-                    // context.push(
-                    //   CreateProductScreen.routeName,
-                    //   extra: detailedProduct.toProductModel(),
-                    // );
-                  }
-                } catch (e) {
-                  // Error handled gracefully by runSafely wrapper
-                }
-              }
-            },
-          ),
-          IconButton(
-            tooltip: 'Archive',
-            icon: Icon(
-              Icons.archive_outlined,
-              color: CustomColors.red,
-              size: context.sp(20),
-            ),
-            onPressed: () {
-              if (product.id != null) {
-                // ref
-                //     .read(productViewModelProvider.notifier)
-                //     .deleteProduct(product.id!);
               }
             },
           ),

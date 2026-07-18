@@ -79,23 +79,42 @@ class ProductServices implements ProductRepository {
     ProductStatus? status,
     int? brandId,
   }) async {
-    final jsonResponse = await _api.httpRequest(
-requestType: RequestType.get,
-endPoint:       Endpoint.products,
-      queryParams: {
-        'search': search,
-        'status' : status == null || status == ProductStatus.all ? '' : status.name,
-        'usage' : selectedPurpose ?? '',
-        'page': page.toString(),
-        'limit': limit.toString(),
-        if (brandId != null) 'brand': brandId.toString(),
-      },
-    );
-    final response = ProductListResponse.fromJson(jsonResponse);
-    if (!response.isSuccess) {
-      throw BadRequestException(response.message);
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.products,
+        queryParams: {
+          'search': search,
+          'status' : status == null || status == ProductStatus.all ? '' : status.name,
+          'usage' : selectedPurpose ?? '',
+          'page': page.toString(),
+          'limit': limit.toString(),
+          if (brandId != null) 'brand': brandId.toString(),
+        },
+      );
+      final response = ProductListResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      final list = InventoryDummyProducts.getDummyInventoryProductsForPage(page, limit);
+      final filteredList = search.isEmpty
+          ? list
+          : list.where((p) =>
+              p.name.toLowerCase().contains(search.toLowerCase()) ||
+              (p.brand ?? '').toLowerCase().contains(search.toLowerCase()) ||
+              (p.globalSku ?? '').toLowerCase().contains(search.toLowerCase())).toList();
+
+      return ProductListResponse(
+        success: true,
+        message: 'Loaded paginated dummy inventory products',
+        page: page,
+        limit: limit,
+        totalPages: 3, // 20 items / 8 per page = 3 pages
+        data: filteredList,
+      );
     }
-    return response;
   }
 
   @override

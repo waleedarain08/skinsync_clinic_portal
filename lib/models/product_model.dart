@@ -63,6 +63,12 @@ class ProductModel {
   final List<int>? selectedCategoryIds;
   final String? barcode;
 
+  // New inventory fields matching ProductListItemModel
+  final int? totalQuantityRemaining;
+  final String? nearestExpiryDate;
+  final int? totalLots;
+  final bool? lowStockAlert;
+
   ProductModel({
     this.id,
     required this.image,
@@ -95,6 +101,10 @@ class ProductModel {
     this.expirationDate,
     this.selectedCategoryIds,
     this.barcode,
+    this.totalQuantityRemaining,
+    this.nearestExpiryDate,
+    this.totalLots,
+    this.lowStockAlert,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
