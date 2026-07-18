@@ -1,6 +1,8 @@
 
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -14,6 +16,18 @@ import '../models/responses/usage_type_list_response.dart';
 import '../utils/enums.dart';
 
 abstract class ProductRepository {
+  Future<ProductBatchListResponse> getProductBatches({
+    required int productId,
+    required int page,
+    required int limit,
+  });
+
+  Future<ProductLotsResponse> getBatchLots({
+    required int batchId,
+    required int page,
+    required int limit,
+  });
+
   Future<AdminProductListResponse> getAdminProductList({
     required int page,
     required int limit,

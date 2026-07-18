@@ -54,6 +54,8 @@ enum Endpoint {
   manufacturersList('admin/manufacturers'),
   suppliers('admin/suppliers'),
   adminProductList('admin/products/list'),
+  batchLots('admin/batches/{batchId}/lots'),
+  productBatches('admin/products/{productId}/batches'),
   getMe("clinic/me");
 
   final String path;

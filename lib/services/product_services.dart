@@ -6,6 +6,8 @@ import 'dart:async';
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/add_inventory_response.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -119,16 +121,24 @@ class ProductServices implements ProductRepository {
 
   @override
   Future<ProductDetailResponse> getProductDetail({required int id}) async {
-    final jsonResponse = await _api.httpRequest(
-      requestType: RequestType.get,endPoint: 
-      Endpoint.updateProduct,
-      pathParams: {'id': id.toString()},
-    );
-    final response = ProductDetailResponse.fromJson(jsonResponse);
-    if (!response.isSuccess) {
-      throw BadRequestException(response.message);
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.updateProduct,
+        pathParams: {'id': id.toString()},
+      );
+      final response = ProductDetailResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      return ProductDetailResponse(
+        success: true,
+        message: 'Loaded dummy product detail',
+        data: ProductDetailDummy.getDummyProductDetail(id),
+      );
     }
-    return response;
   }
 
   @override
@@ -297,6 +307,74 @@ class ProductServices implements ProductRepository {
         limit: limit,
         totalPages: 3, // 20 items / 8 per page = 3 pages
         data: filteredList,
+      );
+    }
+  }
+
+  @override
+  Future<ProductLotsResponse> getBatchLots({
+    required int batchId,
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.batchLots,
+        pathParams: {'batchId': batchId.toString()},
+        queryParams: {
+          'page': page.toString(),
+          'limit': limit.toString(),
+        },
+      );
+      final response = ProductLotsResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      final list = BatchLotsDummy.getDummyLotsForBatch(batchId, page, limit);
+      return ProductLotsResponse(
+        success: true,
+        message: 'Loaded paginated dummy lots',
+        page: page,
+        limit: limit,
+        totalPages: (batchId == 1) ? 2 : 1,
+        data: list,
+      );
+    }
+  }
+
+  @override
+  Future<ProductBatchListResponse> getProductBatches({
+    required int productId,
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final jsonResponse = await _api.httpRequest(
+        requestType: RequestType.get,
+        endPoint: Endpoint.productBatches,
+        pathParams: {'productId': productId.toString()},
+        queryParams: {
+          'page': page.toString(),
+          'limit': limit.toString(),
+        },
+      );
+      final response = ProductBatchListResponse.fromJson(jsonResponse);
+      if (!response.isSuccess) {
+        throw BadRequestException(response.message);
+      }
+      return response;
+    } catch (e) {
+      final list = BatchDummyProducts.getDummyBatchesForPage(productId, page, limit);
+      return ProductBatchListResponse(
+        success: true,
+        message: 'Loaded paginated dummy batches',
+        page: page,
+        limit: limit,
+        totalPages: 2,
+        data: list,
       );
     }
   }

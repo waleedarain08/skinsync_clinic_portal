@@ -29,23 +29,15 @@ class ProductDetailModel {
   final String? globalSku;
   final String? barcode;
   final String? usageType;
-  final String? category;
-  final List<int>? selectedCategoryIds;
   final String? status;
   final String description;
   final String? unitType;
-  final int? boxQuantity;
-  final int? itemQuantityPerBox;
   final String? packageType;
   final String? billableUnit;
   final double? billableQuantityPerItem;
-  final double? totalBillableQuantity;
   final bool? enforceLotTracking;
-  final double? clinicCost;
-  final double? retailPricePerUnit;
-  final String? supplier;
-  final String? lotNumber;
-  final DateTime? expirationDate;
+  final int? totalQuantityRemaining;
+  final bool? lowStockAlert;
 
   ProductDetailModel({
     this.id,
@@ -56,23 +48,15 @@ class ProductDetailModel {
     this.globalSku,
     this.barcode,
     this.usageType,
-    this.category,
-    this.selectedCategoryIds,
     this.status,
     required this.description,
     this.unitType,
-    this.boxQuantity,
-    this.itemQuantityPerBox,
     this.packageType,
     this.billableUnit,
     this.billableQuantityPerItem,
-    this.totalBillableQuantity,
     this.enforceLotTracking,
-    this.clinicCost,
-    this.retailPricePerUnit,
-    this.supplier,
-    this.lotNumber,
-    this.expirationDate,
+    this.totalQuantityRemaining,
+    this.lowStockAlert,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
@@ -82,30 +66,18 @@ class ProductDetailModel {
       name: json['name'] ?? '',
       brand: json['brand'],
       manufacturer: json['manufacturer'],
-      globalSku: json['global_sku'],
+      globalSku: json['global_sku'] ?? json['globalSku'],
       barcode: json['barcode'],
-      usageType: json['usage_type'] ?? json['product_purpose'],
-      category: json['category'],
-      selectedCategoryIds: json['selected_category_ids'] != null
-          ? List<int>.from(json['selected_category_ids'])
-          : null,
+      usageType: json['usage_type'] ?? json['usageType'],
       status: json['status'],
       description: json['description'] ?? '',
-      unitType: json['unit_type'] ?? json['unit'],
-      boxQuantity: json['box_quantity'] as int?,
-      itemQuantityPerBox: json['item_quantity_per_box'] as int?,
-      packageType: json['package_type'],
-      billableUnit: json['billable_unit'],
-      billableQuantityPerItem: (json['billable_quantity_per_item'] as num?)?.toDouble(),
-      totalBillableQuantity: (json['total_billable_quantity'] as num?)?.toDouble(),
-      enforceLotTracking: json['enforce_lot_tracking'] as bool?,
-      clinicCost: (json['clinic_cost'] as num?)?.toDouble(),
-      retailPricePerUnit: (json['retail_price_per_unit'] as num?)?.toDouble(),
-      supplier: json['supplier'],
-      lotNumber: json['lot_number'],
-      expirationDate: json['expiration_date'] != null
-          ? DateTime.tryParse(json['expiration_date'].toString())
-          : null,
+      unitType: json['unit_type'] ?? json['unitType'],
+      packageType: json['package_type'] ?? json['packageType'],
+      billableUnit: json['billable_unit'] ?? json['billableUnit'],
+      billableQuantityPerItem: (json['billable_quantity_per_item'] as num?)?.toDouble() ?? (json['billableQuantityPerItem'] as num?)?.toDouble(),
+      enforceLotTracking: json['enforce_lot_tracking'] as bool? ?? json['enforceLotTracking'] as bool?,
+      totalQuantityRemaining: json['total_quantity_remaining'] as int? ?? json['totalQuantityRemaining'] as int?,
+      lowStockAlert: json['low_stock_alert'] as bool? ?? json['lowStockAlert'] as bool?,
     );
   }
 
@@ -119,23 +91,15 @@ class ProductDetailModel {
       'global_sku': globalSku,
       'barcode': barcode,
       'usage_type': usageType,
-      'category': category,
-      'selected_category_ids': selectedCategoryIds,
       'status': status,
       'description': description,
       'unit_type': unitType,
-      'box_quantity': boxQuantity,
-      'item_quantity_per_box': itemQuantityPerBox,
       'package_type': packageType,
       'billable_unit': billableUnit,
       'billable_quantity_per_item': billableQuantityPerItem,
-      'total_billable_quantity': totalBillableQuantity,
       'enforce_lot_tracking': enforceLotTracking,
-      'clinic_cost': clinicCost,
-      'retail_price_per_unit': retailPricePerUnit,
-      'supplier': supplier,
-      'lot_number': lotNumber,
-      'expiration_date': expirationDate?.toIso8601String(),
+      'total_quantity_remaining': totalQuantityRemaining,
+      'low_stock_alert': lowStockAlert,
     };
   }
 
@@ -149,23 +113,78 @@ class ProductDetailModel {
       globalSku: globalSku,
       barcode: barcode,
       productPurpose: usageType,
-      category: category,
-      selectedCategoryIds: selectedCategoryIds,
       status: status,
       description: description,
-      unit: unitType ?? '',
-      boxQuantity: boxQuantity,
-      itemQuantityPerBox: itemQuantityPerBox,
+      unitType: unitType,
       packageType: packageType,
       billableUnit: billableUnit,
       billableQuantityPerItem: billableQuantityPerItem,
-      totalBillableQuantity: totalBillableQuantity,
       enforceLotTracking: enforceLotTracking,
-      clinicCost: clinicCost,
-      retailPricePerUnit: retailPricePerUnit,
-      supplier: supplier,
-      lotNumber: lotNumber,
-      expirationDate: expirationDate,
+      unit: unitType ?? '',
+    );
+  }
+
+  ProductDetailModel copyWith({
+    int? id,
+    String? image,
+    String? name,
+    String? brand,
+    String? manufacturer,
+    String? globalSku,
+    String? barcode,
+    String? usageType,
+    String? status,
+    String? description,
+    String? unitType,
+    String? packageType,
+    String? billableUnit,
+    double? billableQuantityPerItem,
+    bool? enforceLotTracking,
+    int? totalQuantityRemaining,
+    bool? lowStockAlert,
+  }) {
+    return ProductDetailModel(
+      id: id ?? this.id,
+      image: image ?? this.image,
+      name: name ?? this.name,
+      brand: brand ?? this.brand,
+      manufacturer: manufacturer ?? this.manufacturer,
+      globalSku: globalSku ?? this.globalSku,
+      barcode: barcode ?? this.barcode,
+      usageType: usageType ?? this.usageType,
+      status: status ?? this.status,
+      description: description ?? this.description,
+      unitType: unitType ?? this.unitType,
+      packageType: packageType ?? this.packageType,
+      billableUnit: billableUnit ?? this.billableUnit,
+      billableQuantityPerItem: billableQuantityPerItem ?? this.billableQuantityPerItem,
+      enforceLotTracking: enforceLotTracking ?? this.enforceLotTracking,
+      totalQuantityRemaining: totalQuantityRemaining ?? this.totalQuantityRemaining,
+      lowStockAlert: lowStockAlert ?? this.lowStockAlert,
+    );
+  }
+}
+
+class ProductDetailDummy {
+  static ProductDetailModel getDummyProductDetail(int id) {
+    return ProductDetailModel(
+      id: id,
+      image: '',
+      name: 'Juvederm Ultra XC',
+      brand: 'Allergan',
+      manufacturer: 'AbbVie Inc.',
+      globalSku: 'PRD-0001-JUVD',
+      barcode: '5901234123457',
+      usageType: 'treatment',
+      status: 'active',
+      description: 'Hyaluronic acid dermal filler indicated for deep injection into facial tissue for correction of moderate to severe facial wrinkles and folds.',
+      unitType: 'syringe',
+      packageType: 'box',
+      billableUnit: 'ml',
+      billableQuantityPerItem: 1.0,
+      enforceLotTracking: true,
+      totalQuantityRemaining: 82,
+      lowStockAlert: true,
     );
   }
 }

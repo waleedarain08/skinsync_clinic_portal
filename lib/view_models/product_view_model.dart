@@ -7,6 +7,8 @@ import '../exceptions/app_exception.dart';
 import '../models/product_model.dart';
 import '../models/requests/add_inventory_request.dart';
 import '../models/responses/admin_product_list_response.dart';
+import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
 import '../models/responses/clinic_products_response.dart';
@@ -56,6 +58,19 @@ class ProductState {
   final bool loadingAdminProducts;
   final bool loadingMoreAdminProducts;
 
+  // Paginated Batch List per selected product
+  final List<ProductBatchModel> selectedProductBatches;
+  final int selectedProductBatchPage;
+  final int selectedProductBatchTotalPages;
+  final bool loadingSelectedProductBatches;
+
+  // On-demand Batch Lots & Pagination maps
+  final Map<int, List<LotModel>> batchLots;
+  final Map<int, int> batchLotPages;
+  final Map<int, int> batchLotTotalPages;
+  final Map<int, bool> batchLotLoading;
+  final Map<int, bool> batchLotLoadingMore;
+
   ProductState({
     this.loading = false,
     this.currentPage = 1,
@@ -81,6 +96,15 @@ class ProductState {
     this.adminTotalPages = 1,
     this.loadingAdminProducts = false,
     this.loadingMoreAdminProducts = false,
+    this.selectedProductBatches = const [],
+    this.selectedProductBatchPage = 1,
+    this.selectedProductBatchTotalPages = 1,
+    this.loadingSelectedProductBatches = false,
+    this.batchLots = const {},
+    this.batchLotPages = const {},
+    this.batchLotTotalPages = const {},
+    this.batchLotLoading = const {},
+    this.batchLotLoadingMore = const {},
   });
 
   ProductState copyWith({
@@ -108,6 +132,15 @@ class ProductState {
     int? adminTotalPages,
     bool? loadingAdminProducts,
     bool? loadingMoreAdminProducts,
+    List<ProductBatchModel>? selectedProductBatches,
+    int? selectedProductBatchPage,
+    int? selectedProductBatchTotalPages,
+    bool? loadingSelectedProductBatches,
+    Map<int, List<LotModel>>? batchLots,
+    Map<int, int>? batchLotPages,
+    Map<int, int>? batchLotTotalPages,
+    Map<int, bool>? batchLotLoading,
+    Map<int, bool>? batchLotLoadingMore,
   }) {
     return ProductState(
       loading: loading ?? this.loading,
@@ -134,6 +167,15 @@ class ProductState {
       adminTotalPages: adminTotalPages ?? this.adminTotalPages,
       loadingAdminProducts: loadingAdminProducts ?? this.loadingAdminProducts,
       loadingMoreAdminProducts: loadingMoreAdminProducts ?? this.loadingMoreAdminProducts,
+      selectedProductBatches: selectedProductBatches ?? this.selectedProductBatches,
+      selectedProductBatchPage: selectedProductBatchPage ?? this.selectedProductBatchPage,
+      selectedProductBatchTotalPages: selectedProductBatchTotalPages ?? this.selectedProductBatchTotalPages,
+      loadingSelectedProductBatches: loadingSelectedProductBatches ?? this.loadingSelectedProductBatches,
+      batchLots: batchLots ?? this.batchLots,
+      batchLotPages: batchLotPages ?? this.batchLotPages,
+      batchLotTotalPages: batchLotTotalPages ?? this.batchLotTotalPages,
+      batchLotLoading: batchLotLoading ?? this.batchLotLoading,
+      batchLotLoadingMore: batchLotLoadingMore ?? this.batchLotLoadingMore,
     );
   }
 }
@@ -156,6 +198,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       inventoryAdded: false,
       loadingAdminProducts: false,
       loadingMoreAdminProducts: false,
+      loadingSelectedProductBatches: false,
     );
     super.onError(message);
   }
@@ -367,6 +410,8 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     }
   }
 
+  // --- Product Detail, Batches & Lots Pagination ---
+
   Future<void> fetchProductDetail(int productId) async {
     await runSafely(showLoading: true, () async {
       try {
@@ -376,12 +421,116 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         state = state.copyWith(
           selectedProduct: response.data,
           errorMessage: null,
+          batchLots: {},
+          batchLotPages: {},
+          batchLotTotalPages: {},
+          batchLotLoading: {},
+          batchLotLoadingMore: {},
         );
+        
+        // Directly trigger fetching Page 1 of Batches as soon as Product Detail API responds
+        await fetchProductBatches(productId: productId, page: 1);
       } catch (e) {
         state = state.copyWith(errorMessage: e.toString());
         rethrow;
       }
     });
+  }
+
+  Future<void> fetchProductBatches({required int productId, int page = 1}) async {
+    state = state.copyWith(loadingSelectedProductBatches: true);
+    try {
+      final response = await _productRepository.getProductBatches(
+        productId: productId,
+        page: page,
+        limit: 2, // Load 2 batches per page to demonstrate footer pagination
+      );
+      state = state.copyWith(
+        selectedProductBatches: response.data ?? [],
+        selectedProductBatchPage: response.page,
+        selectedProductBatchTotalPages: response.totalPages,
+        loadingSelectedProductBatches: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        loadingSelectedProductBatches: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  Future<void> goToBatchPage(int page) async {
+    final product = state.selectedProduct;
+    if (product == null || product.id == null) return;
+    if (page >= 1 && page <= state.selectedProductBatchTotalPages) {
+      await fetchProductBatches(productId: product.id!, page: page);
+    }
+  }
+
+  Future<void> nextBatchPage() async {
+    if (state.selectedProductBatchPage < state.selectedProductBatchTotalPages) {
+      await goToBatchPage(state.selectedProductBatchPage + 1);
+    }
+  }
+
+  Future<void> previousBatchPage() async {
+    if (state.selectedProductBatchPage > 1) {
+      await goToBatchPage(state.selectedProductBatchPage - 1);
+    }
+  }
+
+  Future<void> fetchLotsForBatch({required int batchId, int page = 1}) async {
+    // Show a loading indicator inside the expanded batch area
+    final updatedLoading = Map<int, bool>.from(state.batchLotLoading)..[batchId] = true;
+    state = state.copyWith(batchLotLoading: updatedLoading);
+
+    try {
+      final response = await _productRepository.getBatchLots(
+        batchId: batchId,
+        page: page,
+        limit: 2, // Low limit to demonstrate clean pagination!
+      );
+
+      final updatedLots = Map<int, List<LotModel>>.from(state.batchLots)..[batchId] = response.data ?? [];
+      final updatedPages = Map<int, int>.from(state.batchLotPages)..[batchId] = response.page;
+      final updatedTotalPages = Map<int, int>.from(state.batchLotTotalPages)..[batchId] = response.totalPages;
+      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)..[batchId] = false;
+
+      state = state.copyWith(
+        batchLots: updatedLots,
+        batchLotPages: updatedPages,
+        batchLotTotalPages: updatedTotalPages,
+        batchLotLoading: updatedLoadingDone,
+      );
+    } catch (e) {
+      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)..[batchId] = false;
+      state = state.copyWith(
+        batchLotLoading: updatedLoadingDone,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  Future<void> goToLotPage(int batchId, int page) async {
+    final totalPages = state.batchLotTotalPages[batchId] ?? 1;
+    if (page >= 1 && page <= totalPages) {
+      await fetchLotsForBatch(batchId: batchId, page: page);
+    }
+  }
+
+  Future<void> nextLotPage(int batchId) async {
+    final currentPage = state.batchLotPages[batchId] ?? 1;
+    final totalPages = state.batchLotTotalPages[batchId] ?? 1;
+    if (currentPage < totalPages) {
+      await goToLotPage(batchId, currentPage + 1);
+    }
+  }
+
+  Future<void> previousLotPage(int batchId) async {
+    final currentPage = state.batchLotPages[batchId] ?? 1;
+    if (currentPage > 1) {
+      await goToLotPage(batchId, currentPage - 1);
+    }
   }
 
   Future<void> searchProducts(String keyword) async {
