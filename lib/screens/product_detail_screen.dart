@@ -299,6 +299,14 @@ class ProductDetailScreen extends ConsumerWidget {
                                   product.usageType ?? 'treatment',
                                   CustomColors.purple,
                                 ),
+                                context.horizontalSpace(12),
+                                _buildBadge(
+                                  context,
+                                  'LOT TRACKING: ${(product.enforceLotTracking ?? false) ? 'YES' : 'NO'}',
+                                  (product.enforceLotTracking ?? false)
+                                      ? CustomColors.purple
+                                      : CustomColors.grey,
+                                ),
                                 if (isLowStock) ...[
                                   context.horizontalSpace(12),
                                   _buildBadge(
@@ -633,21 +641,23 @@ class ProductDetailScreen extends ConsumerWidget {
                                                   ),
                                                 ],
                                               ),
-                                              IconButton(
-                                                tooltip: 'View Lot Items',
-                                                icon: const Icon(
-                                                  Icons.visibility_outlined,
-                                                  color: CustomColors.purple,
+                                              if (product.enforceLotTracking ?? false)
+                                                SizedBox(
+                                                  width: context.w(100),
+                                                  child: CustomPrimaryButton(
+                                                    height: context.h(32),
+                                                    padding: EdgeInsets.zero,
+                                                    label: 'Items',
+                                                    onTap: () async {
+                                                      final success = await ref
+                                                          .read(productViewModelProvider.notifier)
+                                                          .fetchLotItems(lotId: lot.id, page: 1);
+                                                      if (success && context.mounted) {
+                                                        context.push(LotItemsScreen.routeName);
+                                                      }
+                                                    },
+                                                  ),
                                                 ),
-                                                onPressed: () async {
-                                                  final success = await ref
-                                                      .read(productViewModelProvider.notifier)
-                                                      .fetchLotItems(lotId: lot.id, page: 1);
-                                                  if (success && context.mounted) {
-                                                    context.push(LotItemsScreen.routeName);
-                                                  }
-                                                },
-                                              ),
                                             ],
                                           ),
                                           context.verticalSpace(12),
