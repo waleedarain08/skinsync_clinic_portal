@@ -55,7 +55,7 @@ class _MangeDoctorsInjectorsScreenState
       return query.isEmpty ||
           (doc.name?.toLowerCase().contains(query) ?? false) ||
           (doc.email?.toLowerCase().contains(query) ?? false) ||
-          (doc.role?.name.toLowerCase().contains(query) ?? false);
+          (doc.role?.toLowerCase().contains(query) ?? false);
     }).toList();
 
     return GradientScaffold(
@@ -106,8 +106,8 @@ class _MangeDoctorsInjectorsScreenState
 
   Widget _buildQuickInsights(DoctorState state) {
     final totalPractitioners = state.doctors.length;
-    final activeInjectors = state.doctors.where((d) => d.role?.name.toLowerCase().contains('injector') ?? false).length;
-    final activeMDs = state.doctors.where((d) => d.role?.name.toLowerCase().contains('md') ?? d.role?.name.toLowerCase().contains('doctor') ?? false).length;
+    final activeInjectors = state.doctors.where((d) => d.role?.toLowerCase().contains('injector') ?? false).length;
+    final activeMDs = state.doctors.where((d) => d.role?.toLowerCase().contains('md') ?? d.role?.toLowerCase().contains('doctor') ?? false).length;
     final assignedTreatments = state.doctors.fold<int>(0, (sum, d) => sum + (d.treatments?.length ?? 0));
 
     return Row(
@@ -272,7 +272,7 @@ class _MangeDoctorsInjectorsScreenState
                 children: [
                   _practitionerNameCell(d),
                   _tableTextCell(
-                    d.role?.name ?? 'N/A',
+                    d.role ?? 'N/A',
                     style: context.fonts.black14w600,
                   ),
                   _tableTextCell(

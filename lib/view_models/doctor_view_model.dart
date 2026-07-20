@@ -13,7 +13,6 @@ import '../services/media_service.dart';
 
 import '../models/responses/register_doctor_response.dart';
 import '../services/doctor_service.dart';
-import '../utils/enums.dart';
 import 'base_view_model.dart';
 
 final doctorProvider =
@@ -35,7 +34,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     );
   }
 
-  void changeRole(DoctorRole? role) {
+  void changeRole(String? role) {
     if (state.role == role) {
       return;
     }
@@ -219,7 +218,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
 
 class DoctorState {
   final bool loading;
-  final DoctorRole? role;
+  final String? role;
   final List<TreatmentModel> treatments;
   final List<Doctor> doctors;
   final Doctor? selectedDoctor;
@@ -244,7 +243,7 @@ class DoctorState {
 
   DoctorState copyWith({
     bool? loading,
-    DoctorRole? role,
+    String? role,
     List<TreatmentModel>? treatments,
     List<Doctor>? doctors,
     Doctor? selectedDoctor,
@@ -270,7 +269,7 @@ class DoctorState {
 
   DoctorState copyWithNull({
     bool? loading,
-    DoctorRole? role,
+    String? role,
     List<TreatmentModel>? treatments,
     List<Doctor>? doctors,
     bool? success,

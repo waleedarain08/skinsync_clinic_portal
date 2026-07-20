@@ -9,12 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/requests/register_doctor_request.dart';
 import '../models/responses/register_doctor_response.dart';
 import '../models/treatment_model.dart';
-import '../utils/enums.dart';
+import '../utils/list_utils.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
 import '../view_models/doctor_view_model.dart';
+import '../view_models/provider_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../widgets/app_loader.dart';
 import '../widgets/build_textfield.dart';
@@ -50,6 +51,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
       ref.read(treatmentViewModelProvider.notifier).getTreatments();
 
       final doctor = widget.doctor;
@@ -61,7 +63,9 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
         _phoneController.text = doctor.phone ?? '';
 
         ref.read(doctorProvider.notifier).changeRole(doctor.role);
-        ref.read(doctorProvider.notifier).setCountry(CountryCode.fromDialCode(doctor.cc!));
+        ref
+            .read(doctorProvider.notifier)
+            .setCountry(CountryCode.fromDialCode(doctor.cc!));
         // ✅ Convert properly
         final convertedTreatments =
             doctor.treatments?.map((t) {
@@ -136,9 +140,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildFormContainer(),
-              ],
+              children: [_buildFormContainer()],
             ),
           ),
         ),
@@ -242,19 +244,27 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                       final role = ref.watch(
                         doctorProvider.select((state) => state.role),
                       );
-                      final list = List.of(DoctorRole.values);
-                      list.remove(DoctorRole.owner);
+                      final providerRoles =
+                          ref.watch(
+                            providerRoleViewModelProvider.select(
+                              (state) => state.providerRoles,
+                            ),
+                          ) ??
+                          [];
+
                       return IgnorePointer(
                         ignoring: isEditing,
                         child: _buildDropdownField(
-                          items: list,
-                          value: role,
-                          onChanged: (role) => ref
+                          items: providerRoles,
+                          value: providerRoles.firstWhereOrNull(
+                            (r) => r.name == role,
+                          ),
+                          onChanged: (selectedRole) => ref
                               .read(doctorProvider.notifier)
-                              .changeRole(role),
+                              .changeRole(selectedRole?.name ?? ""),
                           label: 'Select Role',
                           hintText: 'Select Role',
-                          builder: (role) => Text(role.name.capitalize),
+                          builder: (r) => Text(r.name?.capitalize ?? ""),
                         ),
                       );
                     },
@@ -306,7 +316,6 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     controller: _feeController,
                     keyboardType: TextInputType.number,
                     validator: Validators.empty,
-                 
                   ),
                   SizedBox(height: context.h(16)),
                   _buildTreatmentChips(),

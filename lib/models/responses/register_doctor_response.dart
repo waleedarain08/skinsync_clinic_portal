@@ -1,4 +1,3 @@
-import '../../utils/enums.dart';
 import '../requests/register_doctor_request.dart';
 import 'base_response_model.dart';
 
@@ -22,7 +21,7 @@ class Doctor {
   final int? clinicId;
   final String? email;
   final String? name;
-  final DoctorRole? role;
+  final String? role;
   final String? password;
   final String? status;
   final String? image;
@@ -55,7 +54,7 @@ class Doctor {
     clinicId: json["clinic_id"],
     email: json["email"],
     name: json["name"],
-    role: json["role"] != null ? DoctorRole.values.byName(json["role"]) : null,
+    role: json["role"] != null ? json["role"] : null,
     password: json["password"],
     status: json["status"],
     image: json["image"],

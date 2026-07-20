@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../utils/theme.dart';
+import '../../view_models/provider_view_model.dart';
 
-class AuthorizedRolesWidget extends ConsumerWidget {
+class AuthorizedRolesWidget extends ConsumerStatefulWidget {
   final String title;
   final String description;
   final List<String> selectedRoles;
@@ -17,6 +18,12 @@ class AuthorizedRolesWidget extends ConsumerWidget {
     required this.onRoleToggled,
   });
 
+  @override
+  ConsumerState<AuthorizedRolesWidget> createState() =>
+      _AuthorizedRolesWidgetState();
+}
+
+class _AuthorizedRolesWidgetState extends ConsumerState<AuthorizedRolesWidget> {
   Widget _sectionTitle(BuildContext context, String title, {double? fontSize}) {
     return Text(
       title,
@@ -68,37 +75,57 @@ class AuthorizedRolesWidget extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final List<String> availableRoles = [
-      'Injector',
-      'Aesthetician',
-      'MD',
-      'Nurse',
-      'Specialist',
-    ];
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref
+          .read(providerRoleViewModelProvider.notifier)
+          .fetchProviderRoles();
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final List<String> availableRoles = [
+    //   'Injector',
+    //   'Aesthetician',
+    //   'MD',
+    //   'Nurse',
+    //   'Specialist',
+    // ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle(context, title),
+        _sectionTitle(context, widget.title),
         context.verticalSpace(8),
-        Text(
-          description,
-          style: context.fonts.grey14w400,
-        ),
+        Text(widget.description, style: context.fonts.grey14w400),
         context.verticalSpace(24),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: availableRoles.map((role) {
-            final isSelected = selectedRoles.contains(role);
-            return _roleChip(
-              context,
-              role,
-              isSelected,
-              () => onRoleToggled(role),
+        Consumer(
+          builder: (context, ref, _) {
+            final roles =
+                ref.watch(providerRoleViewModelProvider).providerRoles ?? [];
+
+            if (roles.isEmpty) {
+              return Text(
+                'No provider roles available.',
+                style: context.fonts.grey13w500,
+              );
+            }
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: roles.map((role) {
+                final isSelected = widget.selectedRoles.contains(role.name);
+                return _roleChip(
+                  context,
+                  role.name ?? "",
+                  isSelected,
+                  () => widget.onRoleToggled(role.name ?? ""),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
       ],
     );

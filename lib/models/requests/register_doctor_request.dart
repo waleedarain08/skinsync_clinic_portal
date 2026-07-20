@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/enums.dart';
 import '../treatment_model.dart';
 import 'base_request.dart';
 
 class RegisterDoctorRequest extends BaseRequest {
-  final DoctorRole role;
+  final String role;
   final String name;
   final String? image;
   final String specialization;
@@ -28,7 +27,7 @@ class RegisterDoctorRequest extends BaseRequest {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'role': role.name,
+      'role': role,
       'name': name,
       'image': image,
       'specialization': specialization,

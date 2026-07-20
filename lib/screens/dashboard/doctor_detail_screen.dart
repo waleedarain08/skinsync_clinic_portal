@@ -66,7 +66,7 @@ class DoctorDetailScreen extends StatelessWidget {
                             ),
                             context.verticalSpace(4),
                             Text(
-                              doctor.role?.name.capitalize ?? 'N/A',
+                              doctor.role?.capitalize ?? 'N/A',
                               style: context.fonts.grey14w400,
                             ),
                             context.verticalSpace(4),

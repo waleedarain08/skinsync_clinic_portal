@@ -361,7 +361,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
               // label: 'Deduction Timing',
               hint: 'Select Timing',
               value: entry.deductionTiming,
-              items: const ['On_Completion', 'Manual', 'Post_Confirmation'],
+              items: const ['On_Completion', 'Manual', 'Post_Confirmation',"before_treatment"],
               builder: (val) => Text(
                 val.replaceAll('_', ' '),
                 style: CustomFonts.black14w400,

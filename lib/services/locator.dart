@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../repositories/auth_repository.dart';
 import '../repositories/product_repository.dart';
+import '../repositories/provider_role_repository.dart';
 import '../repositories/session_repository.dart';
 import '../repositories/treatment_repository.dart';
 import 'api_base_helper.dart';
@@ -11,6 +12,7 @@ import 'doctor_service.dart';
 import '../view_models/forms_controller.dart';
 import 'media_service.dart';
 import 'product_services.dart';
+import 'provider_roles_service.dart';
 import 'role_service.dart';
 import 'session_service.dart';
 import 'storage_service.dart';
@@ -42,6 +44,9 @@ Future<void> initializeServices() async {
   );
   locator.registerLazySingleton<ProductRepository>(
     () => ProductServices(api: apiBaseHelper),
+  );
+   locator.registerLazySingleton<ProviderRoleRepository>(
+    () => ProviderRolesService(api: apiBaseHelper),
   );
   locator.registerLazySingleton(() => MediaService());
   locator.registerLazySingleton(() => DoctorService());

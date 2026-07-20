@@ -1,4 +1,3 @@
-
 import 'base_response_model.dart';
 
 class SessionDetailResponse extends BaseApiResponseModel<SessionDetailDto> {
@@ -10,7 +9,9 @@ class SessionDetailResponse extends BaseApiResponseModel<SessionDetailDto> {
 
   factory SessionDetailResponse.fromJson(Map<String, dynamic> json) {
     return SessionDetailResponse(
-      data: json['data'] != null ? SessionDetailDto.fromJson(json['data']) : null,
+      data: json['data'] != null
+          ? SessionDetailDto.fromJson(json['data'])
+          : null,
       success: json['is_success'] as bool? ?? false,
       message: json['message'] as String? ?? '',
     );
@@ -125,21 +126,24 @@ class SessionDetailDto {
       status: json['status'] as String? ?? 'Active',
       currentStep: json['current_step'] as int? ?? 1,
       isCompleted: json['is_completed'] as bool? ?? false,
-      productUsages: (json['product_usages'] as List?)
+      productUsages:
+          (json['billable_materials'] as List?)
               ?.map((e) => SessionProductUsageDto.fromJson(e))
               .toList() ??
           [],
       baseDuration: json['base_duration'] as int? ?? 0,
       prepTime: json['prep_time'] as int? ?? 0,
       cleanupTime: json['cleanup_time'] as int? ?? 0,
-      productDurations: (json['product_durations'] as List?)
+      productDurations:
+          (json['product_durations'] as List?)
               ?.map((e) => SessionProductDurationDto.fromJson(e))
               .toList() ??
           [],
       allowClinicOverride: json['allow_clinic_override'] as bool? ?? false,
       allowProviderOverride: json['allow_provider_override'] as bool? ?? false,
       onlineBookable: json['online_bookable'] as bool? ?? false,
-      manualApprovalRequired: json['manual_approval_required'] as bool? ?? false,
+      manualApprovalRequired:
+          json['manual_approval_required'] as bool? ?? false,
       minimumBookingNotice: json['minimum_booking_notice'] as int? ?? 0,
       maximumDaysInAdvance: json['maximum_days_in_advance'] as int? ?? 0,
       calculatedTotalDuration: json['calculated_total_duration'] as int? ?? 0,
@@ -148,40 +152,51 @@ class SessionDetailDto {
       basePrice: (json['base_price'] as num?)?.toDouble() ?? 0.0,
       isFixedPrice: json['is_fixed_price'] as bool? ?? false,
       fixedPrice: (json['fixed_price'] as num?)?.toDouble() ?? 0.0,
-      unitPriceOverrides: (json['unit_price_overrides'] as List?)
+      unitPriceOverrides:
+          (json['unit_price_overrides'] as List?)
               ?.map((e) => SessionUnitPriceOverrideDto.fromJson(e))
               .toList() ??
           [],
       clinicalProtocolPdf: json['clinical_protocol_pdf'] != null
           ? SessionAttachmentDto.fromJson(json['clinical_protocol_pdf'])
           : null,
-      preTreatmentInstructions: json['pre_treatment_instructions'] as String? ?? '',
-      preTreatmentAttachments: (json['pre_treatment_attachments'] as List?)
+      preTreatmentInstructions:
+          json['pre_treatment_instructions'] as String? ?? '',
+      preTreatmentAttachments:
+          (json['pre_treatment_attachments'] as List?)
               ?.map((e) => SessionAttachmentDto.fromJson(e))
               .toList() ??
           [],
       postTreatmentInstructions: json['post_treatment_instructions'] ?? '',
-      postTreatmentAttachments: (json['post_treatment_attachments'] as List?)
+      postTreatmentAttachments:
+          (json['post_treatment_attachments'] as List?)
               ?.map((e) => SessionAttachmentDto.fromJson(e))
               .toList() ??
           [],
-      requirePostTreatmentPhotos: json['require_post_treatment_photos'] as bool? ?? false,
-      photoMilestone: (json['photo_milestone'] as List?)
+      requirePostTreatmentPhotos:
+          json['require_post_treatment_photos'] as bool? ?? false,
+      photoMilestone:
+          (json['photo_milestone'] as List?)
               ?.map((e) => PhotoMilestoneDto.fromJson(e))
               .toList() ??
           [],
-      preNotifications: (json['pre_notifications'] as List?)
+      preNotifications:
+          (json['pre_notifications'] as List?)
               ?.map((e) => SessionNotificationDto.fromJson(e))
               .toList() ??
           [],
-      postNotifications: (json['post_notifications'] as List?)
+      postNotifications:
+          (json['post_notifications'] as List?)
               ?.map((e) => SessionNotificationDto.fromJson(e))
               .toList() ??
           [],
       downtimeLevel: json['downtime_level'] as String? ?? 'none',
       downtimeDays: json['downtime_days'] as int? ?? 0,
-      allowedRoles: (json['allowed_roles'] as List?)?.map((e) => e as String).toList() ?? [],
-      followUps: (json['follow_ups'] as List?)
+      allowedRoles:
+          (json['allowed_roles'] as List?)?.map((e) => e as String).toList() ??
+          [],
+      followUps:
+          (json['follow_ups'] as List?)
               ?.map((e) => SessionFollowUpDto.fromJson(e))
               .toList() ??
           [],
@@ -191,8 +206,15 @@ class SessionDetailDto {
       selectedUnitTypeId: json['selected_unit_type_id'] as int?,
       minimumUnits: (json['minimum_units'] as num?)?.toDouble() ?? 0.0,
       maximumUnits: (json['maximum_units'] as num?)?.toDouble() ?? 0.0,
-      otherMaterials: (json['other_materials'] as List?)
-              ?.map((e) => e as int)
+      otherMaterials:
+          (json['other_materials'] as List?)
+              ?.map(
+                (e) => e is int
+                    ? e
+                    : ((e as Map<String, dynamic>)['product_id'] ??
+                              (e as Map<String, dynamic>)['id'])
+                          as int,
+              )
               .toList() ??
           [],
     );
@@ -282,11 +304,7 @@ class SessionAttachmentDto {
   final String url;
   final String? type;
 
-  SessionAttachmentDto({
-    required this.name,
-    required this.url,
-    this.type,
-  });
+  SessionAttachmentDto({required this.name, required this.url, this.type});
 
   factory SessionAttachmentDto.fromJson(Map<String, dynamic> json) {
     return SessionAttachmentDto(
@@ -327,10 +345,7 @@ class PhotoMilestoneDto {
   final int numberOfDays;
   final int requiredPhotos;
 
-  PhotoMilestoneDto({
-    required this.numberOfDays,
-    required this.requiredPhotos,
-  });
+  PhotoMilestoneDto({required this.numberOfDays, required this.requiredPhotos});
 
   factory PhotoMilestoneDto.fromJson(Map<String, dynamic> json) {
     return PhotoMilestoneDto(

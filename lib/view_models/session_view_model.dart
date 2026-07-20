@@ -267,8 +267,11 @@ class SessionState {
       isFollowUpRequired: isFollowUpRequired ?? this.isFollowUpRequired,
       sessionId: sessionId ?? this.sessionId,
       materialsRoles: materialsRoles ?? this.materialsRoles,
+      schedulingRoles: schedulingRoles?? this.schedulingRoles,
+      pricingRoles: pricingRoles?? this.pricingRoles,
       selectedUnitTypeId: selectedUnitTypeId ?? this.selectedUnitTypeId,
       selectedUnitTypeName: selectedUnitTypeName ?? this.selectedUnitTypeName,
+
 
     );
   }
