@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-
 import '../../utils/theme.dart';
 import '../custom_dropdown_widget.dart';
+import '../custom_primary_button.dart';
+import 'standard_dialog.dart';
 
 class AddNoteDialog extends StatefulWidget {
   const AddNoteDialog({super.key});
@@ -26,93 +27,44 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: MediaQuery.sizeOf(context).width * 0.3,
-        padding: EdgeInsets.symmetric(
-          vertical: context.h(20),
-          horizontal: context.w(20),
-        ),
-        decoration: BoxDecoration(
-          color: CustomColors.white,
-          borderRadius: BorderRadius.circular(context.r(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    height: context.w(32),
-                    width: context.w(32),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: CustomColors.border),
-                    ),
-                    child: Icon(Icons.close, size: context.r(18)),
-                  ),
-                ),
-              ],
+    return StandardDialog(
+      title: "Add Note",
+      width: 520.w,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Note Type', style: context.fonts.black14w600),
+          context.verticalSpace(8),
+          CustomDropdown(
+            hint: 'All note',
+            value: _selectedNote,
+            items: const ['All note', 'Note 1', 'Note 2', 'Note 3'],
+            height: 48.h,
+            onChanged: (value) =>
+                setState(() => _selectedNote = value ?? 'All note'),
+          ),
+          context.verticalSpace(20),
+          Text('Note', style: context.fonts.black14w600),
+          context.verticalSpace(8),
+          TextField(
+            controller: _noteController,
+            maxLines: 5,
+            style: context.fonts.black14w400,
+            decoration: AppDecorations.input(
+              context,
+              hint: 'Write your note here...',
             ),
-            Text('Note Type', style: CustomFonts.black18w600),
-            SizedBox(height: context.h(8)),
-            CustomDropdown(
-              hint: 'All note',
-              value: _selectedNote,
-              items: const ['All note', 'Note 1', 'Note 2', 'Note 3'],
-              height: context.h(42),
-              onChanged: (value) =>
-                  setState(() => _selectedNote = value ?? 'All note'),
-            ),
-            SizedBox(height: context.h(16)),
-            Text('Note', style: CustomFonts.black18w600),
-            SizedBox(height: context.h(8)),
-
-            /// Note TextField
-            TextField(
-              controller: _noteController,
-              maxLines: 5,
-              style: CustomFonts.black14w400,
-              decoration: InputDecoration(
-                hintText: 'Write your note here...',
-                hintStyle: CustomFonts.grey14w400,
-                filled: true,
-                fillColor: CustomColors.softGrey,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: EdgeInsets.all(context.r(14)),
-              ),
-            ),
-            SizedBox(height: context.h(20)),
-
-            /// Save Button
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: context.h(16)),
-                decoration: BoxDecoration(
-                  color: CustomColors.black,
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                ),
-                child: Center(
-                  child: Text('Save', style: CustomFonts.white14w600),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+      actions: [
+        CustomPrimaryButton(
+          onTap: () => Navigator.pop(context),
+          label: 'Save Note',
+          width: 140.w,
+        ),
+      ],
     );
   }
 }
