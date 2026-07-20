@@ -2,62 +2,61 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../custom_primary_button.dart';
 import 'patient_follow_up_appointment.dart';
+
 import '../../utils/theme.dart';
-import 'standard_dialog.dart';
 
 class StatusUpdateDailog extends StatelessWidget {
   const StatusUpdateDailog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StandardDialog(
-      title: "", // Success state uses centered content
-      showCloseButton: true,
-      width: 440.w,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 80.w,
-            height: 80.w,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: CustomColors.whiteGrey,
-            ),
-            child: Icon(
-              Icons.check_circle_rounded,
-              color: CustomColors.green,
-              size: 48.sp,
-            ),
-          ),
-          context.verticalSpace(24),
-          Text(
-            "Status Updated Successfully",
-            style: context.fonts.black20w600,
-            textAlign: TextAlign.center,
-          ),
-          context.verticalSpace(12),
-          Text(
-            "The appointment status has been updated and the patient has been notified.",
-            style: context.fonts.grey14w400,
-            textAlign: TextAlign.center,
-          ),
-          context.verticalSpace(8),
-        ],
-      ),
-      actions: [
-        CustomPrimaryButton(
-          onTap: () {
-            context.pop();
-            showDialog(
-              context: context,
-              builder: (context) => const PatientFollowUpAppointment(),
-            );
-          },
-          label: "OK",
-          width: double.infinity,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
+      child: Container(
+        width: context.w(354),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
         ),
-      ],
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Icon(
+                Icons.check_circle_rounded,
+                color: CustomColors.green,
+                size: context.r(70),
+              ),
+            ),
+            SizedBox(height: context.h(30)),
+            Center(
+              child: Text(
+                "Status has been updated successfully",
+                textAlign: TextAlign.center,
+                style: CustomFonts.grey18w400,
+              ),
+            ),
+            SizedBox(height: context.h(30)),
+            CustomPrimaryButton(
+              onTap: () {
+                context.pop();
+                showDialog(
+                  context: context,
+                  builder: (context) => const PatientFollowUpAppointment(),
+                );
+              },
+              label: "OK",
+              width: double.infinity,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

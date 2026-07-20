@@ -1,45 +1,45 @@
 import 'dart:developer';
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../view_models/doctor_view_model.dart';
+
 import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
 import '../../utils/extentions.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
-import 'standard_dialog.dart';
 
 class SelectTreatmentDialog extends ConsumerStatefulWidget {
   const SelectTreatmentDialog({super.key});
 
   @override
   ConsumerState<SelectTreatmentDialog> createState() =>
-      _SelectTreatmentDialogState();
+      _AddTreatmentDialogState();
 }
 
-class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
+class _AddTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(treatmentViewModelProvider.notifier)
-          .getTreatments(isRefresh: true)
-          .then((_) {
-            final treatments = ref.read(treatmentViewModelProvider).treatments;
-            setState(() {
-              _loadingTreatments = false;
-              _treatments = treatments;
-            });
-          });
+      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true).then((_) {
+        final treatments = ref.read(treatmentViewModelProvider).treatments;
+        setState(() {
+          _loadingTreatments = false;
+          _treatments = treatments;
+        });
+      });
     });
+
     super.initState();
   }
 
   bool _loadingTreatments = true;
+
   TreatmentModel? _selectedTreatment;
   late List<TreatmentModel> _treatments;
   List<SideAreaModel> _sideAreas = [];
@@ -47,22 +47,41 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return StandardDialog(
-      title: "Add Doctor Treatment",
-      width: 600.w,
-      content: SingleChildScrollView(
+    return Dialog(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: context.w(50),
+        vertical: context.h(50),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.r(12)),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(context.r(24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Select Treatment", style: context.fonts.black14w600),
-            context.verticalSpace(8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Add Doctor Treatment', style: CustomFonts.black20w600),
+                IconButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  icon: const Icon(Icons.close, color: CustomColors.black),
+                ),
+              ],
+            ),
+            SizedBox(height: context.h(40)),
+
+            Text("Select Treatment", style: CustomFonts.black14w500),
+            SizedBox(height: context.h(8)),
             _loadingTreatments
                 ? Container(
-                    height: 48.h,
+                    height: context.h(48),
                     decoration: BoxDecoration(
                       color: CustomColors.softGrey,
-                      borderRadius: context.appBorderRadius(all: 8),
+                      borderRadius: BorderRadius.circular(context.r(8)),
                     ),
                   ).withShimmer()
                 : DropdownButtonHideUnderline(
@@ -70,66 +89,63 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                       isExpanded: true,
                       hint: Text(
                         "Select Treatment",
-                        style: context.fonts.grey14w400,
+                        style: TextStyle(
+                          color: CustomColors.lightGrey,
+                          fontSize: context.sp(14),
+                        ),
                       ),
                       value: _selectedTreatment,
                       items: _treatments
                           .map(
                             (item) => DropdownMenuItem(
                               value: item,
-                              child: Text(
-                                item.name ?? "N/A",
-                                style: context.fonts.black14w400,
-                              ),
+                              child: Text(item.name ?? "N/A"),
                             ),
                           )
                           .toList(),
                       onChanged: (value) {
-                        if (value == null || value == _selectedTreatment)
+                        log('VALUE: ${value?.description}');
+                        if (value == null || value == _selectedTreatment) {
                           return;
+                        }
+
                         setState(() {
                           _selectedTreatment = value;
-                          _sideAreas = value.sideAreas ?? [];
-                          _selectedAreas = [];
                         });
+                        _sideAreas = _selectedTreatment!.sideAreas ?? [];
+                        _selectedAreas = [];
+                        setState(() {});
                       },
                       buttonStyleData: ButtonStyleData(
-                        height: 48.h,
-                        padding: context.appEdgeInsets(horizontal: 16),
+                        height: context.h(48),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(16),
+                        ),
                         decoration: BoxDecoration(
-                          borderRadius: context.appBorderRadius(all: 8),
+                          borderRadius: BorderRadius.circular(context.r(8)),
                           border: Border.all(color: CustomColors.border),
                         ),
                       ),
                     ),
                   ),
+            SizedBox(height: context.h(30)),
             if (_selectedTreatment != null && _sideAreas.isNotEmpty) ...[
-              context.verticalSpace(24),
-              Text("Select Areas", style: context.fonts.black14w600),
-              context.verticalSpace(12),
+              Text("Select Areas", style: CustomFonts.black14w500),
+              SizedBox(height: context.h(16)),
               Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
+                spacing: context.w(8),
+                runSpacing: context.h(8),
                 children: _sideAreas.map((area) {
                   final isSelected = _selectedAreas.contains(area);
                   return ChoiceChip(
                     label: Text(area.name ?? "N/A"),
                     selected: isSelected,
-                    selectedColor: CustomColors.purple,
+                    selectedColor: CustomColors.black,
                     checkmarkColor: CustomColors.white,
-                    labelStyle: context.fonts.black14w500.copyWith(
-                      color: isSelected
-                          ? CustomColors.white
-                          : CustomColors.black,
-                    ),
-                    backgroundColor: CustomColors.whiteGrey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: context.appBorderRadius(all: 8),
-                      side: BorderSide(
-                        color: isSelected
-                            ? CustomColors.purple
-                            : CustomColors.border,
-                      ),
+                    labelStyle: TextStyle(
+                      color: isSelected ? CustomColors.white : CustomColors.black,
+                      fontSize: context.sp(14),
+                      fontWeight: FontWeight.w500,
                     ),
                     onSelected: (selected) {
                       setState(() {
@@ -143,41 +159,53 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                   );
                 }).toList(),
               ),
+              SizedBox(height: context.h(30)),
             ],
+            SizedBox(height: context.h(32)),
+            Row(
+              children: [
+                Expanded(
+                  child: CustomPrimaryButton(
+                    onTap: () {
+                      if (_loadingTreatments) {
+                        EasyLoading.showError('Please wait while we load');
+                        return;
+                      }
+                      if (_selectedTreatment == null) {
+                        EasyLoading.showError('Please select a treatment');
+                        return;
+                      }
+                      if (_selectedTreatment!.isArea == true &&
+                          _selectedAreas.isEmpty) {
+                        EasyLoading.showError(
+                          'Please select at least one area',
+                        );
+                        return;
+                      }
+                      ref
+                          .read(doctorProvider.notifier)
+                          .toggleSelectedTreatment(
+                            _selectedTreatment!.copyWith(
+                              sideAreas: _selectedAreas,
+                            ),
+                          );
+                      Navigator.pop(context);
+                    },
+                    label: 'Add Treatment',
+                  ),
+                ),
+                SizedBox(width: context.w(16)),
+                Expanded(
+                  child: CustomOutlinedButton(
+                    onTap: () => Navigator.of(context).pop(),
+                    label: 'Cancel',
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-      actions: [
-        CustomOutlinedButton(
-          onTap: () => Navigator.of(context).pop(),
-          label: 'Cancel',
-          width: 100.w,
-        ),
-        CustomPrimaryButton(
-          onTap: () {
-            if (_loadingTreatments) {
-              EasyLoading.showError('Please wait while we load');
-              return;
-            }
-            if (_selectedTreatment == null) {
-              EasyLoading.showError('Please select a treatment');
-              return;
-            }
-            if (_selectedTreatment!.isArea == true && _selectedAreas.isEmpty) {
-              EasyLoading.showError('Please select at least one area');
-              return;
-            }
-            ref
-                .read(doctorProvider.notifier)
-                .toggleSelectedTreatment(
-                  _selectedTreatment!.copyWith(sideAreas: _selectedAreas),
-                );
-            Navigator.pop(context);
-          },
-          label: 'Add Treatment',
-          width: 160.w,
-        ),
-      ],
     );
   }
 }

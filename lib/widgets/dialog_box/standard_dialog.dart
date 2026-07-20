@@ -3,86 +3,42 @@ import '../../utils/theme.dart';
 
 class StandardDialog extends StatelessWidget {
   final String title;
-  final double? width;
+  final double width;
   final Widget content;
-  final List<Widget>? actions;
-  final bool showCloseButton;
+  final List<Widget> actions;
 
   const StandardDialog({
     super.key,
     required this.title,
-    this.width,
+    required this.width,
     required this.content,
-    this.actions,
-    this.showCloseButton = true,
+    required this.actions,
   });
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: context.appEdgeInsets(horizontal: 20, vertical: 20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Container(
-        width: width ?? 520.w,
-        constraints: BoxConstraints(maxWidth: 700.w),
-        padding: context.appEdgeInsets(all: 24),
-        decoration: BoxDecoration(
-          color: CustomColors.white,
-          borderRadius: context.appBorderRadius(all: 16),
-          border: Border.all(color: CustomColors.border),
-          boxShadow: AppShadows.lg(context),
-        ),
+        width: width,
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: Text(title, style: context.fonts.black18w600)),
-                if (showCloseButton)
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    borderRadius: context.appBorderRadius(all: 8),
-                    child: Container(
-                      height: 32.w,
-                      width: 32.w,
-                      decoration: BoxDecoration(
-                        color: CustomColors.whiteGrey,
-                        borderRadius: context.appBorderRadius(all: 8),
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 18.sp,
-                        color: CustomColors.lightGrey,
-                      ),
-                    ),
-                  ),
-              ],
+            Text(
+              title,
+              style: context.fonts.black18w600,
             ),
-            context.verticalSpace(24),
-
-            /// Content
+            const SizedBox(height: 16),
             content,
-
-            /// Actions
-            if (actions != null && actions!.isNotEmpty) ...[
-              context.verticalSpace(24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: actions!
-                    .map(
-                      (action) => Padding(
-                        padding: EdgeInsets.only(
-                          left: action == actions!.first ? 0 : 12.w,
-                        ),
-                        child: action,
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: actions,
+            ),
           ],
         ),
       ),

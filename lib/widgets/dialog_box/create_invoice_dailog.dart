@@ -7,8 +7,8 @@ import '../../view_models/auth_view_model.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
 import 'appointment_ready_dailog.dart';
+
 import '../../utils/theme.dart';
-import 'standard_dialog.dart';
 
 class CreateInvoiceDialog extends StatefulWidget {
   final String invoiceNumber;
@@ -48,51 +48,84 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return StandardDialog(
-      title: 'Create Invoice',
-      width: 600.w,
-      content: SingleChildScrollView(
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.4,
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('#${widget.invoiceNumber}', style: context.fonts.grey13w500),
-            context.verticalSpace(16),
+            /// Header
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Create Invoice', style: CustomFonts.black20w600),
+                    SizedBox(height: context.h(4)),
+                    Text(
+                      '#${widget.invoiceNumber}',
+                      style: CustomFonts.grey14w400,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    height: context.w(36),
+                    width: context.w(36),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: CustomColors.border),
+                    ),
+                    child: Icon(Icons.close, size: context.r(18)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: context.h(20)),
 
             /// Search
             CupertinoSearchTextField(
-              style: context.fonts.black14w400,
-              backgroundColor: CustomColors.whiteGrey,
-              placeholderStyle: context.fonts.grey13w500,
-              padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
+              style: CustomFonts.black16w500,
+              backgroundColor: CustomColors.softGrey,
             ),
-            context.verticalSpace(20),
+            SizedBox(height: context.h(16)),
 
             /// Product List
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 300.h),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: _products.length,
-                separatorBuilder: (_, __) => context.verticalSpace(12),
-                itemBuilder: (context, index) =>
-                    _ProductTile(product: _products[index]),
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.28,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: _products
+                      .map((product) => _ProductTile(product: product))
+                      .toList(),
+                ),
               ),
             ),
 
-            context.verticalSpace(24),
-            const Divider(color: CustomColors.border),
-            context.verticalSpace(24),
+            Divider(height: context.h(28), color: CustomColors.border),
 
             /// Payment Summary
-            Text('Payment Summary', style: context.fonts.black16w600),
-            context.verticalSpace(12),
+            Text('Payment Summary', style: CustomFonts.black18w600),
+            SizedBox(height: context.h(12)),
             Container(
-              padding: context.appEdgeInsets(all: 16),
+              padding: EdgeInsets.all(context.w(16)),
               decoration: BoxDecoration(
-                borderRadius: context.appBorderRadius(all: 12),
+                borderRadius: BorderRadius.circular(context.r(12)),
                 border: Border.all(color: CustomColors.border),
-                color: CustomColors.whiteGrey,
               ),
               child: Column(
                 children: [
@@ -101,17 +134,13 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                     'AED ${_subtotal.toStringAsFixed(2)}',
                     isBold: false,
                   ),
-                  context.verticalSpace(12),
-                  const Divider(color: CustomColors.border),
-                  context.verticalSpace(12),
+                  Divider(height: context.h(20), color: CustomColors.border),
                   _summaryRow(
                     'Platform Fee',
                     'AED ${_platformFee.toStringAsFixed(2)}',
                     isBold: false,
                   ),
-                  context.verticalSpace(12),
-                  const Divider(color: CustomColors.border),
-                  context.verticalSpace(12),
+                  Divider(height: context.h(20), color: CustomColors.border),
                   _summaryRow(
                     'Total',
                     'AED ${_total.toStringAsFixed(2)}',
@@ -120,34 +149,43 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                 ],
               ),
             ),
+            SizedBox(height: context.h(20)),
+
+            /// Buttons
+            Row(
+              children: [
+                Consumer(
+                  builder: (context, ref, _) {
+                    return Expanded(
+                      child: CustomPrimaryButton(
+                        onTap: () {
+                          ref
+                              .read(authViewModelProvider.notifier)
+                              .navigateDailogIndexToNext(1);
+                          context.pop();
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => const AppointmentReadyDailog(),
+                          );
+                        },
+                        label: 'Send Invoice & Consent',
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(width: context.w(12)),
+                Expanded(
+                  child: CustomOutlinedButton(
+                    onTap: () => Navigator.pop(context),
+                    label: 'Cancel',
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-      actions: [
-        CustomOutlinedButton(
-          onTap: () => Navigator.pop(context),
-          label: 'Cancel',
-          width: 100.w,
-        ),
-        Consumer(
-          builder: (context, ref, _) {
-            return CustomPrimaryButton(
-              onTap: () {
-                ref
-                    .read(authViewModelProvider.notifier)
-                    .navigateDailogIndexToNext(1);
-                context.pop();
-                showDialog(
-                  context: context,
-                  builder: (context) => const AppointmentReadyDailog(),
-                );
-              },
-              label: 'Send Invoice & Consent',
-              width: 220.w,
-            );
-          },
-        ),
-      ],
     );
   }
 
@@ -157,13 +195,11 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
       children: [
         Text(
           label,
-          style: isBold ? context.fonts.black14w600 : context.fonts.grey13w500,
+          style: isBold ? CustomFonts.black16w600 : CustomFonts.grey14w400,
         ),
         Text(
           value,
-          style: isBold
-              ? context.fonts.black16w600.copyWith(color: CustomColors.purple)
-              : context.fonts.black14w600,
+          style: isBold ? CustomFonts.black16w600 : CustomFonts.grey14w400,
         ),
       ],
     );
@@ -178,37 +214,45 @@ class _ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: context.appEdgeInsets(all: 12),
+      margin: EdgeInsets.only(bottom: context.h(10)),
+      padding: EdgeInsets.all(context.w(12)),
       decoration: BoxDecoration(
-        borderRadius: context.appBorderRadius(all: 12),
+        borderRadius: BorderRadius.circular(context.r(12)),
         border: Border.all(color: CustomColors.border),
-        color: CustomColors.white,
       ),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: context.appBorderRadius(all: 8),
+            borderRadius: BorderRadius.circular(context.r(8)),
             child: Image.asset(
               product['image'],
-              width: 52.w,
-              height: 52.w,
+              width: context.w(52),
+              height: context.w(52),
               fit: BoxFit.cover,
             ),
           ),
-          context.horizontalSpace(12),
+          SizedBox(width: context.w(12)),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product['name'], style: context.fonts.black14w600),
+                Text(
+                  product['name'],
+                  style: CustomFonts.black16w600,
+                ),
+                SizedBox(height: context.h(4)),
                 Text(
                   'AED ${product['price'].toStringAsFixed(0)}',
-                  style: context.fonts.purple14w600,
+                  style: CustomFonts.purple14w600,
                 ),
               ],
             ),
           ),
-          Icon(Icons.qr_code_scanner, size: 24.sp, color: CustomColors.black),
+          Icon(
+            Icons.qr_code_scanner,
+            size: context.r(24),
+            color: CustomColors.black,
+          ),
         ],
       ),
     );

@@ -6,10 +6,11 @@ import '../../utils/enums.dart';
 import '../../utils/validators.dart';
 import '../../view_models/product_view_model.dart';
 import '../custom_primary_button.dart';
+
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../build_textfield.dart';
 import '../custom_dropdown_widget.dart';
-import 'standard_dialog.dart';
 
 class AddProductDialog extends ConsumerStatefulWidget {
   const AddProductDialog({super.key});
@@ -29,13 +30,16 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
   );
   final TextEditingController _discountedPriceController =
       TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   int _quantity = 1;
   DiscountType _discountType = DiscountType.per;
   final _formKey = GlobalKey<FormState>();
 
   void _onAddToInventory() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     if (_selectedProduct == null) {
       EasyLoading.showError('Please select a product!');
       return;
@@ -80,6 +84,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     }
 
     if (discountedPrice < 0) discountedPrice = 0;
+
     _discountedPriceController.text = discountedPrice.toStringAsFixed(2);
   }
 
@@ -95,168 +100,246 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     _priceController.dispose();
     _discountController.dispose();
     _discountedPriceController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen(productViewModelProvider, _listener);
-    final loading = ref.watch(
-      productViewModelProvider.select((s) => s.addProductLoading),
-    );
-
-    return StandardDialog(
-      title: "Add Inventory Item",
-      width: 520.w,
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Product", style: context.fonts.black14w600),
-              context.verticalSpace(8),
-              Consumer(
-                builder: (_, ref, _) {
-                  final catalog = ref.read(
-                    productViewModelProvider.select((s) => s.catalog),
-                  );
-                  return CustomDropdown<CatalogItem>(
-                    builder: (catalogItem) => Text(
-                      catalogItem.name ?? 'N/A',
-                      style: context.fonts.black14w500,
-                    ),
-                    hint: 'Select Product',
-                    value: _selectedProduct,
-                    items: catalog,
-                    onChanged: (newCatalog) =>
-                        setState(() => _selectedProduct = newCatalog),
-                  );
-                },
-              ),
-              context.verticalSpace(20),
-              Text("Quantity", style: context.fonts.black14w600),
-              context.verticalSpace(8),
-              Row(
-                children: [
-                  _buildQtyBtn(Icons.remove, _decrement),
-                  context.horizontalSpace(12),
-                  Expanded(
-                    child: TextFormField(
-                      style: context.fonts.black14w400,
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Quantity is required!';
-                        final quantity = int.tryParse(value);
-                        if (quantity == null || quantity <= 0)
-                          return 'Invalid quantity!';
-                        return null;
-                      },
-                      controller: _quantityController,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                      onChanged: (val) => _quantity = int.tryParse(val) ?? 1,
-                      decoration: AppDecorations.input(context, hint: "0"),
-                    ),
-                  ),
-                  context.horizontalSpace(12),
-                  _buildQtyBtn(Icons.add, _increment),
-                ],
-              ),
-              context.verticalSpace(20),
-              BuildTextField(
-                label: 'Original Price',
-                controller: _priceController,
-                validator: Validators.empty,
-                hintText: 'Enter original price',
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                onChanged: (_) => _calculateDiscountedPrice(),
-              ),
-              context.verticalSpace(20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: BuildTextField(
-                      label: 'Discount',
-                      controller: _discountController,
-                      hintText: 'Enter discount',
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      onChanged: (_) => _calculateDiscountedPrice(),
-                    ),
-                  ),
-                  context.horizontalSpace(12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Type", style: context.fonts.black14w600),
-                        context.verticalSpace(8),
-                        CustomDropdown<DiscountType>(
-                          builder: (type) => Text(
-                            type == DiscountType.per ? 'Percentage' : 'Flat',
-                            style: context.fonts.black14w500,
-                          ),
-                          hint: 'Select Type',
-                          value: _discountType,
-                          items: DiscountType.values,
-                          onChanged: (val) {
-                            if (val != null) {
-                              setState(() {
-                                _discountType = val;
-                                _calculateDiscountedPrice();
-                              });
-                            }
-                          },
+    final bool isLandscape = context.isLandscape;
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isLandscape ? context.w(100) : context.w(20),
+        vertical: context.h(40),
+      ),
+      child: Container(
+        width: isLandscape ? context.w(500) : double.infinity,
+        padding: EdgeInsets.all(context.r(24)),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Add Inventory Item", style: CustomFonts.black20w600),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: EdgeInsets.all(context.r(4)),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: CustomColors.border),
                         ),
-                      ],
+                        child: Icon(
+                          Icons.close,
+                          size: context.r(20),
+                          color: CustomColors.black,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                SizedBox(height: context.h(24)),
+
+                Text("Product", style: CustomFonts.black14w500),
+                SizedBox(height: context.h(10)),
+                Consumer(
+                  builder: (_, ref, _) {
+                    final catalog = ref.read(
+                      productViewModelProvider.select((s) => s.catalog),
+                    );
+                    return CustomDropdown<CatalogItem>(
+                      builder: (catalogItem) => Text(
+                        catalogItem.name ?? 'N/A',
+                        style: CustomFonts.black14w500,
+                      ),
+                      hint: 'Select Product',
+                      value: _selectedProduct,
+                      items: catalog,
+                      onChanged: (newCatalog) {
+                        setState(() {
+                          _selectedProduct = newCatalog;
+                        });
+                      },
+                    );
+                  },
+                ),
+                SizedBox(height: context.h(20)),
+                Text("Quantity", style: CustomFonts.black14w500),
+                SizedBox(height: context.h(10)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildQtyBtn(Icons.remove, _decrement),
+                    SizedBox(width: context.w(15)),
+                    Expanded(
+                      child: TextFormField(
+                        style: CustomFonts.black14w400,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Quantity is required!';
+                          }
+                          final quantity = int.tryParse(value);
+                          if (quantity == null || quantity <= 0) {
+                            return 'Invalid quantity!';
+                          }
+                          return null;
+                        },
+                        controller: _quantityController,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        onChanged: (val) {
+                          _quantity = int.tryParse(val) ?? 1;
+                        },
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: context.h(14),
+                          ),
+                          filled: true,
+                          fillColor: CustomColors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(context.r(8)),
+                            borderSide: const BorderSide(color: CustomColors.purple),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: context.w(15)),
+                    _buildQtyBtn(Icons.add, _increment),
+                  ],
+                ),
+
+                SizedBox(height: context.h(20)),
+                BuildTextField(
+                  label: 'Original Price',
+                  controller: _priceController,
+                  validator: Validators.empty,
+                  hintText: 'Enter original price',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
-                ],
-              ),
-              context.verticalSpace(20),
-              BuildTextField(
-                label: 'Discounted Price',
-                validator: (value) {
-                  final discountValue = num.tryParse(_discountController.text);
-                  if (discountValue == null || discountValue <= 0) return null;
-                  return Validators.empty(value);
-                },
-                controller: _discountedPriceController,
-                hintText: '0.00',
-                readOnly: true,
-              ),
-            ],
+                  onChanged: (_) => _calculateDiscountedPrice(),
+                ),
+
+                SizedBox(height: context.h(20)),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: BuildTextField(
+                        label: 'Discount',
+                        controller: _discountController,
+                        hintText: 'Enter discount',
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        onChanged: (_) => _calculateDiscountedPrice(),
+                      ),
+                    ),
+                    SizedBox(width: context.w(15)),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Type", style: CustomFonts.black14w500),
+                          SizedBox(height: context.h(10)),
+                          CustomDropdown<DiscountType>(
+                            builder: (type) => Text(
+                              switch (type) {
+                                DiscountType.per => 'Percentage',
+                                DiscountType.flat => 'Flat',
+                              },
+                              style: CustomFonts.black14w500,
+                            ),
+                            hint: 'Select Type',
+                            value: _discountType,
+                            items: DiscountType.values,
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _discountType = val;
+                                  _calculateDiscountedPrice();
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: context.h(20)),
+                BuildTextField(
+                  label: 'Discounted Price',
+                  validator: (value) {
+                    final discountValue = num.tryParse(
+                      _discountController.text,
+                    );
+                    if (discountValue == null || discountValue <= 0) {
+                      return null;
+                    }
+                    return Validators.empty(value);
+                  },
+                  controller: _discountedPriceController,
+                  hintText: '0.00',
+                  readOnly: true,
+                ),
+
+                SizedBox(height: context.h(32)),
+                Consumer(
+                  builder: (_, ref, _) {
+                    final loading = ref.watch(
+                      productViewModelProvider.select((s) => s.addProductLoading),
+                    );
+                    return CustomPrimaryButton(
+                      onTap: _onAddToInventory,
+                      label: "Add to Inventory",
+                      isLoading: loading,
+                      width: double.infinity,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      actions: [
-        CustomPrimaryButton(
-          label: loading ? "Adding..." : "Add to Inventory",
-          onTap: loading ? null : _onAddToInventory,
-          width: 180.w,
-        ),
-      ],
     );
   }
 
   Widget _buildQtyBtn(IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: context.appBorderRadius(all: 8),
+      borderRadius: BorderRadius.circular(context.r(8)),
       child: Container(
-        height: 48.h,
-        width: 48.h,
+        height: context.h(48),
+        width: context.h(48),
         decoration: BoxDecoration(
           border: Border.all(color: CustomColors.border),
-          borderRadius: context.appBorderRadius(all: 8),
+          borderRadius: BorderRadius.circular(context.r(8)),
+          color: CustomColors.white,
         ),
-        child: Icon(icon, color: CustomColors.black, size: 20.sp),
+        child: Icon(icon, size: context.r(20), color: CustomColors.black),
       ),
     );
   }

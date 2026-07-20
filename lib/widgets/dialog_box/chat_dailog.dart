@@ -1,138 +1,170 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../utils/assets.dart';
+
 import '../../utils/theme.dart';
-import 'standard_dialog.dart';
 
 class ChatDailog extends StatelessWidget {
   const ChatDailog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StandardDialog(
-      title: "Chat",
-      width: 752.w,
-      content: SizedBox(
-        height: 600.h,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: context.w(16)),
+      child: Container(
+        width: context.w(752),
+        padding: EdgeInsets.symmetric(
+          vertical: context.h(20),
+          horizontal: context.w(20),
+        ),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(24)),
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            /// Header
             Row(
               children: [
                 ClipOval(
                   child: Image.asset(
                     PngAssets.person,
-                    height: 52.w,
-                    width: 52.w,
+                    height: context.w(52),
+                    width: context.w(52),
                   ),
                 ),
-                context.horizontalSpace(14),
+                SizedBox(width: context.w(14)),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Sarah Jhonson", style: context.fonts.black16w600),
-                    Text("Patient ID: 1", style: context.fonts.grey14w400),
+                    Text("Sarah Jhonson", style: CustomFonts.black16w600),
+                    Text("Patient ID: 1", style: CustomFonts.grey14w400),
                   ],
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    height: context.w(32),
+                    width: context.w(32),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: CustomColors.border),
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: context.r(18),
+                      color: CustomColors.grey,
+                    ),
+                  ),
                 ),
               ],
             ),
-            context.verticalSpace(24),
+
+            SizedBox(height: context.h(35)),
             Center(
               child: Container(
-                padding: context.appEdgeInsets(horizontal: 22, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: context.appBorderRadius(all: 35),
-                  color: CustomColors.whiteGrey,
-                  border: Border.all(color: CustomColors.border),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.w(22),
+                  vertical: context.h(11),
                 ),
-                child: Text("Today", style: context.fonts.grey13w600),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(context.r(35)),
+                  color: CustomColors.softGrey,
+                ),
+                child: Text("Today", style: CustomFonts.grey13w600),
               ),
             ),
-            context.verticalSpace(24),
             Expanded(
-              child: ListView(
-                children: [
-                  _buildRightContainer(
-                    context: context,
-                    text: "The class was very interesting",
-                  ),
-                  _buildLeftContainer(
-                    context: context,
-                    text: "Thankyou so much looking forward to next class",
-                  ),
-                  _buildRightContainer(
-                    context: context,
-                    text: "Kindly share Notes for reading",
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Sarah Johnson, 11:35 PM",
-                          style: context.fonts.grey11w400,
-                        ),
-                        context.verticalSpace(4),
-                        Container(
-                          width: 292.w,
-                          padding: context.appEdgeInsets(
-                            horizontal: 18,
-                            vertical: 14,
-                          ),
-                          decoration: BoxDecoration(
-                            color: CustomColors.whiteGrey,
-                            borderRadius: context.appBorderRadius(
-                              topRight: 24,
-                              bottomRight: 24,
-                              bottomLeft: 24,
-                            ),
-                            border: Border.all(color: CustomColors.border),
-                          ),
-                          child: Row(
-                            children: [
-                              SvgPicture.asset(
-                                SvgAssets.arrowDownCircle,
-                                height: 36.w,
-                                width: 36.w,
-                              ),
-                              context.horizontalSpace(13),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "notes.pdf",
-                                    style: context.fonts.black14w600,
-                                  ),
-                                  Text(
-                                    "867 Kb",
-                                    style: context.fonts.grey11w400,
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              Icon(
-                                Icons.download_rounded,
-                                size: 24.sp,
-                                color: CustomColors.purple,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildRightContainer(
+                      context: context,
+                      text: "The class was very interesting",
                     ),
-                  ),
-                ],
+                    _buildLeftContainer(
+                      context: context,
+                      text: "Thankyou so much looking forward to next class",
+                    ),
+                    _buildRightContainer(
+                      context: context,
+                      text: "Kindly share Notes for reading",
+                    ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Sarah Johnson, 11:35 PM",
+                            style: CustomFonts.grey12w400,
+                          ),
+                          SizedBox(height: context.h(4)),
+                          Container(
+                            width: context.w(292),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.w(18),
+                              vertical: context.h(14),
+                            ),
+                            decoration: BoxDecoration(
+                              color: CustomColors.softGrey,
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(context.r(24)),
+                                bottomRight: Radius.circular(context.r(24)),
+                                bottomLeft: Radius.circular(context.r(24)),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  SvgAssets.arrowDownCircle,
+                                  height: context.w(36),
+                                  width: context.w(29),
+                                ),
+                                SizedBox(width: context.w(13)),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "notes.pdf",
+                                      style: CustomFonts.black14w600,
+                                    ),
+                                    Text(
+                                      "867 Kb",
+                                      style: CustomFonts.grey12w400,
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                SvgPicture.asset(
+                                  SvgAssets.arrowDownCircle,
+                                  height: context.w(31),
+                                  width: context.w(31),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            context.verticalSpace(24),
+            SizedBox(height: context.h(24)),
             TextField(
-              style: context.fonts.black14w400,
-              decoration: AppDecorations.input(
-                context,
-                hint: "Write a message...",
+              style: CustomFonts.black14w400,
+              decoration: InputDecoration(
+                hintText: "Write a message...",
+                hintStyle: CustomFonts.grey14w400,
                 suffixIcon: Padding(
-                  padding: context.appEdgeInsets(right: 8),
+                  padding: EdgeInsets.only(right: context.w(8)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -140,21 +172,39 @@ class ChatDailog extends StatelessWidget {
                         angle: pi / 2,
                         child: Icon(
                           Icons.attachment,
-                          size: 24.sp,
+                          size: context.r(24),
                           color: CustomColors.grey,
                         ),
                       ),
-                      context.horizontalSpace(8),
+                      SizedBox(width: context.w(8)),
                       Transform.rotate(
                         angle: -pi / 4,
                         child: Icon(
                           Icons.send_outlined,
-                          size: 20.sp,
+                          size: context.r(20),
                           color: CustomColors.purple,
                         ),
                       ),
                     ],
                   ),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: context.w(16),
+                  vertical: context.h(14),
+                ),
+                filled: true,
+                fillColor: CustomColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  borderSide: const BorderSide(color: CustomColors.purple),
                 ),
               ),
             ),
@@ -173,21 +223,24 @@ class ChatDailog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text("You, 11:30 PM", style: context.fonts.grey11w400),
-          context.verticalSpace(4),
+          Text("You, 11:30 PM", style: CustomFonts.grey12w400),
+          SizedBox(height: context.h(4)),
           Container(
-            padding: context.appEdgeInsets(horizontal: 18, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(18),
+              vertical: context.h(14),
+            ),
             decoration: BoxDecoration(
               color: CustomColors.lightPurple,
-              borderRadius: context.appBorderRadius(
-                topLeft: 24,
-                bottomRight: 24,
-                bottomLeft: 24,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(context.r(24)),
+                bottomRight: Radius.circular(context.r(24)),
+                bottomLeft: Radius.circular(context.r(24)),
               ),
             ),
-            child: Text(text, style: context.fonts.black14w500),
+            child: Text(text, style: CustomFonts.black14w500),
           ),
-          context.verticalSpace(12),
+          SizedBox(height: context.h(12)),
         ],
       ),
     );
@@ -202,22 +255,24 @@ class ChatDailog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Sarah Johnson, 11:35 PM", style: context.fonts.grey11w400),
-          context.verticalSpace(4),
+          Text("Sarah Johnson, 11:35 PM", style: CustomFonts.grey12w400),
+          SizedBox(height: context.h(4)),
           Container(
-            padding: context.appEdgeInsets(horizontal: 18, vertical: 12),
-            decoration: BoxDecoration(
-              color: CustomColors.whiteGrey,
-              borderRadius: context.appBorderRadius(
-                topRight: 24,
-                bottomRight: 24,
-                bottomLeft: 24,
-              ),
-              border: Border.all(color: CustomColors.border),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(18),
+              vertical: context.h(14),
             ),
-            child: Text(text, style: context.fonts.black14w500),
+            decoration: BoxDecoration(
+              color: CustomColors.softGrey,
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(context.r(24)),
+                bottomRight: Radius.circular(context.r(24)),
+                bottomLeft: Radius.circular(context.r(24)),
+              ),
+            ),
+            child: Text(text, style: CustomFonts.black14w500),
           ),
-          context.verticalSpace(12),
+          SizedBox(height: context.h(12)),
         ],
       ),
     );

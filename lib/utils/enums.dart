@@ -42,10 +42,10 @@ enum Endpoint {
   treatmentDetail('clinic/treatments/{id}'),
   sessionUpdate('sessionUpdate'),
   sessionDetail('clinic/sessions/{id}'),
-  deleteSession('admin/sessions/{id}'),
-  sessionStatus('admin/sessions/status'),
-  products('admin/products'),
-  updateProduct('admin/products/{id}'),
+   deleteSession('admin/sessions/{id}'),
+    sessionStatus('admin/sessions/status'),
+    products('admin/products'),
+    updateProduct('admin/products/{id}'),
   deleteProduct('admin/products/{id}'),
   getBrands('admin/brands'),
   unitTypesList('admin/unit-types'),
@@ -113,11 +113,12 @@ enum CreateTreatmentSteps {
   followUpSetup('follow_up_setup'),
   businessLogic('business_logic'),
   basicInfo('basic_info'),
-  getBrands('admin/brands'),
+   getBrands('admin/brands'),
   unitTypesList('admin/unit-types'),
   packageTypeList('admin/package-types'),
   usageType('admin/usage-types'),
   status("status");
+
 
   final String name;
 
