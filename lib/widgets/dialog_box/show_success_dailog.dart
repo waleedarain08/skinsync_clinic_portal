@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../utils/theme.dart';
+import 'standard_dialog.dart';
 
 class SuccessDialog extends StatelessWidget {
   final String title;
@@ -11,7 +11,7 @@ class SuccessDialog extends StatelessWidget {
     super.key,
     this.title = 'Successfully Booked',
     this.description =
-        'Lorem ipsum dolor sit amet consectetur Ut consectetur mauris tellus ultricies.',
+        'Your appointment has been successfully scheduled. We have sent a confirmation to your email.',
     this.icon,
   });
 
@@ -26,8 +26,7 @@ class SuccessDialog extends StatelessWidget {
       builder: (_) => SuccessDialog(
         title: title ?? 'Successfully Booked',
         description:
-            description ??
-            'Lorem ipsum dolor sit amet consectetur Ut consectetur mauris tellus ultricies.',
+            description ?? 'Your appointment has been successfully scheduled.',
         icon: icon,
       ),
     );
@@ -35,73 +34,43 @@ class SuccessDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: MediaQuery.sizeOf(context).width * 0.3,
-        padding: EdgeInsets.symmetric(
-          vertical: context.h(28),
-          horizontal: context.w(24),
-        ),
-        decoration: BoxDecoration(
-          color: CustomColors.white,
-          borderRadius: BorderRadius.circular(context.r(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            /// Close button
-            Align(
-              alignment: Alignment.topRight,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  height: context.w(32),
-                  width: context.w(32),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Icon(Icons.close, size: context.r(16), color: CustomColors.grey),
+    return StandardDialog(
+      title:
+          "", // Empty title as we use custom center alignment for success state
+      showCloseButton: true,
+      width: 440.w,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 80.w,
+            height: 80.w,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: CustomColors.whiteGrey,
+            ),
+            child:
+                icon ??
+                Icon(
+                  Icons.check_circle_rounded,
+                  size: 48.sp,
+                  color: CustomColors.green,
                 ),
-              ),
-            ),
-            SizedBox(height: context.h(8)),
-
-            /// Icon
-            Container(
-              width: context.w(90),
-              height: context.w(90),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: CustomColors.softGrey,
-              ),
-              child: icon ??
-                  Icon(
-                    Icons.calendar_month_rounded,
-                    size: context.r(48),
-                    color: CustomColors.blue,
-                  ),
-            ),
-            SizedBox(height: context.h(20)),
-
-            /// Title
-            Text(
-              title,
-              style: CustomFonts.black20w600,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: context.h(10)),
-
-            /// Description
-            Text(
-              description,
-              style: CustomFonts.grey14w400,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: context.h(8)),
-          ],
-        ),
+          ),
+          context.verticalSpace(24),
+          Text(
+            title,
+            style: context.fonts.black20w600,
+            textAlign: TextAlign.center,
+          ),
+          context.verticalSpace(12),
+          Text(
+            description,
+            style: context.fonts.grey14w400,
+            textAlign: TextAlign.center,
+          ),
+          context.verticalSpace(8),
+        ],
       ),
     );
   }
