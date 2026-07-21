@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../treatment_model.dart';
 import 'base_request.dart';
 
-class RegisterDoctorRequest extends BaseRequest {
+class RegisterPractitionerRequest extends BaseRequest {
   final String role;
   final String name;
   final String? image;
@@ -13,7 +13,7 @@ class RegisterDoctorRequest extends BaseRequest {
   final List<Availability> availability;
   final int consultationFee;
 
-  RegisterDoctorRequest({
+  RegisterPractitionerRequest({
     required this.role,
     required this.name,
     required this.image,

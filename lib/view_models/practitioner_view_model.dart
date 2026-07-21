@@ -5,29 +5,29 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
-import '../models/requests/register_doctor_request.dart';
-import '../models/requests/update_doctors_treament_request.dart';
+import '../models/requests/register_practitioner_request.dart';
+import '../models/requests/update_practitioner_treament_request.dart';
 import '../models/treatment_model.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 
-import '../models/responses/register_doctor_response.dart';
-import '../services/doctor_service.dart';
+import '../models/responses/register_practitioner_response.dart';
+import '../services/practitioner_service.dart';
 import 'base_view_model.dart';
 
-final doctorProvider =
-    NotifierProvider.autoDispose<DoctorViewModel, DoctorState>(
-      () => DoctorViewModel._(),
+final practitionerProvider =
+    NotifierProvider.autoDispose<PractitionerViewModel, PractitionerState>(
+      () => PractitionerViewModel._(),
     );
 
-class DoctorViewModel extends BaseViewModel<DoctorState> {
-  DoctorViewModel._();
+class PractitionerViewModel extends BaseViewModel<PractitionerState> {
+  PractitionerViewModel._();
   final ImagePicker _picker = ImagePicker();
   @override
-  DoctorState build() {
+  PractitionerState build() {
     init();
     ref.onDispose(dispose);
-    return DoctorState(
+    return PractitionerState(
       country: CountryCode.fromCountryCode(
         'US',
       ),
@@ -86,7 +86,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     });
   }
 
-  Future<void> registerDoctor({
+  Future<void> registerPractitioner({
     required String name,
     required String specialization,
     required String email,
@@ -106,8 +106,8 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
       }
       state = state.copyWith(loading: true);
 
-      await locator<DoctorService>().register(
-        request: RegisterDoctorRequest(
+      await locator<PractitionerService>().register(
+        request: RegisterPractitionerRequest(
           role: state.role!,
           name: name,
           image: image,
@@ -127,10 +127,10 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     });
   }
 
-  Future<void> getDoctors() async {
+  Future<void> getPractitioner() async {
     return await runSafely(() async {
       state = state.copyWith(loading: true);
-      final doctors = await locator<DoctorService>().fetchDoctors();
+      final doctors = await locator<PractitionerService>().fetchPractitioner();
       state = state.copyWith(
         loading: false,
         doctors: doctors,
@@ -139,7 +139,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
     }, showLoading: false);
   }
 
-  Future<void> updateDoctorTreatment({
+  Future<void> updatePractitionerTreatment({
     required String email,
     required int clinicUserId,
     required String name,
@@ -157,7 +157,7 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
 
       state = state.copyWith(loading: true);
       String? imageUrl;
-      final request = UpdateDoctorRequest(
+      final request = UpdatePractitionerRequest(
         clinicUserId: clinicUserId,
         name: name,
         specialization: specialization,
@@ -174,13 +174,13 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
         }).toList(),
       );
 
-      await locator<DoctorService>().updateDoctorTreatment(request: request);
+      await locator<PractitionerService>().updatepractitionerTreatment(request: request);
 
       state = state.copyWith(loading: false, success: true);
     });
   }
 
-  void setSelectedDoctor(Doctor doctor) {
+  void setSelectedDoctor(Practitioner doctor) {
     state = state.copyWith(selectedDoctor: doctor);
   }
 
@@ -216,19 +216,19 @@ class DoctorViewModel extends BaseViewModel<DoctorState> {
   }
 }
 
-class DoctorState {
+class PractitionerState {
   final bool loading;
   final String? role;
   final List<TreatmentModel> treatments;
-  final List<Doctor> doctors;
-  final Doctor? selectedDoctor;
+  final List<Practitioner> doctors;
+  final Practitioner? selectedDoctor;
   final bool success;
   final List<Availability> availability;
   final CountryCode country;
   final String? cc;
   final String? countryCode;
 
-  const DoctorState({
+  const PractitionerState({
     this.role,
     this.loading = false,
     this.treatments = const [],
@@ -241,19 +241,19 @@ class DoctorState {
     this.countryCode,
   });
 
-  DoctorState copyWith({
+  PractitionerState copyWith({
     bool? loading,
     String? role,
     List<TreatmentModel>? treatments,
-    List<Doctor>? doctors,
-    Doctor? selectedDoctor,
+    List<Practitioner>? doctors,
+    Practitioner? selectedDoctor,
     bool? success,
     List<Availability>? availability,
     CountryCode? country,
     String? cc,
     String? countryIso,
   }) {
-    return DoctorState(
+    return PractitionerState(
       loading: loading ?? this.loading,
       role: role ?? this.role,
       treatments: treatments ?? this.treatments,
@@ -267,14 +267,14 @@ class DoctorState {
     );
   }
 
-  DoctorState copyWithNull({
+  PractitionerState copyWithNull({
     bool? loading,
     String? role,
     List<TreatmentModel>? treatments,
-    List<Doctor>? doctors,
+    List<Practitioner>? doctors,
     bool? success,
   }) {
-    return DoctorState(
+    return PractitionerState(
       loading: loading ?? this.loading,
       role: role,
       treatments: treatments ?? this.treatments,

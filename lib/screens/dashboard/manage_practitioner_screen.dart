@@ -4,29 +4,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../utils/theme.dart';
-import '../../view_models/doctor_view_model.dart';
-import '../../models/responses/register_doctor_response.dart';
+import '../../view_models/practitioner_view_model.dart';
+import '../../models/responses/register_practitioner_response.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/app_loader.dart';
-import '../add_doctor_injector_screen.dart';
-import 'doctor_detail_screen.dart';
+import '../add_practitioner_screen.dart';
+import 'practitioner_detail_screen.dart';
 
-class MangeDoctorsInjectorsScreen extends ConsumerStatefulWidget {
-  static const String routeName = '/manage-doctors-injectors';
+class MangePractitionerScreen extends ConsumerStatefulWidget {
+  static const String routeName = '/manage-practitioner';
 
-  const MangeDoctorsInjectorsScreen({super.key});
+  const MangePractitionerScreen({super.key});
 
   @override
-  ConsumerState<MangeDoctorsInjectorsScreen> createState() =>
-      _MangeDoctorsInjectorsScreenState();
+  ConsumerState<MangePractitionerScreen> createState() =>
+      _MangePractitionerScreenState();
 }
 
-class _MangeDoctorsInjectorsScreenState
-    extends ConsumerState<MangeDoctorsInjectorsScreen> {
+class _MangePractitionerScreenState
+    extends ConsumerState<MangePractitionerScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   int _currentPage = 0;
@@ -35,7 +35,7 @@ class _MangeDoctorsInjectorsScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(doctorProvider.notifier).getDoctors(),
+      (_) => ref.read(practitionerProvider.notifier).getPractitioner(),
     );
   }
 
@@ -47,7 +47,7 @@ class _MangeDoctorsInjectorsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(doctorProvider);
+    final state = ref.watch(practitionerProvider);
 
     // Filter practitioners dynamically based on search query
     final filteredDoctors = state.doctors.where((doc) {
@@ -95,7 +95,7 @@ class _MangeDoctorsInjectorsScreenState
           ],
         ),
         CustomPrimaryButton(
-          onTap: () => context.push(AddDoctorInjectorScreen.routeName),
+          onTap: () => context.push(AddPractitionerScreen.routeName),
           icon: Icons.add_rounded,
           label: 'Add Practitioner',
           width: context.w(180),
@@ -104,7 +104,7 @@ class _MangeDoctorsInjectorsScreenState
     );
   }
 
-  Widget _buildQuickInsights(DoctorState state) {
+  Widget _buildQuickInsights(PractitionerState state) {
     final totalPractitioners = state.doctors.length;
     final activeInjectors = state.doctors.where((d) => d.role?.toLowerCase().contains('injector') ?? false).length;
     final activeMDs = state.doctors.where((d) => d.role?.toLowerCase().contains('md') ?? d.role?.toLowerCase().contains('doctor') ?? false).length;
@@ -224,7 +224,7 @@ class _MangeDoctorsInjectorsScreenState
     );
   }
 
-  Widget _buildDoctorsTable(List<Doctor> doctors, bool isLoading) {
+  Widget _buildDoctorsTable(List<Practitioner> doctors, bool isLoading) {
     if (isLoading) {
       return const Center(child: AppLoader());
     }
@@ -300,7 +300,7 @@ class _MangeDoctorsInjectorsScreenState
     );
   }
 
-  Widget _practitionerNameCell(Doctor d) {
+  Widget _practitionerNameCell(Practitioner d) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
@@ -332,7 +332,7 @@ class _MangeDoctorsInjectorsScreenState
     );
   }
 
-  Widget _buildAvatar(BuildContext context, Doctor d) {
+  Widget _buildAvatar(BuildContext context, Practitioner d) {
     if (d.image != null) {
       return ClipOval(
         child: CachedNetworkImage(
@@ -406,7 +406,7 @@ class _MangeDoctorsInjectorsScreenState
     );
   }
 
-  Widget _actionsCell(Doctor d) {
+  Widget _actionsCell(Practitioner d) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
@@ -419,7 +419,7 @@ class _MangeDoctorsInjectorsScreenState
               size: 20,
             ),
             onPressed: () {
-              context.push(DoctorDetailScreen.routeName, extra: d);
+              context.push(PractitionerDetailScreen.routeName, extra: d);
             },
           ),
           IconButton(
@@ -431,7 +431,7 @@ class _MangeDoctorsInjectorsScreenState
             ),
             onPressed: () {
               context.push(
-                AddDoctorInjectorScreen.routeName,
+                AddPractitionerScreen.routeName,
                 extra: d,
               );
             },
@@ -487,7 +487,7 @@ class _MangeDoctorsInjectorsScreenState
                 context.horizontalSpace(16),
                 CustomPrimaryButton(
                   onTap: () {
-                    context.push(AddDoctorInjectorScreen.routeName);
+                    context.push(AddPractitionerScreen.routeName);
                   },
                   icon: Icons.add_rounded,
                   label: 'Add Practitioner',

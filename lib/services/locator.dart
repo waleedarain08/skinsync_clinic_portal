@@ -8,7 +8,7 @@ import '../repositories/treatment_repository.dart';
 import 'api_base_helper.dart';
 import 'appointment_service.dart';
 import 'auth_service.dart';
-import 'doctor_service.dart';
+import 'practitioner_service.dart';
 import '../view_models/forms_controller.dart';
 import 'media_service.dart';
 import 'product_services.dart';
@@ -49,7 +49,7 @@ Future<void> initializeServices() async {
     () => ProviderRolesService(api: apiBaseHelper),
   );
   locator.registerLazySingleton(() => MediaService());
-  locator.registerLazySingleton(() => DoctorService());
+  locator.registerLazySingleton(() => PractitionerService());
   locator.registerLazySingleton(() => RoleService());
   locator.registerLazySingleton(() => AppointmentService());
   locator.registerSingleton(apiBaseHelper);

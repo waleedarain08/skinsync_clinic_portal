@@ -2,7 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../view_models/doctor_view_model.dart';
+import '../../view_models/practitioner_view_model.dart';
 import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
 import '../../utils/extentions.dart';
@@ -46,7 +46,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
   @override
   Widget build(BuildContext context) {
     return StandardDialog(
-      title: "Add Doctor Treatment",
+      title: "Add Practitioner Treatment",
       width: 600.w,
       content: SingleChildScrollView(
         child: Column(
@@ -166,7 +166,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
               return;
             }
             ref
-                .read(doctorProvider.notifier)
+                .read(practitionerProvider.notifier)
                 .toggleSelectedTreatment(
                   _selectedTreatment!.copyWith(sideAreas: _selectedAreas),
                 );

@@ -7,7 +7,7 @@ import '../screens/dashboard/appointment_screen.dart';
 import '../screens/dashboard/forms_screen.dart';
 import '../screens/dashboard/home_screen.dart';
 import '../screens/dashboard/inventory_screen.dart';
-import '../screens/dashboard/manage_doc_injector_screen.dart';
+import '../screens/dashboard/manage_practitioner_screen.dart';
 import '../screens/dashboard/mange_staff_screen.dart';
 import '../screens/dashboard/patient_management.dart';
 import '../screens/dashboard/payment_and_wallet_screen.dart';
@@ -23,7 +23,7 @@ abstract final class AppSidebarRoutes {
     PatientManagementScreen.routeName,
     AppointmentScreen.routeName,
     TreatmentScreen.routeName,
-    MangeDoctorsInjectorsScreen.routeName,
+    MangePractitionerScreen.routeName,
     InventoryScreen.routeName,
     FormsScreen.routeName,
     RolesScreen.routeName,
@@ -146,7 +146,7 @@ class AppSidebar extends StatelessWidget {
       ),
       SidebarXItem(
         icon: Icons.masks_outlined,
-        label: 'Doctors / Injectors',
+        label: 'Practitioners',
         onTap: () => _onItemTap(context, 4),
       ),
       SidebarXItem(

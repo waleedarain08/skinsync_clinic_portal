@@ -1,7 +1,7 @@
 import 'base_request.dart';
-import 'register_doctor_request.dart';
+import 'register_practitioner_request.dart';
 
-class UpdateDoctorRequest extends BaseRequest {
+class UpdatePractitionerRequest extends BaseRequest {
   final int clinicUserId;
   final List<UpdateTreatmentRequest> treatments;
   final String name;
@@ -12,7 +12,7 @@ class UpdateDoctorRequest extends BaseRequest {
   final List<Availability> availability;
   final String? image;
 
-  UpdateDoctorRequest({
+  UpdatePractitionerRequest({
     required this.clinicUserId,
     required this.treatments,
     required this.name,

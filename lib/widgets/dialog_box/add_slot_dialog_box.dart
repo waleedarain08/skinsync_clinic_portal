@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../models/requests/register_doctor_request.dart';
-import '../../view_models/doctor_view_model.dart';
+import '../../models/requests/register_practitioner_request.dart';
+import '../../view_models/practitioner_view_model.dart';
 import '../../utils/theme.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
@@ -327,7 +327,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                           EasyLoading.showError('Select at least one day!');
                           return;
                         }
-                        final state = ref.read(doctorProvider);
+                        final state = ref.read(practitionerProvider);
                         for (final a in state.availability) {
                           for (final day in a.days) {
                             if (selectedDays.contains(day)) {

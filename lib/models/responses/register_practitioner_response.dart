@@ -1,22 +1,22 @@
-import '../requests/register_doctor_request.dart';
+import '../requests/register_practitioner_request.dart';
 import 'base_response_model.dart';
 
-class RegisterDoctorResponse extends BaseResponse<Doctor> {
-  const RegisterDoctorResponse({
+class RegisterPractitionerResponse extends BaseResponse<Practitioner> {
+  const RegisterPractitionerResponse({
     required super.success,
     required super.message,
     super.data,
   });
 
-  factory RegisterDoctorResponse.fromJson(Map<String, dynamic> json) =>
-      RegisterDoctorResponse(
+  factory RegisterPractitionerResponse.fromJson(Map<String, dynamic> json) =>
+      RegisterPractitionerResponse(
         success: json["is_success"] ?? false,
         message: json["message"] ?? "",
-        data: json["data"] == null ? null : Doctor.fromJson(json["data"]),
+        data: json["data"] == null ? null : Practitioner.fromJson(json["data"]),
       );
 }
 
-class Doctor {
+class Practitioner {
   final int? id;
   final int? clinicId;
   final String? email;
@@ -32,7 +32,7 @@ class Doctor {
   final List<Treatment>? treatments;
   final List<Availability>? availability;
 
-  const Doctor({
+  const Practitioner({
     this.id,
     this.clinicId,
     this.email,
@@ -49,7 +49,7 @@ class Doctor {
     this.availability,
   });
 
-  factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
+  factory Practitioner.fromJson(Map<String, dynamic> json) => Practitioner(
     id: json["id"],
     clinicId: json["clinic_id"],
     email: json["email"],

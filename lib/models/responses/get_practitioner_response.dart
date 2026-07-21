@@ -1,16 +1,16 @@
 import 'base_response_model.dart';
-import 'register_doctor_response.dart';
+import 'register_practitioner_response.dart';
 
-class GetDoctorsResponse extends BaseResponse<List<Doctor>> {
-  const GetDoctorsResponse({
+class GetPractitionerResponse extends BaseResponse<List<Practitioner>> {
+  const GetPractitionerResponse({
     required super.success,
     required super.message,
     super.data,
   });
 
-  factory GetDoctorsResponse.fromJson(Map<String, dynamic> json) =>
-      GetDoctorsResponse(
-        data: List<Doctor>.from(json["data"].map((x) => Doctor.fromJson(x))),
+  factory GetPractitionerResponse.fromJson(Map<String, dynamic> json) =>
+      GetPractitionerResponse(
+        data: List<Practitioner>.from(json["data"].map((x) => Practitioner.fromJson(x))),
         success: json["is_success"] ?? false,
         message: json["message"] ?? "",
       );

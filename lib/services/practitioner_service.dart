@@ -1,25 +1,25 @@
 import 'dart:developer';
 
-import '../models/requests/register_doctor_request.dart';
-import '../models/requests/update_doctors_treament_request.dart';
-import '../models/responses/get_doctors_response.dart';
-import '../models/responses/register_doctor_response.dart';
-import '../repositories/doctor_repository.dart';
+import '../models/requests/register_practitioner_request.dart';
+import '../models/requests/update_practitioner_treament_request.dart';
+import '../models/responses/get_practitioner_response.dart';
+import '../models/responses/register_practitioner_response.dart';
+import '../repositories/Practitioner_repository.dart';
 import '../utils/enums.dart';
 import 'api_base_helper.dart';
 import 'locator.dart';
 
 
-class DoctorService extends DoctorRepository {
+class PractitionerService extends PractitionerRepository {
   @override
-  Future<Doctor> register({required RegisterDoctorRequest request}) async {
+  Future<Practitioner> register({required RegisterPractitionerRequest request}) async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.createDoctor,
       requestType: RequestType.post,
       requestBody: request,
     );
     log('RESPONSE: $response');
-    final model = RegisterDoctorResponse.fromJson(response);
+    final model = RegisterPractitionerResponse.fromJson(response);
     if (!model.success || model.data == null) {
       throw Exception(model.message);
     }
@@ -27,12 +27,12 @@ class DoctorService extends DoctorRepository {
   }
 
   @override
-  Future<List<Doctor>> fetchDoctors() async {
+  Future<List<Practitioner>> fetchPractitioner() async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.getDoctors,
       requestType: RequestType.get,
     );
-    final model = GetDoctorsResponse.fromJson(response);
+    final model = GetPractitionerResponse.fromJson(response);
     if (!model.success) {
       throw Exception(model.message);
     }
@@ -40,8 +40,8 @@ class DoctorService extends DoctorRepository {
   }
 
   @override
-  Future<void> updateDoctorTreatment({
-    required UpdateDoctorRequest request,
+  Future<void> updatepractitionerTreatment({
+    required UpdatePractitionerRequest request,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.updateDoctorTreatment,

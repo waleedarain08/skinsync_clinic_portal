@@ -6,18 +6,18 @@ import 'package:go_router/go_router.dart';
 import '../../utils/assets.dart';
 import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
-import '../../models/responses/register_doctor_response.dart';
+import '../../models/responses/register_practitioner_response.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
 
-class DoctorDetailScreen extends StatelessWidget {
-  static const String routeName = '/doctor-detail';
+class PractitionerDetailScreen extends StatelessWidget {
+  static const String routeName = '/practitioner-detail';
 
-  final Doctor doctor;
+  final Practitioner practitioner;
 
-  const DoctorDetailScreen({
+  const PractitionerDetailScreen({
     super.key,
-    required this.doctor,
+    required this.practitioner,
   });
 
   @override
@@ -27,7 +27,7 @@ class DoctorDetailScreen extends StatelessWidget {
         flexibleSpace: AppDecorations.appBarGradient,
         elevation: 0,
         centerTitle: true,
-        title: Text(doctor.name ?? 'Practitioner Details', style: context.fonts.black18w600),
+        title: Text(practitioner.name ?? 'Practitioner Details', style: context.fonts.black18w600),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: CustomColors.black),
           onPressed: () {
@@ -61,17 +61,17 @@ class DoctorDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              doctor.name ?? 'N/A',
+                              practitioner.name ?? 'N/A',
                               style: context.fonts.black20w600,
                             ),
                             context.verticalSpace(4),
                             Text(
-                              doctor.role?.capitalize ?? 'N/A',
+                              practitioner.role?.capitalize ?? 'N/A',
                               style: context.fonts.grey14w400,
                             ),
                             context.verticalSpace(4),
                             Text(
-                              doctor.email ?? 'N/A',
+                              practitioner.email ?? 'N/A',
                               style: context.fonts.purple14w600,
                             ),
                           ],
@@ -99,7 +99,7 @@ class DoctorDetailScreen extends StatelessWidget {
                         style: context.fonts.black16w600,
                       ),
                       context.verticalSpace(16),
-                      if (doctor.treatments == null || doctor.treatments!.isEmpty)
+                      if (practitioner.treatments == null || practitioner.treatments!.isEmpty)
                         Text(
                           'No services assigned to this practitioner.',
                           style: context.fonts.grey14w400,
@@ -108,7 +108,7 @@ class DoctorDetailScreen extends StatelessWidget {
                         Wrap(
                           spacing: context.w(12),
                           runSpacing: context.h(12),
-                          children: doctor.treatments!.map((treatment) {
+                          children: practitioner.treatments!.map((treatment) {
                             return Container(
                               padding: context.appEdgeInsets(all: 16),
                               decoration: BoxDecoration(
@@ -167,7 +167,7 @@ class DoctorDetailScreen extends StatelessWidget {
                 context.verticalSpace(32),
 
                 // Weekly Availability Hours
-                if (doctor.availability != null && doctor.availability!.isNotEmpty) ...[
+                if (practitioner.availability != null && practitioner.availability!.isNotEmpty) ...[
                   Text(
                     'CLINICAL AVAILABILITY HOURS',
                     style: context.fonts.grey11w600ls12,
@@ -184,7 +184,7 @@ class DoctorDetailScreen extends StatelessWidget {
                           style: context.fonts.black16w600,
                         ),
                         context.verticalSpace(16),
-                        ...doctor.availability!.map((availability) {
+                        ...practitioner.availability!.map((availability) {
                           return Column(
                             children: availability.days.map((day) {
                               return Padding(
@@ -226,10 +226,10 @@ class DoctorDetailScreen extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
-    if (doctor.image != null) {
+    if (practitioner.image != null) {
       return ClipOval(
         child: CachedNetworkImage(
-          imageUrl: doctor.image!,
+          imageUrl: practitioner.image!,
           height: context.r(80),
           width: context.r(80),
           fit: BoxFit.cover,

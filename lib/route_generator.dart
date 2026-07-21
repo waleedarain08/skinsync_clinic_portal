@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_init.dart';
-import 'models/responses/register_doctor_response.dart';
+import 'models/responses/register_practitioner_response.dart';
 import 'screens/about_screen.dart';
-import 'screens/add_doctor_injector_screen.dart';
+import 'screens/add_practitioner_screen.dart';
 import 'screens/business_info_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/add_treatment_screen.dart';
@@ -19,7 +19,7 @@ import 'screens/dashboard/dashboard.dart';
 import 'screens/dashboard/forms_screen.dart';
 import 'screens/dashboard/home_screen.dart';
 import 'screens/dashboard/inventory_screen.dart';
-import 'screens/dashboard/manage_doc_injector_screen.dart';
+import 'screens/dashboard/manage_practitioner_screen.dart';
 import 'screens/dashboard/mange_staff_screen.dart';
 import 'screens/dashboard/patient_ai_management.dart';
 import 'screens/dashboard/patient_management.dart';
@@ -30,7 +30,7 @@ import 'screens/dashboard/profile_screen.dart';
 import 'screens/dashboard/roles_screen.dart';
 import 'screens/dashboard/treatment_screen.dart';
 import 'screens/dashboard/treatment_detail_screen.dart';
-import 'screens/dashboard/doctor_detail_screen.dart';
+import 'screens/dashboard/practitioner_detail_screen.dart';
 import 'screens/dynamic_pricing.dart';
 import 'screens/notification_screen.dart';
 import 'screens/product_detail_screen.dart';
@@ -143,16 +143,16 @@ class RouteGenerator {
             builder: (_, _) => const RolesScreen(),
           ),
           GoRoute(
-            name: MangeDoctorsInjectorsScreen.routeName,
-            path: MangeDoctorsInjectorsScreen.routeName,
-            builder: (_, _) => const MangeDoctorsInjectorsScreen(),
+            name: MangePractitionerScreen.routeName,
+            path: MangePractitionerScreen.routeName,
+            builder: (_, _) => const MangePractitionerScreen(),
           ),
           GoRoute(
-            name: DoctorDetailScreen.routeName,
-            path: DoctorDetailScreen.routeName,
+            name: PractitionerDetailScreen.routeName,
+            path: PractitionerDetailScreen.routeName,
             builder: (_, state) {
-              final doctor = state.extra as Doctor;
-              return DoctorDetailScreen(doctor: doctor);
+              final practitioner = state.extra as Practitioner;
+              return PractitionerDetailScreen(practitioner: practitioner);
             },
           ),
 
@@ -195,11 +195,11 @@ class RouteGenerator {
             builder: (_, _) => const AddTreatmentScreen(),
           ),
           GoRoute(
-            path: AddDoctorInjectorScreen.routeName,
-            name: AddDoctorInjectorScreen.routeName,
+            path: AddPractitionerScreen.routeName,
+            name: AddPractitionerScreen.routeName,
             builder: (_, state) {
-              final doctor = state.extra as Doctor?;
-              return AddDoctorInjectorScreen(doctor: doctor);
+              final practitioner = state.extra as Practitioner?;
+              return AddPractitionerScreen(practitioner: practitioner);
             },
           ),
           GoRoute(

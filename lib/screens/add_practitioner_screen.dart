@@ -6,15 +6,15 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/requests/register_doctor_request.dart';
-import '../models/responses/register_doctor_response.dart';
+import '../models/requests/register_practitioner_request.dart';
+import '../models/responses/register_practitioner_response.dart';
 import '../models/treatment_model.dart';
 import '../utils/list_utils.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
-import '../view_models/doctor_view_model.dart';
+import '../view_models/practitioner_view_model.dart';
 import '../view_models/provider_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../widgets/app_loader.dart';
@@ -26,17 +26,17 @@ import '../widgets/dialog_box/select_treatment_dailog.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/phone_widget.dart';
 
-class AddDoctorInjectorScreen extends ConsumerStatefulWidget {
-  const AddDoctorInjectorScreen({super.key, this.doctor});
-  static const String routeName = '/add-doctor-injector';
-  final Doctor? doctor;
+class AddPractitionerScreen extends ConsumerStatefulWidget {
+  const AddPractitionerScreen({super.key, this.practitioner});
+  static const String routeName = '/add-practitioner';
+  final Practitioner? practitioner;
 
   @override
-  ConsumerState<AddDoctorInjectorScreen> createState() =>
+  ConsumerState<AddPractitionerScreen> createState() =>
       _AddTreatmentScreenState();
 }
 
-class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
+class _AddTreatmentScreenState extends ConsumerState<AddPractitionerScreen> {
   final _nameController = TextEditingController();
   final _specializationController = TextEditingController();
   final _emailController = TextEditingController();
@@ -54,21 +54,21 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
       ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
       ref.read(treatmentViewModelProvider.notifier).getTreatments();
 
-      final doctor = widget.doctor;
+      final practitioner = widget.practitioner;
 
-      if (doctor != null) {
-        _nameController.text = doctor.name ?? '';
-        _specializationController.text = doctor.specialization ?? '';
-        _emailController.text = doctor.email ?? '';
-        _phoneController.text = doctor.phone ?? '';
+      if (practitioner != null) {
+        _nameController.text = practitioner.name ?? '';
+        _specializationController.text = practitioner.specialization ?? '';
+        _emailController.text = practitioner.email ?? '';
+        _phoneController.text = practitioner.phone ?? '';
 
-        ref.read(doctorProvider.notifier).changeRole(doctor.role);
+        ref.read(practitionerProvider.notifier).changeRole(practitioner.role);
         ref
-            .read(doctorProvider.notifier)
-            .setCountry(CountryCode.fromDialCode(doctor.cc!));
+            .read(practitionerProvider.notifier)
+            .setCountry(CountryCode.fromDialCode(practitioner.cc!));
         // ✅ Convert properly
         final convertedTreatments =
-            doctor.treatments?.map((t) {
+            practitioner.treatments?.map((t) {
               return TreatmentModel(
                 id: t.treatmentId,
                 name: t.treatmentName,
@@ -80,25 +80,25 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
             [];
 
         ref
-            .read(doctorProvider.notifier)
+            .read(practitionerProvider.notifier)
             .setInitialTreatments(convertedTreatments);
         ref
-            .read(doctorProvider.notifier)
-            .setInitialAvailability(widget.doctor?.availability);
+            .read(practitionerProvider.notifier)
+            .setInitialAvailability(widget.practitioner?.availability);
       }
     });
   }
 
-  void _listener(DoctorState? prev, DoctorState next) {
+  void _listener(PractitionerState? prev, PractitionerState next) {
     if (next.success) {
       log('SUCCESS -> Popping');
-      ref.read(doctorProvider.notifier).getDoctors();
+      ref.read(practitionerProvider.notifier).getPractitioner();
       Navigator.pop(context);
     }
   }
 
   Future<void> _onImageTap() async {
-    final image = await ref.read(doctorProvider.notifier).pickImage();
+    final image = await ref.read(practitionerProvider.notifier).pickImage();
     if (image != null) {
       log('PATH: ${image}');
       _imageNotifier.value = image;
@@ -117,17 +117,17 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(doctorProvider, _listener);
-    final isEditing = widget.doctor != null;
+    ref.listen(practitionerProvider, _listener);
+    final isEditing = widget.practitioner != null;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (_, _) =>
-          ref.read(doctorProvider.notifier).clearData(),
+          ref.read(practitionerProvider.notifier).clearData(),
       child: GradientScaffold(
         appBar: AppBar(
           flexibleSpace: AppDecorations.appBarGradient,
           title: Text(
-            isEditing ? 'Update Doctor / Injector' : 'Add Doctor / Injector',
+            isEditing ? 'Update Practitioner' : 'Add Practitioner',
             style: context.fonts.black18w600,
           ),
           centerTitle: true,
@@ -152,7 +152,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
     final loading = ref.watch(
       treatmentViewModelProvider.select((state) => state.loading),
     );
-    final isEditing = widget.doctor != null;
+    final isEditing = widget.practitioner != null;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(context.w(24)),
@@ -197,7 +197,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                             builder: (context) => const AddSlotDialog(),
                           );
                           ref
-                              .read(doctorProvider.notifier)
+                              .read(practitionerProvider.notifier)
                               .setAvailability(availability);
                         },
                         label: 'Add Slot',
@@ -220,7 +220,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(context.r(50)),
                           child: CachedNetworkImage(
-                            imageUrl: image ?? widget.doctor?.image ?? '',
+                            imageUrl: image ?? widget.practitioner?.image ?? '',
                             errorWidget: (_, _, _) => CircleAvatar(
                               radius: context.r(50),
                               backgroundColor: CustomColors.softGrey,
@@ -242,7 +242,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                   Consumer(
                     builder: (_, ref, _) {
                       final role = ref.watch(
-                        doctorProvider.select((state) => state.role),
+                        practitionerProvider.select((state) => state.role),
                       );
                       final providerRoles =
                           ref.watch(
@@ -260,7 +260,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                             (r) => r.name == role,
                           ),
                           onChanged: (selectedRole) => ref
-                              .read(doctorProvider.notifier)
+                              .read(practitionerProvider.notifier)
                               .changeRole(selectedRole?.name ?? ""),
                           label: 'Select Role',
                           hintText: 'Select Role',
@@ -303,10 +303,10 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                   PhoneWidget(
                     controller: _phoneController,
                     initialCountryCode:
-                        widget.doctor?.cc ??
-                        ref.watch(doctorProvider).country.dialCode,
+                        widget.practitioner?.cc ??
+                        ref.watch(practitionerProvider).country.dialCode,
                     onCountryChanged: (country) {
-                      ref.read(doctorProvider.notifier).setCountry(country);
+                      ref.read(practitionerProvider.notifier).setCountry(country);
                     },
                   ),
                   SizedBox(height: context.h(16)),
@@ -379,7 +379,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
     return Consumer(
       builder: (_, ref, _) {
         final treatments = ref.watch(
-          doctorProvider.select((state) => state.treatments),
+          practitionerProvider.select((state) => state.treatments),
         );
         return Align(
           alignment: Alignment.centerLeft,
@@ -438,7 +438,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
     return Consumer(
       builder: (_, ref, _) {
         final availability = ref.watch(
-          doctorProvider.select((state) => state.availability),
+          practitionerProvider.select((state) => state.availability),
         );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,7 +468,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                       IconButton(
                         onPressed: () {
                           ref
-                              .read(doctorProvider.notifier)
+                              .read(practitionerProvider.notifier)
                               .deleteAvailability(av);
                         },
                         icon: const Icon(Icons.delete, color: CustomColors.red),
@@ -512,12 +512,12 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
               if (!_formKey.currentState!.validate()) {
                 return;
               }
-              if (widget.doctor != null) {
+              if (widget.practitioner != null) {
                 ref
-                    .read(doctorProvider.notifier)
-                    .updateDoctorTreatment(
-                      email: widget.doctor!.email!,
-                      clinicUserId: widget.doctor!.id!,
+                    .read(practitionerProvider.notifier)
+                    .updatePractitionerTreatment(
+                      email: widget.practitioner!.email!,
+                      clinicUserId: widget.practitioner!.id!,
                       name: _nameController.text.trim(),
                       phone: _phoneController.text.trim(),
                       specialization: _specializationController.text.trim(),
@@ -525,8 +525,8 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     );
               } else {
                 ref
-                    .read(doctorProvider.notifier)
-                    .registerDoctor(
+                    .read(practitionerProvider.notifier)
+                    .registerPractitioner(
                       name: _nameController.text.trim(),
                       email: _emailController.text.trim(),
                       phone: _phoneController.text.trim(),
@@ -536,8 +536,8 @@ class _AddTreatmentScreenState extends ConsumerState<AddDoctorInjectorScreen> {
                     );
               }
             },
-            label: widget.doctor == null ? 'Create' : 'Update',
-            isLoading: ref.watch(doctorProvider).loading,
+            label: widget.practitioner == null ? 'Create' : 'Update',
+            isLoading: ref.watch(practitionerProvider).loading,
           ),
         ),
         SizedBox(width: context.w(16)),
