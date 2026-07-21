@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/standard_dialog.dart';
 
 class AdminTreatmentTemplate {
   final int id;
@@ -460,47 +461,41 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext ctx) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(context.r(16))),
-          child: Padding(
-            padding: context.appEdgeInsets(all: 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: context.appEdgeInsets(all: 16),
-                  decoration: const BoxDecoration(
-                    color: CustomColors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, size: 40, color: Colors.white),
+        return StandardDialog(
+          title: "Treatment Registered!",
+          showCloseButton: false,
+          width: 450.w,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: .center,
+            children: [
+              Container(
+                padding: context.appEdgeInsets(all: 16),
+                decoration: const BoxDecoration(
+                  color: CustomColors.green,
+                  shape: BoxShape.circle,
                 ),
-                context.verticalSpace(24),
-                Text(
-                  "Treatment Registered!",
-                  style: context.fonts.black20w600,
-                  textAlign: TextAlign.center,
-                ),
-                context.verticalSpace(12),
-                Text(
-                  "Successfully configured and imported ${_selectedTemplate!.name} with ${_selectedAreas.length} selected target areas.",
-                  style: context.fonts.grey14w400,
-                  textAlign: TextAlign.center,
-                ),
-                context.verticalSpace(24),
-                SizedBox(
-                  width: double.infinity,
-                  child: CustomPrimaryButton(
-                    onTap: () {
-                      Navigator.of(ctx).pop(); // Dismiss success dialog
-                      context.pop(); // Navigate back to treatments catalog screen
-                    },
-                    label: "Return to Catalog",
-                  ),
-                ),
-              ],
-            ),
+                child: const Icon(Icons.check, size: 40, color: Colors.white),
+              ),
+              context.verticalSpace(24),
+              Text(
+                "Successfully configured and imported ${_selectedTemplate!.name} with ${_selectedAreas.length} selected target areas.",
+                style: context.fonts.grey14w400,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
+          actions: [
+            Expanded(
+              child: CustomPrimaryButton(
+                onTap: () {
+                  Navigator.of(ctx).pop(); // Dismiss success dialog
+                  context.pop(); // Navigate back to treatments catalog screen
+                },
+                label: "Return to Catalog",
+              ),
+            ),
+          ],
         );
       },
     );

@@ -6,6 +6,7 @@ import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/dialog_box/standard_dialog.dart';
 import '../models/responses/admin_product_list_response.dart';
 import '../view_models/product_view_model.dart';
 
@@ -331,47 +332,42 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext ctx) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: context.appEdgeInsets(all: 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: context.appEdgeInsets(all: 16),
-                  decoration: const BoxDecoration(
-                    color: CustomColors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, size: 40, color: Colors.white),
+        return StandardDialog(
+          title: "Product Added!",
+          showCloseButton: false,
+          width: 450.w,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: .center,
+            children: [
+              Container(
+                padding: context.appEdgeInsets(all: 16),
+                decoration: const BoxDecoration(
+                  color: CustomColors.green,
+                  shape: BoxShape.circle,
                 ),
-                context.verticalSpace(24),
-                Text(
-                  "Product Added!",
-                  style: context.fonts.black20w600,
-                  textAlign: TextAlign.center,
-                ),
-                context.verticalSpace(12),
-                Text(
-                  "Successfully added ${product.name} (${product.brand}) into your clinic inventory.",
-                  style: context.fonts.grey14w400,
-                  textAlign: TextAlign.center,
-                ),
-                context.verticalSpace(24),
-                SizedBox(
-                  width: double.infinity,
-                  child: CustomPrimaryButton(
-                    onTap: () {
-                      Navigator.of(ctx).pop(); // Dismiss success dialog
-                      context.pop(); // Navigate back to main Inventory catalog
-                    },
-                    label: "Return to Inventory",
-                  ),
-                ),
-              ],
-            ),
+                child: const Icon(Icons.check, size: 40, color: Colors.white),
+              ),
+              context.verticalSpace(24),
+              Text(
+                "Successfully added ${product.name} (${product.brand}) into your clinic inventory.",
+                style: context.fonts.grey14w400,
+                textAlign: TextAlign.center,
+              ),
+
+            ],
           ),
+          actions: [
+            Expanded(
+              child: CustomPrimaryButton(
+                onTap: () {
+                  Navigator.of(ctx).pop(); // Dismiss success dialog
+                  context.pop(); // Navigate back to main Inventory catalog
+                },
+                label: "Return to Inventory",
+              ),
+            ),
+          ],
         );
       },
     );
