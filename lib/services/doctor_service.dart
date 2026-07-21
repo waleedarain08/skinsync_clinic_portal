@@ -9,6 +9,7 @@ import '../utils/enums.dart';
 import 'api_base_helper.dart';
 import 'locator.dart';
 
+
 class DoctorService extends DoctorRepository {
   @override
   Future<Doctor> register({required RegisterDoctorRequest request}) async {
