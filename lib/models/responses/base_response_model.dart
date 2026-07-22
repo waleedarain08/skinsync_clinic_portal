@@ -15,7 +15,6 @@ class BaseResponse<T> {
       data: json['data'] != null ? fromJsonT(json['data']) : null,
     );
   }
-
   /// For APIs that don’t wrap data
   factory BaseResponse.raw({
     required T data,
