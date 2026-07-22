@@ -13,9 +13,8 @@ class PatientDetailDailog extends StatelessWidget {
     return StandardDialog(
       title: "Patient Profile",
       width: 700.w, // Max width for complex detail view
-      content: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: context.screenHeight * 0.7),
-        child: const SingleChildScrollView(child: PatientMangementWidget()),
+      content: const Expanded(
+        child: SingleChildScrollView(child: PatientMangementWidget()),
       ),
       actions: [
         CustomOutlinedButton(

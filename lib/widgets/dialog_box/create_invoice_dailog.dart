@@ -51,76 +51,78 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
     return StandardDialog(
       title: 'Create Invoice',
       width: 600.w,
-      content: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('#${widget.invoiceNumber}', style: context.fonts.grey13w500),
-            context.verticalSpace(16),
+      content: Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('#${widget.invoiceNumber}', style: context.fonts.grey13w500),
+              context.verticalSpace(16),
 
-            /// Search
-            CupertinoSearchTextField(
-              style: context.fonts.black14w400,
-              backgroundColor: CustomColors.whiteGrey,
-              placeholderStyle: context.fonts.grey13w500,
-              padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
-            ),
-            context.verticalSpace(20),
-
-            /// Product List
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 300.h),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: _products.length,
-                separatorBuilder: (_, __) => context.verticalSpace(12),
-                itemBuilder: (context, index) =>
-                    _ProductTile(product: _products[index]),
+              /// Search
+              CupertinoSearchTextField(
+                style: context.fonts.black14w400,
+                backgroundColor: CustomColors.whiteGrey,
+                placeholderStyle: context.fonts.grey13w500,
+                padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
               ),
-            ),
+              context.verticalSpace(20),
 
-            context.verticalSpace(24),
-            const Divider(color: CustomColors.border),
-            context.verticalSpace(24),
+              /// Product List
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 300.h),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: _products.length,
+                  separatorBuilder: (_, __) => context.verticalSpace(12),
+                  itemBuilder: (context, index) =>
+                      _ProductTile(product: _products[index]),
+                ),
+              ),
 
-            /// Payment Summary
-            Text('Payment Summary', style: context.fonts.black16w600),
-            context.verticalSpace(12),
-            Container(
-              padding: context.appEdgeInsets(all: 16),
-              decoration: BoxDecoration(
-                borderRadius: context.appBorderRadius(all: 12),
-                border: Border.all(color: CustomColors.border),
-                color: CustomColors.whiteGrey,
+              context.verticalSpace(24),
+              const Divider(color: CustomColors.border),
+              context.verticalSpace(24),
+
+              /// Payment Summary
+              Text('Payment Summary', style: context.fonts.black16w600),
+              context.verticalSpace(12),
+              Container(
+                padding: context.appEdgeInsets(all: 16),
+                decoration: BoxDecoration(
+                  borderRadius: context.appBorderRadius(all: 12),
+                  border: Border.all(color: CustomColors.border),
+                  color: CustomColors.whiteGrey,
+                ),
+                child: Column(
+                  children: [
+                    _summaryRow(
+                      'Subtotal',
+                      'AED ${_subtotal.toStringAsFixed(2)}',
+                      isBold: false,
+                    ),
+                    context.verticalSpace(12),
+                    const Divider(color: CustomColors.border),
+                    context.verticalSpace(12),
+                    _summaryRow(
+                      'Platform Fee',
+                      'AED ${_platformFee.toStringAsFixed(2)}',
+                      isBold: false,
+                    ),
+                    context.verticalSpace(12),
+                    const Divider(color: CustomColors.border),
+                    context.verticalSpace(12),
+                    _summaryRow(
+                      'Total',
+                      'AED ${_total.toStringAsFixed(2)}',
+                      isBold: true,
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                children: [
-                  _summaryRow(
-                    'Subtotal',
-                    'AED ${_subtotal.toStringAsFixed(2)}',
-                    isBold: false,
-                  ),
-                  context.verticalSpace(12),
-                  const Divider(color: CustomColors.border),
-                  context.verticalSpace(12),
-                  _summaryRow(
-                    'Platform Fee',
-                    'AED ${_platformFee.toStringAsFixed(2)}',
-                    isBold: false,
-                  ),
-                  context.verticalSpace(12),
-                  const Divider(color: CustomColors.border),
-                  context.verticalSpace(12),
-                  _summaryRow(
-                    'Total',
-                    'AED ${_total.toStringAsFixed(2)}',
-                    isBold: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       actions: [
