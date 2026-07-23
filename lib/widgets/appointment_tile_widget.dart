@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/dummy/appointment_dummy.dart';
 import 'borderd_container_widget.dart';
 
-import '../screens/dashboard/appointment_screen.dart';
 import '../utils/theme.dart';
 
 class AppointmentTileWidget extends StatelessWidget {

@@ -44,13 +44,13 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
       state = state.copyWith(loading: true);
       final appointment = await locator<AppointmentService>().appointmentList(
         page: state.page,
-        filter: state.filter,
-        status: state.status,
+        // filter: state.filter,
+        // status: state.status,
       );
       state = state.copyWith(
         loading: false,
-        appointmentList: appointment.data,
-        totalPage: appointment.totalPages,
+        appointmentList: appointment.data?.items ??[],
+        totalPage: appointment.data?.totalPages ?? 0,
       );
     }, showLoading: false);
   }

@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../screens/dashboard/appointment_screen.dart';
+import '../models/dummy/appointment_dummy.dart';
 import '../screens/dashboard/patient_management_detail.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';

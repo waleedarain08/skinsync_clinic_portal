@@ -38,7 +38,7 @@ enum Endpoint {
   roles("clinic/roles"),
   catalog('clinic/products/catalog'),
   clinicProducts('clinic/products'),
-  getAppointment('clinic/appointments'),
+  getAppointment('clinic/new-appointments'),
   treatmentDetail('clinic/treatments/{id}'),
   sessionUpdate('sessionUpdate'),
   sessionDetail('clinic/sessions/{id}'),

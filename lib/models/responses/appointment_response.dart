@@ -1,178 +1,326 @@
-import '../../utils/enums.dart';
+import 'dart:convert';
+
 import 'base_response_model.dart';
 
-class AppointmentResponse extends BaseResponse<List<AppointmentData>> {
-  int? limit;
-
-  int? page;
-  int? totalPages;
+class AppointmentResponse extends BaseResponse {
+  final Data? data;
 
   AppointmentResponse({
-    super.data,
     required super.success,
-    this.limit,
     required super.message,
-    this.page,
-    this.totalPages,
+    this.data,
   });
 
-  factory AppointmentResponse.fromJson(Map<String, dynamic> json) {
-    return AppointmentResponse(
-      success: json['is_success'] ?? false,
-      message: json['message'] ?? '',
-      data: json['data'] != null
-          ? (json['data'] as List)
-                .map((e) => AppointmentData.fromJson(e))
-                .toList()
-          : null,
-      limit: json['limit'],
-      page: json['page'],
-      totalPages: json['total_pages'],
-    );
-  }
+  factory AppointmentResponse.fromRawJson(String str) =>
+      AppointmentResponse.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory AppointmentResponse.fromJson(Map<String, dynamic> json) =>
+      AppointmentResponse(
+        success: json["is_success"],
+        message: json["message"],
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "is_success": success,
+    "message": message,
+    "data": data?.toJson(),
+  };
+}
+
+class Data {
+  final List<AppointmentData>? items;
+  final int? limit;
+  final int? page;
+  final int? total;
+  final int? totalPages;
+
+  Data({this.items, this.limit, this.page, this.total, this.totalPages});
+
+  factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
+    items: json["items"] == null
+        ? []
+        : List<AppointmentData>.from(json["items"]!.map((x) => AppointmentData.fromJson(x))),
+    limit: json["limit"],
+    page: json["page"],
+    total: json["total"],
+    totalPages: json["total_pages"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "items": items == null
+        ? []
+        : List<dynamic>.from(items!.map((x) => x.toJson())),
+    "limit": limit,
+    "page": page,
+    "total": total,
+    "total_pages": totalPages,
+  };
 }
 
 class AppointmentData {
-  int? appointmentId;
-  String? patientName;
-  Clinic? clinic;
-  Clinic? doctor;
-  int? date;
-  int? startTime;
-  int? endTime;
-  Treatment? treatment;
-  List<TreatmentSubsection>? treatmentSubsection;
-  int? treatmentTotal;
-  PaymentType? paymentType;
-  int? discount;
-  String? discountType;
-  int? loyalityPoints;
-  int? actualAmount;
-  int? amountPaid;
-  int? amountPayable;
-  AppointmentStatus? status;
+  final int? id;
+  final String? appointmentKey;
+  final int? clinicId;
+  final String? clinicName;
+  final int? doctorId;
+  final int? appointmentTypeId;
+  final AppointmentType? appointmentType;
+  final String? patientName;
+  final int? date;
+  final int? startTime;
+  final int? endTime;
+  final bool? isInviteClinic;
+  final Simulations? simulations;
+  final List<Treatment>? treatments;
+  final int? treatmentTotal;
+  final PaymentType? paymentType;
+  final String? discountType;
+  final int? discount;
+  final String? status;
+  final DateTime? createdAt;
 
   AppointmentData({
-    this.appointmentId,
+    this.id,
+    this.appointmentKey,
+    this.clinicId,
+    this.clinicName,
+    this.doctorId,
+    this.appointmentTypeId,
+    this.appointmentType,
     this.patientName,
-    this.clinic,
-    this.doctor,
     this.date,
     this.startTime,
     this.endTime,
-    this.treatment,
-    this.treatmentSubsection,
+    this.isInviteClinic,
+    this.simulations,
+    this.treatments,
     this.treatmentTotal,
     this.paymentType,
-    this.discount,
     this.discountType,
-    this.loyalityPoints,
-    this.actualAmount,
-    this.amountPaid,
-    this.amountPayable,
+    this.discount,
+    this.status,
+    this.createdAt,
+  });
+
+  factory AppointmentData.fromRawJson(String str) => AppointmentData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory AppointmentData.fromJson(Map<String, dynamic> json) => AppointmentData(
+    id: json["id"],
+    appointmentKey: json["appointment_key"],
+    clinicId: json["clinic_id"],
+    clinicName: json["clinic_name"],
+    doctorId: json["doctor_id"],
+    appointmentTypeId: json["appointment_type_id"],
+    appointmentType: json["appointment_type"] == null
+        ? null
+        : AppointmentType.fromJson(json["appointment_type"]),
+    patientName: json["patient_name"],
+    date: json["date"],
+    startTime: json["start_time"],
+    endTime: json["end_time"],
+    isInviteClinic: json["is_invite_clinic"],
+    simulations: json["simulations"] == null
+        ? null
+        : Simulations.fromJson(json["simulations"]),
+    treatments: json["treatments"] == null
+        ? []
+        : List<Treatment>.from(
+            json["treatments"]!.map((x) => Treatment.fromJson(x)),
+          ),
+    treatmentTotal: json["treatment_total"],
+    paymentType: json["payment_type"] == null
+        ? null
+        : PaymentType.fromJson(json["payment_type"]),
+    discountType: json["discount_type"],
+    discount: json["discount"],
+    status: json["status"],
+    createdAt: json["created_at"] == null
+        ? null
+        : DateTime.parse(json["created_at"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "appointment_key": appointmentKey,
+    "clinic_id": clinicId,
+    "clinic_name": clinicName,
+    "doctor_id": doctorId,
+    "appointment_type_id": appointmentTypeId,
+    "appointment_type": appointmentType?.toJson(),
+    "patient_name": patientName,
+    "date": date,
+    "start_time": startTime,
+    "end_time": endTime,
+    "is_invite_clinic": isInviteClinic,
+    "simulations": simulations?.toJson(),
+    "treatments": treatments == null
+        ? []
+        : List<dynamic>.from(treatments!.map((x) => x.toJson())),
+    "treatment_total": treatmentTotal,
+    "payment_type": paymentType?.toJson(),
+    "discount_type": discountType,
+    "discount": discount,
+    "status": status,
+    "created_at": createdAt?.toIso8601String(),
+  };
+}
+
+class AppointmentType {
+  final int? id;
+  final String? title;
+  final String? key;
+  final String? description;
+  final String? timing;
+  final int? maxDuration;
+  final List<String>? appointmentModes;
+  final String? icon;
+  final String? image;
+  final String? status;
+
+  AppointmentType({
+    this.id,
+    this.title,
+    this.key,
+    this.description,
+    this.timing,
+    this.maxDuration,
+    this.appointmentModes,
+    this.icon,
+    this.image,
     this.status,
   });
 
-  AppointmentData.fromJson(Map<String, dynamic> json) {
-    appointmentId = json['appointment_id'];
-    patientName = json['patient_name'];
-    clinic = json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
-    doctor = json['doctor'] != null ? Clinic.fromJson(json['doctor']) : null;
-    date = json['date'];
-    startTime = json['start_time'];
-    endTime = json['end_time'];
-    treatment = json['treatment'] != null
-        ? Treatment.fromJson(json['treatment'])
-        : null;
-    if (json['treatment_subsection'] != null) {
-      treatmentSubsection = <TreatmentSubsection>[];
-      json['treatment_subsection'].forEach((v) {
-        treatmentSubsection!.add(TreatmentSubsection.fromJson(v));
-      });
-    }
-    treatmentTotal = json['treatment_total'];
-    paymentType = json['payment_type'] != null
-        ? PaymentType.fromJson(json['payment_type'])
-        : null;
-    discount = json['discount'];
-    discountType = json['discount_type'];
-    loyalityPoints = json['loyality_points'];
-    actualAmount = json['actual_amount'];
-    amountPaid = json['amount_paid'];
-    amountPayable = json['amount_payable'];
-    status = AppointmentStatus.fromApi(json['status']);
-  }
-}
+  factory AppointmentType.fromRawJson(String str) =>
+      AppointmentType.fromJson(json.decode(str));
 
-class Clinic {
-  int? id;
-  String? name;
-  String? image;
+  String toRawJson() => json.encode(toJson());
 
-  Clinic({this.id, this.name, this.image});
+  factory AppointmentType.fromJson(Map<String, dynamic> json) =>
+      AppointmentType(
+        id: json["id"],
+        title: json["title"],
+        key: json["key"],
+        description: json["description"],
+        timing: json["timing"],
+        maxDuration: json["max_duration"],
+        appointmentModes: json["appointment_modes"] == null
+            ? []
+            : List<String>.from(json["appointment_modes"]!.map((x) => x)),
+        icon: json["icon"],
+        image: json["image"],
+        status: json["status"],
+      );
 
-  Clinic.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    image = json['image'];
-  }
-}
-
-class Treatment {
-  String? treatmentName;
-  int? treatmentId;
-  int? treatmentPrice;
-  int? treatmentQuantity;
-  String? beforeImage;
-  String? afterImage;
-
-  Treatment({
-    this.treatmentId,
-    this.treatmentName,
-    this.treatmentPrice,
-    this.treatmentQuantity,
-    this.beforeImage,
-    this.afterImage,
-  });
-
-  Treatment.fromJson(Map<String, dynamic> json) {
-    treatmentId = json['treatment_id'];
-    treatmentPrice = json['treatment_price'];
-    treatmentQuantity = json['treatment_quantity'];
-    beforeImage = json['before_image'];
-    afterImage = json['after_image'];
-    treatmentName = json['treatment_name'];
-  }
-}
-
-class TreatmentSubsection {
-  int? sectionId;
-  int? syringesQuantity;
-  int? perSyringePrice;
-
-  TreatmentSubsection({
-    this.sectionId,
-    this.syringesQuantity,
-    this.perSyringePrice,
-  });
-
-  TreatmentSubsection.fromJson(Map<String, dynamic> json) {
-    sectionId = json['section_id'];
-    syringesQuantity = json['syringes_quantity'];
-    perSyringePrice = json['per_syringe_price'];
-  }
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "title": title,
+    "key": key,
+    "description": description,
+    "timing": timing,
+    "max_duration": maxDuration,
+    "appointment_modes": appointmentModes == null
+        ? []
+        : List<dynamic>.from(appointmentModes!.map((x) => x)),
+    "icon": icon,
+    "image": image,
+    "status": status,
+  };
 }
 
 class PaymentType {
-  int? id;
-  String? title;
-  int? amount;
+  final String? type;
+  final String? status;
 
-  PaymentType({this.id, this.title, this.amount});
+  PaymentType({this.type, this.status});
 
-  PaymentType.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    amount = json['amount'];
-  }
+  factory PaymentType.fromRawJson(String str) =>
+      PaymentType.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory PaymentType.fromJson(Map<String, dynamic> json) =>
+      PaymentType(type: json["type"], status: json["status"]);
+
+  Map<String, dynamic> toJson() => {"type": type, "status": status};
+}
+
+class Simulations {
+  final String? beforeImage;
+  final String? afterImage;
+
+  Simulations({this.beforeImage, this.afterImage});
+
+  factory Simulations.fromRawJson(String str) =>
+      Simulations.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Simulations.fromJson(Map<String, dynamic> json) => Simulations(
+    beforeImage: json["before_image"],
+    afterImage: json["after_image"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "before_image": beforeImage,
+    "after_image": afterImage,
+  };
+}
+
+class Treatment {
+  final int? treatmentId;
+  final int? areaId;
+  final int? treatmentCost;
+  final Material? material;
+
+  Treatment({this.treatmentId, this.areaId, this.treatmentCost, this.material});
+
+  factory Treatment.fromRawJson(String str) =>
+      Treatment.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Treatment.fromJson(Map<String, dynamic> json) => Treatment(
+    treatmentId: json["treatment_id"],
+    areaId: json["area_id"],
+    treatmentCost: json["treatment_cost"],
+    material: json["material"] == null
+        ? null
+        : Material.fromJson(json["material"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "treatment_id": treatmentId,
+    "area_id": areaId,
+    "treatment_cost": treatmentCost,
+    "material": material?.toJson(),
+  };
+}
+
+class Material {
+  final int? id;
+  final int? selectedQuantity;
+
+  Material({this.id, this.selectedQuantity});
+
+  factory Material.fromRawJson(String str) =>
+      Material.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Material.fromJson(Map<String, dynamic> json) =>
+      Material(id: json["id"], selectedQuantity: json["selected_quantity"]);
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "selected_quantity": selectedQuantity,
+  };
 }
