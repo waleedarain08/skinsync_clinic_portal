@@ -3,40 +3,44 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timetable/timetable.dart';
 
+import '../models/responses/appointment_response.dart';
+import '../utils/date_time_utills.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/auth_view_model.dart';
 import 'dialog_box/appointment_ready_dailog.dart';
 
 enum CalendarViewMode { month, week, day }
 
-class Appointment extends Event {
-  final String clinic;
-  final String service;
-  final String time;
-  final bool highlighted;
+// class Appointment extends Event {
+//   final String clinic;
+//   final String service;
+//   final String time;
+//   final bool highlighted;
 
-  Appointment({
-    required this.clinic,
-    required this.service,
-    required this.time,
-    required super.start,
-    required super.end,
-    this.highlighted = false,
-  });
+//   Appointment({
+//     required this.clinic,
+//     required this.service,
+//     required this.time,
+//     required super.start,
+//     required super.end,
+//     this.highlighted = false,
+//   });
 
-  Appointment toUtc() {
-    return Appointment(
-      clinic: clinic,
-      service: service,
-      time: time,
-      start: start.copyWith(isUtc: true),
-      end: end.copyWith(isUtc: true),
-    );
-  }
-}
+//   Appointment toUtc() {
+//     return Appointment(
+//       clinic: clinic,
+//       service: service,
+//       time: time,
+//       start: start.copyWith(isUtc: true),
+//       end: end.copyWith(isUtc: true),
+//     );
+//   }
+// }
 
 class AppointmentsCalendar extends StatefulWidget {
-  const AppointmentsCalendar({super.key});
+  List<AppointmentData> appointments;
+  AppointmentsCalendar({super.key, required this.appointments});
 
   @override
   State<AppointmentsCalendar> createState() => _AppointmentsCalendarState();
@@ -44,74 +48,25 @@ class AppointmentsCalendar extends StatefulWidget {
 
 class _AppointmentsCalendarState extends State<AppointmentsCalendar>
     with TickerProviderStateMixin {
-  DateTime _focusedDay = DateTime(2025, 10, 1);
+  DateTime _focusedDay = DateTime.now();
   CalendarViewMode _viewMode = CalendarViewMode.month;
   late final _dateController = DateController(
     initialDate: _focusedDay.atStartOfDay.copyWith(isUtc: true),
     visibleRange: VisibleDateRange.week(),
   );
 
-  final Map<DateTime, List<Appointment>> _appointments = {
-    DateTime(2025, 10, 3): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 3, 11),
-        end: DateTime(2025, 10, 3, 15),
-        highlighted: true,
-      ),
-    ],
-    DateTime(2025, 10, 8): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 8, 11),
-        end: DateTime(2025, 10, 8, 15),
-      ),
-    ],
-    DateTime(2025, 10, 9): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 9, 11),
-        end: DateTime(2025, 10, 9, 15),
-      ),
-    ],
-    DateTime(2025, 10, 13): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 13, 11),
-        end: DateTime(2025, 10, 13, 15),
-      ),
-    ],
-    DateTime(2025, 10, 14): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 14, 11),
-        end: DateTime(2025, 10, 14, 15),
-      ),
-    ],
-    DateTime(2025, 10, 23): [
-      Appointment(
-        clinic: 'Glow Skin Clinic',
-        service: 'Dermal Fillers – Cheeks',
-        time: '11:00 AM - 12:00 PM',
-        start: DateTime(2025, 10, 23, 11),
-        end: DateTime(2025, 10, 23, 15),
-      ),
-    ],
-  };
+  // final Map<DateTime, List<AppointmentData>> _appointments = widget.appointmentList;
+  List<AppointmentData> _getEvents(DateTime day) {
+    // final key = DateTime(day.year, day.month, day.day);
+    // return _appointments[key] ?? [];
 
-  List<Appointment> _getEvents(DateTime day) {
-    final key = DateTime(day.year, day.month, day.day);
-    return _appointments[key] ?? [];
+    return widget.appointments.where((appointment) {
+      final aDate = appointment.date;
+      if (aDate == null) {
+        return false;
+      }
+      return day.day == aDate.day && day.month == aDate.month;
+    }).toList();
   }
 
   @override
@@ -308,35 +263,38 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
   }
 
   Widget _timetable() {
-    return TimetableConfig<Appointment>(
+    return TimetableConfig<AppointmentData>(
       dateController: _dateController,
       eventBuilder: (context, event) => _appointmentCard(event),
       eventProvider: eventProviderFromFixedList(
-        _appointments.entries
-            .expand((e) => e.value)
-            .map((appointment) => appointment.toUtc())
+        widget.appointments
+            .map(
+              (appointment) => appointment.copyWith(
+                start: appointment.start.toUtc(),
+                end: appointment.end.toUtc(),
+              ),
+            )
             .toList(),
       ),
       theme: TimetableThemeData(
         context,
         // Hour divider lines color
-        dateDividersStyle:DateDividersStyle(
-            context,
-            color: CustomColors.border
+        dateDividersStyle: DateDividersStyle(
+          context,
+          color: CustomColors.border,
         ),
         hourDividersStyle: HourDividersStyle(
-            context,
-            color: CustomColors.border
-
+          context,
+          color: CustomColors.border,
+        ),
       ),
-      ),
-      child: MultiDateTimetable<Appointment>(),
+      child: MultiDateTimetable<AppointmentData>(),
     );
   }
 
   Widget _dayCell(
     DateTime day,
-    List<Appointment> events, {
+    List<AppointmentData> events, {
     bool isToday = false,
     bool isOutside = false,
   }) {
@@ -365,7 +323,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
     );
   }
 
-  Widget _appointmentCard(Appointment a) {
+  Widget _appointmentCard(AppointmentData a) {
     return Consumer(
       builder: (context, ref, _) {
         return GestureDetector(
@@ -379,39 +337,42 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
             );
           },
           child: Container(
+            height: 95.h,
             padding: EdgeInsets.all(context.w(8)),
             decoration: BoxDecoration(
-              color: a.highlighted
+              color: a.date?.isToday ?? false
                   ? const Color(0xFFA7F3D0)
                   : CustomColors.softGrey,
               borderRadius: BorderRadius.circular(context.r(8)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  a.clinic,
-                  style: TextStyle(
-                    fontSize: context.sp(10),
-                    fontWeight: FontWeight.w600,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    a.clinicName?.capitalize ?? 'N/A',
+                    style: TextStyle(
+                      fontSize: context.sp(10),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                SizedBox(height: context.h(4)),
-                Text(
-                  a.service,
-                  style: TextStyle(
-                    fontSize: context.sp(9),
-                    color: Colors.black54,
+                  SizedBox(height: context.h(4)),
+                  Text(
+                    'PUT TREATMENT NAME HERE',
+                    style: TextStyle(
+                      fontSize: context.sp(9),
+                      color: Colors.black54,
+                    ),
                   ),
-                ),
-                Text(
-                  a.time,
-                  style: TextStyle(
-                    fontSize: context.sp(9),
-                    color: Colors.black45,
+                  Text(
+                    '${a.start.formattedTime} - ${a.end.formattedTime}',
+                    style: TextStyle(
+                      fontSize: context.sp(9),
+                      color: Colors.black45,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

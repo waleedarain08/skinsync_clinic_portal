@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/responses/appointment_response.dart' hide Material;
+import '../../utils/date_time_utills.dart';
 import '../../utils/enums.dart';
 import '../../utils/theme.dart';
 import '../../view_models/appointment_view_model.dart';
@@ -77,9 +77,24 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               SizedBox(height: context.h(14)),
               const Divider(color: CustomColors.border),
               SizedBox(height: context.h(14)),
-              SizedBox(
-                height: context.h(800),
-                child: const Material(child: AppointmentsCalendar()),
+              Consumer(
+                builder: (context, ref, _) {
+                  final list = appointmentState.appointmentList ?? [];
+                  final loading = appointmentState.loading;
+                  if (loading) {
+                    return const SizedBox();
+                  }
+
+                  if (list.isEmpty) {
+                    return _buildEmptyState();
+                  }
+                  return SizedBox(
+                    height: context.h(800),
+                    child: Material(
+                      child: AppointmentsCalendar(appointments: list),
+                    ),
+                  );
+                },
               ),
               SizedBox(height: context.h(15)),
               BorderdContainerWidget(
@@ -268,7 +283,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     style: context.fonts.black14w600,
                   ),
                   _appointmentTextCell(
-                    _formatDateTime(a),
+                    a.date?.formattedDate ?? '-',
                     style: context.fonts.grey14w400,
                   ),
                   _appointmentTextCell(
@@ -292,17 +307,6 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
 
   // Assumption: `date` = unix seconds, `start_time`/`end_time` = unix seconds too.
   // Swap to whatever encoding your API actually uses.
-  String _formatDateTime(AppointmentData a) {
-    if (a.date == null) return '-';
-    final date = DateTime.fromMillisecondsSinceEpoch(a.date! * 1000);
-    final dateStr = DateFormat('MMM d, yyyy').format(date);
-
-    if (a.startTime == null) return dateStr;
-    final start = DateTime.fromMillisecondsSinceEpoch(a.startTime! * 1000);
-    final timeStr = DateFormat('h:mm a').format(start);
-
-    return '$dateStr\n$timeStr';
-  }
 
   Widget _appointmentPatientCell(AppointmentData a) {
     final name = a.patientName ?? '-';

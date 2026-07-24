@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:timetable/timetable.dart';
+
 import 'base_response_model.dart';
 
 class AppointmentResponse extends BaseResponse {
@@ -46,7 +48,9 @@ class Data {
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     items: json["items"] == null
         ? []
-        : List<AppointmentData>.from(json["items"]!.map((x) => AppointmentData.fromJson(x))),
+        : List<AppointmentData>.from(
+            json["items"]!.map((x) => AppointmentData.fromJson(x)),
+          ),
     limit: json["limit"],
     page: json["page"],
     total: json["total"],
@@ -64,7 +68,7 @@ class Data {
   };
 }
 
-class AppointmentData {
+class AppointmentData extends Event {
   final int? id;
   final String? appointmentKey;
   final int? clinicId;
@@ -73,9 +77,7 @@ class AppointmentData {
   final int? appointmentTypeId;
   final AppointmentType? appointmentType;
   final String? patientName;
-  final int? date;
-  final int? startTime;
-  final int? endTime;
+  final DateTime? date;
   final bool? isInviteClinic;
   final Simulations? simulations;
   final List<Treatment>? treatments;
@@ -96,8 +98,8 @@ class AppointmentData {
     this.appointmentType,
     this.patientName,
     this.date,
-    this.startTime,
-    this.endTime,
+    required super.start,
+    required super.end,
     this.isInviteClinic,
     this.simulations,
     this.treatments,
@@ -109,44 +111,43 @@ class AppointmentData {
     this.createdAt,
   });
 
-  factory AppointmentData.fromRawJson(String str) => AppointmentData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory AppointmentData.fromJson(Map<String, dynamic> json) => AppointmentData(
-    id: json["id"],
-    appointmentKey: json["appointment_key"],
-    clinicId: json["clinic_id"],
-    clinicName: json["clinic_name"],
-    doctorId: json["doctor_id"],
-    appointmentTypeId: json["appointment_type_id"],
-    appointmentType: json["appointment_type"] == null
-        ? null
-        : AppointmentType.fromJson(json["appointment_type"]),
-    patientName: json["patient_name"],
-    date: json["date"],
-    startTime: json["start_time"],
-    endTime: json["end_time"],
-    isInviteClinic: json["is_invite_clinic"],
-    simulations: json["simulations"] == null
-        ? null
-        : Simulations.fromJson(json["simulations"]),
-    treatments: json["treatments"] == null
-        ? []
-        : List<Treatment>.from(
-            json["treatments"]!.map((x) => Treatment.fromJson(x)),
-          ),
-    treatmentTotal: json["treatment_total"],
-    paymentType: json["payment_type"] == null
-        ? null
-        : PaymentType.fromJson(json["payment_type"]),
-    discountType: json["discount_type"],
-    discount: json["discount"],
-    status: json["status"],
-    createdAt: json["created_at"] == null
-        ? null
-        : DateTime.parse(json["created_at"]),
-  );
+  factory AppointmentData.fromJson(Map<String, dynamic> json) =>
+      AppointmentData(
+        id: json["id"],
+        appointmentKey: json["appointment_key"],
+        clinicId: json["clinic_id"],
+        clinicName: json["clinic_name"],
+        doctorId: json["doctor_id"],
+        appointmentTypeId: json["appointment_type_id"],
+        appointmentType: json["appointment_type"] == null
+            ? null
+            : AppointmentType.fromJson(json["appointment_type"]),
+        patientName: json["patient_name"],
+        date: json["date"] != null
+            ? DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000)
+            : null,
+        start: DateTime.fromMillisecondsSinceEpoch(json["start_time"] * 1000),
+        end: DateTime.fromMillisecondsSinceEpoch(json["end_time"] * 1000),
+        isInviteClinic: json["is_invite_clinic"],
+        simulations: json["simulations"] == null
+            ? null
+            : Simulations.fromJson(json["simulations"]),
+        treatments: json["treatments"] == null
+            ? []
+            : List<Treatment>.from(
+                json["treatments"]!.map((x) => Treatment.fromJson(x)),
+              ),
+        treatmentTotal: json["treatment_total"],
+        paymentType: json["payment_type"] == null
+            ? null
+            : PaymentType.fromJson(json["payment_type"]),
+        discountType: json["discount_type"],
+        discount: json["discount"],
+        status: json["status"],
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+      );
 
   Map<String, dynamic> toJson() => {
     "id": id,
@@ -158,8 +159,8 @@ class AppointmentData {
     "appointment_type": appointmentType?.toJson(),
     "patient_name": patientName,
     "date": date,
-    "start_time": startTime,
-    "end_time": endTime,
+    "start_time": start,
+    "end_time": end,
     "is_invite_clinic": isInviteClinic,
     "simulations": simulations?.toJson(),
     "treatments": treatments == null
@@ -172,6 +173,31 @@ class AppointmentData {
     "status": status,
     "created_at": createdAt?.toIso8601String(),
   };
+
+  AppointmentData copyWith({DateTime? date, DateTime? start, DateTime? end}) {
+    return AppointmentData(
+      id: id,
+      appointmentKey: appointmentKey,
+      appointmentType: appointmentType,
+      appointmentTypeId: appointmentTypeId,
+      clinicId: clinicId,
+      clinicName: clinicName,
+      createdAt: createdAt,
+      date: date ?? this.date,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      discountType: discountType,
+      discount: discount,
+      doctorId: doctorId,
+      isInviteClinic: isInviteClinic,
+      patientName: patientName,
+      paymentType: paymentType,
+      simulations: simulations,
+      status: status,
+      treatmentTotal: treatmentTotal,
+      treatments: treatments,
+    );
+  }
 }
 
 class AppointmentType {

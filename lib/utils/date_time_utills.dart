@@ -4,6 +4,13 @@ extension DateTimeUtils on DateTime {
   String get formattedDateTime {
     return DateFormat('MMM dd, yyyy - hh:mm a').format(this);
   }
+
+  String get formattedTime {
+    return DateFormat('hh:mm a').format(this);
+  }
+   String get formattedDate {
+    return DateFormat('MMM dd, yyyy').format(this);
+  }
 }
 
 List<Map<String, String>> getNextNDays(int n) {
