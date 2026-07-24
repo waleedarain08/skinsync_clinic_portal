@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:camera/camera.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -87,40 +86,24 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   Future<void> registerPractitioner({
-    required String name,
-    required String specialization,
-    required String email,
-    required String phone,
-    required int consultationFee,
-    String? image,
+    required BasicInfo basicInfo,
+    required ContactInfo contactInfo,
+    required LicenseInfo licenseInfo,
+    required ClinicAccess clinicAccess,
+    required AvailabilityInfo availabilityInfo,
+    required FinancialInfo financialInfo,
   }) async {
     return await runSafely(() async {
-      if (state.role == null) {
-        throw Exception('Role not selected!');
-      }
-      if (state.treatments.isEmpty) {
-        throw Exception('Add treatments first!');
-      }
-      if (state.availability.isEmpty) {
-        throw Exception('Add slots first!');
-      }
       state = state.copyWith(loading: true);
 
       await locator<PractitionerService>().register(
         request: RegisterPractitionerRequest(
-          role: state.role!,
-          name: name,
-          image: image,
-          specialization: specialization,
-          contactInfo: ContactInfo(
-            email: email,
-            phone: phone,
-            cc: state.country.dialCode!,
-            country: state.country.name!,
-          ),
-          treatments: state.treatments,
-          availability: state.availability,
-          consultationFee: consultationFee,
+          basicInfo: basicInfo,
+          contactInfo: contactInfo,
+          licenseInfo: licenseInfo,
+          clinicAccess: clinicAccess,
+          availabilityInfo: availabilityInfo,
+          financialInfo: financialInfo,
         ),
       );
       state = state.copyWith(loading: false, success: true);

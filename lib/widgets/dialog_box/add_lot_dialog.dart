@@ -162,8 +162,9 @@ class _AddLotDialogState extends ConsumerState<AddLotDialog> {
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Required';
                         if (double.tryParse(value) == null ||
-                            double.parse(value) <= 0)
+                            double.parse(value) <= 0) {
                           return 'Invalid';
+                        }
                         return null;
                       },
                     ),
@@ -180,8 +181,9 @@ class _AddLotDialogState extends ConsumerState<AddLotDialog> {
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Required';
                         if (double.tryParse(value) == null ||
-                            double.parse(value) <= 0)
+                            double.parse(value) <= 0) {
                           return 'Invalid';
+                        }
                         return null;
                       },
                     ),
@@ -196,8 +198,9 @@ class _AddLotDialogState extends ConsumerState<AddLotDialog> {
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Required';
                         if (int.tryParse(value) == null ||
-                            int.parse(value) <= 0)
+                            int.parse(value) <= 0) {
                           return 'Invalid';
+                        }
                         return null;
                       },
                     ),

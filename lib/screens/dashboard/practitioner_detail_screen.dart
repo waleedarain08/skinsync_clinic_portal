@@ -204,7 +204,7 @@ class PractitionerDetailScreen extends StatelessWidget {
                                     ),
                                     context.horizontalSpace(16),
                                     Text(
-                                      '${availability.startTime.format(context)} to ${availability.endTime.format(context)}',
+                                      availability.uiTimeRange(context),
                                       style: context.fonts.black14w600,
                                     ),
                                   ],
