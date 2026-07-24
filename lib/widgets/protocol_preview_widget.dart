@@ -228,6 +228,7 @@ class ProtocolFormPreview extends StatelessWidget {
                               CustomColors.purple.toARGB32(),
                             ),
                           ),
+
                           SizedBox(width: 8),
                           if (note.title != null && note.title!.isNotEmpty)
                             Expanded(
