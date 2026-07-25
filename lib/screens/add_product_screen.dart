@@ -4,83 +4,172 @@ import 'package:go_router/go_router.dart';
 
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
+import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/dialog_box/standard_dialog.dart';
+import '../widgets/number_paginator.dart';
 import '../models/responses/admin_product_list_response.dart';
 import '../view_models/product_view_model.dart';
 
-class ClinicAddProductScreen extends ConsumerStatefulWidget {
-  const ClinicAddProductScreen({super.key});
+class AddProductScreen extends ConsumerStatefulWidget {
+  const AddProductScreen({super.key});
 
   static const String routeName = '/clinic-add-product';
 
   @override
-  ConsumerState<ClinicAddProductScreen> createState() => _ClinicAddProductScreenState();
+  ConsumerState<AddProductScreen> createState() => _ClinicAddProductScreenState();
 }
 
-class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen> {
+class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
+  final List<AdminProduct> _selectedProducts = [];
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(productViewModelProvider.notifier).fetchAdminProducts(isRefresh: true, search: '');
+      ref.read(productViewModelProvider.notifier).fetchAdminProducts(page: 1, search: '');
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      ref.read(productViewModelProvider.notifier).fetchMoreAdminProducts(search: _searchQuery);
-    }
   }
 
   void _onSearchChanged(String query) {
     setState(() {
       _searchQuery = query;
     });
-    ref.read(productViewModelProvider.notifier).fetchAdminProducts(isRefresh: true, search: query);
+    ref.read(productViewModelProvider.notifier).fetchAdminProducts(page: 1, search: query);
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value) {
+  void _toggleSelection(AdminProduct product) {
+    setState(() {
+      final index = _selectedProducts.indexWhere((p) => p.id == product.id);
+      if (index != -1) {
+        _selectedProducts.removeAt(index);
+      } else {
+        _selectedProducts.add(product);
+      }
+    });
+  }
+
+  Widget _buildProductCard(BuildContext context, AdminProduct product) {
+    final isSelected = _selectedProducts.any((p) => p.id == product.id);
+
+    return InkWell(
+      onTap: () => _toggleSelection(product),
+      borderRadius: BorderRadius.circular(12),
+      child: BorderdContainerWidget(
+        padding: context.appEdgeInsets(all: 12),
+        backgroundColor: Colors.white,
+        borderColor: isSelected ? CustomColors.purple : CustomColors.border,
+        borderWidth: isSelected ? 1.5 : 1.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: context.w(36),
+                  height: context.w(36),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? CustomColors.green.withValues(alpha: 0.1)
+                        : CustomColors.purple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSelected
+                        ? Icons.check_circle_outline
+                        : Icons.inventory_2_outlined,
+                    color: isSelected ? CustomColors.green : CustomColors.purple,
+                    size: 18,
+                  ),
+                ),
+                context.horizontalSpace(10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: context.fonts.black13w600,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        product.brand ?? 'N/A',
+                        style: context.fonts.purple11w700,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            context.verticalSpace(4),
+            _buildCompactDetail(context, 'SKU', product.globalSku ?? 'N/A'),
+            _buildCompactDetail(context, 'Category', product.category ?? 'N/A'),
+            _buildCompactDetail(
+              context,
+              'Usage',
+              (product.usageType ?? 'N/A').toUpperCase(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactDetail(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: context.w(180),
-            child: Text(
-              label,
-              style: context.fonts.grey12w400,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : 'N/A',
-              style: context.fonts.black14w600,
-            ),
-          ),
+          Text(label, style: context.fonts.grey10w400),
+          Text(value, style: context.fonts.black12w600),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPaginationFooter(BuildContext context, int currentPage, int totalPages) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24.0),
+      child: Center(
+        child: NumberPaginator(
+          totalPages: totalPages,
+          currentPage: currentPage - 1,
+          onPageChanged: (pageIndex) {
+            ref.read(productViewModelProvider.notifier).goToAdminProductPage(
+              pageIndex + 1,
+              search: _searchQuery,
+            );
+          },
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = context.screenWidth > 1200;
     final state = ref.watch(productViewModelProvider);
+    
+    int gridColumns = 1;
+    if (context.screenWidth > 1200) {
+      gridColumns = 4;
+    } else if (context.screenWidth > 900) {
+      gridColumns = 3;
+    } else if (context.screenWidth > 600) {
+      gridColumns = 2;
+    }
 
     return GradientScaffold(
       appBar: AppBar(
@@ -90,27 +179,23 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
         title: Text('Add Inventory Product', style: context.fonts.black18w600),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: CustomColors.black),
-          onPressed: () {
-            context.pop();
-          },
+          onPressed: () => context.pop(),
         ),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: context.w(isDesktop ? 750 : 900),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Panel Card matching standard Treatment Detail look
-              Padding(
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 16),
-                child: BorderdContainerWidget(
-                  padding: context.appEdgeInsets(all: 16),
-                  backgroundColor: CustomColors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Search Panel & Selection Display
+          Padding(
+            padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
+            child: BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 16),
+              backgroundColor: CustomColors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
@@ -120,225 +205,140 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
                               color: CustomColors.purple.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.search_rounded,
-                              color: CustomColors.purple,
-                            ),
+                            child: const Icon(Icons.search_rounded, color: CustomColors.purple),
                           ),
                           context.horizontalSpace(12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Search Master Catalog',
-                                  style: context.fonts.black16w600,
-                                ),
-                                Text(
-                                  'Find platform-wide products to add directly to your clinic inventory.',
-                                  style: context.fonts.grey12w400,
-                                ),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Search Master Catalog', style: context.fonts.black16w600),
+                              Text('Select platform products to add to inventory.', style: context.fonts.grey12w400),
+                            ],
                           ),
                         ],
                       ),
-                      context.verticalSpace(16),
-                      TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search master products by name, brand, global SKU...',
-                          hintStyle: context.fonts.grey14w400,
-                          prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, color: CustomColors.grey),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _onSearchChanged('');
-                                  },
-                                )
-                              : null,
-                          border: OutlineInputBorder(
-                            borderRadius: context.appBorderRadius(all: 12),
-                            borderSide: const BorderSide(color: CustomColors.border),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: context.appBorderRadius(all: 12),
-                            borderSide: const BorderSide(color: CustomColors.purple, width: 2),
-                          ),
-                          filled: true,
-                          fillColor: CustomColors.whiteGrey,
-                          contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                      if (_selectedProducts.isNotEmpty)
+                        CustomPrimaryButton(
+                          onTap: _showConfirmationDialog,
+                          label: 'Add ${_selectedProducts.length} Products',
+                          width: context.w(180),
+                          height: context.h(40),
+                          icon: Icons.add_to_photos_outlined,
                         ),
-                        onChanged: _onSearchChanged,
-                      ),
                     ],
                   ),
-                ),
-              ),
-
-              // Product template list
-              Expanded(
-                child: state.loadingAdminProducts
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: CustomColors.purple,
+                  context.verticalSpace(16),
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search master products by name, brand, global SKU...',
+                      hintStyle: context.fonts.grey14w400,
+                      prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: CustomColors.grey),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchChanged('');
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.purple, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: CustomColors.whiteGrey,
+                      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                    ),
+                    onChanged: _onSearchChanged,
+                  ),
+                  if (_selectedProducts.isNotEmpty) ...[
+                    context.verticalSpace(16),
+                    const Divider(color: CustomColors.border, height: 1),
+                    context.verticalSpace(12),
+                    Row(
+                      children: [
+                        Text('Selected Items (${_selectedProducts.length}):', style: context.fonts.black12w600),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () => setState(() => _selectedProducts.clear()),
+                          child: Text('Clear All', style: context.fonts.purple12w700.copyWith(color: CustomColors.red)),
                         ),
-                      )
-                    : state.adminProducts.isEmpty
-                        ? Center(
-                            child: Text(
-                              'No matching master products found.',
-                              style: context.fonts.grey14w400,
-                            ),
-                          )
-                        : ListView.builder(
-                            controller: _scrollController,
-                            padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-                            itemCount: state.adminProducts.length + (state.loadingMoreAdminProducts ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index >= state.adminProducts.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: CustomColors.purple,
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              final product = state.adminProducts[index];
-
-                              return BorderdContainerWidget(
-                                margin: const EdgeInsets.only(bottom: 16),
-                                padding: context.appEdgeInsets(all: 0),
-                                borderRadius: 12,
-                                child: Theme(
-                                  data: Theme.of(context).copyWith(
-                                    dividerColor: Colors.transparent,
-                                  ),
-                                  child: ExpansionTile(
-                                    tilePadding: context.appEdgeInsets(all: 16),
-                                    childrenPadding: context.appEdgeInsets(horizontal: 16, bottom: 16),
-                                    leading: Container(
-                                      width: context.w(48),
-                                      height: context.w(48),
-                                      decoration: BoxDecoration(
-                                        color: CustomColors.purple.withValues(alpha: 0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.inventory_2_outlined,
-                                        color: CustomColors.purple,
-                                      ),
-                                    ),
-                                    title: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          product.name,
-                                          style: context.fonts.black16w600,
-                                        ),
-                                        context.verticalSpace(4),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              product.brand ?? 'N/A',
-                                              style: context.fonts.purple12w700,
-                                            ),
-                                            context.horizontalSpace(12),
-                                            Container(
-                                              width: 4,
-                                              height: 4,
-                                              decoration: const BoxDecoration(
-                                                color: CustomColors.grey,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            context.horizontalSpace(12),
-                                            Text(
-                                              product.manufacturer ?? 'N/A',
-                                              style: context.fonts.grey12w400,
-                                            ),
-                                            context.horizontalSpace(12),
-                                            Container(
-                                              width: 4,
-                                              height: 4,
-                                              decoration: const BoxDecoration(
-                                                color: CustomColors.grey,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            context.horizontalSpace(12),
-                                            Text(
-                                              'SKU: ${product.globalSku ?? "N/A"}',
-                                              style: context.fonts.grey12w400,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    children: [
-                                      const Divider(color: CustomColors.border, height: 24),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          _buildDetailRow(context, 'Usage Type', (product.usageType ?? '').toUpperCase()),
-                                          _buildDetailRow(context, 'Category', product.category ?? ''),
-                                          _buildDetailRow(context, 'Status', (product.status ?? '').toUpperCase()),
-                                          _buildDetailRow(context, 'Description', product.description),
-                                          _buildDetailRow(context, 'Unit Type', (product.unitType ?? '').toUpperCase()),
-                                          _buildDetailRow(context, 'Box Quantity', product.boxQuantity?.toString() ?? '0'),
-                                          _buildDetailRow(context, 'Item Qty Per Box', product.itemQuantityPerBox?.toString() ?? '0'),
-                                          _buildDetailRow(context, 'Package Type', (product.packageType ?? '').toUpperCase()),
-                                          _buildDetailRow(context, 'Billable Unit', product.billableUnit ?? ''),
-                                          _buildDetailRow(context, 'Billable Qty Per Item', product.billableQuantityPerItem?.toString() ?? '0'),
-                                          _buildDetailRow(context, 'Total Billable Qty', product.totalBillableQuantity?.toString() ?? '0'),
-                                          _buildDetailRow(context, 'Enforce Lot Tracking', product.enforceLotTracking ? 'YES' : 'NO'),
-                                        ],
-                                      ),
-                                      const Divider(color: CustomColors.border, height: 24),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          CustomPrimaryButton(
-                                            onTap: () {
-                                              _showAddSuccessDialog(product);
-                                            },
-                                            label: 'Select',
-                                            width: context.w(120),
-                                            height: context.h(40),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                      ],
+                    ),
+                    context.verticalSpace(8),
+                    Container(
+                      constraints: BoxConstraints(maxHeight: context.h(100)),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _selectedProducts.map((product) {
+                            return Chip(
+                              backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
+                              side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
+                              label: Text(product.name, style: context.fonts.purple11w600),
+                              onDeleted: () => _toggleSelection(product),
+                              deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+
+          // Grid of Products
+          Expanded(
+            child: state.loadingAdminProducts
+                ? const Center(child: CircularProgressIndicator(color: CustomColors.purple))
+                : state.adminProducts.isEmpty
+                    ? Center(child: Text('No matching master products found.', style: context.fonts.grey14w400))
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: GridView.builder(
+                              padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: gridColumns,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: context.screenWidth > 600 ? 1.6 : 1.1,
+                              ),
+                              itemCount: state.adminProducts.length,
+                              itemBuilder: (context, index) => _buildProductCard(context, state.adminProducts[index]),
+                            ),
+                          ),
+                          if (state.adminTotalPages > 1)
+                            _buildPaginationFooter(context, state.adminPage, state.adminTotalPages),
+                        ],
+                      ),
+          ),
+        ],
       ),
     );
   }
 
-  void _showAddSuccessDialog(AdminProduct product) {
+  void _showConfirmationDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext ctx) {
         return StandardDialog(
-          title: "Product Added!",
+          title: "Confirm Selection",
           showCloseButton: false,
           width: 450.w,
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: .center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 padding: context.appEdgeInsets(all: 16),
@@ -350,22 +350,59 @@ class _ClinicAddProductScreenState extends ConsumerState<ClinicAddProductScreen>
               ),
               context.verticalSpace(24),
               Text(
-                "Successfully added ${product.name} (${product.brand}) into your clinic inventory.",
+                "You have selected ${_selectedProducts.length} products. Do you want to add them to your clinic inventory?",
                 style: context.fonts.grey14w400,
                 textAlign: TextAlign.center,
               ),
-
+              context.verticalSpace(12),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: context.h(150)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: CustomColors.whiteGrey,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.all(12),
+                    itemCount: _selectedProducts.length,
+                    separatorBuilder: (context, index) => const Divider(height: 16),
+                    itemBuilder: (context, index) {
+                      final p = _selectedProducts[index];
+                      return Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: CustomColors.green, size: 16),
+                          context.horizontalSpace(8),
+                          Expanded(
+                            child: Text(
+                              p.name,
+                              style: context.fonts.black12w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
           actions: [
-            Expanded(
-              child: CustomPrimaryButton(
-                onTap: () {
-                  Navigator.of(ctx).pop(); // Dismiss success dialog
-                  context.pop(); // Navigate back to main Inventory catalog
-                },
-                label: "Return to Inventory",
-              ),
+            CustomOutlinedButton(
+              onTap: () => Navigator.of(ctx).pop(),
+              label: "Cancel",
+              width: context.w(100),
+            ),
+            CustomPrimaryButton(
+              onTap: () {
+                Navigator.of(ctx).pop();
+                context.pop();
+              },
+              label: "Add Now",
+              width: context.w(140),
             ),
           ],
         );

@@ -57,12 +57,11 @@ class PhoneWidget extends ConsumerWidget {
             _focusNode.unfocus();
           },
           keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            filled: filled,
-            fillColor: CustomColors.softGrey,
-            hintText: '921 - 2341 -99908',
-            hintStyle: CustomFonts.grey14w400,
+          decoration: AppDecorations.input(
+            context,
+            hint: '921 - 2341 -99908',
             prefixIcon: _buildPhoneNumberPicker(context: context, ref: ref),
+            fillColor: filled ? CustomColors.softGrey : CustomColors.white,
           ),
         ),
       ],

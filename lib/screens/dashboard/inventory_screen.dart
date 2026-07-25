@@ -134,7 +134,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         ),
         CustomPrimaryButton(
           onTap: () {
-            context.push(ClinicAddProductScreen.routeName);
+            context.push(AddProductScreen.routeName);
           },
           icon: Icons.add,
           label: 'Add Product',

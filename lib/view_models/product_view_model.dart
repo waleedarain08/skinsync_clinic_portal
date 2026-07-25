@@ -444,20 +444,12 @@ class ProductViewModel extends BaseViewModel<ProductState> {
 
   // --- Admin Product List API Pagination ---
 
-  Future<void> fetchAdminProducts({bool isRefresh = false, String search = ''}) async {
-    if (isRefresh) {
-      state = state.copyWith(
-        adminPage: 1,
-        adminTotalPages: 1,
-        adminProducts: [],
-      );
-    }
-    
+  Future<void> fetchAdminProducts({int page = 1, String search = ''}) async {
     state = state.copyWith(loadingAdminProducts: true);
 
     try {
       final response = await _productRepository.getAdminProductList(
-        page: state.adminPage,
+        page: page,
         limit: 8,
         search: search,
       );
@@ -476,41 +468,9 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     }
   }
 
-  Future<void> fetchMoreAdminProducts({String search = ''}) async {
-    if (state.loadingAdminProducts || state.loadingMoreAdminProducts) return;
-    if (state.adminPage >= state.adminTotalPages) return;
-
-    state = state.copyWith(loadingMoreAdminProducts: true);
-
-    try {
-      final nextPage = state.adminPage + 1;
-      final response = await _productRepository.getAdminProductList(
-        page: nextPage,
-        limit: 8,
-        search: search,
-      );
-
-      final currentList = List<AdminProduct>.from(state.adminProducts);
-      final newItems = response.data ?? [];
-      
-      // Prevent duplicates by checking ID
-      for (final item in newItems) {
-        if (!currentList.any((p) => p.id == item.id)) {
-          currentList.add(item);
-        }
-      }
-
-      state = state.copyWith(
-        adminProducts: currentList,
-        adminPage: response.page,
-        adminTotalPages: response.totalPages,
-        loadingMoreAdminProducts: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        loadingMoreAdminProducts: false,
-        errorMessage: e.toString(),
-      );
+  Future<void> goToAdminProductPage(int page, {String search = ''}) async {
+    if (page >= 1 && page <= state.adminTotalPages) {
+      await fetchAdminProducts(page: page, search: search);
     }
   }
 

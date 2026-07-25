@@ -203,9 +203,9 @@ class RouteGenerator {
             },
           ),
           GoRoute(
-            path: ClinicAddProductScreen.routeName,
-            name: ClinicAddProductScreen.routeName,
-            builder: (_, _) => const ClinicAddProductScreen(),
+            path: AddProductScreen.routeName,
+            name: AddProductScreen.routeName,
+            builder: (_, _) => const AddProductScreen(),
           ),
         ],
       ),
