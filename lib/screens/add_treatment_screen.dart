@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
+import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import '../widgets/dialog_box/standard_dialog.dart';
+import '../widgets/number_paginator.dart';
 
 class AdminTreatmentTemplate {
   final int id;
@@ -102,127 +105,204 @@ class AddTreatmentScreen extends ConsumerStatefulWidget {
   static const String routeName = '/clinic-add-treatment';
 
   @override
-  ConsumerState<AddTreatmentScreen> createState() => _ClinicAddTreatmentScreenState();
+  ConsumerState<AddTreatmentScreen> createState() => _AddTreatmentScreenState();
 }
 
-class _ClinicAddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
+class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-
-  AdminTreatmentTemplate? _selectedTemplate;
-  final Set<String> _selectedAreas = {};
-
+  
+  // Track selected areas per treatment template ID
+  final Map<int, Set<String>> _selectedTemplateAreas = {};
+  
   List<AdminTreatmentTemplate> _filteredTemplates = [];
-  final List<AdminTreatmentTemplate> _displayedTemplates = [];
-
   int _currentPage = 1;
-  final int _pageSize = 5;
-  bool _isLoadingMore = false;
-  bool _hasMore = true;
+  final int _pageSize = 8;
 
   @override
   void initState() {
     super.initState();
     _filteredTemplates = List.from(dummyAdminTemplates);
-    _loadInitialPage();
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _loadInitialPage() {
-    _currentPage = 1;
-    _displayedTemplates.clear();
-    final int endIndex = _filteredTemplates.length < _pageSize ? _filteredTemplates.length : _pageSize;
-    _displayedTemplates.addAll(_filteredTemplates.sublist(0, endIndex));
-    _hasMore = _displayedTemplates.length < _filteredTemplates.length;
-    _isLoadingMore = false;
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {
-      _loadMoreItems();
-    }
-  }
-
-  Future<void> _loadMoreItems() async {
-    if (_isLoadingMore || !_hasMore) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
-    // Simulate API network latency
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    if (!mounted) return;
-
-    final int nextStartIndex = _currentPage * _pageSize;
-    final int remainingItems = _filteredTemplates.length - nextStartIndex;
-
-    if (remainingItems > 0) {
-      final int itemsToTake = remainingItems < _pageSize ? remainingItems : _pageSize;
-      final int nextEndIndex = nextStartIndex + itemsToTake;
-
-      setState(() {
-        _displayedTemplates.addAll(_filteredTemplates.sublist(nextStartIndex, nextEndIndex));
-        _currentPage++;
-        _hasMore = _displayedTemplates.length < _filteredTemplates.length;
-        _isLoadingMore = false;
-      });
-    } else {
-      setState(() {
-        _hasMore = false;
-        _isLoadingMore = false;
-      });
-    }
   }
 
   void _onSearchChanged(String query) {
     setState(() {
+      _currentPage = 1;
       _filteredTemplates = dummyAdminTemplates.where((template) {
         final nameMatch = template.name.toLowerCase().contains(query.toLowerCase());
         final descMatch = template.description.toLowerCase().contains(query.toLowerCase());
         return nameMatch || descMatch;
       }).toList();
-
-      _selectedTemplate = null;
-      _selectedAreas.clear();
-      _loadInitialPage();
     });
+  }
+
+  void _toggleAreaSelection(int templateId, String area) {
+    setState(() {
+      if (!_selectedTemplateAreas.containsKey(templateId)) {
+        _selectedTemplateAreas[templateId] = {area};
+      } else {
+        final areas = _selectedTemplateAreas[templateId]!;
+        if (areas.contains(area)) {
+          areas.remove(area);
+          if (areas.isEmpty) {
+            _selectedTemplateAreas.remove(templateId);
+          }
+        } else {
+          areas.add(area);
+        }
+      }
+    });
+  }
+
+  void _clearTreatment(int templateId) {
+    setState(() {
+      _selectedTemplateAreas.remove(templateId);
+    });
+  }
+
+  Widget _buildTreatmentTile(BuildContext context, AdminTreatmentTemplate template) {
+    final selectedAreas = _selectedTemplateAreas[template.id] ?? {};
+    final isAnyAreaSelected = selectedAreas.isNotEmpty;
+
+    return BorderdContainerWidget(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.zero,
+      borderRadius: 12,
+      borderColor: isAnyAreaSelected ? CustomColors.purple : CustomColors.border,
+      borderWidth: isAnyAreaSelected ? 1.5 : 1.0,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          key: PageStorageKey<int>(template.id),
+          tilePadding: context.appEdgeInsets(horizontal: 12, vertical: 4),
+          childrenPadding: context.appEdgeInsets(horizontal: 12, bottom: 12),
+          leading: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: isAnyAreaSelected ? CustomColors.purple.withValues(alpha: 0.1) : CustomColors.whiteGrey,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.spa_outlined,
+              color: isAnyAreaSelected ? CustomColors.purple : CustomColors.grey,
+              size: 18,
+            ),
+          ),
+          title: Text(
+            template.name,
+            style: isAnyAreaSelected 
+                ? context.fonts.purple13w700 
+                : context.fonts.black13w600,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            isAnyAreaSelected 
+                ? '${selectedAreas.length} Areas Selected' 
+                : template.description,
+            style: context.fonts.grey11w400,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          children: [
+            const Divider(height: 1, color: CustomColors.border),
+            context.verticalSpace(12),
+            Row(
+              children: [
+                const Icon(Icons.layers_outlined, size: 12, color: CustomColors.purple),
+                context.horizontalSpace(6),
+                Text('Select Target Areas:', style: context.fonts.black11w600),
+              ],
+            ),
+            context.verticalSpace(8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: template.availableAreas.map((area) {
+                final isSelected = selectedAreas.contains(area);
+                return FilterChip(
+                  label: Text(area),
+                  selected: isSelected,
+                  onSelected: (_) => _toggleAreaSelection(template.id, area),
+                  checkmarkColor: Colors.white,
+                  selectedColor: CustomColors.purple,
+                  backgroundColor: CustomColors.whiteGrey,
+                  labelStyle: isSelected 
+                      ? context.fonts.white10w700.copyWith(fontSize: 9) 
+                      : context.fonts.black10w600.copyWith(fontSize: 9),
+                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaginationFooter(BuildContext context) {
+    final int totalPagesCount = (_filteredTemplates.length / _pageSize).ceil();
+    if (totalPagesCount <= 1) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Center(
+        child: NumberPaginator(
+          totalPages: totalPagesCount,
+          currentPage: _currentPage - 1,
+          onPageChanged: (pageIndex) {
+            setState(() {
+              _currentPage = pageIndex + 1;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = context.screenWidth > 1200;
+    final int startIndex = (_currentPage - 1) * _pageSize;
+    final int endIndex = startIndex + _pageSize > _filteredTemplates.length 
+        ? _filteredTemplates.length 
+        : startIndex + _pageSize;
+    
+    final List<AdminTreatmentTemplate> paginatedTemplates = _filteredTemplates.sublist(startIndex, endIndex);
+    final bool isWideScreen = context.screenWidth > 700;
 
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
-      flexibleSpace: AppDecorations.appBarGradient,
-      title: const Text('Add Treatment'),
-      centerTitle: true,
-    ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: context.w(isDesktop ? 700 : 850),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Panel Card wrapped in BorderdContainerWidget
-              Padding(
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 16),
-                child: BorderdContainerWidget(
-                  padding: context.appEdgeInsets(all: 16),
-                  backgroundColor: CustomColors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        flexibleSpace: AppDecorations.appBarGradient,
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Add Clinic Treatments', style: context.fonts.black18w600),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: CustomColors.black),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Search Panel & Selection Display
+          Padding(
+            padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
+            child: BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 16),
+              backgroundColor: CustomColors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
@@ -232,242 +312,148 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                               color: CustomColors.purple.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.search_rounded,
-                              color: CustomColors.purple,
-                            ),
+                            child: const Icon(Icons.search_rounded, color: CustomColors.purple),
                           ),
                           context.horizontalSpace(12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Search Templates',
-                                  style: context.fonts.black16w600,
-                                ),
-                                Text(
-                                  'Find treatment templates registered by administrative doctors.',
-                                  style: context.fonts.grey12w400,
-                                ),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Search Platform Templates', style: context.fonts.black16w600),
+                              Text('Choose templates and target areas to import.', style: context.fonts.grey12w400),
+                            ],
                           ),
                         ],
                       ),
-                      context.verticalSpace(16),
-                      TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search templates by name, keyword...',
-                          hintStyle: context.fonts.grey14w400,
-                          prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, color: CustomColors.grey),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _onSearchChanged('');
-                                  },
-                                )
-                              : null,
-                          border: OutlineInputBorder(
-                            borderRadius: context.appBorderRadius(all: 12),
-                            borderSide: const BorderSide(color: CustomColors.border),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: context.appBorderRadius(all: 12),
-                            borderSide: const BorderSide(color: CustomColors.purple, width: 2),
-                          ),
-                          filled: true,
-                          fillColor: CustomColors.whiteGrey,
-                          contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                      if (_selectedTemplateAreas.isNotEmpty)
+                        CustomPrimaryButton(
+                          onTap: _showConfirmationDialog,
+                          label: 'Import ${_selectedTemplateAreas.length} Treatments',
+                          width: context.w(200),
+                          height: context.h(40),
+                          icon: Icons.download_for_offline_outlined,
                         ),
-                        onChanged: _onSearchChanged,
-                      ),
                     ],
                   ),
-                ),
-              ),
-
-              // Paginated Expansion Tiles List wrapped in BorderdContainerWidget
-              Expanded(
-                child: _displayedTemplates.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No treatment templates found.',
-                          style: context.fonts.grey14w400,
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-                        itemCount: _displayedTemplates.length + (_hasMore ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == _displayedTemplates.length) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 24.0),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(CustomColors.purple),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          final template = _displayedTemplates[index];
-                          final bool isSelected = _selectedTemplate?.id == template.id;
-
-                          return BorderdContainerWidget(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: EdgeInsets.zero,
-                            borderRadius: 12,
-                            borderColor: isSelected ? CustomColors.purple : CustomColors.border,
-                            borderWidth: isSelected ? 2 : 1,
-                            child: Theme(
-                              data: Theme.of(context).copyWith(
-                                dividerColor: Colors.transparent,
-                              ),
-                              child: ExpansionTile(
-                                key: PageStorageKey<int>(template.id),
-                                initiallyExpanded: isSelected,
-                                onExpansionChanged: (expanded) {
-                                  setState(() {
-                                    if (expanded) {
-                                      _selectedTemplate = template;
-                                      _selectedAreas.clear();
-                                    } else {
-                                      if (_selectedTemplate?.id == template.id) {
-                                        _selectedTemplate = null;
-                                        _selectedAreas.clear();
-                                      }
-                                    }
-                                  });
-                                },
-                                leading: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: isSelected ? CustomColors.purple.withValues(alpha: 0.1) : CustomColors.whiteGrey,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.spa_outlined,
-                                    color: isSelected ? CustomColors.purple : CustomColors.grey,
-                                  ),
-                                ),
-                                title: Text(
-                                  template.name,
-                                  style: isSelected 
-                                      ? context.fonts.purple16w600.copyWith(fontWeight: FontWeight.bold) 
-                                      : context.fonts.black16w600,
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    template.description,
-                                    style: context.fonts.grey12w400,
-                                  ),
-                                ),
-                                children: [
-                                  const Divider(height: 1, color: CustomColors.border),
-                                  Padding(
-                                    padding: context.appEdgeInsets(all: 16),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.layers_outlined,
-                                              size: 16,
-                                              color: CustomColors.purple,
-                                            ),
-                                            context.horizontalSpace(8),
-                                            Text(
-                                              'Available Application Areas:',
-                                              style: context.fonts.black14w600,
-                                            ),
-                                          ],
-                                        ),
-                                        context.verticalSpace(12),
-                                        Wrap(
-                                          spacing: 12,
-                                          runSpacing: 12,
-                                          children: template.availableAreas.map((area) {
-                                            final bool areaSelected = _selectedAreas.contains(area);
-                                            return FilterChip(
-                                              selected: areaSelected,
-                                              checkmarkColor: Colors.white,
-                                              selectedColor: CustomColors.purple,
-                                              backgroundColor: CustomColors.whiteGrey,
-                                              label: Text(
-                                                area,
-                                                style: areaSelected
-                                                    ? context.fonts.white14w600
-                                                    : context.fonts.black12w400,
-                                              ),
-                                              onSelected: (selected) {
-                                                setState(() {
-                                                  if (selected) {
-                                                    _selectedAreas.add(area);
-                                                  } else {
-                                                    _selectedAreas.remove(area);
-                                                  }
-                                                });
-                                              },
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                  context.verticalSpace(16),
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search templates by name, keyword...',
+                      hintStyle: context.fonts.grey14w400,
+                      prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: CustomColors.grey),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchChanged('');
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.border),
                       ),
-              ),
-
-              // Import/Add Button with matching padding (12)
-              Padding(
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: CustomPrimaryButton(
-                    onTap: _selectedTemplate == null || _selectedAreas.isEmpty
-                        ? null
-                        : () {
-                            _handleAddTreatment();
-                          },
-                    label: 'Add Treatment',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: context.appBorderRadius(all: 12),
+                        borderSide: const BorderSide(color: CustomColors.purple, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: CustomColors.whiteGrey,
+                      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                    ),
+                    onChanged: _onSearchChanged,
                   ),
-                ),
+                  if (_selectedTemplateAreas.isNotEmpty) ...[
+                    context.verticalSpace(16),
+                    const Divider(color: CustomColors.border, height: 1),
+                    context.verticalSpace(12),
+                    Row(
+                      children: [
+                        Text('Batch Configuration (${_selectedTemplateAreas.length}):', style: context.fonts.black12w600),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () => setState(() => _selectedTemplateAreas.clear()),
+                          child: Text('Clear All', style: context.fonts.purple12w700.copyWith(color: CustomColors.red)),
+                        ),
+                      ],
+                    ),
+                    context.verticalSpace(8),
+                    Container(
+                      constraints: BoxConstraints(maxHeight: context.h(100)),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _selectedTemplateAreas.entries.map((entry) {
+                            final template = dummyAdminTemplates.firstWhere((t) => t.id == entry.key);
+                            return Chip(
+                              backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
+                              side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
+                              label: Text('${template.name} (${entry.value.length})', style: context.fonts.purple11w600),
+                              onDeleted: () => _clearTreatment(template.id),
+                              deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+
+          // Main List of Templates
+          Expanded(
+            child: _filteredTemplates.isEmpty
+                ? Center(child: Text('No matching treatment templates found.', style: context.fonts.grey14w400))
+                : ListView.builder(
+                    padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
+                    itemCount: (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil() + 1,
+                    itemBuilder: (context, index) {
+                      if (index == (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil()) {
+                        return _buildPaginationFooter(context);
+                      }
+
+                      if (isWideScreen) {
+                        final int firstIdx = index * 2;
+                        final int secondIdx = firstIdx + 1;
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildTreatmentTile(context, paginatedTemplates[firstIdx])),
+                            context.horizontalSpace(16),
+                            Expanded(
+                              child: secondIdx < paginatedTemplates.length 
+                                  ? _buildTreatmentTile(context, paginatedTemplates[secondIdx])
+                                  : const SizedBox(),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return _buildTreatmentTile(context, paginatedTemplates[index]);
+                      }
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
 
-  void _handleAddTreatment() {
+  void _showConfirmationDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext ctx) {
         return StandardDialog(
-          title: "Treatment Registered!",
+          title: "Confirm Configuration",
           showCloseButton: false,
-          width: 450.w,
+          width: 500.w,
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: .center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 padding: context.appEdgeInsets(all: 16),
@@ -479,21 +465,56 @@ class _ClinicAddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
               ),
               context.verticalSpace(24),
               Text(
-                "Successfully configured and imported ${_selectedTemplate!.name} with ${_selectedAreas.length} selected target areas.",
+                "You are importing ${_selectedTemplateAreas.length} treatments with custom area configurations. Continue?",
                 style: context.fonts.grey14w400,
                 textAlign: TextAlign.center,
+              ),
+              context.verticalSpace(16),
+              Container(
+                decoration: BoxDecoration(
+                  color: CustomColors.whiteGrey,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: CustomColors.border),
+                ),
+                constraints: BoxConstraints(maxHeight: context.h(250)),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _selectedTemplateAreas.length,
+                  separatorBuilder: (context, index) => const Divider(height: 24),
+                  itemBuilder: (context, index) {
+                    final entry = _selectedTemplateAreas.entries.elementAt(index);
+                    final template = dummyAdminTemplates.firstWhere((t) => t.id == entry.key);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(template.name, style: context.fonts.black12w600),
+                        context.verticalSpace(4),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: entry.value.map((area) => Text("• $area", style: context.fonts.grey10w400)).toList(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ],
           ),
           actions: [
-            Expanded(
-              child: CustomPrimaryButton(
-                onTap: () {
-                  Navigator.of(ctx).pop(); // Dismiss success dialog
-                  context.pop(); // Navigate back to treatments catalog screen
-                },
-                label: "Return to Catalog",
-              ),
+            CustomOutlinedButton(
+              onTap: () => Navigator.of(ctx).pop(),
+              label: "Cancel",
+              width: context.w(100),
+            ),
+            CustomPrimaryButton(
+              onTap: () {
+                Navigator.of(ctx).pop();
+                context.pop();
+              },
+              label: "Confirm Import",
+              width: context.w(160),
             ),
           ],
         );
