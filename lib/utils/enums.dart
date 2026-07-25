@@ -22,7 +22,7 @@ enum Endpoint {
   refreshToken('clinic/auth/refresh'),
   me('clinic/me'),
   getClinicTreatments('clinic/treatments/list'),
-  createDoctor('clinic/doctors/register'),
+  createDoctor('clinic/practitioners/register'),
   getDoctors('clinic/doctors'),
   getAdminTreatments('treatments/masters'),
   getTreatmentTemplates('clinic/treatments/admin'),
