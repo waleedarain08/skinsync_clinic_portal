@@ -95,7 +95,10 @@ class _MangePractitionerScreenState
           ],
         ),
         CustomPrimaryButton(
-          onTap: () => context.push(AddPractitionerScreen.routeName),
+          onTap: () {
+            ref.read(practitionerProvider.notifier).clearDocuments();
+            context.push(AddPractitionerScreen.routeName);
+          },
           icon: Icons.add_rounded,
           label: 'Add Practitioner',
           width: context.w(180),

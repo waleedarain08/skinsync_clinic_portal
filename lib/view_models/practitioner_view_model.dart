@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
@@ -69,6 +70,13 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     state = state.copyWith(treatments: [treatment, ...state.treatments]);
   }
 
+  void removeDocument(String url) {
+  final docs = List<String>.from(state.documents);
+  docs.remove(url);
+
+  state = state.copyWith(documents: docs);
+}
+
   Future<String?> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image == null) return null;
@@ -84,6 +92,42 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       return url;
     });
   }
+
+  Future<String?> pickAndUploadDocument() async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+    withData: true,
+  );
+
+  if (result == null || result.files.isEmpty) {
+    return null;
+  }
+
+  final file = result.files.first;
+
+  return await runSafely(() async {
+    final url = await MediaService().uploadMedia(
+      path: 'doctor/doucment/',
+      file: file,
+    );
+
+    if (url == null) {
+      throw const UnknownException(
+        message: 'Failed to upload document',
+      );
+    }
+
+    state = state.copyWith(
+      documents: [...state.documents, url],
+    );
+
+    return url;
+  });
+}
+void clearDocuments() {
+  state = state.copyWith(documents: []);
+}
 
   Future<void> registerPractitioner({
     required BasicInfo basicInfo,
@@ -121,6 +165,8 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       );
     }, showLoading: false);
   }
+
+
 
   Future<void> updatePractitionerTreatment({
     required String email,
@@ -210,6 +256,7 @@ class PractitionerState {
   final CountryCode country;
   final String? cc;
   final String? countryCode;
+  final List<String> documents;
 
   const PractitionerState({
     this.role,
@@ -220,6 +267,7 @@ class PractitionerState {
     this.success = false,
     this.availability = const [],
     required this.country,
+    this.documents = const [],
     this.cc,
     this.countryCode,
   });
@@ -235,6 +283,7 @@ class PractitionerState {
     CountryCode? country,
     String? cc,
     String? countryIso,
+    List<String>? documents
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -247,6 +296,7 @@ class PractitionerState {
       country: country ?? this.country,
       cc: cc ?? this.cc,
       countryCode: countryIso ?? countryCode,
+      documents:documents?? this. documents
     );
   }
 
@@ -255,6 +305,7 @@ class PractitionerState {
     String? role,
     List<TreatmentModel>? treatments,
     List<Practitioner>? doctors,
+    List<String>? documents,
     bool? success,
   }) {
     return PractitionerState(
@@ -266,6 +317,7 @@ class PractitionerState {
       country: country,
       cc: cc,
       countryCode: countryCode,
+      documents:documents ?? this.documents,  
     );
   }
 }

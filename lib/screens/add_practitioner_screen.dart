@@ -51,7 +51,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   final _emailController = TextEditingController();
   CountryCode? _selectedCountry;
   final _phoneController = TextEditingController();
-  
+
   final _emergencyNameController = TextEditingController();
   final _emergencyPhoneController = TextEditingController();
   CountryCode? _emergencyCountry;
@@ -63,7 +63,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   final _issuingAuthorityController = TextEditingController();
   final _indemnityNumberController = TextEditingController();
   final _indemnityExpiryController = TextEditingController();
-  final List<String> _documents = [];
+  // final List<String> _documents = [];
 
   // Section 4: Clinic Access
   bool _canPerformConsultation = true;
@@ -111,23 +111,29 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
     ref.read(practitionerProvider.notifier).changeRole(practitioner.role);
     if (practitioner.cc != null) {
-       _selectedCountry = CountryCode.fromDialCode(practitioner.cc!);
-       ref.read(practitionerProvider.notifier).setCountry(_selectedCountry!);
+      _selectedCountry = CountryCode.fromDialCode(practitioner.cc!);
+      ref.read(practitionerProvider.notifier).setCountry(_selectedCountry!);
     }
-    
-    // Treatments mapping
-    final convertedTreatments = practitioner.treatments?.map((t) {
-      return TreatmentModel(
-        id: t.treatmentId,
-        name: t.treatmentName,
-        sideAreas: t.sideAreas?.map((s) {
-          return SideAreaModel(id: s.sideAreaId, name: s.sideAreaName);
-        }).toList(),
-      );
-    }).toList() ?? [];
 
-    ref.read(practitionerProvider.notifier).setInitialTreatments(convertedTreatments);
-    ref.read(practitionerProvider.notifier).setInitialAvailability(practitioner.availability);
+    // Treatments mapping
+    final convertedTreatments =
+        practitioner.treatments?.map((t) {
+          return TreatmentModel(
+            id: t.treatmentId,
+            name: t.treatmentName,
+            sideAreas: t.sideAreas?.map((s) {
+              return SideAreaModel(id: s.sideAreaId, name: s.sideAreaName);
+            }).toList(),
+          );
+        }).toList() ??
+        [];
+
+    ref
+        .read(practitionerProvider.notifier)
+        .setInitialTreatments(convertedTreatments);
+    ref
+        .read(practitionerProvider.notifier)
+        .setInitialAvailability(practitioner.availability);
   }
 
   @override
@@ -170,7 +176,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -255,14 +264,19 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                     color: CustomColors.purple.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.person_add_alt_1_outlined, color: CustomColors.purple),
+                  child: const Icon(
+                    Icons.person_add_alt_1_outlined,
+                    color: CustomColors.purple,
+                  ),
                 ),
                 context.horizontalSpace(12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isEditing ? 'Update Practitioner Profile' : 'Practitioner Onboarding',
+                      isEditing
+                          ? 'Update Practitioner Profile'
+                          : 'Practitioner Onboarding',
                       style: context.fonts.black16w600,
                     ),
                     Text(
@@ -284,10 +298,14 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 context.horizontalSpace(12),
                 CustomPrimaryButton(
                   onTap: _submitForm,
-                  label: isEditing ? 'Update Practitioner' : 'Save Practitioner',
+                  label: isEditing
+                      ? 'Update Practitioner'
+                      : 'Save Practitioner',
                   width: context.w(180),
                   height: context.h(40),
-                  icon: isEditing ? Icons.save_as_outlined : Icons.check_circle_outline,
+                  icon: isEditing
+                      ? Icons.save_as_outlined
+                      : Icons.check_circle_outline,
                   isLoading: ref.watch(practitionerProvider).loading,
                 ),
               ],
@@ -298,7 +316,11 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     );
   }
 
-  Widget _buildSection({required String title, required List<Widget> children, Widget? trailing}) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+    Widget? trailing,
+  }) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
       backgroundColor: CustomColors.white,
@@ -339,20 +361,33 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                           hintText: 'Select',
                           value: _selectedTitle,
                           items: _titles,
-                          onChanged: (val) => setState(() => _selectedTitle = val),
+                          onChanged: (val) =>
+                              setState(() => _selectedTitle = val),
                         ),
                       ),
                       context.horizontalSpace(16),
                       Expanded(
                         child: Consumer(
                           builder: (_, ref, __) {
-                            final role = ref.watch(practitionerProvider.select((s) => s.role));
-                            final providerRoles = ref.watch(providerRoleViewModelProvider.select((s) => s.providerRoles)) ?? [];
+                            final role = ref.watch(
+                              practitionerProvider.select((s) => s.role),
+                            );
+                            final providerRoles =
+                                ref.watch(
+                                  providerRoleViewModelProvider.select(
+                                    (s) => s.providerRoles,
+                                  ),
+                                ) ??
+                                [];
                             return _buildDropdownField<String>(
-                              items: providerRoles.map((r) => r.name ?? "").toList(),
+                              items: providerRoles
+                                  .map((r) => r.name ?? "")
+                                  .toList(),
                               value: role,
                               onChanged: (selectedRole) {
-                                ref.read(practitionerProvider.notifier).changeRole(selectedRole);
+                                ref
+                                    .read(practitionerProvider.notifier)
+                                    .changeRole(selectedRole);
                               },
                               label: 'Role',
                               hintText: 'Select Role',
@@ -372,7 +407,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                           hintText: 'Select',
                           value: _selectedGender,
                           items: _genders,
-                          onChanged: (val) => setState(() => _selectedGender = val),
+                          onChanged: (val) =>
+                              setState(() => _selectedGender = val),
                         ),
                       ),
                       context.horizontalSpace(16),
@@ -433,7 +469,9 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
           children: [
             Text('Qualifications', style: context.fonts.black16w600),
             TextButton.icon(
-              onPressed: () => setState(() => _qualificationControllers.add(TextEditingController())),
+              onPressed: () => setState(
+                () => _qualificationControllers.add(TextEditingController()),
+              ),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Add Qualification'),
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
@@ -458,8 +496,13 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 ),
                 if (_qualificationControllers.length > 1)
                   IconButton(
-                    onPressed: () => setState(() => _qualificationControllers.removeAt(index)),
-                    icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                    onPressed: () => setState(
+                      () => _qualificationControllers.removeAt(index),
+                    ),
+                    icon: const Icon(
+                      Icons.remove_circle_outline,
+                      color: Colors.red,
+                    ),
                     padding: EdgeInsets.zero,
                   ),
               ],
@@ -495,7 +538,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                       ? CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                          placeholder: (_, __) =>
+                              const Center(child: CircularProgressIndicator()),
                           errorWidget: (_, __, ___) => _buildImagePlaceholder(),
                         )
                       : _buildImagePlaceholder(),
@@ -514,7 +558,11 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.add_a_photo_outlined, color: CustomColors.purple, size: 32),
+        const Icon(
+          Icons.add_a_photo_outlined,
+          color: CustomColors.purple,
+          size: 32,
+        ),
         context.verticalSpace(4),
         Text('UPLOAD', style: context.fonts.purple9w800ls1),
       ],
@@ -543,10 +591,14 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   SizedBox(height: context.h(8)),
                   PhoneWidget(
                     controller: _phoneController,
-                    initialCountryCode: _selectedCountry?.dialCode ?? ref.watch(practitionerProvider).country.dialCode,
+                    initialCountryCode:
+                        _selectedCountry?.dialCode ??
+                        ref.watch(practitionerProvider).country.dialCode,
                     onCountryChanged: (country) {
                       _selectedCountry = country;
-                      ref.read(practitionerProvider.notifier).setCountry(country);
+                      ref
+                          .read(practitionerProvider.notifier)
+                          .setCountry(country);
                     },
                   ),
                 ],
@@ -596,8 +648,11 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                         SizedBox(height: context.h(8)),
                         PhoneWidget(
                           controller: _emergencyPhoneController,
-                          initialCountryCode: _emergencyCountry?.dialCode ?? ref.watch(practitionerProvider).country.dialCode,
-                          onCountryChanged: (country) => _emergencyCountry = country,
+                          initialCountryCode:
+                              _emergencyCountry?.dialCode ??
+                              ref.watch(practitionerProvider).country.dialCode,
+                          onCountryChanged: (country) =>
+                              _emergencyCountry = country,
                         ),
                       ],
                     ),
@@ -686,7 +741,9 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
             Text('Verification Documents', style: context.fonts.black16w600),
             TextButton.icon(
               onPressed: () async {
-                setState(() => _documents.add('https://example.com/doc_${_documents.length + 1}.pdf'));
+                await ref
+                    .read(practitionerProvider.notifier)
+                    .pickAndUploadDocument();
               },
               icon: const Icon(Icons.upload_file_outlined, size: 18),
               label: const Text('Upload Document'),
@@ -694,51 +751,84 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
           ],
         ),
         SizedBox(height: context.h(12)),
-        if (_documents.isEmpty)
-           Padding(
-             padding: const EdgeInsets.symmetric(vertical: 8),
-             child: Text('No documents uploaded yet.', style: context.fonts.grey12w400),
-           )
-        else
-          Wrap(
-            spacing: context.w(12),
-            runSpacing: context.h(12),
-            children: _documents.asMap().entries.map((entry) {
-              int index = entry.key;
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: context.w(12), vertical: context.h(10)),
-                    decoration: BoxDecoration(
-                      color: CustomColors.whiteGrey,
-                      borderRadius: BorderRadius.circular(context.r(8)),
-                      border: Border.all(color: CustomColors.border),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.description_outlined, size: 20, color: CustomColors.purple),
-                        SizedBox(width: context.w(8)),
-                        Text('Verification Doc ${index + 1}', style: context.fonts.black12w600),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    top: -8, right: -8,
-                    child: GestureDetector(
-                      onTap: () => setState(() => _documents.removeAt(index)),
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        child: const Icon(Icons.close, color: Colors.white, size: 14),
-                      ),
-                    ),
-                  ),
-                ],
+        Consumer(
+          builder: (context, ref, _) {
+            final practitionerState = ref.watch(practitionerProvider);
+
+            final documents = practitionerState.documents;
+            if (documents.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'No documents uploaded yet.',
+                  style: context.fonts.grey12w400,
+                ),
               );
-            }).toList(),
-          ),
+            } else {
+              return Wrap(
+                spacing: context.w(12),
+                runSpacing: context.h(12),
+                children: documents.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(12),
+                          vertical: context.h(10),
+                        ),
+                        decoration: BoxDecoration(
+                          color: CustomColors.whiteGrey,
+                          borderRadius: BorderRadius.circular(context.r(8)),
+                          border: Border.all(color: CustomColors.border),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.description_outlined,
+                              size: 20,
+                              color: CustomColors.purple,
+                            ),
+                            SizedBox(width: context.w(8)),
+                            Text(
+                              'Verification Doc ${index + 1}',
+                              style: context.fonts.black12w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        top: -8,
+                        right: -8,
+                        child: GestureDetector(
+                          onTap: () {
+                            ref
+                                .read(practitionerProvider.notifier)
+                                .removeDocument(documents[index]);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              );
+            }
+          },
+        ),
       ],
     );
   }
@@ -747,8 +837,14 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     return _buildSection(
       title: 'Clinic Access & Operations',
       trailing: CustomPrimaryButton(
-        onTap: () => showDialog(context: context, builder: (context) => const SelectTreatmentDialog()),
-        label: 'Assign Treatments', icon: Icons.add, height: context.h(32), padding: const EdgeInsets.symmetric(horizontal: 12),
+        onTap: () => showDialog(
+          context: context,
+          builder: (context) => const SelectTreatmentDialog(),
+        ),
+        label: 'Assign Treatments',
+        icon: Icons.add,
+        height: context.h(32),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
       children: [
         Text('Assigned Treatments', style: context.fonts.grey11w600ls12),
@@ -762,15 +858,22 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
             Expanded(
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Can Perform Consultation', style: context.fonts.black14w400),
+                title: Text(
+                  'Can Perform Consultation',
+                  style: context.fonts.black14w400,
+                ),
                 value: _canPerformConsultation,
-                onChanged: (val) => setState(() => _canPerformConsultation = val),
+                onChanged: (val) =>
+                    setState(() => _canPerformConsultation = val),
               ),
             ),
             Expanded(
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Can Perform Treatment', style: context.fonts.black14w400),
+                title: Text(
+                  'Can Perform Treatment',
+                  style: context.fonts.black14w400,
+                ),
                 value: _canPerformTreatment,
                 onChanged: (val) => setState(() => _canPerformTreatment = val),
               ),
@@ -782,7 +885,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
             Expanded(
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Virtual Enabled', style: context.fonts.black14w400),
+                title: Text(
+                  'Virtual Enabled',
+                  style: context.fonts.black14w400,
+                ),
                 value: _isVirtualEnabled,
                 onChanged: (val) => setState(() => _isVirtualEnabled = val),
               ),
@@ -790,7 +896,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
             Expanded(
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Accepts Walk-in', style: context.fonts.black14w400),
+                title: Text(
+                  'Accepts Walk-in',
+                  style: context.fonts.black14w400,
+                ),
                 value: _acceptsWalkIn,
                 onChanged: (val) => setState(() => _acceptsWalkIn = val),
               ),
@@ -830,12 +939,20 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
       title: 'Clinical Availability',
       trailing: CustomPrimaryButton(
         onTap: () async {
-          final availability = await showDialog<Availability>(context: context, builder: (context) => const AddSlotDialog());
+          final availability = await showDialog<Availability>(
+            context: context,
+            builder: (context) => const AddSlotDialog(),
+          );
           if (availability != null) {
-            ref.read(practitionerProvider.notifier).setAvailability(availability);
+            ref
+                .read(practitionerProvider.notifier)
+                .setAvailability(availability);
           }
         },
-        label: 'Add Schedule', icon: Icons.calendar_month_outlined, height: context.h(32), padding: const EdgeInsets.symmetric(horizontal: 12),
+        label: 'Add Schedule',
+        icon: Icons.calendar_month_outlined,
+        height: context.h(32),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
       children: [
         _buildAvailabilityList(),
@@ -851,7 +968,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
               child: BuildTextField(
                 controller: _globalSlotDurationController,
                 label: 'Slot Duration (Min)',
-                hintText: '30', keyboardType: TextInputType.number,
+                hintText: '30',
+                keyboardType: TextInputType.number,
                 validator: Validators.empty,
               ),
             ),
@@ -860,7 +978,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
               child: BuildTextField(
                 controller: _globalBufferTimeController,
                 label: 'Buffer Time (Min)',
-                hintText: '10', keyboardType: TextInputType.number,
+                hintText: '10',
+                keyboardType: TextInputType.number,
                 validator: Validators.empty,
               ),
             ),
@@ -880,7 +999,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
               child: BuildTextField(
                 controller: _consultationFeeController,
                 label: 'Consultation Fee',
-                hintText: '500', keyboardType: TextInputType.number,
+                hintText: '500',
+                keyboardType: TextInputType.number,
                 validator: Validators.empty,
                 prefixIcon: const Icon(Icons.attach_money, size: 18),
               ),
@@ -890,7 +1010,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
               child: BuildTextField(
                 controller: _treatmentCommissionController,
                 label: 'Treatment Commission',
-                hintText: '10.0', keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                hintText: '10.0',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: Validators.empty,
               ),
             ),
@@ -901,7 +1024,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 hintText: 'Select',
                 value: _commissionType,
                 items: _commissionTypes,
-                onChanged: (val) => setState(() => _commissionType = val ?? 'percentage'),
+                onChanged: (val) =>
+                    setState(() => _commissionType = val ?? 'percentage'),
                 builder: (val) => Text(val.capitalize),
               ),
             ),
@@ -912,8 +1036,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   }
 
   Widget _buildDropdownField<T>({
-    required String label, required String hintText,
-    required T? value, required List<T> items,
+    required String label,
+    required String hintText,
+    required T? value,
+    required List<T> items,
     required Function(T?) onChanged,
     Widget Function(T)? builder,
   }) {
@@ -925,13 +1051,29 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
         DropdownButtonHideUnderline(
           child: DropdownButton2<T>(
             isExpanded: true,
-            hint: Text(hintText, style: context.fonts.grey14w400.copyWith(color: CustomColors.lightGrey)),
+            hint: Text(
+              hintText,
+              style: context.fonts.grey14w400.copyWith(
+                color: CustomColors.lightGrey,
+              ),
+            ),
             value: value,
-            items: items.map((item) => DropdownMenuItem<T>(value: item, child: builder?.call(item) ?? Text(item.toString()))).toList(),
+            items: items
+                .map(
+                  (item) => DropdownMenuItem<T>(
+                    value: item,
+                    child: builder?.call(item) ?? Text(item.toString()),
+                  ),
+                )
+                .toList(),
             onChanged: onChanged,
             buttonStyleData: ButtonStyleData(
-              height: context.h(52), padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(context.r(12)), border: Border.all(color: CustomColors.border)),
+              height: context.h(52),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: CustomColors.border),
+              ),
             ),
           ),
         ),
@@ -942,18 +1084,39 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   Widget _buildTreatmentChips() {
     return Consumer(
       builder: (_, ref, __) {
-        final treatments = ref.watch(practitionerProvider.select((s) => s.treatments));
-        if (treatments.isEmpty) return Text('No treatments assigned yet.', style: context.fonts.grey14w400);
+        final treatments = ref.watch(
+          practitionerProvider.select((s) => s.treatments),
+        );
+        if (treatments.isEmpty)
+          return Text(
+            'No treatments assigned yet.',
+            style: context.fonts.grey14w400,
+          );
         return Wrap(
           spacing: context.w(8),
           runSpacing: context.h(8),
-          children: treatments.map((t) => Chip(
-            backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
-            side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
-            label: Text(t.name ?? 'N/A', style: context.fonts.purple11w600),
-            onDeleted: () => ref.read(practitionerProvider.notifier).toggleSelectedTreatment(t),
-            deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
-          )).toList(),
+          children: treatments
+              .map(
+                (t) => Chip(
+                  backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
+                  side: BorderSide(
+                    color: CustomColors.purple.withValues(alpha: 0.2),
+                  ),
+                  label: Text(
+                    t.name ?? 'N/A',
+                    style: context.fonts.purple11w600,
+                  ),
+                  onDeleted: () => ref
+                      .read(practitionerProvider.notifier)
+                      .toggleSelectedTreatment(t),
+                  deleteIcon: const Icon(
+                    Icons.close,
+                    size: 14,
+                    color: CustomColors.purple,
+                  ),
+                ),
+              )
+              .toList(),
         );
       },
     );
@@ -962,24 +1125,45 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   Widget _buildAvailabilityList() {
     return Consumer(
       builder: (_, ref, __) {
-        final availability = ref.watch(practitionerProvider.select((s) => s.availability));
-        if (availability.isEmpty) return Text('No schedules added yet.', style: context.fonts.grey14w400);
+        final availability = ref.watch(
+          practitionerProvider.select((s) => s.availability),
+        );
+        if (availability.isEmpty)
+          return Text(
+            'No schedules added yet.',
+            style: context.fonts.grey14w400,
+          );
         return Column(
-          children: availability.map((av) => BorderdContainerWidget(
-            margin: EdgeInsets.only(bottom: context.h(12)),
-            padding: context.appEdgeInsets(horizontal: 16, vertical: 8),
-            backgroundColor: CustomColors.whiteGrey,
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.access_time_outlined, color: CustomColors.purple),
-              title: Text(av.uiTimeRange(context), style: context.fonts.black14w600),
-              subtitle: Text(av.days.join(', '), style: context.fonts.grey12w400),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () => ref.read(practitionerProvider.notifier).deleteAvailability(av),
-              ),
-            ),
-          )).toList(),
+          children: availability
+              .map(
+                (av) => BorderdContainerWidget(
+                  margin: EdgeInsets.only(bottom: context.h(12)),
+                  padding: context.appEdgeInsets(horizontal: 16, vertical: 8),
+                  backgroundColor: CustomColors.whiteGrey,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(
+                      Icons.access_time_outlined,
+                      color: CustomColors.purple,
+                    ),
+                    title: Text(
+                      av.uiTimeRange(context),
+                      style: context.fonts.black14w600,
+                    ),
+                    subtitle: Text(
+                      av.days.join(', '),
+                      style: context.fonts.grey12w400,
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => ref
+                          .read(practitionerProvider.notifier)
+                          .deleteAvailability(av),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
         );
       },
     );
@@ -987,9 +1171,9 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final state = ref.read(practitionerProvider);
-    
+
     final basicInfo = BasicInfo(
       name: _nameController.text.trim(),
       role: state.role ?? '',
@@ -999,7 +1183,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
       dateOfBirth: _dobController.text,
       specialization: _specializationController.text.trim(),
       yearsOfExperience: int.tryParse(_experienceController.text) ?? 0,
-      qualifications: _qualificationControllers.map((c) => c.text.trim()).where((q) => q.isNotEmpty).toList(),
+      qualifications: _qualificationControllers
+          .map((c) => c.text.trim())
+          .where((q) => q.isNotEmpty)
+          .toList(),
     );
 
     final contactInfo = ContactInfo(
@@ -1022,7 +1209,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
       issuingAuthority: _issuingAuthorityController.text.trim(),
       indemnityInsuranceNumber: _indemnityNumberController.text.trim(),
       indemnityExpiryDate: _indemnityExpiryController.text,
-      documents: _documents,
+      documents: ref.read(practitionerProvider).documents,
     );
 
     final clinicAccess = ClinicAccess(
@@ -1036,27 +1223,31 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
     final availabilityInfo = AvailabilityInfo(
       availability: state.availability,
-      slotDurationMinutes: int.tryParse(_globalSlotDurationController.text) ?? 30,
+      slotDurationMinutes:
+          int.tryParse(_globalSlotDurationController.text) ?? 30,
       bufferTimeMinutes: int.tryParse(_globalBufferTimeController.text) ?? 10,
     );
 
     final financialInfo = FinancialInfo(
       consultationFee: int.tryParse(_consultationFeeController.text) ?? 0,
-      treatmentCommission: double.tryParse(_treatmentCommissionController.text) ?? 0,
+      treatmentCommission:
+          double.tryParse(_treatmentCommissionController.text) ?? 0,
       commissionType: _commissionType,
     );
 
     if (widget.practitioner != null) {
       // Handle Update
     } else {
-      ref.read(practitionerProvider.notifier).registerPractitioner(
-        basicInfo: basicInfo,
-        contactInfo: contactInfo,
-        licenseInfo: licenseInfo,
-        clinicAccess: clinicAccess,
-        availabilityInfo: availabilityInfo,
-        financialInfo: financialInfo,
-      );
+      ref
+          .read(practitionerProvider.notifier)
+          .registerPractitioner(
+            basicInfo: basicInfo,
+            contactInfo: contactInfo,
+            licenseInfo: licenseInfo,
+            clinicAccess: clinicAccess,
+            availabilityInfo: availabilityInfo,
+            financialInfo: financialInfo,
+          );
     }
   }
 }

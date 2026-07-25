@@ -201,7 +201,7 @@ class AvailabilityInfo {
 
 class Availability {
   final int startTime; // Timestamp (milliseconds)
-  final int endTime;   // Timestamp (milliseconds)
+  final int endTime; // Timestamp (milliseconds)
   final List<String> days;
   final String nextSlotAfter;
   final int slotDurationMinutes;
@@ -235,7 +235,13 @@ class Availability {
         final parts = value.split(':');
         if (parts.length == 2) {
           final now = DateTime.now();
-          return DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1])).millisecondsSinceEpoch;
+          return DateTime(
+            now.year,
+            now.month,
+            now.day,
+            int.parse(parts[0]),
+            int.parse(parts[1]),
+          ).millisecondsSinceEpoch;
         }
       } catch (_) {}
       return int.tryParse(value) ?? 0;
@@ -248,7 +254,7 @@ class Availability {
       'start_time': startTime,
       'end_time': endTime,
       'days': days,
-      'next_slot_after': nextSlotAfter,
+      //  'next_slot_after': nextSlotAfter,
       'slot_duration_minutes': slotDurationMinutes,
       'buffer_time_minutes': bufferTimeMinutes,
     };
@@ -272,7 +278,7 @@ class Availability {
       'start_time': startTime,
       'end_time': endTime,
       'days': days,
-      'next_slot_after': nextSlotAfter,
+      //    'next_slot_after': nextSlotAfter,
     };
   }
 }
