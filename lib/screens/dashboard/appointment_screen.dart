@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../widgets/custom_primary_button.dart';
+import '../create_appointment_screen.dart';
 import '../../models/responses/appointment_response.dart' hide Material;
 import '../../utils/date_time_utills.dart';
 import '../../utils/enums.dart';
@@ -158,29 +161,11 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     SizedBox(width: context.w(10)),
                     Expanded(
                       flex: 2,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(context.r(10)),
-                          color: CustomColors.black,
-                        ),
-                        padding: EdgeInsets.all(context.w(12)),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              color: CustomColors.white,
-                              size: context.r(16),
-                            ),
-                            SizedBox(width: context.w(5)),
-                            Text(
-                              "New Appointment",
-                              style: CustomFonts.white12w400,
-                            ),
-                          ],
-                        ),
+                      child: CustomPrimaryButton(
+                        onTap: () => context.push(CreateAppointmentScreen.routeName),
+                        icon: Icons.add,
+                        label: "New Appointment",
+                        height: context.h(42),
                       ),
                     ),
                   ],

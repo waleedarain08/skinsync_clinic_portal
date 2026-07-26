@@ -11,6 +11,7 @@ import 'screens/business_info_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/add_treatment_screen.dart';
 import 'screens/add_product_screen.dart';
+import 'screens/create_appointment_screen.dart';
 import 'screens/create_session_screen.dart';
 import 'screens/create_staff_screen.dart';
 import 'screens/create_treatment_screen.dart';
@@ -176,10 +177,15 @@ class RouteGenerator {
             path: TreatmentScreen.routeName,
             builder: (_, _) => const TreatmentScreen(),
           ),
-           GoRoute(
+          GoRoute(
             name: CreateSessionScreen.routeName,
             path: CreateSessionScreen.routeName,
             builder: (_, _) => const CreateSessionScreen(),
+          ),
+          GoRoute(
+            name: CreateAppointmentScreen.routeName,
+            path: CreateAppointmentScreen.routeName,
+            builder: (_, _) => const CreateAppointmentScreen(),
           ),
           GoRoute(
             name: TreatmentDetailScreen.routeName,
