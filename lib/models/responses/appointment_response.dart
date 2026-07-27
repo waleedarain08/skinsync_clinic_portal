@@ -4,13 +4,13 @@ import 'package:timetable/timetable.dart';
 
 import 'base_response_model.dart';
 
-class AppointmentResponse extends BaseResponse {
-  final Data? data;
+class AppointmentResponse extends BaseResponse<Data> {
+
 
   AppointmentResponse({
     required super.success,
     required super.message,
-    this.data,
+    super.data,
   });
 
   factory AppointmentResponse.fromRawJson(String str) =>
@@ -33,7 +33,7 @@ class AppointmentResponse extends BaseResponse {
 }
 
 class Data {
-  final List<AppointmentData>? items;
+  final List<AppointmentListData>? items;
   final int? limit;
   final int? page;
   final int? total;
@@ -48,8 +48,8 @@ class Data {
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     items: json["items"] == null
         ? []
-        : List<AppointmentData>.from(
-            json["items"]!.map((x) => AppointmentData.fromJson(x)),
+        : List<AppointmentListData>.from(
+            json["items"]!.map((x) => AppointmentListData.fromJson(x)),
           ),
     limit: json["limit"],
     page: json["page"],
@@ -68,7 +68,7 @@ class Data {
   };
 }
 
-class AppointmentData extends Event {
+class AppointmentListData extends Event {
   final int? id;
   final String? appointmentKey;
   final int? clinicId;
@@ -88,7 +88,7 @@ class AppointmentData extends Event {
   final String? status;
   final DateTime? createdAt;
 
-  AppointmentData({
+  AppointmentListData({
     this.id,
     this.appointmentKey,
     this.clinicId,
@@ -111,8 +111,8 @@ class AppointmentData extends Event {
     this.createdAt,
   });
 
-  factory AppointmentData.fromJson(Map<String, dynamic> json) =>
-      AppointmentData(
+  factory AppointmentListData.fromJson(Map<String, dynamic> json) =>
+      AppointmentListData(
         id: json["id"],
         appointmentKey: json["appointment_key"],
         clinicId: json["clinic_id"],
@@ -174,8 +174,8 @@ class AppointmentData extends Event {
     "created_at": createdAt?.toIso8601String(),
   };
 
-  AppointmentData copyWith({DateTime? date, DateTime? start, DateTime? end}) {
-    return AppointmentData(
+  AppointmentListData copyWith({DateTime? date, DateTime? start, DateTime? end}) {
+    return AppointmentListData(
       id: id,
       appointmentKey: appointmentKey,
       appointmentType: appointmentType,

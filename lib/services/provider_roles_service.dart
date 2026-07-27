@@ -1,6 +1,6 @@
 
 
-import '../models/responses/provider_roles_response.dart';
+import '../models/responses/filters_response.dart';
 import '../repositories/provider_role_repository.dart';
 import '../utils/enums.dart';
 import '../utils/exception.dart';
@@ -12,11 +12,11 @@ class ProviderRolesService implements ProviderRoleRepository {
   ProviderRolesService({required ApiBaseService api}) : _api = api;
 
   @override
-  Future<ProviderRolesResponse> providerRoles() async {
+  Future<FiltersResponse> providerRoles() async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.get,
       endPoint:  Endpoint.providerRoles);
-    final response = ProviderRolesResponse.fromJson(jsonResponse);
+    final response = FiltersResponse.fromJson(jsonResponse);
     if (!response.success) {
       throw BadRequestException(response.message);
     }

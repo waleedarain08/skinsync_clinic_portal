@@ -215,7 +215,6 @@ class TreatmentDataViewModel extends Notifier<TreatmentDataState> {
     return regex.hasMatch(sku);
   }
 
- 
- 
+
 
 }

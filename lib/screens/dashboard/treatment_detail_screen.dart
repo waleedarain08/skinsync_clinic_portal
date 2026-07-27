@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import '../../models/responses/treatment_detail_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_network_image.dart';
 import '../../widgets/borderd_container_widget.dart';
+import '../../widgets/dialog_box/area_creation_dialog.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/status_toggle_switch.dart';
 import '../../widgets/treatment_session_expansion_tile.dart';
@@ -17,12 +17,8 @@ class TreatmentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   final state = ref.watch(treatmentViewModelProvider);
+    final state = ref.watch(treatmentViewModelProvider);
     final detail = state.selectedTreatmentDetail;
-
-
-
- 
 
     if (state.loading) {
       return Scaffold(
@@ -90,6 +86,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                           context.verticalSpace(24),
                           _buildCategoriesSection(context, detail),
                           context.verticalSpace(24),
+
                           _buildAreasWithSessionsSection(context, detail),
                         ],
                       ),
@@ -276,7 +273,6 @@ class TreatmentDetailScreen extends ConsumerWidget {
                             //     );
                             //   },
                             // ),
-                         
                           ],
                         ),
                       ],
@@ -390,6 +386,33 @@ class TreatmentDetailScreen extends ConsumerWidget {
               Text(
                 'Anatomical Areas & Clinical Sessions',
                 style: context.fonts.black16w700,
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () async {
+                    final result = await showDialog<Map<String, dynamic>>(
+                context: context,
+                builder: (context) =>
+                    const AreaCreationDialog(title: 'Add New Area'),
+              );
+              if (result != null) {
+               
+              }
+                },
+                child: Container(
+                  padding: .all(8.w),
+                  decoration: BoxDecoration(
+                    borderRadius: .circular(30.r),
+                    border: .all(color: CustomColors.purple),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add, color: CustomColors.purple, size: 16.sp),
+                      SizedBox(width: 8.w),
+                      Text('Add Area', style: context.fonts.purple12w700),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

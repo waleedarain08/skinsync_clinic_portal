@@ -1,18 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/responses/appointment_response.dart';
+import '../models/responses/appointment_status_response.dart';
+import '../models/responses/filters_response.dart';
 import '../services/appointment_service.dart';
 import '../services/locator.dart';
-import '../utils/enums.dart';
 import 'base_view_model.dart';
 
 final appointmentProvider =
     NotifierProvider.autoDispose<AppointmentViewModel, AppointmentState>(
-  () => AppointmentViewModel._(),
-);
+      () => AppointmentViewModel._(),
+    );
 
 class AppointmentViewModel extends BaseViewModel<AppointmentState> {
   AppointmentViewModel._();
-
+  final TextEditingController searchController = TextEditingController();
   @override
   AppointmentState build() {
     init();
@@ -25,34 +27,58 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     getAppointments(initialCall: false);
   }
 
-  void setFilter(AppointmentFilter? filter) {
-    state = state.copyWith(filter: filter);
-
-    getAppointments(initialCall: true);
+  void setFilter(Filters? filter) {
+    state = state.copyWith(filter: filter, clearFilter: filter == null);
+    getAppointments(initialCall: true, showEasyLoading: true);
   }
 
   void setStatus(AppointmentStatus? status) {
-    state = state.copyWith(status: status);
-    getAppointments(initialCall: true);
+    state = state.copyWith(status: status, clearStatus: status == null);
+    getAppointments(initialCall: true, showEasyLoading: true);
   }
 
-  Future<void> getAppointments({bool? initialCall = false}) async {
+  Future<void> getAppointments({
+    bool? initialCall = false,
+    bool showEasyLoading = false,
+  }) async {
     if (initialCall == true) {
       state = state.copyWith(page: 1);
     }
-    return await runSafely(() async {
-      state = state.copyWith(loading: true);
+    await runSafely(showLoading: showEasyLoading, () async {
+      state = state.copyWith(loading: !showEasyLoading);
       final appointment = await locator<AppointmentService>().appointmentList(
         page: state.page,
-        // filter: state.filter,
-        // status: state.status,
+        filter: state.filter,
+        status: state.status,
+        search: searchController.text,
       );
-      state = state.copyWith(
-        loading: false,
-        appointmentList: appointment.data?.items ??[],
-        totalPage: appointment.data?.totalPages ?? 0,
-      );
-    }, showLoading: false);
+      if (appointment.success) {
+        state = state.copyWith(
+          loading: false,
+          appointmentList:  appointment.data?.items ?? [],
+          totalPage: appointment.data?.totalPages ?? 0,
+        );
+      } else {
+        state = state.copyWith(appointmentList: [], totalPage: 0);
+      }
+    });
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> getAppointmentsStatus() async {
+    return await runSafely(() async {
+      final appointment = await locator<AppointmentService>()
+          .getAppointmentStatus();
+      state = state.copyWith(appointmentStatus: appointment.data ?? []);
+    });
+  }
+
+  Future<void> getAppointmentsTypes() async {
+    return await runSafely(() async {
+      final appointment = await locator<AppointmentService>()
+          .getAppointmentTypes();
+      state = state.copyWith(appointmentTypes: appointment.data ?? []);
+    }, );
   }
 }
 
@@ -60,34 +86,44 @@ class AppointmentState {
   final bool loading;
   final int page;
   final int? totalPage;
-  final List<AppointmentData>? appointmentList;
-  final AppointmentFilter? filter;
+  final List<AppointmentListData>? appointmentList;
+  final Filters? filter;
   final AppointmentStatus? status;
+  final List<Filters>? appointmentTypes;
+  final List<AppointmentStatus>? appointmentStatus;
 
   const AppointmentState({
     this.loading = false,
     this.page = 1,
     this.totalPage,
     this.appointmentList,
-    this.filter = AppointmentFilter.all,
-    this.status = AppointmentStatus.allStatus,
+    this.filter,
+    this.status,
+    this.appointmentTypes = const [],
+    this.appointmentStatus = const [],
   });
 
   AppointmentState copyWith({
     bool? loading,
     int? page,
     int? totalPage,
-    List<AppointmentData>? appointmentList,
-    AppointmentFilter? filter,
+    List<AppointmentListData>? appointmentList,
+    Filters? filter,
     AppointmentStatus? status,
+    List<Filters>? appointmentTypes,
+    List<AppointmentStatus>? appointmentStatus,
+    bool clearFilter = false,
+    bool clearStatus = false,
   }) {
     return AppointmentState(
       loading: loading ?? this.loading,
       page: page ?? this.page,
       totalPage: totalPage ?? this.totalPage,
       appointmentList: appointmentList ?? this.appointmentList,
-      filter: filter ?? this.filter,
-      status: status ?? this.status,
+      appointmentTypes: appointmentTypes ?? this.appointmentTypes,
+      appointmentStatus: appointmentStatus ?? this.appointmentStatus,
+      filter: clearFilter ? null : (filter ?? this.filter),
+      status: clearStatus ? null : (status ?? this.status),
     );
   }
 }

@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/responses/filters_response.dart';
 import '../../widgets/custom_primary_button.dart';
+import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../create_appointment_screen.dart';
 import '../../models/responses/appointment_response.dart' hide Material;
 import '../../utils/date_time_utills.dart';
-import '../../utils/enums.dart';
 import '../../utils/theme.dart';
 import '../../view_models/appointment_view_model.dart';
 import '../../view_models/auth_view_model.dart';
@@ -15,7 +16,6 @@ import '../../widgets/app_loader.dart';
 import '../../widgets/appointment_horizontal_tile_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/calender_widget.dart';
-import '../../widgets/custom_dropdown_widget.dart';
 import '../../widgets/dialog_box/appointment_ready_dailog.dart';
 import '../../widgets/number_paginator.dart';
 
@@ -29,10 +29,15 @@ class AppointmentScreen extends ConsumerStatefulWidget {
 }
 
 class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
+
+ 
+
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(appointmentProvider.notifier).getAppointments();
+     
     });
     super.initState();
   }
@@ -102,10 +107,13 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               SizedBox(height: context.h(15)),
               BorderdContainerWidget(
                 child: Row(
+             crossAxisAlignment:CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       flex: 5,
                       child: CupertinoSearchTextField(
+                        controller: ref.read(appointmentProvider.notifier).searchController ,
+                        onChanged: (_){ ref.read(appointmentProvider.notifier).getAppointments(initialCall: true,showEasyLoading:  true);},
                         style: context.fonts.black14w400,
                         placeholderStyle: context.fonts.grey14w400,
                         backgroundColor: CustomColors.softGrey,
@@ -119,42 +127,71 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     SizedBox(width: context.w(10)),
                     Expanded(
                       flex: 3,
-                      child: CustomDropdown<String>(
-                        hint: "All Appointments",
-                        value: appointmentState.filter?.label,
-                        items: AppointmentFilter.values
-                            .map((e) => e.label)
-                            .toList(),
-                        height: context.h(42),
-                        onChanged: (value) {
-                          ref
-                              .read(appointmentProvider.notifier)
-                              .setFilter(
-                                AppointmentFilter.fromLabel(
-                                  value ?? 'All Appointments',
-                                ),
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final appointmentState = ref.watch(
+                            appointmentProvider,
+                          );
+                          final filters =
+                              appointmentState.appointmentTypes ?? [];
+
+                          return SelectOrCreateDropdown<String>(
+                            label: 'Appointment',
+                            hint: 'All Appointments',
+                            value: appointmentState.filter?.name,
+                            showAddIcon: false,
+                            items: filters.map((e) => e.name ?? '').toList(),
+                            itemLabel: (filter) => filter,
+                            onChanged: (value) {
+                              final selected = filters.firstWhere(
+                                (f) => f.name == value,
+                                orElse: () => Filters(),
                               );
+                              ref
+                                  .read(appointmentProvider.notifier)
+                                  .setFilter(value == null ? null : selected);
+                            },
+                            onOpen: () => ref
+                                .read(appointmentProvider.notifier)
+                                .getAppointmentsTypes(),
+                            onCreate: () {},
+                          );
                         },
                       ),
                     ),
                     SizedBox(width: context.w(10)),
                     Expanded(
                       flex: 2,
-                      child: CustomDropdown<String>(
-                        hint: "Status",
-                        value: appointmentState.status?.label,
-                        items: AppointmentStatus.values
-                            .map((e) => e.label)
-                            .toList(),
-                        height: context.h(42),
-                        onChanged: (value) {
-                          ref
-                              .read(appointmentProvider.notifier)
-                              .setStatus(
-                                AppointmentStatus.fromLabel(
-                                  value ?? 'All Status',
-                                ),
-                              );
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final appointmentState = ref.watch(
+                            appointmentProvider,
+                          );
+                          final statuses =
+                              appointmentState.appointmentStatus ?? [];
+
+                          return SelectOrCreateDropdown<String>(
+                            label: 'Status',
+                            hint: 'All Status',
+                            value: appointmentState.status?.name,
+                            showAddIcon: false,
+                            items: statuses.map((e) => e.name ?? '').toList(),
+                            itemLabel: (status) => status,
+                            onChanged: (value) {
+                              final selected = value == null
+                                  ? null
+                                  : statuses
+                                        .where((s) => s.name == value)
+                                        .firstOrNull;
+                              ref
+                                  .read(appointmentProvider.notifier)
+                                  .setStatus(selected);
+                            },
+                            onOpen: () => ref
+                                .read(appointmentProvider.notifier)
+                                .getAppointmentsStatus(),
+                            onCreate: () {},
+                          );
                         },
                       ),
                     ),
@@ -162,7 +199,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     Expanded(
                       flex: 2,
                       child: CustomPrimaryButton(
-                        onTap: () => context.push(CreateAppointmentScreen.routeName),
+                        onTap: () =>
+                            context.push(CreateAppointmentScreen.routeName),
                         icon: Icons.add,
                         label: "New Appointment",
                         height: context.h(42),
@@ -222,7 +260,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     );
   }
 
-  Widget _buildAppointmentsTable(List<AppointmentData> list) {
+  Widget _buildAppointmentsTable(List<AppointmentListData> list) {
     return BorderdContainerWidget(
       padding: EdgeInsets.zero,
       child: ClipRRect(
@@ -293,7 +331,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   // Assumption: `date` = unix seconds, `start_time`/`end_time` = unix seconds too.
   // Swap to whatever encoding your API actually uses.
 
-  Widget _appointmentPatientCell(AppointmentData a) {
+  Widget _appointmentPatientCell(AppointmentListData a) {
     final name = a.patientName ?? '-';
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -380,7 +418,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     );
   }
 
-  Widget _appointmentActionsCell(AppointmentData a) {
+  Widget _appointmentActionsCell(AppointmentListData a) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
       child: IconButton(

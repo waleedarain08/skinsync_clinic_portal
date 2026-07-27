@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../models/responses/provider_roles_response.dart';
+import '../models/responses/filters_response.dart';
 import '../repositories/provider_role_repository.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
@@ -12,12 +12,12 @@ final providerRoleViewModelProvider =
     );
 
 class ProviderRoleState {
-  final List<ProviderRoles>? providerRoles;
+  final List<Filters>? providerRoles;
   final List<String>? selectedProviderRoles;
   ProviderRoleState({this.providerRoles, this.selectedProviderRoles});
 
   ProviderRoleState copyWith({
-    List<ProviderRoles>? providerRoles,
+    List<Filters>? providerRoles,
     List<String>? selectedProviderRoles,
   }) {
     return ProviderRoleState(

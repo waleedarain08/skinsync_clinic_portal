@@ -3,19 +3,19 @@ import 'dart:convert';
 
 import 'base_response_model.dart';
 
-class ProviderRolesResponse extends BaseApiResponseModel<List<ProviderRoles>> {
-  ProviderRolesResponse({
+class FiltersResponse extends BaseApiResponseModel<List<Filters>> {
+  FiltersResponse({
     super.data,
     required super.success,
     required super.message,
   });
 
-  factory ProviderRolesResponse.fromJson(Map<String, dynamic> json) =>
-      ProviderRolesResponse(
+  factory FiltersResponse.fromJson(Map<String, dynamic> json) =>
+      FiltersResponse(
         data: json["data"] == null
             ? []
-            : List<ProviderRoles>.from(
-                json["data"]!.map((x) => ProviderRoles.fromJson(x)),
+            : List<Filters>.from(
+                json["data"]!.map((x) => Filters.fromJson(x)),
               ),
         success: json["is_success"],
         message: json["message"],
@@ -30,19 +30,19 @@ class ProviderRolesResponse extends BaseApiResponseModel<List<ProviderRoles>> {
   };
 }
 
-class ProviderRoles {
+class Filters {
   final int? id;
   final String? name;
 
-  ProviderRoles({this.id, this.name});
+  Filters({this.id, this.name});
 
-  factory ProviderRoles.fromRawJson(String str) =>
-      ProviderRoles.fromJson(json.decode(str));
+  factory Filters.fromRawJson(String str) =>
+      Filters.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory ProviderRoles.fromJson(Map<String, dynamic> json) =>
-      ProviderRoles(id: json["id"], name: json["name"]);
+  factory Filters.fromJson(Map<String, dynamic> json) =>
+      Filters(id: json["id"], name: json["name"]);
 
   Map<String, dynamic> toJson() => {"id": id, "name": name};
 }

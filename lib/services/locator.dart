@@ -7,6 +7,7 @@ import '../repositories/session_repository.dart';
 import '../repositories/treatment_repository.dart';
 import 'api_base_helper.dart';
 import 'appointment_service.dart';
+import 'area_services.dart';
 import 'auth_service.dart';
 import 'practitioner_service.dart';
 import '../view_models/forms_controller.dart';
@@ -52,5 +53,6 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton(() => PractitionerService());
   locator.registerLazySingleton(() => RoleService());
   locator.registerLazySingleton(() => AppointmentService());
+  locator.registerLazySingleton(() => AreaServices());
   locator.registerSingleton(apiBaseHelper);
 }

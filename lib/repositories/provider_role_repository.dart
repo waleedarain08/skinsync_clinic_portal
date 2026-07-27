@@ -1,6 +1,6 @@
 
-import '../models/responses/provider_roles_response.dart';
+import '../models/responses/filters_response.dart';
 
 abstract class ProviderRoleRepository {
-  Future<ProviderRolesResponse> providerRoles();
+  Future<FiltersResponse> providerRoles();
 }
