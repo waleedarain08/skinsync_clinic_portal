@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/requests/status_request.dart';
 import '../../utils/theme.dart';
 import '../../view_models/practitioner_view_model.dart';
 import '../../models/responses/register_practitioner_response.dart';
@@ -12,6 +13,7 @@ import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/status_toggle_switch.dart';
 import '../add_practitioner_screen.dart';
 import 'practitioner_detail_screen.dart';
 
@@ -53,9 +55,9 @@ class _MangePractitionerScreenState
     final filteredDoctors = state.doctors.where((doc) {
       final query = _searchQuery.toLowerCase();
       return query.isEmpty ||
-          (doc.name?.toLowerCase().contains(query) ?? false) ||
-          (doc.email?.toLowerCase().contains(query) ?? false) ||
-          (doc.role?.toLowerCase().contains(query) ?? false);
+          (doc.basicInfo?.name.toLowerCase().contains(query) ?? false) ||
+          (doc.contactInfo?.email.toLowerCase().contains(query) ?? false) ||
+          (doc.basicInfo?.role.toLowerCase().contains(query) ?? false);
     }).toList();
 
     return GradientScaffold(
@@ -109,9 +111,23 @@ class _MangePractitionerScreenState
 
   Widget _buildQuickInsights(PractitionerState state) {
     final totalPractitioners = state.doctors.length;
-    final activeInjectors = state.doctors.where((d) => d.role?.toLowerCase().contains('injector') ?? false).length;
-    final activeMDs = state.doctors.where((d) => d.role?.toLowerCase().contains('md') ?? d.role?.toLowerCase().contains('doctor') ?? false).length;
-    final assignedTreatments = state.doctors.fold<int>(0, (sum, d) => sum + (d.treatments?.length ?? 0));
+    final activeInjectors = state.doctors
+        .where(
+          (d) => d.basicInfo?.role.toLowerCase().contains('injector') ?? false,
+        )
+        .length;
+    final activeMDs = state.doctors
+        .where(
+          (d) =>
+              d.basicInfo?.role?.toLowerCase().contains('md') ??
+              d.basicInfo?.role.toLowerCase().contains('doctor') ??
+              false,
+        )
+        .length;
+    final assignedTreatments = state.doctors.fold<int>(
+      0,
+      (sum, d) => sum + (d.clinicAccess?.treatmentIds.length ?? 0),
+    );
 
     return Row(
       children: [
@@ -202,7 +218,10 @@ class _MangePractitionerScreenState
               decoration: AppDecorations.input(
                 context,
                 hint: "Search practitioners by keyword, name, or email...",
-                prefixIcon: const Icon(Icons.search_rounded, color: CustomColors.grey),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: CustomColors.grey,
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, color: CustomColors.grey),
@@ -275,14 +294,14 @@ class _MangePractitionerScreenState
                 children: [
                   _practitionerNameCell(d),
                   _tableTextCell(
-                    d.role ?? 'N/A',
+                    d.basicInfo?.role ?? 'N/A',
                     style: context.fonts.black14w600,
                   ),
                   _tableTextCell(
-                    '${d.treatments?.length ?? 0} Services',
+                    '${d.clinicAccess?.treatmentIds.length ?? 0} Services',
                     style: context.fonts.grey14w400,
                   ),
-                  _statusBadgeCell(),
+                  _statusBadgeCell(d),
                   _actionsCell(d),
                 ],
               );
@@ -315,14 +334,14 @@ class _MangePractitionerScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  d.name ?? 'N/A',
+                  d.basicInfo?.name ?? 'N/A',
                   style: context.fonts.black14w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 context.verticalSpace(2),
                 Text(
-                  d.email ?? 'N/A',
+                  d.contactInfo?.email ?? 'N/A',
                   style: context.fonts.purple12w700,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -336,10 +355,10 @@ class _MangePractitionerScreenState
   }
 
   Widget _buildAvatar(BuildContext context, Practitioner d) {
-    if (d.image != null) {
+    if (d.basicInfo?.image != null) {
       return ClipOval(
         child: CachedNetworkImage(
-          imageUrl: d.image!,
+          imageUrl: d.basicInfo!.image!,
           height: context.r(42),
           width: context.r(42),
           fit: BoxFit.cover,
@@ -360,11 +379,7 @@ class _MangePractitionerScreenState
     return CircleAvatar(
       radius: context.r(21),
       backgroundColor: CustomColors.softGrey,
-      child: Icon(
-        Icons.person,
-        size: context.r(20),
-        color: CustomColors.grey,
-      ),
+      child: Icon(Icons.person, size: context.r(20), color: CustomColors.grey),
     );
   }
 
@@ -380,31 +395,20 @@ class _MangePractitionerScreenState
     );
   }
 
-  Widget _statusBadgeCell() {
-    Color badgeColor = CustomColors.green;
-    String label = 'Active';
-
+  Widget _statusBadgeCell(Practitioner d) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.1),
-              borderRadius: context.appBorderRadius(all: 20),
-              border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              label,
-              style: context.fonts.grey12w600.copyWith(
-                color: badgeColor,
-                fontSize: context.sp(10),
-              ),
-            ),
-          ),
-        ],
+      child: StatusToggleSwitch(
+        status: d.status,
+        width: context.w(110),
+        height: context.h(32),
+        onChanged: (newStatus) {
+          final request = StatusRequest(status: newStatus.toLowerCase());
+
+          ref
+              .read(practitionerProvider.notifier)
+              .updatePractitionerStatus(id: d.id!, request: request);
+        },
       ),
     );
   }
@@ -415,17 +419,39 @@ class _MangePractitionerScreenState
       child: Row(
         children: [
           IconButton(
+            visualDensity: .compact,
+            padding: EdgeInsets.zero,
             tooltip: 'View Details',
             icon: const Icon(
               Icons.visibility_outlined,
               color: CustomColors.grey,
               size: 20,
             ),
-            onPressed: () {
+            onPressed: () async {
+              await ref
+                  .read(practitionerProvider.notifier)
+                  .getPractitionerDetail(id: d.id!);
               context.push(PractitionerDetailScreen.routeName, extra: d);
             },
           ),
           IconButton(
+            visualDensity: .compact,
+            padding: EdgeInsets.zero,
+            tooltip: 'Delete Practitioner',
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: CustomColors.red,
+              size: 20,
+            ),
+            onPressed: () async {
+              await ref
+                  .read(practitionerProvider.notifier)
+                  .deletePractitioner(id: d.id!);
+            },
+          ),
+          IconButton(
+            visualDensity: .compact,
+            padding: EdgeInsets.zero,
             tooltip: 'Edit Practitioner',
             icon: const Icon(
               Icons.edit_outlined,
@@ -433,10 +459,7 @@ class _MangePractitionerScreenState
               size: 20,
             ),
             onPressed: () {
-              context.push(
-                AddPractitionerScreen.routeName,
-                extra: d,
-              );
+              context.push(AddPractitionerScreen.routeName, extra: d);
             },
           ),
         ],

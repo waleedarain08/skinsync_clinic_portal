@@ -19,59 +19,53 @@ class RegisterPractitionerResponse extends BaseResponse<Practitioner> {
 class Practitioner {
   final int? id;
   final int? clinicId;
-  final String? email;
-  final String? name;
-  final String? role;
-  final String? password;
   final String? status;
-  final String? image;
-  final String? specialization;
-  final String? phone;
-  final String? cc;
-  final String? country;
-  final List<Treatment>? treatments;
-  final List<Availability>? availability;
+  final BasicInfo? basicInfo;
+  final ContactInfo? contactInfo;
+  final LicenseInfo? licenseInfo;
+  final ClinicAccess? clinicAccess;
+  final AvailabilityInfo? availabilityInfo;
+  final FinancialInfo? financialInfo;
+  final DateTime? createdAt;
 
-  const Practitioner({
+  Practitioner({
     this.id,
     this.clinicId,
-    this.email,
-    this.name,
-    this.role,
-    this.password,
     this.status,
-    this.image,
-    this.specialization,
-    this.phone,
-    this.cc,
-    this.country,
-    this.treatments,
-    this.availability,
+    this.basicInfo,
+    this.contactInfo,
+    this.licenseInfo,
+    this.clinicAccess,
+    this.availabilityInfo,
+    this.financialInfo,
+    this.createdAt,
   });
 
   factory Practitioner.fromJson(Map<String, dynamic> json) => Practitioner(
     id: json["id"],
     clinicId: json["clinic_id"],
-    email: json["email"],
-    name: json["name"],
-    role: json["role"] != null ? json["role"] : null,
-    password: json["password"],
     status: json["status"],
-    image: json["image"],
-    specialization: json["specialization"],
-    phone: json["phone"],
-    cc: json["cc"],
-    country: json["country"],
-    treatments: json["treatments"] == null
-        ? []
-        : List<Treatment>.from(
-            (json["treatments"] as List).map((x) => Treatment.fromJson(x)),
-          ),
-    availability: json['availability'] != null
-        ? List<Availability>.from(
-            (json['availability'] as List).map((x) => Availability.fromJson(x)),
-          )
-        : null,
+    basicInfo: json["basic_info"] == null
+        ? null
+        : BasicInfo.fromJson(json["basic_info"]),
+    contactInfo: json["contact_info"] == null
+        ? null
+        : ContactInfo.fromJson(json["contact_info"]),
+    licenseInfo: json["license_info"] == null
+        ? null
+        : LicenseInfo.fromJson(json["license_info"]),
+    clinicAccess: json["clinic_access"] == null
+        ? null
+        : ClinicAccess.fromJson(json["clinic_access"]),
+    availabilityInfo: json["availability_info"] == null
+        ? null
+        : AvailabilityInfo.fromJson(json["availability_info"]),
+    financialInfo: json["financial_info"] == null
+        ? null
+        : FinancialInfo.fromJson(json["financial_info"]),
+    createdAt: json["created_at"] == null
+        ? null
+        : DateTime.parse(json["created_at"]),
   );
 }
 

@@ -23,7 +23,10 @@ enum Endpoint {
   me('clinic/me'),
   getClinicTreatments('clinic/treatments/list'),
   createDoctor('clinic/practitioners/register'),
-  getDoctors('clinic/doctors'),
+  getPractitioners('clinic/practitioners'),
+  practitionersID('clinic/practitioners/{id}'),
+   practitionerStatus('clinic/practitioners/{id}/status'),
+
   getAdminTreatments('treatments/masters'),
   getTreatmentTemplates('clinic/treatments/admin'),
   getAdminTreatmentsSideAreas('clinic/side-areas/treatment/{treatmentId}'),
@@ -39,6 +42,7 @@ enum Endpoint {
   catalog('clinic/products/catalog'),
   clinicProducts('clinic/products'),
   getAppointment('clinic/new-appointments'),
+  appointmentId('clinic/new-appointments/{id}'),
   treatmentDetail('clinic/treatments/{id}'),
   sessionUpdate('sessionUpdate'),
   sessionDetail('clinic/sessions/{id}'),
@@ -61,8 +65,8 @@ enum Endpoint {
   appointmentStatuses('clinic/appointment-statuses'),
   providerRoles('clinic/provider-roles'),
   appointmentTypes('clinic/appointment-types'),
-   areas('admin/areas'),
-   updateAreas('admin/areas/{id}'),
+  areas('admin/areas'),
+  updateAreas('admin/areas/{id}'),
   getMe("clinic/me");
 
   final String path;

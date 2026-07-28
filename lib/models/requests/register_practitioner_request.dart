@@ -54,6 +54,20 @@ class BasicInfo {
     required this.qualifications,
   });
 
+  factory BasicInfo.fromJson(Map<String, dynamic> json) => BasicInfo(
+      name: json["name"] ?? "",
+      role: json["role"] ?? "",
+      title: json["title"] ?? "",
+      image: json["image"],
+      gender: json["gender"] ?? "",
+      dateOfBirth: json["date_of_birth"] ?? "",
+      specialization: json["specialization"] ?? "",
+      yearsOfExperience: json["years_of_experience"] ?? 0,
+      qualifications: json["qualifications"] == null
+          ? []
+          : List<String>.from(json["qualifications"]),
+    );
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -84,6 +98,22 @@ class ContactInfo {
     required this.emergencyContact,
   });
 
+  factory ContactInfo.fromJson(Map<String, dynamic> json) => ContactInfo(
+      email: json["email"] ?? "",
+      phone: json["phone"] ?? "",
+      cc: json["cc"] ?? "",
+      country: json["country"] ?? "",
+      emergencyContact: json["emergency_contact"] != null
+          ? EmergencyContact.fromJson(json["emergency_contact"])
+          : EmergencyContact(
+              name: "",
+              phone: "",
+              cc: "",
+              country: "",
+              relationship: "",
+            ),
+    );
+
   Map<String, dynamic> toJson() {
     return {
       'email': email,
@@ -109,6 +139,15 @@ class EmergencyContact {
     required this.country,
     required this.relationship,
   });
+
+  factory EmergencyContact.fromJson(Map<String, dynamic> json) =>
+    EmergencyContact(
+      name: json["name"] ?? "",
+      phone: json["phone"] ?? "",
+      cc: json["cc"] ?? "",
+      country: json["country"] ?? "",
+      relationship: json["relationship"] ?? "",
+    ); 
 
   Map<String, dynamic> toJson() {
     return {
@@ -137,6 +176,18 @@ class LicenseInfo {
     required this.indemnityExpiryDate,
     required this.documents,
   });
+
+  factory LicenseInfo.fromJson(Map<String, dynamic> json) => LicenseInfo(
+      licenseNumber: json["license_number"] ?? "",
+      licenseExpiryDate: json["license_expiry_date"] ?? "",
+      issuingAuthority: json["issuing_authority"] ?? "",
+      indemnityInsuranceNumber:
+          json["indemnity_insurance_number"] ?? "",
+      indemnityExpiryDate: json["indemnity_expiry_date"] ?? "",
+      documents: json["documents"] == null
+          ? []
+          : List<String>.from(json["documents"]),
+    );
 
   Map<String, dynamic> toJson() {
     return {
@@ -167,6 +218,26 @@ class ClinicAccess {
     required this.allowedBookingMethods,
   });
 
+  factory ClinicAccess.fromJson(Map<String, dynamic> json) => ClinicAccess(
+      treatmentIds: json["treatment_ids"] == null
+          ? []
+          : List<int>.from(json["treatment_ids"]),
+      canPerformConsultation:
+          json["can_perform_consultation"] ?? false,
+      canPerformTreatment:
+          json["can_perform_treatment"] ?? false,
+      isVirtualEnabled:
+          json["is_virtual_enabled"] ?? false,
+      acceptsWalkIn:
+          json["accepts_walk_in"] ?? false,
+      allowedBookingMethods:
+          json["allowed_booking_methods"] == null
+              ? []
+              : List<String>.from(
+                  json["allowed_booking_methods"],
+                ),
+    );
+
   Map<String, dynamic> toJson() {
     return {
       'treatment_ids': treatmentIds,
@@ -189,6 +260,20 @@ class AvailabilityInfo {
     required this.slotDurationMinutes,
     required this.bufferTimeMinutes,
   });
+
+  factory AvailabilityInfo.fromJson(Map<String, dynamic> json) =>
+    AvailabilityInfo(
+      availability: json["availability"] == null
+          ? []
+          : List<Availability>.from(
+              (json["availability"] as List)
+                  .map((e) => Availability.fromJson(e)),
+            ),
+      slotDurationMinutes:
+          json["slot_duration_minutes"] ?? 0,
+      bufferTimeMinutes:
+          json["buffer_time_minutes"] ?? 0,
+    );
 
   Map<String, dynamic> toJson() {
     return {
@@ -293,6 +378,14 @@ class FinancialInfo {
     required this.treatmentCommission,
     required this.commissionType,
   });
+
+  factory FinancialInfo.fromJson(Map<String, dynamic> json) =>
+    FinancialInfo(
+      consultationFee: json["consultation_fee"] ?? 0,
+      treatmentCommission:
+          (json["treatment_commission"] as num?)?.toDouble() ?? 0.0,
+      commissionType: json["commission_type"] ?? "",
+    );
 
   Map<String, dynamic> toJson() {
     return {

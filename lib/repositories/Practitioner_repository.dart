@@ -1,11 +1,18 @@
 import '../models/requests/register_practitioner_request.dart';
+import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
 
+import '../models/responses/base_response_model.dart';
+import '../models/responses/practitioner_detail_response.dart';
 import '../models/responses/register_practitioner_response.dart';
 
 abstract class PractitionerRepository {
   Future<void> register({required RegisterPractitionerRequest request});
 
   Future<List<Practitioner>> fetchPractitioner();
+  Future<PractitionerDetailResponse> fetchPractitionerDetail({required int id});
+    Future<BaseResponse> deletePractitioner({required int id});
+  Future<BaseResponse> updatePractitionerStatus({required int id,required StatusRequest request});
   Future<void> updatepractitionerTreatment({required UpdatePractitionerRequest request});
+
 }

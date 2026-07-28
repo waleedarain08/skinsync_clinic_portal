@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/responses/appointment_response.dart';
-import '../models/responses/appointment_status_response.dart';
 import '../models/responses/filters_response.dart';
 import '../services/appointment_service.dart';
 import '../services/locator.dart';
@@ -32,9 +31,13 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     getAppointments(initialCall: true, showEasyLoading: true);
   }
 
-  void setStatus(AppointmentStatus? status) {
+  void setStatus(Filters? status) {
     state = state.copyWith(status: status, clearStatus: status == null);
     getAppointments(initialCall: true, showEasyLoading: true);
+  }
+
+  void setSelectedPractitionerID({required int iD}) {
+    state = state.copyWith(practitionerId: iD);
   }
 
   Future<void> getAppointments({
@@ -51,11 +54,12 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
         filter: state.filter,
         status: state.status,
         search: searchController.text,
+        practitionerId: state.practitionerId,
       );
       if (appointment.success) {
         state = state.copyWith(
           loading: false,
-          appointmentList:  appointment.data?.items ?? [],
+          appointmentList: appointment.data?.items ?? [],
           totalPage: appointment.data?.totalPages ?? 0,
         );
       } else {
@@ -72,13 +76,22 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
       state = state.copyWith(appointmentStatus: appointment.data ?? []);
     });
   }
+   Future<void> getAppointmentsDetail({required int id}) async {
+    return await runSafely(() async {
+      final appointment = await locator<AppointmentService>()
+          .appointmentDetail(id:id);
+          if(appointment.isSuccess){
+             state = state.copyWith(appointmentDetail: appointment.data);
+          }
+    });
+  }
 
   Future<void> getAppointmentsTypes() async {
     return await runSafely(() async {
       final appointment = await locator<AppointmentService>()
           .getAppointmentTypes();
       state = state.copyWith(appointmentTypes: appointment.data ?? []);
-    }, );
+    });
   }
 }
 
@@ -86,11 +99,13 @@ class AppointmentState {
   final bool loading;
   final int page;
   final int? totalPage;
-  final List<AppointmentListData>? appointmentList;
+  final List<AppointmentData>? appointmentList;
+  final AppointmentData? appointmentDetail;
   final Filters? filter;
-  final AppointmentStatus? status;
+  final Filters? status;
   final List<Filters>? appointmentTypes;
-  final List<AppointmentStatus>? appointmentStatus;
+  final List<Filters>? appointmentStatus;
+  final int? practitionerId;
 
   const AppointmentState({
     this.loading = false,
@@ -101,19 +116,24 @@ class AppointmentState {
     this.status,
     this.appointmentTypes = const [],
     this.appointmentStatus = const [],
+    this.practitionerId,
+    this.appointmentDetail,
   });
 
   AppointmentState copyWith({
     bool? loading,
     int? page,
     int? totalPage,
-    List<AppointmentListData>? appointmentList,
+    List<AppointmentData>? appointmentList,
+
     Filters? filter,
-    AppointmentStatus? status,
+    Filters? status,
     List<Filters>? appointmentTypes,
-    List<AppointmentStatus>? appointmentStatus,
+    List<Filters>? appointmentStatus,
     bool clearFilter = false,
     bool clearStatus = false,
+    int? practitionerId,
+    AppointmentData? appointmentDetail,
   }) {
     return AppointmentState(
       loading: loading ?? this.loading,
@@ -124,6 +144,8 @@ class AppointmentState {
       appointmentStatus: appointmentStatus ?? this.appointmentStatus,
       filter: clearFilter ? null : (filter ?? this.filter),
       status: clearStatus ? null : (status ?? this.status),
+      practitionerId: practitionerId ?? this.practitionerId,
+      appointmentDetail: appointmentDetail ?? this.appointmentDetail,
     );
   }
 }

@@ -6,12 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
 import '../models/requests/register_practitioner_request.dart';
+import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
+import '../models/responses/register_practitioner_response.dart';
 import '../models/treatment_model.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 
-import '../models/responses/register_practitioner_response.dart';
+    
 import '../services/practitioner_service.dart';
 import 'base_view_model.dart';
 
@@ -27,11 +29,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   PractitionerState build() {
     init();
     ref.onDispose(dispose);
-    return PractitionerState(
-      country: CountryCode.fromCountryCode(
-        'US',
-      ),
-    );
+    return PractitionerState(country: CountryCode.fromCountryCode('US'));
   }
 
   void changeRole(String? role) {
@@ -71,11 +69,11 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   void removeDocument(String url) {
-  final docs = List<String>.from(state.documents);
-  docs.remove(url);
+    final docs = List<String>.from(state.documents);
+    docs.remove(url);
 
-  state = state.copyWith(documents: docs);
-}
+    state = state.copyWith(documents: docs);
+  }
 
   Future<String?> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -94,40 +92,37 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   Future<String?> pickAndUploadDocument() async {
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['pdf'],
-    withData: true,
-  );
-
-  if (result == null || result.files.isEmpty) {
-    return null;
-  }
-
-  final file = result.files.first;
-
-  return await runSafely(() async {
-    final url = await MediaService().uploadMedia(
-      path: 'doctor/doucment/',
-      file: file,
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: true,
     );
 
-    if (url == null) {
-      throw const UnknownException(
-        message: 'Failed to upload document',
-      );
+    if (result == null || result.files.isEmpty) {
+      return null;
     }
 
-    state = state.copyWith(
-      documents: [...state.documents, url],
-    );
+    final file = result.files.first;
 
-    return url;
-  });
-}
-void clearDocuments() {
-  state = state.copyWith(documents: []);
-}
+    return await runSafely(() async {
+      final url = await MediaService().uploadMedia(
+        path: 'doctor/doucment/',
+        file: file,
+      );
+
+      if (url == null) {
+        throw const UnknownException(message: 'Failed to upload document');
+      }
+
+      state = state.copyWith(documents: [...state.documents, url]);
+
+      return url;
+    });
+  }
+
+  void clearDocuments() {
+    state = state.copyWith(documents: []);
+  }
 
   Future<void> registerPractitioner({
     required BasicInfo basicInfo,
@@ -154,18 +149,42 @@ void clearDocuments() {
     });
   }
 
-  Future<void> getPractitioner() async {
+  Future<void> getPractitioner({ bool showLoading = true}) async {
     return await runSafely(() async {
-      state = state.copyWith(loading: true);
+      state = state.copyWith(loading: showLoading);
       final doctors = await locator<PractitionerService>().fetchPractitioner();
-      state = state.copyWith(
-        loading: false,
-        doctors: doctors,
-        selectedDoctor: doctors.firstOrNull,
-      );
+      state = state.copyWith(loading: false, doctors: doctors);
     }, showLoading: false);
   }
 
+  Future<void> getPractitionerDetail({required int id}) async {
+    return await runSafely(() async {
+      final doctors = await locator<PractitionerService>()
+          .fetchPractitionerDetail(id: id);
+      if (doctors.isSuccess) {
+        state = state.copyWith(practitioner: doctors.data);
+      }
+    });
+  }
+
+    Future<void> deletePractitioner({required int id}) async {
+    return await runSafely(() async {
+      final doctors = await locator<PractitionerService>()
+          .deletePractitioner(id: id);
+      if (doctors.success) {
+        await getPractitioner(showLoading: false);
+      }
+    });
+  }
+    Future<void> updatePractitionerStatus({required int id,required StatusRequest request}) async {
+    return await runSafely(() async {
+      final doctors = await locator<PractitionerService>()
+          .updatePractitionerStatus(id: id,request: request);
+      if (doctors.success) {
+      await getPractitioner(showLoading: false);
+      }
+    });
+  }
 
 
   Future<void> updatePractitionerTreatment({
@@ -203,7 +222,9 @@ void clearDocuments() {
         }).toList(),
       );
 
-      await locator<PractitionerService>().updatepractitionerTreatment(request: request);
+      await locator<PractitionerService>().updatepractitionerTreatment(
+        request: request,
+      );
 
       state = state.copyWith(loading: false, success: true);
     });
@@ -251,6 +272,7 @@ class PractitionerState {
   final List<TreatmentModel> treatments;
   final List<Practitioner> doctors;
   final Practitioner? selectedDoctor;
+  final Practitioner? practitioner;
   final bool success;
   final List<Availability> availability;
   final CountryCode country;
@@ -270,6 +292,7 @@ class PractitionerState {
     this.documents = const [],
     this.cc,
     this.countryCode,
+    this.practitioner,
   });
 
   PractitionerState copyWith({
@@ -283,7 +306,8 @@ class PractitionerState {
     CountryCode? country,
     String? cc,
     String? countryIso,
-    List<String>? documents
+    List<String>? documents,
+    Practitioner? practitioner,
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -296,7 +320,8 @@ class PractitionerState {
       country: country ?? this.country,
       cc: cc ?? this.cc,
       countryCode: countryIso ?? countryCode,
-      documents:documents?? this. documents
+      documents: documents ?? this.documents,
+      practitioner: practitioner ?? this.practitioner,
     );
   }
 
@@ -305,6 +330,7 @@ class PractitionerState {
     String? role,
     List<TreatmentModel>? treatments,
     List<Practitioner>? doctors,
+    Practitioner? practitioner,
     List<String>? documents,
     bool? success,
   }) {
@@ -313,11 +339,12 @@ class PractitionerState {
       role: role,
       treatments: treatments ?? this.treatments,
       doctors: doctors ?? this.doctors,
+      practitioner: practitioner ?? this.practitioner,
       success: success ?? false,
       country: country,
       cc: cc,
       countryCode: countryCode,
-      documents:documents ?? this.documents,  
+      documents: documents ?? this.documents,
     );
   }
 }

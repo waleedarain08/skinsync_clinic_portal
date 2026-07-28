@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 
 import '../models/requests/register_practitioner_request.dart';
 import '../models/responses/register_practitioner_response.dart';
-import '../models/treatment_model.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
@@ -103,37 +102,37 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   }
 
   void _populateExistingData(Practitioner practitioner) {
-    _nameController.text = practitioner.name ?? '';
-    _specializationController.text = practitioner.specialization ?? '';
-    _emailController.text = practitioner.email ?? '';
-    _phoneController.text = practitioner.phone ?? '';
-    _imageNotifier.value = practitioner.image;
+    _nameController.text = practitioner.basicInfo?.name ?? '';
+    _specializationController.text = practitioner.basicInfo?.specialization ?? '';
+    _emailController.text = practitioner.contactInfo?.email ?? '';
+    _phoneController.text = practitioner.contactInfo?.phone ?? '';
+    _imageNotifier.value = practitioner.basicInfo?.image;
 
-    ref.read(practitionerProvider.notifier).changeRole(practitioner.role);
-    if (practitioner.cc != null) {
-      _selectedCountry = CountryCode.fromDialCode(practitioner.cc!);
+    ref.read(practitionerProvider.notifier).changeRole(practitioner.basicInfo?.role);
+    if (practitioner.contactInfo?.cc != null) {
+      _selectedCountry = CountryCode.fromDialCode(practitioner.contactInfo!.cc!);
       ref.read(practitionerProvider.notifier).setCountry(_selectedCountry!);
     }
 
     // Treatments mapping
-    final convertedTreatments =
-        practitioner.treatments?.map((t) {
-          return TreatmentModel(
-            id: t.treatmentId,
-            name: t.treatmentName,
-            sideAreas: t.sideAreas?.map((s) {
-              return SideAreaModel(id: s.sideAreaId, name: s.sideAreaName);
-            }).toList(),
-          );
-        }).toList() ??
-        [];
+    // final convertedTreatments =
+    //     practitioner.treatments?.map((t) {
+    //       return TreatmentModel(
+    //         id: t.treatmentId,
+    //         name: t.treatmentName,
+    //         sideAreas: t.sideAreas?.map((s) {
+    //           return SideAreaModel(id: s.sideAreaId, name: s.sideAreaName);
+    //         }).toList(),
+    //       );
+    //     }).toList() ??
+    //     [];
 
+    // ref
+    //     .read(practitionerProvider.notifier)
+    //     .setInitialTreatments(convertedTreatments);
     ref
         .read(practitionerProvider.notifier)
-        .setInitialTreatments(convertedTreatments);
-    ref
-        .read(practitionerProvider.notifier)
-        .setInitialAvailability(practitioner.availability);
+        .setInitialAvailability(practitioner.availabilityInfo?.availability);
   }
 
   @override
@@ -517,8 +516,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     return ValueListenableBuilder(
       valueListenable: _imageNotifier,
       builder: (_, image, __) {
-        final hasImage = image != null || widget.practitioner?.image != null;
-        final imageUrl = image ?? widget.practitioner?.image ?? '';
+        final hasImage = image != null || widget.practitioner?.basicInfo?.image != null;
+        final imageUrl = image ?? widget.practitioner?.basicInfo?.image ?? '';
 
         return GestureDetector(
           onTap: _onImageTap,

@@ -33,7 +33,7 @@ class AppointmentResponse extends BaseResponse<Data> {
 }
 
 class Data {
-  final List<AppointmentListData>? items;
+  final List<AppointmentData>? items;
   final int? limit;
   final int? page;
   final int? total;
@@ -48,8 +48,8 @@ class Data {
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     items: json["items"] == null
         ? []
-        : List<AppointmentListData>.from(
-            json["items"]!.map((x) => AppointmentListData.fromJson(x)),
+        : List<AppointmentData>.from(
+            json["items"]!.map((x) => AppointmentData.fromJson(x)),
           ),
     limit: json["limit"],
     page: json["page"],
@@ -68,7 +68,7 @@ class Data {
   };
 }
 
-class AppointmentListData extends Event {
+class AppointmentData extends Event {
   final int? id;
   final String? appointmentKey;
   final int? clinicId;
@@ -88,7 +88,7 @@ class AppointmentListData extends Event {
   final String? status;
   final DateTime? createdAt;
 
-  AppointmentListData({
+  AppointmentData({
     this.id,
     this.appointmentKey,
     this.clinicId,
@@ -111,8 +111,8 @@ class AppointmentListData extends Event {
     this.createdAt,
   });
 
-  factory AppointmentListData.fromJson(Map<String, dynamic> json) =>
-      AppointmentListData(
+  factory AppointmentData.fromJson(Map<String, dynamic> json) =>
+      AppointmentData(
         id: json["id"],
         appointmentKey: json["appointment_key"],
         clinicId: json["clinic_id"],
@@ -174,8 +174,8 @@ class AppointmentListData extends Event {
     "created_at": createdAt?.toIso8601String(),
   };
 
-  AppointmentListData copyWith({DateTime? date, DateTime? start, DateTime? end}) {
-    return AppointmentListData(
+  AppointmentData copyWith({DateTime? date, DateTime? start, DateTime? end}) {
+    return AppointmentData(
       id: id,
       appointmentKey: appointmentKey,
       appointmentType: appointmentType,

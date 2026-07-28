@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/responses/filters_response.dart';
+import '../../utils/string_utils.dart';
+import '../../view_models/practitioner_view_model.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../create_appointment_screen.dart';
@@ -29,15 +31,11 @@ class AppointmentScreen extends ConsumerStatefulWidget {
 }
 
 class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
-
- 
-
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(appointmentProvider.notifier).getAppointments();
-     
+      ref.read(practitionerProvider.notifier).getPractitioner();
     });
     super.initState();
   }
@@ -62,22 +60,57 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                   Text('Appointments', style: CustomFonts.black20w600),
                   SizedBox(width: context.w(36)),
                   Expanded(
-                    child: SizedBox(
-                      height: context.h(45),
-                      child: ListView.builder(
-                        itemCount: 6,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Consumer(
-                            builder: (context, ref, _) {
+                    child: Consumer(
+                      builder: (context, ref, _) {
+                        final practitionerState = ref.watch(
+                          practitionerProvider,
+                        );
+                        final appointmentState = ref.watch(appointmentProvider);
+
+                        final practitioners = practitionerState.doctors;
+
+                        return SizedBox(
+                          height: context.h(45),
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: practitioners.length + 1,
+                            itemBuilder: (context, index) {
+                              final practitioner = index == 0
+                                  ? null
+                                  : practitioners[index - 1];
+
                               return AppointmentHorizontalTileWidget(
-                                index: index,
-                                selected: index == 0,
+                                practitioner: practitioner,
+                                selected: index == 0
+                                    ? appointmentState.practitionerId == null
+                                    : appointmentState.practitionerId ==
+                                          practitioner?.id,
+                                onTap: () {
+                                  if (practitioner == null) {
+                                    ref
+                                        .read(appointmentProvider.notifier)
+                                        .setSelectedPractitionerID(iD: 0);
+
+                                    ref
+                                        .read(appointmentProvider.notifier)
+                                        .getAppointments(initialCall: true);
+                                  } else {
+                                    ref
+                                        .read(appointmentProvider.notifier)
+                                        .setSelectedPractitionerID(
+                                          iD: practitioner.id!,
+                                        );
+
+                                    ref
+                                        .read(appointmentProvider.notifier)
+                                        .getAppointments(initialCall: true);
+                                  }
+                                },
                               );
                             },
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -107,13 +140,22 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               SizedBox(height: context.h(15)),
               BorderdContainerWidget(
                 child: Row(
-             crossAxisAlignment:CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       flex: 5,
                       child: CupertinoSearchTextField(
-                        controller: ref.read(appointmentProvider.notifier).searchController ,
-                        onChanged: (_){ ref.read(appointmentProvider.notifier).getAppointments(initialCall: true,showEasyLoading:  true);},
+                        controller: ref
+                            .read(appointmentProvider.notifier)
+                            .searchController,
+                        onChanged: (_) {
+                          ref
+                              .read(appointmentProvider.notifier)
+                              .getAppointments(
+                                initialCall: true,
+                                showEasyLoading: true,
+                              );
+                        },
                         style: context.fonts.black14w400,
                         placeholderStyle: context.fonts.grey14w400,
                         backgroundColor: CustomColors.softGrey,
@@ -175,7 +217,9 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                             hint: 'All Status',
                             value: appointmentState.status?.name,
                             showAddIcon: false,
-                            items: statuses.map((e) => e.name ?? '').toList(),
+                            items: statuses
+                                .map((e) => e.name?.capitalize ?? '')
+                                .toList(),
                             itemLabel: (status) => status,
                             onChanged: (value) {
                               final selected = value == null
@@ -260,7 +304,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     );
   }
 
-  Widget _buildAppointmentsTable(List<AppointmentListData> list) {
+  Widget _buildAppointmentsTable(List<AppointmentData> list) {
     return BorderdContainerWidget(
       padding: EdgeInsets.zero,
       child: ClipRRect(
@@ -331,7 +375,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
   // Assumption: `date` = unix seconds, `start_time`/`end_time` = unix seconds too.
   // Swap to whatever encoding your API actually uses.
 
-  Widget _appointmentPatientCell(AppointmentListData a) {
+  Widget _appointmentPatientCell(AppointmentData a) {
     final name = a.patientName ?? '-';
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -418,7 +462,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     );
   }
 
-  Widget _appointmentActionsCell(AppointmentListData a) {
+  Widget _appointmentActionsCell(AppointmentData a) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
       child: IconButton(
@@ -430,7 +474,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
         ),
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
-        onPressed: () {
+        onPressed: () async {
+          await ref.read(appointmentProvider.notifier).getAppointmentsDetail(id: a.id!);
           ref.read(authViewModelProvider.notifier).navigateDailogIndexToNext(0);
           showDialog(
             context: context,

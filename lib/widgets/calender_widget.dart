@@ -39,7 +39,7 @@ enum CalendarViewMode { month, week, day }
 // }
 
 class AppointmentsCalendar extends StatefulWidget {
-  List<AppointmentListData> appointments;
+  List<AppointmentData> appointments;
   AppointmentsCalendar({super.key, required this.appointments});
 
   @override
@@ -56,7 +56,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
   );
 
   // final Map<DateTime, List<AppointmentData>> _appointments = widget.appointmentList;
-  List<AppointmentListData> _getEvents(DateTime day) {
+  List<AppointmentData> _getEvents(DateTime day) {
     // final key = DateTime(day.year, day.month, day.day);
     // return _appointments[key] ?? [];
 
@@ -263,7 +263,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
   }
 
   Widget _timetable() {
-    return TimetableConfig<AppointmentListData>(
+    return TimetableConfig<AppointmentData>(
       dateController: _dateController,
       eventBuilder: (context, event) => _appointmentCard(event),
       eventProvider: eventProviderFromFixedList(
@@ -288,13 +288,13 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
           color: CustomColors.border,
         ),
       ),
-      child: MultiDateTimetable<AppointmentListData>(),
+      child: MultiDateTimetable<AppointmentData>(),
     );
   }
 
   Widget _dayCell(
     DateTime day,
-    List<AppointmentListData> events, {
+    List<AppointmentData> events, {
     bool isToday = false,
     bool isOutside = false,
   }) {
@@ -323,7 +323,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
     );
   }
 
-  Widget _appointmentCard(AppointmentListData a) {
+  Widget _appointmentCard(AppointmentData a) {
     return Consumer(
       builder: (context, ref, _) {
         return GestureDetector(
