@@ -49,7 +49,7 @@ enum Endpoint {
   deleteSession('admin/sessions/{id}'),
   sessionStatus('admin/sessions/status'),
   products('admin/products'),
-  updateProduct('admin/products/{id}'),
+  updateProduct('clinic/products/{id}'),
   deleteProduct('admin/products/{id}'),
   getBrands('admin/brands'),
   unitTypesList('admin/unit-types'),
@@ -58,9 +58,9 @@ enum Endpoint {
   manufacturersList('admin/manufacturers'),
   suppliers('admin/suppliers'),
   adminProductList('admin/products/list'),
-  batchLots('admin/batches/{batchId}/lots'),
-  productBatches('admin/products/{productId}/batches'),
-  lotItems('admin/lots/{lotId}/items'),
+  batchLots('clinic/products/batches/{batchId}/lots'),
+  productBatches('clinic/products/{productId}/batches'),
+  lotItems('clinic/products/lots/{lotId}/items'),
   updateLotItem('admin/items/{id}'),
   appointmentStatuses('clinic/appointment-statuses'),
   providerRoles('clinic/provider-roles'),
@@ -160,6 +160,9 @@ enum AppointmentStatus {
     }
   }
 
+
+
+
   Color get color {
     switch (this) {
       case AppointmentStatus.allStatus:
@@ -209,6 +212,19 @@ enum AppointmentStatus {
         return AppointmentStatus.allStatus;
     }
   }
+}
+
+enum LotItemStatus {
+  available('available', 'Available'),
+  allocated('allocated', 'Allocated'),
+  used('used', 'Used'),
+  reserved('reserved', 'Reserved'),
+  damaged('damaged', 'Damaged');
+
+  const LotItemStatus(this.value, this.label);
+
+  final String value;
+  final String label;
 }
 
 enum AppointmentFilter {

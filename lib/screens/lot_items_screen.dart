@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/responses/lot_items_list_response.dart';
+import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../view_models/product_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -38,41 +39,50 @@ class _LotItemsScreenState extends ConsumerState<LotItemsScreen> {
     }
   }
 
-  Widget _buildStatusBadge(BuildContext context, String status) {
-    Color badgeColor = CustomColors.green;
-    String label = 'Available';
+ Widget _buildStatusBadge(BuildContext context, String status) {
+  final lotStatus = LotItemStatus.values.firstWhere(
+    (e) => e.value == status.toLowerCase(),
+    orElse: () => LotItemStatus.available,
+  );
 
-    final lower = status.toLowerCase();
-    if (lower == 'used') {
+  Color badgeColor;
+
+  switch (lotStatus) {
+    case LotItemStatus.available:
+      badgeColor = CustomColors.green;
+      break;
+    case LotItemStatus.allocated:
+      badgeColor = CustomColors.blue;
+      break;
+    case LotItemStatus.used:
       badgeColor = CustomColors.grey;
-      label = 'Used';
-    } else if (lower == 'reserved') {
+      break;
+    case LotItemStatus.reserved:
       badgeColor = CustomColors.amber;
-      label = 'Reserved';
-    } else if (lower == 'damaged') {
+      break;
+    case LotItemStatus.damaged:
       badgeColor = CustomColors.red;
-      label = 'Damaged';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: badgeColor,
-          fontSize: context.sp(9),
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
+      break;
   }
 
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: badgeColor.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
+    ),
+    child: Text(
+      lotStatus.label.toUpperCase(),
+      style: TextStyle(
+        color: badgeColor,
+        fontSize: context.sp(9),
+        fontWeight: FontWeight.bold,
+        letterSpacing: 0.5,
+      ),
+    ),
+  );
+}
   Widget _buildItemCard(BuildContext context, LotItemModel item) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),

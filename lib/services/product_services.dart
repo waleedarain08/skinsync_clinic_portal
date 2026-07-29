@@ -1,8 +1,5 @@
 import 'dart:async';
 
-
-
-
 import '../models/requests/add_inventory_request.dart';
 import '../models/requests/lot_item_update_request.dart';
 import '../models/requests/product_batch_request.dart';
@@ -34,7 +31,9 @@ class ProductServices implements ProductRepository {
   ProductServices({required ApiBaseService api}) : _api = api;
 
   @override
-  Future<BaseApiResponseModel> addBatch({required ProductBatchRequest request}) async {
+  Future<BaseApiResponseModel> addBatch({
+    required ProductBatchRequest request,
+  }) async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.post,
       endPoint: Endpoint.productBatches,
@@ -53,7 +52,9 @@ class ProductServices implements ProductRepository {
   }
 
   @override
-  Future<BaseApiResponseModel> addLot({required ProductLotRequest request}) async {
+  Future<BaseApiResponseModel> addLot({
+    required ProductLotRequest request,
+  }) async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.post,
       endPoint: Endpoint.batchLots,
@@ -72,7 +73,9 @@ class ProductServices implements ProductRepository {
   }
 
   @override
-  Future<BaseApiResponseModel> updateLotItem({required LotItemUpdateRequest request}) async {
+  Future<BaseApiResponseModel> updateLotItem({
+    required LotItemUpdateRequest request,
+  }) async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.patch,
       endPoint: Endpoint.updateLotItem,
@@ -118,7 +121,7 @@ class ProductServices implements ProductRepository {
   //     throw BadRequestException(response.message);
   //   }
   //   return response.data!;
- // }
+  // }
 
   // @override
   // Future<BaseResponse> deleteProduct({required int id}) async {
@@ -143,47 +146,49 @@ class ProductServices implements ProductRepository {
     ProductStatus? status,
     int? brandId,
   }) async {
-    try {
-      final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,
-        endPoint: Endpoint.products,
-        queryParams: {
-          'search': search,
-          'status' : status == null || status == ProductStatus.all ? '' : status.name,
-          'usage' : selectedPurpose ?? '',
-          'page': page.toString(),
-          'limit': limit.toString(),
-          if (brandId != null) 'brand': brandId.toString(),
-        },
-      );
-      final response = ProductListResponse.fromJson(jsonResponse);
-      if (!response.isSuccess) {
-        throw BadRequestException(response.message);
-      }
-      return response;
-    } catch (e) {
-      final list = InventoryDummyProducts.getDummyInventoryProductsForPage(page, limit);
-      final filteredList = search.isEmpty
-          ? list
-          : list.where((p) =>
-              p.name.toLowerCase().contains(search.toLowerCase()) ||
-              (p.brand ?? '').toLowerCase().contains(search.toLowerCase()) ||
-              (p.globalSku ?? '').toLowerCase().contains(search.toLowerCase())).toList();
-
-      return ProductListResponse(
-        success: true,
-        message: 'Loaded paginated dummy inventory products',
-        page: page,
-        limit: limit,
-        totalPages: 3, // 20 items / 8 per page = 3 pages
-        data: filteredList,
-      );
+    // try {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.clinicProducts,
+      queryParams: {
+        'search': search,
+        'status': status == null || status == ProductStatus.all
+            ? ''
+            : status.name,
+        'usage': selectedPurpose ?? '',
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (brandId != null) 'brand': brandId.toString(),
+      },
+    );
+    final response = ProductListResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
     }
+    return response;
+    // } catch (e) {
+    //   final list = InventoryDummyProducts.getDummyInventoryProductsForPage(page, limit);
+    //   final filteredList = search.isEmpty
+    //       ? list
+    //       : list.where((p) =>
+    //           p.name.toLowerCase().contains(search.toLowerCase()) ||
+    //           (p.brand ?? '').toLowerCase().contains(search.toLowerCase()) ||
+    //           (p.globalSku ?? '').toLowerCase().contains(search.toLowerCase())).toList();
+
+    //   return ProductListResponse(
+    //     success: true,
+    //     message: 'Loaded paginated dummy inventory products',
+    //     page: page,
+    //     limit: limit,
+    //     totalPages: 3, // 20 items / 8 per page = 3 pages
+    //     data: filteredList,
+    //   );
+    // }
   }
 
   @override
   Future<ProductDetailResponse> getProductDetail({required int id}) async {
-    try {
+  //  try {
       final jsonResponse = await _api.httpRequest(
         requestType: RequestType.get,
         endPoint: Endpoint.updateProduct,
@@ -194,20 +199,21 @@ class ProductServices implements ProductRepository {
         throw BadRequestException(response.message);
       }
       return response;
-    } catch (e) {
-      return ProductDetailResponse(
-        success: true,
-        message: 'Loaded dummy product detail',
-        data: ProductDetailDummy.getDummyProductDetail(id),
-      );
-    }
+    // } catch (e) {
+    //   // return ProductDetailResponse(
+    //   //   success: true,
+    //   //   message: 'Loaded dummy product detail',
+    //   //   data: ProductDetailDummy.getDummyProductDetail(id),
+    //   // );
+    // }
   }
 
   @override
   Future<BrandListResponse> fetchBrand() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.getBrands);
+      requestType: RequestType.get,
+      endPoint: Endpoint.getBrands,
+    );
     final response = BrandListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -218,8 +224,9 @@ class ProductServices implements ProductRepository {
   @override
   Future<ManufacturersListResponse> fetchManufacturer() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.manufacturersList);
+      requestType: RequestType.get,
+      endPoint: Endpoint.manufacturersList,
+    );
     final response = ManufacturersListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -230,8 +237,9 @@ class ProductServices implements ProductRepository {
   @override
   Future<UnitTypesListResponse> fetchUnitTypes() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.unitTypesList);
+      requestType: RequestType.get,
+      endPoint: Endpoint.unitTypesList,
+    );
     final response = UnitTypesListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -242,8 +250,9 @@ class ProductServices implements ProductRepository {
   @override
   Future<PackageTypeListResponse> fetchPackageTypes() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.packageTypeList);
+      requestType: RequestType.get,
+      endPoint: Endpoint.packageTypeList,
+    );
     final response = PackageTypeListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -254,8 +263,9 @@ class ProductServices implements ProductRepository {
   @override
   Future<UsageTypeListResponse> fetchUsageTypes() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.usageType);
+      requestType: RequestType.get,
+      endPoint: Endpoint.usageType,
+    );
     final response = UsageTypeListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -266,8 +276,9 @@ class ProductServices implements ProductRepository {
   @override
   Future<SupplierListResponse> fetchSuppliers() async {
     final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,endPoint: 
-      Endpoint.suppliers);
+      requestType: RequestType.get,
+      endPoint: Endpoint.suppliers,
+    );
     final response = SupplierListResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {
       throw BadRequestException(response.message);
@@ -281,7 +292,7 @@ class ProductServices implements ProductRepository {
   //   required String status,
   // }) async {
   //   final jsonResponse = await _api.httpRequest(
-  //       requestType: RequestType.patch,endPoint: 
+  //       requestType: RequestType.patch,endPoint:
   //     Endpoint.productsStatus,
   //     requestBody: {'status': status},
   //     queryParams: {'product_id': productId.toString()},
@@ -292,19 +303,20 @@ class ProductServices implements ProductRepository {
   //   }
   //   return response;
   // }
- @override
+  @override
   Future<List<CatalogItem>> getCatalog() async {
     final json = await _api.httpRequest(
       endPoint: Endpoint.catalog,
       requestType: RequestType.get,
     );
-    final response = CatalogResponse.fromJson( json);
+    final response = CatalogResponse.fromJson(json);
     if (!response.success) {
       throw Exception(response.message);
     }
     return response.data!;
   }
-@override
+
+  @override
   Future<List<ClinicProduct>> getClinicProducts() async {
     final json = await _api.httpRequest(
       endPoint: Endpoint.clinicProducts,
@@ -357,10 +369,18 @@ class ProductServices implements ProductRepository {
       final list = AdminDummyProducts.getDummyProductsForPage(page, limit);
       final filteredList = search.isEmpty
           ? list
-          : list.where((p) =>
-              p.name.toLowerCase().contains(search.toLowerCase()) ||
-              (p.brand ?? '').toLowerCase().contains(search.toLowerCase()) ||
-              (p.globalSku ?? '').toLowerCase().contains(search.toLowerCase())).toList();
+          : list
+                .where(
+                  (p) =>
+                      p.name.toLowerCase().contains(search.toLowerCase()) ||
+                      (p.brand ?? '').toLowerCase().contains(
+                        search.toLowerCase(),
+                      ) ||
+                      (p.globalSku ?? '').toLowerCase().contains(
+                        search.toLowerCase(),
+                      ),
+                )
+                .toList();
 
       return AdminProductListResponse(
         success: true,
@@ -379,32 +399,29 @@ class ProductServices implements ProductRepository {
     required int page,
     required int limit,
   }) async {
-    try {
+   // try {
       final jsonResponse = await _api.httpRequest(
         requestType: RequestType.get,
         endPoint: Endpoint.batchLots,
         pathParams: {'batchId': batchId.toString()},
-        queryParams: {
-          'page': page.toString(),
-          'limit': limit.toString(),
-        },
+        queryParams: {'page': page.toString(), 'limit': limit.toString()},
       );
       final response = ProductLotsResponse.fromJson(jsonResponse);
       if (!response.isSuccess) {
         throw BadRequestException(response.message);
       }
       return response;
-    } catch (e) {
-      final list = BatchLotsDummy.getDummyLotsForBatch(batchId, page, limit);
-      return ProductLotsResponse(
-        success: true,
-        message: 'Loaded paginated dummy lots',
-        page: page,
-        limit: limit,
-        totalPages: (batchId == 1) ? 2 : 1,
-        data: list,
-      );
-    }
+    // } catch (e) {
+    //   final list = BatchLotsDummy.getDummyLotsForBatch(batchId, page, limit);
+    //   return ProductLotsResponse(
+    //     success: true,
+    //     message: 'Loaded paginated dummy lots',
+    //     page: page,
+    //     limit: limit,
+    //     totalPages: (batchId == 1) ? 2 : 1,
+    //     data: list,
+    //   );
+    // }
   }
 
   @override
@@ -413,32 +430,33 @@ class ProductServices implements ProductRepository {
     required int page,
     required int limit,
   }) async {
-    try {
+  //  try {
       final jsonResponse = await _api.httpRequest(
         requestType: RequestType.get,
         endPoint: Endpoint.productBatches,
         pathParams: {'productId': productId.toString()},
-        queryParams: {
-          'page': page.toString(),
-          'limit': limit.toString(),
-        },
+        queryParams: {'page': page.toString(), 'limit': limit.toString()},
       );
       final response = ProductBatchListResponse.fromJson(jsonResponse);
       if (!response.isSuccess) {
         throw BadRequestException(response.message);
       }
       return response;
-    } catch (e) {
-      final list = BatchDummyProducts.getDummyBatchesForPage(productId, page, limit);
-      return ProductBatchListResponse(
-        success: true,
-        message: 'Loaded paginated dummy batches',
-        page: page,
-        limit: limit,
-        totalPages: 2,
-        data: list,
-      );
-    }
+    // } catch (e) {
+    //   final list = BatchDummyProducts.getDummyBatchesForPage(
+    //     productId,
+    //     page,
+    //     limit,
+    //   );
+    //   return ProductBatchListResponse(
+    //     success: true,
+    //     message: 'Loaded paginated dummy batches',
+    //     page: page,
+    //     limit: limit,
+    //     totalPages: 2,
+    //     data: list,
+    //   );
+    // }
   }
 
   @override
@@ -448,7 +466,7 @@ class ProductServices implements ProductRepository {
     required int limit,
     String search = '',
   }) async {
-    try {
+   // try {
       final jsonResponse = await _api.httpRequest(
         requestType: RequestType.get,
         endPoint: Endpoint.lotItems,
@@ -464,18 +482,17 @@ class ProductServices implements ProductRepository {
         throw BadRequestException(response.message);
       }
       return response;
-    } catch (e) {
-      final list = LotItemsDummy.getDummyLotItems(lotId, page, limit, search);
-      final totalPages = LotItemsDummy.getTotalPages(lotId, limit, search);
-      return LotItemsListResponse(
-        success: true,
-        message: 'Loaded paginated dummy lot items',
-        page: page,
-        limit: limit,
-        totalPages: totalPages,
-        data: list,
-      );
-    }
+    // } catch (e) {
+    //   final list = LotItemsDummy.getDummyLotItems(lotId, page, limit, search);
+    //   final totalPages = LotItemsDummy.getTotalPages(lotId, limit, search);
+    //   return LotItemsListResponse(
+    //     success: true,
+    //     message: 'Loaded paginated dummy lot items',
+    //     page: page,
+    //     limit: limit,
+    //     totalPages: totalPages,
+    //     data: list,
+    //   );
+    // }
   }
-
 }

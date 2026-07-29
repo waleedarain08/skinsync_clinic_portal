@@ -70,15 +70,9 @@ class ProductDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: context.fonts.grey12w600,
-                ),
+                Text(title, style: context.fonts.grey12w600),
                 context.verticalSpace(4),
-                Text(
-                  value,
-                  style: context.fonts.black18w600,
-                ),
+                Text(value, style: context.fonts.black18w600),
               ],
             ),
           ),
@@ -95,23 +89,20 @@ class ProductDetailScreen extends ConsumerWidget {
         children: [
           SizedBox(
             width: context.w(200),
-            child: Text(
-              label,
-              style: context.fonts.grey14w500,
-            ),
+            child: Text(label, style: context.fonts.grey14w500),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: context.fonts.black14w600,
-            ),
-          ),
+          Expanded(child: Text(value, style: context.fonts.black14w600)),
         ],
       ),
     );
   }
 
-  Widget _buildPaginationFooter(BuildContext context, int currentPage, int totalPages, WidgetRef ref) {
+  Widget _buildPaginationFooter(
+    BuildContext context,
+    int currentPage,
+    int totalPages,
+    WidgetRef ref,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24.0),
       child: Row(
@@ -120,7 +111,9 @@ class ProductDetailScreen extends ConsumerWidget {
           // Previous Page Button
           IconButton(
             onPressed: currentPage > 1
-                ? () => ref.read(productViewModelProvider.notifier).previousBatchPage()
+                ? () => ref
+                      .read(productViewModelProvider.notifier)
+                      .previousBatchPage()
                 : null,
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -138,12 +131,16 @@ class ProductDetailScreen extends ConsumerWidget {
           // Next Page Button
           IconButton(
             onPressed: currentPage < totalPages
-                ? () => ref.read(productViewModelProvider.notifier).nextBatchPage()
+                ? () => ref
+                      .read(productViewModelProvider.notifier)
+                      .nextBatchPage()
                 : null,
             icon: Icon(
               Icons.arrow_forward_ios_rounded,
               size: 16,
-              color: currentPage < totalPages ? CustomColors.purple : CustomColors.grey,
+              color: currentPage < totalPages
+                  ? CustomColors.purple
+                  : CustomColors.grey,
             ),
           ),
         ],
@@ -151,7 +148,13 @@ class ProductDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLotPaginationFooter(BuildContext context, int batchId, int currentPage, int totalPages, WidgetRef ref) {
+  Widget _buildLotPaginationFooter(
+    BuildContext context,
+    int batchId,
+    int currentPage,
+    int totalPages,
+    WidgetRef ref,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: Row(
@@ -160,7 +163,9 @@ class ProductDetailScreen extends ConsumerWidget {
           // Previous Lot Page
           IconButton(
             onPressed: currentPage > 1
-                ? () => ref.read(productViewModelProvider.notifier).previousLotPage(batchId)
+                ? () => ref
+                      .read(productViewModelProvider.notifier)
+                      .previousLotPage(batchId)
                 : null,
             icon: Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -177,12 +182,16 @@ class ProductDetailScreen extends ConsumerWidget {
           // Next Lot Page
           IconButton(
             onPressed: currentPage < totalPages
-                ? () => ref.read(productViewModelProvider.notifier).nextLotPage(batchId)
+                ? () => ref
+                      .read(productViewModelProvider.notifier)
+                      .nextLotPage(batchId)
                 : null,
             icon: Icon(
               Icons.arrow_forward_ios_rounded,
               size: 14,
-              color: currentPage < totalPages ? CustomColors.purple : CustomColors.grey,
+              color: currentPage < totalPages
+                  ? CustomColors.purple
+                  : CustomColors.grey,
             ),
           ),
         ],
@@ -207,7 +216,10 @@ class ProductDetailScreen extends ConsumerWidget {
     }
 
     final isLowStock = product.lowStockAlert ?? false;
-    final totalLotsOnPage = state.selectedProductBatches.fold<int>(0, (int sum, ProductBatchModel b) => sum + b.totalLots);
+    final totalLotsOnPage = state.selectedProductBatches.fold<int>(
+      0,
+      (int sum, ProductBatchModel b) => sum + b.totalLots,
+    );
 
     return GradientScaffold(
       appBar: AppBar(
@@ -377,7 +389,10 @@ class ProductDetailScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Product Specifications', style: context.fonts.black18w600),
+                      Text(
+                        'Product Specifications',
+                        style: context.fonts.black18w600,
+                      ),
                       context.verticalSpace(16),
                       Text(
                         product.description.isNotEmpty
@@ -395,9 +410,21 @@ class ProductDetailScreen extends ConsumerWidget {
                           Expanded(
                             child: Column(
                               children: [
-                                _buildInfoRow(context, 'Unit Type', _formatValue(product.unitType)),
-                                _buildInfoRow(context, 'Package Type', _formatValue(product.packageType)),
-                                _buildInfoRow(context, 'Billable Unit', _formatValue(product.billableUnit)),
+                                _buildInfoRow(
+                                  context,
+                                  'Unit Type',
+                                  _formatValue(product.unitType),
+                                ),
+                                _buildInfoRow(
+                                  context,
+                                  'Package Type',
+                                  _formatValue(product.packageType),
+                                ),
+                                _buildInfoRow(
+                                  context,
+                                  'Billable Unit',
+                                  _formatValue(product.billableUnit),
+                                ),
                               ],
                             ),
                           ),
@@ -415,7 +442,9 @@ class ProductDetailScreen extends ConsumerWidget {
                                 _buildInfoRow(
                                   context,
                                   'Enforce Lot Tracking',
-                                  (product.enforceLotTracking ?? false) ? 'YES' : 'NO',
+                                  (product.enforceLotTracking ?? false)
+                                      ? 'YES'
+                                      : 'NO',
                                 ),
                                 _buildInfoRow(
                                   context,
@@ -438,9 +467,15 @@ class ProductDetailScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.inventory_outlined, color: CustomColors.purple),
+                        const Icon(
+                          Icons.inventory_outlined,
+                          color: CustomColors.purple,
+                        ),
                         context.horizontalSpace(8),
-                        Text('Batches & Lots tracking (Paginated)', style: context.fonts.black18w600),
+                        Text(
+                          'Batches & Lots tracking (Paginated)',
+                          style: context.fonts.black18w600,
+                        ),
                       ],
                     ),
                     SizedBox(
@@ -480,11 +515,21 @@ class ProductDetailScreen extends ConsumerWidget {
                     child: Center(
                       child: Column(
                         children: [
-                          const Icon(Icons.layers_clear_outlined, color: CustomColors.grey, size: 40),
+                          const Icon(
+                            Icons.layers_clear_outlined,
+                            color: CustomColors.grey,
+                            size: 40,
+                          ),
                           context.verticalSpace(12),
-                          Text('No Batches Configured', style: context.fonts.black16w600),
+                          Text(
+                            'No Batches Configured',
+                            style: context.fonts.black16w600,
+                          ),
                           context.verticalSpace(4),
-                          Text('There are no active production batches registered for this product.', style: context.fonts.grey14w400),
+                          Text(
+                            'There are no active production batches registered for this product.',
+                            style: context.fonts.grey14w400,
+                          ),
                         ],
                       ),
                     ),
@@ -494,31 +539,49 @@ class ProductDetailScreen extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: state.selectedProductBatches.length,
-                    separatorBuilder: (context, index) => context.verticalSpace(16),
+                    separatorBuilder: (context, index) =>
+                        context.verticalSpace(16),
                     itemBuilder: (context, bIdx) {
-                      final ProductBatchModel batch = state.selectedProductBatches[bIdx];
+                      final ProductBatchModel batch =
+                          state.selectedProductBatches[bIdx];
 
-                      final bool isLotsLoading = state.batchLotLoading[batch.id] ?? false;
-                      final List<LotModel> loadedLots = state.batchLots[batch.id] ?? [];
-                      final int lotsCurrentPage = state.batchLotPages[batch.id] ?? 1;
-                      final int lotsTotalPages = state.batchLotTotalPages[batch.id] ?? 1;
+                      final bool isLotsLoading =
+                          state.batchLotLoading[batch.id] ?? false;
+                      final List<LotModel> loadedLots =
+                          state.batchLots[batch.id] ?? [];
+                      final int lotsCurrentPage =
+                          state.batchLotPages[batch.id] ?? 1;
+                      final int lotsTotalPages =
+                          state.batchLotTotalPages[batch.id] ?? 1;
 
                       return BorderdContainerWidget(
                         padding: EdgeInsets.zero,
                         child: Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
+                          data: Theme.of(
+                            context,
+                          ).copyWith(dividerColor: Colors.transparent),
                           child: ExpansionTile(
-                            tilePadding: context.appEdgeInsets(horizontal: 20, vertical: 8),
-                            childrenPadding: context.appEdgeInsets(horizontal: 20, bottom: 20),
+                            tilePadding: context.appEdgeInsets(
+                              horizontal: 20,
+                              vertical: 8,
+                            ),
+                            childrenPadding: context.appEdgeInsets(
+                              horizontal: 20,
+                              bottom: 20,
+                            ),
                             leading: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: CustomColors.amber.withValues(alpha: 0.1),
+                                color: CustomColors.amber.withValues(
+                                  alpha: 0.1,
+                                ),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.layers_outlined, color: CustomColors.amber, size: 20),
+                              child: const Icon(
+                                Icons.layers_outlined,
+                                color: CustomColors.amber,
+                                size: 20,
+                              ),
                             ),
                             title: Text(
                               batch.batchNumber,
@@ -541,9 +604,14 @@ class ProductDetailScreen extends ConsumerWidget {
                               ),
                             ),
                             trailing: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: CustomColors.purple.withValues(alpha: 0.1),
+                                color: CustomColors.purple.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -553,17 +621,30 @@ class ProductDetailScreen extends ConsumerWidget {
                             ),
                             onExpansionChanged: (expanded) {
                               if (expanded) {
-                                ref.read(productViewModelProvider.notifier).fetchLotsForBatch(batchId: batch.id, page: 1);
+                                ref
+                                    .read(productViewModelProvider.notifier)
+                                    .fetchLotsForBatch(
+                                      batchId: batch.id,
+                                      page: 1,
+                                    );
                               }
                             },
                             children: [
-                              const Divider(color: CustomColors.border, height: 24),
+                              const Divider(
+                                color: CustomColors.border,
+                                height: 24,
+                              ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.qr_code_scanner_outlined, size: 16, color: CustomColors.grey),
+                                      const Icon(
+                                        Icons.qr_code_scanner_outlined,
+                                        size: 16,
+                                        color: CustomColors.grey,
+                                      ),
                                       context.horizontalSpace(8),
                                       Text(
                                         'Associated Lots (${batch.totalLots})',
@@ -597,7 +678,9 @@ class ProductDetailScreen extends ConsumerWidget {
                                 )
                               else if (loadedLots.isEmpty)
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0,
+                                  ),
                                   child: Text(
                                     'No lots found inside this batch.',
                                     style: context.fonts.grey14w400,
@@ -608,7 +691,8 @@ class ProductDetailScreen extends ConsumerWidget {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: loadedLots.length,
-                                  separatorBuilder: (context, index) => context.verticalSpace(12),
+                                  separatorBuilder: (context, index) =>
+                                      context.verticalSpace(12),
                                   itemBuilder: (context, lIdx) {
                                     final LotModel lot = loadedLots[lIdx];
 
@@ -616,32 +700,42 @@ class ProductDetailScreen extends ConsumerWidget {
                                       padding: context.appEdgeInsets(all: 16),
                                       decoration: BoxDecoration(
                                         color: CustomColors.whiteGrey,
-                                        borderRadius: context.appBorderRadius(all: 8),
-                                        border: Border.all(color: CustomColors.border),
+                                        borderRadius: context.appBorderRadius(
+                                          all: 8,
+                                        ),
+                                        border: Border.all(
+                                          color: CustomColors.border,
+                                        ),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
                                                   Text(
                                                     'Lot: ${lot.lotNumber}',
-                                                    style: context.fonts.black14w700,
+                                                    style: context
+                                                        .fonts
+                                                        .black14w700,
                                                   ),
                                                   context.horizontalSpace(12),
                                                   _buildBadge(
                                                     context,
                                                     lot.status,
-                                                    lot.status.toLowerCase() == 'active'
+                                                    lot.status.toLowerCase() ==
+                                                            'active'
                                                         ? CustomColors.green
                                                         : CustomColors.grey,
                                                   ),
                                                 ],
                                               ),
-                                              if (product.enforceLotTracking ?? false)
+                                              if (product.enforceLotTracking ??
+                                                  false)
                                                 SizedBox(
                                                   width: context.w(100),
                                                   child: CustomPrimaryButton(
@@ -650,10 +744,20 @@ class ProductDetailScreen extends ConsumerWidget {
                                                     label: 'Items',
                                                     onTap: () async {
                                                       final success = await ref
-                                                          .read(productViewModelProvider.notifier)
-                                                          .fetchLotItems(lotId: lot.id, page: 1);
-                                                      if (success && context.mounted) {
-                                                        context.push(LotItemsScreen.routeName);
+                                                          .read(
+                                                            productViewModelProvider
+                                                                .notifier,
+                                                          )
+                                                          .fetchLotItems(
+                                                            lotId: lot.id,
+                                                            page: 1,
+                                                          );
+                                                      if (success &&
+                                                          context.mounted) {
+                                                        context.push(
+                                                          LotItemsScreen
+                                                              .routeName,
+                                                        );
                                                       }
                                                     },
                                                   ),
@@ -662,43 +766,91 @@ class ProductDetailScreen extends ConsumerWidget {
                                           ),
                                           context.verticalSpace(12),
                                           Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Text('LOT BARCODE', style: context.fonts.grey10w700),
-                                                    Text(lot.lotBarcode, style: context.fonts.black13w600),
-                                                    context.verticalSpace(8),
-                                                    Text('SUPPLIER', style: context.fonts.grey10w700),
-                                                    Text(lot.supplier, style: context.fonts.black13w600),
-                                                  ],
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text('EXPIRATION DATE', style: context.fonts.grey10w700),
-                                                    Text(lot.expirationDate, style: context.fonts.black13w600),
-                                                    context.verticalSpace(8),
-                                                    Text('PRICING STRUCTURE', style: context.fonts.grey10w700),
                                                     Text(
-                                                      'Cost: \$${lot.clinicCost.toStringAsFixed(0)} | Retail: \$${lot.retailPricePerUnit.toStringAsFixed(0)}',
-                                                      style: context.fonts.black13w600,
+                                                      'LOT BARCODE',
+                                                      style: context
+                                                          .fonts
+                                                          .grey10w700,
+                                                    ),
+                                                    Text(
+                                                      lot.lotBarcode,
+                                                      style: context
+                                                          .fonts
+                                                          .black13w600,
+                                                    ),
+                                                    context.verticalSpace(8),
+                                                    Text(
+                                                      'SUPPLIER',
+                                                      style: context
+                                                          .fonts
+                                                          .grey10w700,
+                                                    ),
+                                                    Text(
+                                                      lot.supplier,
+                                                      style: context
+                                                          .fonts
+                                                          .black13w600,
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Text('QUANTITY ALLOCATION', style: context.fonts.grey10w700),
+                                                    Text(
+                                                      'EXPIRATION DATE',
+                                                      style: context
+                                                          .fonts
+                                                          .grey10w700,
+                                                    ),
+                                                    Text(
+                                                      lot.expirationDate,
+                                                      style: context
+                                                          .fonts
+                                                          .black13w600,
+                                                    ),
+                                                    context.verticalSpace(8),
+                                                    Text(
+                                                      'PRICING STRUCTURE',
+                                                      style: context
+                                                          .fonts
+                                                          .grey10w700,
+                                                    ),
+                                                    Text(
+                                                      'Cost: \$${lot.clinicCost.toStringAsFixed(0)} | Retail: \$${lot.retailPricePerUnit.toStringAsFixed(0)}',
+                                                      style: context
+                                                          .fonts
+                                                          .black13w600,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'QUANTITY ALLOCATION',
+                                                      style: context
+                                                          .fonts
+                                                          .grey10w700,
+                                                    ),
                                                     Text(
                                                       '${lot.quantityRemaining} remaining (out of ${lot.quantityReceived})',
-                                                      style: context.fonts.black13w600,
+                                                      style: context
+                                                          .fonts
+                                                          .black13w600,
                                                     ),
                                                   ],
                                                 ),
@@ -725,7 +877,7 @@ class ProductDetailScreen extends ConsumerWidget {
                       );
                     },
                   ),
-                  
+
                   // Standard Footer Pagination matching Products Listing behaviour
                   if (state.selectedProductBatchTotalPages > 1)
                     _buildPaginationFooter(
