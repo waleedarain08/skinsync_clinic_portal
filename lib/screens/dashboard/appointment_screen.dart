@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -479,8 +481,11 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
         onPressed: () async {
-          if (a.id == null) return;
-          await ref.read(appointmentProvider.notifier).getAppointmentsDetail(id: a.id!);
+          // if (a.id == null) {
+           log('No Id');
+          //   return; 
+          // };
+          await ref.read(appointmentProvider.notifier).getAppointmentsDetail(id: 6);
           if (context.mounted) {
             context.push(AppointmentDetailScreen.routeName);
           }

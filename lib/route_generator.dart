@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_init.dart';
-import 'models/responses/appointment_detail_response.dart';
 import 'models/responses/register_practitioner_response.dart';
 import 'screens/about_screen.dart';
 import 'screens/add_practitioner_screen.dart';

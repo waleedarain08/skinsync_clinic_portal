@@ -80,7 +80,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
    Future<void> getAppointmentsDetail({required int id}) async {
     return await runSafely(() async {
       final appointment = await locator<AppointmentService>()
-          .appointmentDetail(id:id);
+          .appointmentDetail(id:6);
           if(appointment.success){
              state = state.copyWith(appointmentDetail: appointment.data);
           }

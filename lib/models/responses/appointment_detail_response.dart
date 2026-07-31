@@ -20,7 +20,7 @@ class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentDetailDa
 class AppointmentDetailData {
   final int? id;
   final String? appointmentKey;
-  final Clinic? clinic;
+ // final Clinic? clinic;
   final Doctor? doctor;
   final Patient? patient;
   final AppointmentType? appointmentType;
@@ -41,7 +41,7 @@ class AppointmentDetailData {
   AppointmentDetailData({
     this.id,
     this.appointmentKey,
-    this.clinic,
+  //  this.clinic,
     this.doctor,
     this.patient,
     this.appointmentType,
@@ -63,7 +63,7 @@ class AppointmentDetailData {
   factory AppointmentDetailData.fromJson(Map<String, dynamic> json) => AppointmentDetailData(
         id: json["id"],
         appointmentKey: json["appointment_key"],
-        clinic: json["clinic"] == null ? null : Clinic.fromJson(json["clinic"]),
+       // clinic: json["clinic"] == null ? null : Clinic.fromJson(json["clinic"]),
         doctor: json["doctor"] == null ? null : Doctor.fromJson(json["doctor"]),
         patient: json["patient"] == null ? null : Patient.fromJson(json["patient"]),
         appointmentType: json["appointment_type"] == null
@@ -128,59 +128,59 @@ class AppointmentType {
       );
 }
 
-class Clinic {
-  final int? id;
-  final String? name;
-  final String? email;
-  final String? phone;
-  final String? address;
-  final String? logo;
-  final String? banner;
-  final String? website;
-  final String? description;
-  final double? consultationFee;
-  final double? initialDeposit;
-  final String? cc;
-  final String? country;
-  final double? latitude;
-  final double? longitude;
+// class Clinic {
+//   final int? id;
+//   final String? name;
+//   final String? email;
+//   final String? phone;
+//   final String? address;
+//   final String? logo;
+//   final String? banner;
+//   final String? website;
+//   final String? description;
+//   final double? consultationFee;
+//   final double? initialDeposit;
+//   final String? cc;
+//   final String? country;
+//   final double? latitude;
+//   final double? longitude;
 
-  Clinic({
-    this.id,
-    this.name,
-    this.email,
-    this.phone,
-    this.address,
-    this.logo,
-    this.banner,
-    this.website,
-    this.description,
-    this.consultationFee,
-    this.initialDeposit,
-    this.cc,
-    this.country,
-    this.latitude,
-    this.longitude,
-  });
+//   Clinic({
+//     this.id,
+//     this.name,
+//     this.email,
+//     this.phone,
+//     this.address,
+//     this.logo,
+//     this.banner,
+//     this.website,
+//     this.description,
+//     this.consultationFee,
+//     this.initialDeposit,
+//     this.cc,
+//     this.country,
+//     this.latitude,
+//     this.longitude,
+//   });
 
-  factory Clinic.fromJson(Map<String, dynamic> json) => Clinic(
-        id: json["id"],
-        name: json["name"],
-        email: json["email"],
-        phone: json["phone"],
-        address: json["address"],
-        logo: json["logo"],
-        banner: json["banner"],
-        website: json["website"],
-        description: json["description"],
-        consultationFee: json["consultation_fee"]?.toDouble(),
-        initialDeposit: json["initial_deposit"]?.toDouble(),
-        cc: json["cc"],
-        country: json["country"],
-        latitude: json["latitude"]?.toDouble(),
-        longitude: json["longitude"]?.toDouble(),
-      );
-}
+//   factory Clinic.fromJson(Map<String, dynamic> json) => Clinic(
+//         id: json["id"],
+//         name: json["name"],
+//         email: json["email"],
+//         phone: json["phone"],
+//         address: json["address"],
+//         logo: json["logo"],
+//         banner: json["banner"],
+//         website: json["website"],
+//         description: json["description"],
+//         consultationFee: json["consultation_fee"]?.toDouble(),
+//         initialDeposit: json["initial_deposit"]?.toDouble(),
+//         cc: json["cc"],
+//         country: json["country"],
+//         latitude: json["latitude"]?.toDouble(),
+//         longitude: json["longitude"]?.toDouble(),
+//       );
+// }
 
 class Doctor {
   final int? id;

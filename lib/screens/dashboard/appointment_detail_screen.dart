@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/responses/appointment_detail_response.dart';
+import '../../utils/date_time_utills.dart';
 import '../../utils/theme.dart';
 import '../../view_models/appointment_view_model.dart';
 import '../../widgets/app_loader.dart';
@@ -67,9 +68,9 @@ class AppointmentDetailScreen extends ConsumerWidget {
                   _buildTreatmentsCard(context, appointment),
                   context.verticalSpace(32),
                 ],
-                _buildSectionTitle(context, 'CLINIC INFORMATION'),
-                context.verticalSpace(12),
-                _buildClinicCard(context, appointment),
+                //_buildSectionTitle(context, 'CLINIC INFORMATION'),
+                // context.verticalSpace(12),
+                // _buildClinicCard(context, appointment),
                 context.verticalSpace(32),
                 if (appointment.simulations != null) ...[
                   _buildSectionTitle(context, 'SIMULATIONS'),
@@ -194,13 +195,13 @@ class AppointmentDetailScreen extends ConsumerWidget {
 
   Widget _buildAppointmentInfoCard(BuildContext context, AppointmentDetailData appointment) {
     final dateStr = appointment.date != null
-        ? DateFormat('EEEE, MMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(appointment.date! * 1000))
+        ?  DateTimeUtils.formatTimestampToDayDate(appointment.date!)
         : 'N/A';
     final startTimeStr = appointment.startTime != null
-        ? DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(appointment.startTime! * 1000))
+        ?  DateTimeUtils.formatTimestampToTime(appointment.startTime!)
         : 'N/A';
     final endTimeStr = appointment.endTime != null
-        ? DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(appointment.endTime! * 1000))
+        ? DateTimeUtils.formatTimestampToTime(appointment.endTime!)
         : 'N/A';
 
     return BorderdContainerWidget(
@@ -305,33 +306,33 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildClinicCard(BuildContext context, AppointmentDetailData appointment) {
-    return BorderdContainerWidget(
-      padding: context.appEdgeInsets(all: 24),
-      borderRadius: context.r(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _buildAvatar(context, imageUrl: appointment.clinic?.logo, radius: 24),
-              context.horizontalSpace(16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(appointment.clinic?.name ?? 'N/A', style: context.fonts.black16w600),
-                    context.verticalSpace(2),
-                    Text(appointment.clinic?.address ?? 'N/A', style: context.fonts.grey12w400),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildClinicCard(BuildContext context, AppointmentDetailData appointment) {
+  //   return BorderdContainerWidget(
+  //     padding: context.appEdgeInsets(all: 24),
+  //     borderRadius: context.r(12),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             _buildAvatar(context, imageUrl: appointment.clinic?.logo, radius: 24),
+  //             context.horizontalSpace(16),
+  //             Expanded(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(appointment.clinic?.name ?? 'N/A', style: context.fonts.black16w600),
+  //                   context.verticalSpace(2),
+  //                   Text(appointment.clinic?.address ?? 'N/A', style: context.fonts.grey12w400),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSimulationsCard(BuildContext context, AppointmentDetailData appointment) {
     final simulations = appointment.simulations!;
