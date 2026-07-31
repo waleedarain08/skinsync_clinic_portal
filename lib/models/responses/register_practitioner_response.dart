@@ -26,6 +26,7 @@ class Practitioner {
   final ClinicAccess? clinicAccess;
   final AvailabilityInfo? availabilityInfo;
   final FinancialInfo? financialInfo;
+  final int? treatmentCount;
   final DateTime? createdAt;
 
   Practitioner({
@@ -38,6 +39,7 @@ class Practitioner {
     this.clinicAccess,
     this.availabilityInfo,
     this.financialInfo,
+    this.treatmentCount,
     this.createdAt,
   });
 
@@ -63,6 +65,7 @@ class Practitioner {
     financialInfo: json["financial_info"] == null
         ? null
         : FinancialInfo.fromJson(json["financial_info"]),
+    treatmentCount: json["treatment_count"],
     createdAt: json["created_at"] == null
         ? null
         : DateTime.parse(json["created_at"]),

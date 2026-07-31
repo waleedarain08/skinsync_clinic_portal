@@ -430,9 +430,8 @@ class _ManagePractitionerScreenState
               await ref
                   .read(practitionerProvider.notifier)
                   .getPractitionerDetail(id: d.id);
-              final detail = ref.read(practitionerProvider).practitioner;
-              if (detail != null && context.mounted) {
-                context.push(PractitionerDetailScreen.routeName, extra: detail);
+              if (context.mounted) {
+                context.push(PractitionerDetailScreen.routeName);
               }
             },
           ),
