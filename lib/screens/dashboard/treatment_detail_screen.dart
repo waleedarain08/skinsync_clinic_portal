@@ -6,7 +6,7 @@ import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_network_image.dart';
 import '../../widgets/borderd_container_widget.dart';
-import '../../widgets/dialog_box/area_creation_dialog.dart';
+import '../../widgets/dialog_box/select_area_dialog.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/status_toggle_switch.dart';
 import '../../widgets/treatment_session_expansion_tile.dart';
@@ -390,14 +390,11 @@ class TreatmentDetailScreen extends ConsumerWidget {
               const Spacer(),
               GestureDetector(
                 onTap: () async {
-                    final result = await showDialog<Map<String, dynamic>>(
-                context: context,
-                builder: (context) =>
-                    const AreaCreationDialog(title: 'Add New Area'),
-              );
-              if (result != null) {
-               
-              }
+                  await showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const SelectAreaDialog(),
+                  );
                 },
                 child: Container(
                   padding: .all(8.w),

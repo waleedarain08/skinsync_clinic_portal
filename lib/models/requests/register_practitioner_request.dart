@@ -288,7 +288,7 @@ class Availability {
   final int startTime; // Timestamp (milliseconds)
   final int endTime; // Timestamp (milliseconds)
   final List<String> days;
-  final String nextSlotAfter;
+  final int? nextSlotAfter;
   final int slotDurationMinutes;
   final int bufferTimeMinutes;
 
@@ -296,7 +296,7 @@ class Availability {
     required this.startTime,
     required this.endTime,
     required this.days,
-    required this.nextSlotAfter,
+    this.nextSlotAfter,
     this.slotDurationMinutes = 30,
     this.bufferTimeMinutes = 10,
   });
@@ -306,7 +306,7 @@ class Availability {
       startTime: _parseTimestamp(json['start_time']),
       endTime: _parseTimestamp(json['end_time']),
       days: List<String>.from(json['days'] ?? []),
-      nextSlotAfter: json['next_slot_after'] ?? '',
+      nextSlotAfter: json['next_slot_after'],
       slotDurationMinutes: json['slot_duration_minutes'] ?? 30,
       bufferTimeMinutes: json['buffer_time_minutes'] ?? 10,
     );
@@ -339,7 +339,7 @@ class Availability {
       'start_time': startTime,
       'end_time': endTime,
       'days': days,
-      //  'next_slot_after': nextSlotAfter,
+      'next_slot_after': nextSlotAfter,
       'slot_duration_minutes': slotDurationMinutes,
       'buffer_time_minutes': bufferTimeMinutes,
     };

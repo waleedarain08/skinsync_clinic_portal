@@ -89,7 +89,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
               SizedBox(height: context.h(20)),
               _buildDurationPicker(
                 label: 'Next Slot After (Minutes)',
-                value: _nextSlotAfter.inMinutes.toString(),
+                value: _nextSlotAfter.inMinutes,
                 onTap: () async {
                   final picked = await showDurationPicker(
                     context: context,
@@ -167,7 +167,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
                         startTime: startDateTime.millisecondsSinceEpoch,
                         endTime: endDateTime.millisecondsSinceEpoch,
                         days: selectedDays,
-                        nextSlotAfter: _nextSlotAfter.inMinutes.toString(),
+                        nextSlotAfter: _nextSlotAfter.inMinutes,
                         slotDurationMinutes: _slotDuration,
                         bufferTimeMinutes: _bufferTime,
                       );
@@ -203,7 +203,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
     );
   }
 
-  Widget _buildDurationPicker({required String label, required String value, required VoidCallback onTap}) {
+  Widget _buildDurationPicker({required String label, required int value, required VoidCallback onTap}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,7 +216,7 @@ class _AddSlotDialogState extends State<AddSlotDialog> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(context.r(8)), border: Border.all(color: CustomColors.border)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text(value, style: context.fonts.black14w500), Icon(Icons.timer_outlined, size: context.r(20), color: CustomColors.grey)],
+              children: [Text(value.toString(), style: context.fonts.black14w500), Icon(Icons.timer_outlined, size: context.r(20), color: CustomColors.grey)],
             ),
           ),
         ),

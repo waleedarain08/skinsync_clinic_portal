@@ -61,12 +61,12 @@ enum Endpoint {
   batchLots('clinic/products/batches/{batchId}/lots'),
   productBatches('clinic/products/{productId}/batches'),
   lotItems('clinic/products/lots/{lotId}/items'),
-  updateLotItem('admin/items/{id}'),
+  updateLotItem('clinic/products/lot-items/{id}'),
   appointmentStatuses('clinic/appointment-statuses'),
   providerRoles('clinic/provider-roles'),
   appointmentTypes('clinic/appointment-types'),
-  areas('admin/areas'),
-  updateAreas('admin/areas/{id}'),
+  areasAvailable('clinic/treatments/{treatmentId}/available-areas'),
+  areas('clinic/treatments/{treatmentId}/areas'),
   getMe("clinic/me");
 
   final String path;

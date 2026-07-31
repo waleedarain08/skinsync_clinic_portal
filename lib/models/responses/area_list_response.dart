@@ -9,7 +9,7 @@ class AreaListResponse extends BaseApiResponseModel<List<AreaModel>> {
 
   factory AreaListResponse.fromJson(Map<String, dynamic> json) =>
       AreaListResponse(
-        success: (json['is_success'] as bool?)  ?? false,
+        success: (json['is_success'] as bool?) ?? false,
         message: json['message'] ?? '',
         data: json['data'] == null
             ? null
@@ -17,8 +17,6 @@ class AreaListResponse extends BaseApiResponseModel<List<AreaModel>> {
                   .map((e) => AreaModel.fromJson(e as Map<String, dynamic>))
                   .toList(),
       );
-
-
 }
 
 class AreaModel {
@@ -27,8 +25,7 @@ class AreaModel {
   final String globalSku;
   final String icon;
   final String image;
-  final int subAreasCount;
-  final List<AreaModel> subAreas;
+  final String? status;
 
   AreaModel({
     required this.id,
@@ -36,8 +33,7 @@ class AreaModel {
     required this.globalSku,
     required this.icon,
     required this.image,
-    required this.subAreasCount,
-    this.subAreas = const [],
+    this.status,
   });
 
   factory AreaModel.fromJson(Map<String, dynamic> json) {
@@ -47,12 +43,7 @@ class AreaModel {
       globalSku: json['global_sku'] ?? '',
       icon: json['icon'] ?? '',
       image: json['image'] ?? '',
-      subAreasCount: json['sub_areas_count'] as int? ?? 0,
-      subAreas:
-          (json['sub_areas'] as List?)
-              ?.map((e) => AreaModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      status: json['status'],
     );
   }
 
@@ -63,8 +54,7 @@ class AreaModel {
       'global_sku': globalSku,
       'icon': icon,
       'image': image,
-      'sub_areas_count': subAreasCount,
-      'sub_areas': subAreas.map((e) => e.toJson()).toList(),
+      'status': status,
     };
   }
 
@@ -74,8 +64,7 @@ class AreaModel {
     String? globalSku,
     String? icon,
     String? image,
-    int? subAreasCount,
-    List<AreaModel>? subAreas,
+    String? status,
   }) {
     return AreaModel(
       id: id ?? this.id,
@@ -83,8 +72,7 @@ class AreaModel {
       globalSku: globalSku ?? this.globalSku,
       icon: icon ?? this.icon,
       image: image ?? this.image,
-      subAreasCount: subAreasCount ?? this.subAreasCount,
-      subAreas: subAreas ?? this.subAreas,
+      status: status ?? this.status,
     );
   }
 }
