@@ -356,7 +356,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                 children: [
                   _treatmentNameCell(t),
                   _tableTextCell(
-                    'AED ${t.price ?? 0}',
+                    '\$ ${t.price ?? 0}',
                     style: context.fonts.black14w600,
                   ),
                   _tableTextCell(

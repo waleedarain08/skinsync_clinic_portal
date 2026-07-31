@@ -104,7 +104,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                "AED 228,565",
+                "\$ 228,565",
                 style: context.fonts.black40w700.copyWith(
                   color: CustomColors.white,
                   fontSize: context.sp(40),
@@ -128,7 +128,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: "AED 20,600 ",
+                      text: "\$ 20,600 ",
                       style: context.fonts.green14w600.copyWith(
                         fontSize: context.sp(16),
                       ),
@@ -205,7 +205,7 @@ class PaymentAndWalletScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("AED 4,500", style: context.fonts.black30w600),
+              Text("\$ 4,500", style: context.fonts.black30w600),
               Text("Today’s Earnings", style: context.fonts.grey14w500),
             ],
           ),

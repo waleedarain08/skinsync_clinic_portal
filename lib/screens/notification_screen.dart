@@ -31,7 +31,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       iconColor: const Color(0xFF4CAF50),
       title: 'Payment Received',
       description:
-          'A payment of AED 450 has been successfully processed for treatments.',
+          'A payment of \$ 450 has been successfully processed for treatments.',
       dateTime: '10/28/2025, 7:25:00 PM',
       isNew: true,
     ),

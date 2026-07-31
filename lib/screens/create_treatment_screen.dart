@@ -149,7 +149,7 @@ class _CreateTreatmentScreenState extends State<CreateTreatmentScreen> {
                 child: BuildTextField(
                   label: 'Price',
                   controller: _priceController,
-                  hintText: 'AED 500',
+                  hintText: '\$ 500',
                 ),
               ),
               SizedBox(width: context.w(16)),

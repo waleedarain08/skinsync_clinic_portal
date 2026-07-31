@@ -151,7 +151,7 @@ class TreatmentStatsCard extends StatelessWidget {
               SizedBox(width: context.w(8)),
               Flexible(
                 child: Text(
-                  "AED $originalPrice > AED $discountedPrice",
+                  "\$ $originalPrice > \$ $discountedPrice",
                   style: TextStyle(
                     fontSize: context.sp(17),
                     fontWeight: FontWeight.w500,

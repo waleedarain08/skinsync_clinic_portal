@@ -483,11 +483,11 @@ class ClinicDummySessionConfig {
     3: {
       'title': 'Pricing Setup Config',
       'details': [
-        'Base Price: AED 150.00',
+        'Base Price: \$150.00',
         'Sub-Area Pricing Overrides: Yes',
-        'Forehead: AED 350.00 per syringe',
-        'Glabella: AED 400.00 per syringe',
-        'Crow\'s Feet: AED 300.00 per syringe'
+        'Forehead: \$350.00 per syringe',
+        'Glabella: \$400.00 per syringe',
+        'Crow\'s Feet: \$300.00 per syringe'
       ],
     },
     4: {

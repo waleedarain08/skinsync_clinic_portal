@@ -73,7 +73,7 @@ class RecentTreatmentCardWidget extends StatelessWidget {
         Row(
           children: [
             Text(
-              "AED 800 AED 650",
+              "\$ 800 \$ 650",
               style: CustomFonts.grey14w400,
               maxLines: 1,
             ),

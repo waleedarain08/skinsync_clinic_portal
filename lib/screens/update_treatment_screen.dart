@@ -143,14 +143,14 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
               Row(
                 children: [
                   Text(
-                    'AED ${treatment.originalPrice}',
+                    '\$ ${treatment.originalPrice}',
                     style: context.fonts.grey14w400.copyWith(
                       decoration: TextDecoration.lineThrough,
                     ),
                   ),
                   SizedBox(width: context.w(6)),
                   Text(
-                    'AED ${treatment.currentPrice}',
+                    '\$ ${treatment.currentPrice}',
                     style: context.fonts.black14w500,
                   ),
                 ],

@@ -46,7 +46,7 @@
 //                     Text(item.name ?? 'N/A', style: context.fonts.black20w600),
 //                     context.verticalSpace(12),
 //                     Text(
-//                       'AED ${item.originalPrice?.toStringAsFixed(2) ?? '0.00'} per unit',
+//                       '\$ ${item.originalPrice?.toStringAsFixed(2) ?? '0.00'} per unit',
 //                       style: context.fonts.purple16w600,
 //                     ),
 //                     context.verticalSpace(12),

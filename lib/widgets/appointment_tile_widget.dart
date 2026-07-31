@@ -88,7 +88,7 @@ class AppointmentTileWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'AED ${appointment.amount.toStringAsFixed(0)}',
+                  '\$ ${appointment.amount.toStringAsFixed(0)}',
                   style: CustomFonts.black16w600.copyWith(
                     color: CustomColors.blue,
                   ),
