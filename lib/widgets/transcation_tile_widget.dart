@@ -79,7 +79,7 @@ class TranscationTileWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "AED 350",
+                  "\$ 350",
                   style: TextStyle(
                     fontSize: context.sp(22),
                     fontWeight: FontWeight.w600,

@@ -104,7 +104,7 @@
 //             crossAxisAlignment: CrossAxisAlignment.end,
 //             children: [
 //               Text(
-//                 'AED ${treatment.price ?? 0}',
+//                 '\$ ${treatment.price ?? 0}',
 //                 style: CustomFonts.black16w600.copyWith(
 //                   color: CustomColors.purple,
 //                 ),

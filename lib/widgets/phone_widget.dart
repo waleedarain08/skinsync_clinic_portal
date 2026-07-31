@@ -82,7 +82,7 @@ class PhoneWidget extends ConsumerWidget {
               onChanged: onCountryChanged,
               dialogSize: Size(context.w(400), context.w(600)),
               textStyle: CustomFonts.black14w500,
-              initialSelection: initialCountryCode ?? "GB",
+              initialSelection: initialCountryCode ?? "US",
               showCountryOnly: false,
               showOnlyCountryWhenClosed: false,
               alignLeft: false,

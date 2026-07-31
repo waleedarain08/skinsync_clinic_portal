@@ -26,7 +26,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   AuthState build() {
     init();
     ref.onDispose(dispose);
-    return AuthState();
+    return AuthState(country: CountryCode.fromCountryCode('US'));
   }
 
   final AuthRepository _authRepository = locator<AuthRepository>();

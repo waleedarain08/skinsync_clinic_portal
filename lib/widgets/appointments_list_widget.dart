@@ -13,19 +13,19 @@ class AppointmentsListWidget extends StatelessWidget {
       {
         'title': 'Botox Treatment',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': 'AED 240',
+        'price': '\$ 240',
         'image': PngAssets.treatmentImage,
       },
       {
         'title': 'Laser Treatment',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': 'AED 240',
+        'price': '\$ 240',
         'image': PngAssets.treatmentImage,
       },
       {
         'title': 'Chemical Peels',
         'date': 'October 20, 2023, 10:00 AM',
-        'price': 'AED 240',
+        'price': '\$ 240',
         'image': PngAssets.treatmentImage,
       },
     ];

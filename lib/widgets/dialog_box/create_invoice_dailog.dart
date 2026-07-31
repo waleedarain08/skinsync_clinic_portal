@@ -99,7 +99,7 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                   children: [
                     _summaryRow(
                       'Subtotal',
-                      'AED ${_subtotal.toStringAsFixed(2)}',
+                      '\$ ${_subtotal.toStringAsFixed(2)}',
                       isBold: false,
                     ),
                     context.verticalSpace(12),
@@ -107,7 +107,7 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                     context.verticalSpace(12),
                     _summaryRow(
                       'Platform Fee',
-                      'AED ${_platformFee.toStringAsFixed(2)}',
+                      '\$ ${_platformFee.toStringAsFixed(2)}',
                       isBold: false,
                     ),
                     context.verticalSpace(12),
@@ -115,7 +115,7 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                     context.verticalSpace(12),
                     _summaryRow(
                       'Total',
-                      'AED ${_total.toStringAsFixed(2)}',
+                      '\$ ${_total.toStringAsFixed(2)}',
                       isBold: true,
                     ),
                   ],
@@ -204,7 +204,7 @@ class _ProductTile extends StatelessWidget {
               children: [
                 Text(product['name'], style: context.fonts.black14w600),
                 Text(
-                  'AED ${product['price'].toStringAsFixed(0)}',
+                  '\$ ${product['price'].toStringAsFixed(0)}',
                   style: context.fonts.purple14w600,
                 ),
               ],
