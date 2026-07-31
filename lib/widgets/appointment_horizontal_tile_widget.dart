@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/responses/register_practitioner_response.dart';
+import '../models/responses/practitioner_list_response.dart';
 import '../utils/theme.dart';
 import 'app_network_image.dart';
 
@@ -12,7 +12,7 @@ class AppointmentHorizontalTileWidget extends StatelessWidget {
     this.onTap,
   });
 
-  final Practitioner? practitioner;
+  final PractitionerListItem? practitioner;
   final bool selected;
   final VoidCallback? onTap;
 
@@ -44,7 +44,7 @@ class AppointmentHorizontalTileWidget extends StatelessWidget {
                   children: [
                     ClipOval(
                       child: AppNetworkImage(
-                        imageUrl: practitioner?.basicInfo?.image ?? '',
+                        imageUrl: practitioner?.image ?? '',
                         width: context.w(32),
                         height: context.w(32),
                         fit: BoxFit.cover,
@@ -53,7 +53,7 @@ class AppointmentHorizontalTileWidget extends StatelessWidget {
                     ),
                     SizedBox(width: context.w(10)),
                     Text(
-                      practitioner!.basicInfo?.name ?? 'N/A',
+                      practitioner!.name,
                       style: CustomFonts.black14w600,
                     ),
                   ],

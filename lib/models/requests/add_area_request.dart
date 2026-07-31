@@ -5,5 +5,6 @@ class AddAreaRequest extends BaseRequest {
 
   AddAreaRequest({this.areaId});
 
+  @override
   Map<String, dynamic> toJson() => {"area_id": areaId};
 }

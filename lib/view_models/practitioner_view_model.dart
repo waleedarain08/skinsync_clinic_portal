@@ -8,6 +8,7 @@ import '../exceptions/app_exception.dart';
 import '../models/requests/register_practitioner_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
+import '../models/responses/practitioner_list_response.dart';
 import '../models/responses/register_practitioner_response.dart';
 import '../models/treatment_model.dart';
 import '../services/locator.dart';
@@ -230,7 +231,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
-  void setSelectedDoctor(Practitioner doctor) {
+  void setSelectedDoctor(PractitionerListItem doctor) {
     state = state.copyWith(selectedDoctor: doctor);
   }
 
@@ -270,8 +271,8 @@ class PractitionerState {
   final bool loading;
   final String? role;
   final List<TreatmentModel> treatments;
-  final List<Practitioner> doctors;
-  final Practitioner? selectedDoctor;
+  final List<PractitionerListItem> doctors;
+  final PractitionerListItem? selectedDoctor;
   final Practitioner? practitioner;
   final bool success;
   final List<Availability> availability;
@@ -299,8 +300,8 @@ class PractitionerState {
     bool? loading,
     String? role,
     List<TreatmentModel>? treatments,
-    List<Practitioner>? doctors,
-    Practitioner? selectedDoctor,
+    List<PractitionerListItem>? doctors,
+    PractitionerListItem? selectedDoctor,
     bool? success,
     List<Availability>? availability,
     CountryCode? country,
@@ -329,7 +330,7 @@ class PractitionerState {
     bool? loading,
     String? role,
     List<TreatmentModel>? treatments,
-    List<Practitioner>? doctors,
+    List<PractitionerListItem>? doctors,
     Practitioner? practitioner,
     List<String>? documents,
     bool? success,

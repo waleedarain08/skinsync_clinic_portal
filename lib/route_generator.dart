@@ -144,9 +144,9 @@ class RouteGenerator {
             builder: (_, _) => const RolesScreen(),
           ),
           GoRoute(
-            name: MangePractitionerScreen.routeName,
-            path: MangePractitionerScreen.routeName,
-            builder: (_, _) => const MangePractitionerScreen(),
+            name: ManagePractitionerScreen.routeName,
+            path: ManagePractitionerScreen.routeName,
+            builder: (_, _) => const ManagePractitionerScreen(),
           ),
           GoRoute(
             name: PractitionerDetailScreen.routeName,

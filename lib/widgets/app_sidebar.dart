@@ -23,7 +23,7 @@ abstract final class AppSidebarRoutes {
     PatientManagementScreen.routeName,
     AppointmentScreen.routeName,
     TreatmentScreen.routeName,
-    MangePractitionerScreen.routeName,
+    ManagePractitionerScreen.routeName,
     InventoryScreen.routeName,
     FormsScreen.routeName,
     RolesScreen.routeName,

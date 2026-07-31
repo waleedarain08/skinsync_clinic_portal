@@ -4,7 +4,7 @@ import '../models/requests/register_practitioner_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
 import '../models/responses/base_response_model.dart';
-import '../models/responses/get_practitioner_response.dart';
+import '../models/responses/practitioner_list_response.dart';
 import '../models/responses/practitioner_detail_response.dart';
 import '../models/responses/register_practitioner_response.dart';
 import '../repositories/practitioner_repository.dart';
@@ -31,16 +31,16 @@ class PractitionerService extends PractitionerRepository {
   }
 
   @override
-  Future<List<Practitioner>> fetchPractitioner() async {
+  Future<List<PractitionerListItem>> fetchPractitioner() async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.getPractitioners,
       requestType: RequestType.get,
     );
-    final model = GetPractitionerResponse.fromJson(response);
+    final model = PractitionerListResponse.fromJson(response);
     if (!model.success) {
       throw Exception(model.message);
     }
-    return model.data!;
+    return model.data?.items ?? [];
   }
 
   @override

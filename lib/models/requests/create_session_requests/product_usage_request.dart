@@ -18,6 +18,7 @@ class ProductUsagesRequest extends BaseRequest {
     this.otherMaterials,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.inventoryProducts.name],

@@ -8,6 +8,7 @@ class UpdateAreaRequest extends BaseRequest {
 
   UpdateAreaRequest({this.name, this.globalSku, this.icon, this.image});
 
+  @override
   Map<String, dynamic> toJson() => {
     "name": name,
     "global_sku": globalSku,

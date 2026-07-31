@@ -5,5 +5,6 @@ class StatusRequest extends BaseRequest {
 
   StatusRequest({this.status});
 
+  @override
   Map<String, dynamic> toJson() => {"status": status};
 }

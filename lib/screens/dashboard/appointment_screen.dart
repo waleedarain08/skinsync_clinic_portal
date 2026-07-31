@@ -98,7 +98,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                                     ref
                                         .read(appointmentProvider.notifier)
                                         .setSelectedPractitionerID(
-                                          iD: practitioner.id!,
+                                          iD: practitioner.id,
                                         );
 
                                     ref

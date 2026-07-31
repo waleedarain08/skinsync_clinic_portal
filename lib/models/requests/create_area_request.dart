@@ -15,6 +15,7 @@ class CreateAreaRequest extends BaseRequest {
     this.image,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'parent_id': parentId,
     'name': name,
