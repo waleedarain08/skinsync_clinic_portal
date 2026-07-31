@@ -11,6 +11,21 @@ extension DateTimeUtils on DateTime {
    String get formattedDate {
     return DateFormat('MMM dd, yyyy').format(this);
   }
+    static DateTime fromTimestamp(int timestamp) {
+    return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  }
+
+  static String formatTimestamp(int timestamp, {String pattern = 'dd MMM yyyy'}) {
+    return DateFormat(pattern).format(fromTimestamp(timestamp));
+  }
+
+  static String formatTimestampToDayDate(int timestamp) {
+    return DateFormat('EEEE, MMM d, yyyy').format(fromTimestamp(timestamp));
+  }
+
+  static String formatTimestampToTime(int timestamp) {
+    return DateFormat('hh:mm a').format(fromTimestamp(timestamp));
+  }
 }
 
 List<Map<String, String>> getNextNDays(int n) {
