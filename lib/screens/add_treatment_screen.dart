@@ -175,6 +175,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
       borderRadius: 12,
       borderColor: isAnyAreaSelected ? CustomColors.purple : CustomColors.border,
       borderWidth: isAnyAreaSelected ? 1.5 : 1.0,
+      backgroundColor: CustomColors.white,
       child: Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,

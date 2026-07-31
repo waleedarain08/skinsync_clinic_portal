@@ -9,7 +9,7 @@ import '../../view_models/practitioner_view_model.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../create_appointment_screen.dart';
-import '../../models/responses/appointment_response.dart' hide Material;
+import '../../models/responses/appointment_list_response.dart';
 import '../../utils/date_time_utills.dart';
 import '../../utils/theme.dart';
 import '../../view_models/appointment_view_model.dart';
@@ -330,8 +330,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                 _AppointmentHeaderCell("PATIENT"),
                 _AppointmentHeaderCell("TREATMENT"),
                 _AppointmentHeaderCell("DATE & TIME"),
-                _AppointmentHeaderCell("CLINIC"),
-                _AppointmentHeaderCell("AMOUNT"),
+                _AppointmentHeaderCell("DOCTOR"),
+                _AppointmentHeaderCell("TREATMENTS"),
                 _AppointmentHeaderCell("STATUS"),
                 _AppointmentHeaderCell("ACTIONS"),
               ],
@@ -346,7 +346,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                 children: [
                   _appointmentPatientCell(a),
                   _appointmentTextCell(
-                    a.appointmentType?.title ?? '-',
+                    a.appointmentType ?? '-',
                     style: context.fonts.black14w600,
                   ),
                   _appointmentTextCell(
@@ -354,11 +354,11 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                     style: context.fonts.grey14w400,
                   ),
                   _appointmentTextCell(
-                    a.clinicName ?? '-',
+                    a.doctorName ?? '-',
                     style: context.fonts.grey14w400,
                   ),
                   _appointmentTextCell(
-                    "\$${(a.treatmentTotal ?? 0).toStringAsFixed(0)}",
+                    "${a.treatmentCount ?? 0}",
                     style: context.fonts.black14w600,
                   ),
                   _appointmentStatusBadgeCell(a.status),
@@ -384,10 +384,15 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           CircleAvatar(
             radius: 18.r,
             backgroundColor: CustomColors.palePurple,
-            child: Text(
-              name.isNotEmpty ? name[0] : "?",
-              style: context.fonts.purple12w700,
-            ),
+            backgroundImage: a.patientImage != null && a.patientImage!.isNotEmpty
+                ? NetworkImage(a.patientImage!)
+                : null,
+            child: a.patientImage == null || a.patientImage!.isEmpty
+                ? Text(
+                    name.isNotEmpty ? name[0] : "?",
+                    style: context.fonts.purple12w700,
+                  )
+                : null,
           ),
           SizedBox(width: 12.w),
           Expanded(

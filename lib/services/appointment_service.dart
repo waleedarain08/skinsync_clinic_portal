@@ -1,5 +1,5 @@
 import '../models/responses/appointment_detail_response.dart';
-import '../models/responses/appointment_response.dart';
+import '../models/responses/appointment_list_response.dart';
 import '../models/responses/filters_response.dart';
 import '../repositories/appointment_repository.dart';
 import '../utils/enums.dart' hide AppointmentStatus;
@@ -8,7 +8,7 @@ import 'locator.dart';
 
 class AppointmentService extends AppointmentRepository {
   @override
-  Future<AppointmentResponse> appointmentList({
+  Future<AppointmentListResponse> appointmentList({
     required int page,
     // String? customerId,
     Filters? status,
@@ -31,7 +31,7 @@ class AppointmentService extends AppointmentRepository {
         'search': ?search,
       },
     );
-    final model = AppointmentResponse.fromJson(response);
+    final model = AppointmentListResponse.fromJson(response);
     if (!model.success) {
       throw Exception(model.message);
     }

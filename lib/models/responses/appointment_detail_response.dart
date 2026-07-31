@@ -1,4 +1,4 @@
-import 'appointment_response.dart';
+import 'appointment_list_response.dart';
 import 'base_response_model.dart';
 
 class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentData> {

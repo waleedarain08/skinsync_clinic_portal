@@ -110,7 +110,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
     ref.read(practitionerProvider.notifier).changeRole(practitioner.basicInfo?.role);
     if (practitioner.contactInfo?.cc != null) {
-      _selectedCountry = CountryCode.fromDialCode(practitioner.contactInfo!.cc!);
+      _selectedCountry = CountryCode.fromDialCode(practitioner.contactInfo!.cc);
       ref.read(practitionerProvider.notifier).setCountry(_selectedCountry!);
     }
 
@@ -330,7 +330,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title, style: context.fonts.black18w600),
-              if (trailing != null) trailing,
+              trailing ?? const SizedBox.shrink(),
             ],
           ),
           const Divider(color: CustomColors.border, height: 32),
@@ -367,7 +367,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                       context.horizontalSpace(16),
                       Expanded(
                         child: Consumer(
-                          builder: (_, ref, __) {
+                          builder: (_, ref, _) {
                             final role = ref.watch(
                               practitionerProvider.select((s) => s.role),
                             );
@@ -515,7 +515,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   Widget _buildImagePicker() {
     return ValueListenableBuilder(
       valueListenable: _imageNotifier,
-      builder: (_, image, __) {
+      builder: (_, image, _) {
         final hasImage = image != null || widget.practitioner?.basicInfo?.image != null;
         final imageUrl = image ?? widget.practitioner?.basicInfo?.image ?? '';
 
@@ -537,9 +537,9 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                       ? CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) =>
+                          placeholder: (_, _) =>
                               const Center(child: CircularProgressIndicator()),
-                          errorWidget: (_, __, ___) => _buildImagePlaceholder(),
+                          errorWidget: (_, _, _) => _buildImagePlaceholder(),
                         )
                       : _buildImagePlaceholder(),
                 ),
@@ -1082,15 +1082,16 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
   Widget _buildTreatmentChips() {
     return Consumer(
-      builder: (_, ref, __) {
+      builder: (_, ref, _) {
         final treatments = ref.watch(
           practitionerProvider.select((s) => s.treatments),
         );
-        if (treatments.isEmpty)
+        if (treatments.isEmpty) {
           return Text(
             'No treatments assigned yet.',
             style: context.fonts.grey14w400,
           );
+        }
         return Wrap(
           spacing: context.w(8),
           runSpacing: context.h(8),
@@ -1123,15 +1124,16 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
   Widget _buildAvailabilityList() {
     return Consumer(
-      builder: (_, ref, __) {
+      builder: (_, ref, _) {
         final availability = ref.watch(
           practitionerProvider.select((s) => s.availability),
         );
-        if (availability.isEmpty)
+        if (availability.isEmpty) {
           return Text(
             'No schedules added yet.',
             style: context.fonts.grey14w400,
           );
+        }
         return Column(
           children: availability
               .map(

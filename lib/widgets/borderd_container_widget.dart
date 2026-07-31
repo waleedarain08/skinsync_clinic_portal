@@ -31,14 +31,20 @@ class BorderdContainerWidget extends StatelessWidget {
     return Container(
       height: height,
       width: width,
-      padding: padding ?? EdgeInsets.all(context.w(20)),
       margin: margin,
       decoration: BoxDecoration(
-        color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius ?? context.r(10)),
         border: Border.all(color: borderColor, width: borderWidth),
       ),
-      child: child,
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular((borderRadius ?? context.r(10)) - borderWidth),
+        clipBehavior: backgroundColor != Colors.transparent ? Clip.antiAlias : Clip.none,
+        child: Padding(
+          padding: padding ?? EdgeInsets.all(context.w(20)),
+          child: child,
+        ),
+      ),
     );
   }
 }

@@ -182,7 +182,7 @@ class PractitionerDetailScreen extends StatelessWidget {
                           style: context.fonts.black16w600,
                         ),
                         context.verticalSpace(16),
-                        ...practitioner.availabilityInfo!.availability!.map((availability) {
+                        ...practitioner.availabilityInfo!.availability.map((availability) {
                           return Column(
                             children: availability.days.map((day) {
                               return Padding(

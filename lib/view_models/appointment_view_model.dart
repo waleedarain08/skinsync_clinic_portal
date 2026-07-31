@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/responses/appointment_response.dart';
+import '../models/responses/appointment_list_response.dart';
 import '../models/responses/filters_response.dart';
 import '../services/appointment_service.dart';
 import '../services/locator.dart';

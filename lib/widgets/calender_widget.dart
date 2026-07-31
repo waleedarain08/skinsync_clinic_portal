@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timetable/timetable.dart';
 
-import '../models/responses/appointment_response.dart';
+import '../models/responses/appointment_list_response.dart';
 import '../utils/date_time_utills.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -39,8 +39,8 @@ enum CalendarViewMode { month, week, day }
 // }
 
 class AppointmentsCalendar extends StatefulWidget {
-  List<AppointmentData> appointments;
-  AppointmentsCalendar({super.key, required this.appointments});
+  final List<AppointmentData> appointments;
+  const AppointmentsCalendar({super.key, required this.appointments});
 
   @override
   State<AppointmentsCalendar> createState() => _AppointmentsCalendarState();
@@ -350,7 +350,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    a.clinicName?.capitalize ?? 'N/A',
+                    a.appointmentType?.capitalize ?? 'N/A',
                     style: TextStyle(
                       fontSize: context.sp(10),
                       fontWeight: FontWeight.w600,
@@ -358,7 +358,7 @@ class _AppointmentsCalendarState extends State<AppointmentsCalendar>
                   ),
                   SizedBox(height: context.h(4)),
                   Text(
-                    'PUT TREATMENT NAME HERE',
+                    a.doctorName?.capitalize ?? 'N/A',
                     style: TextStyle(
                       fontSize: context.sp(9),
                       color: Colors.black54,
