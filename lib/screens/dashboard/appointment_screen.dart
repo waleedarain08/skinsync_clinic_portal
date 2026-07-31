@@ -13,12 +13,11 @@ import '../../models/responses/appointment_list_response.dart';
 import '../../utils/date_time_utills.dart';
 import '../../utils/theme.dart';
 import '../../view_models/appointment_view_model.dart';
-import '../../view_models/auth_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/appointment_horizontal_tile_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/calender_widget.dart';
-import '../../widgets/dialog_box/appointment_ready_dailog.dart';
+import 'appointment_detail_screen.dart';
 import '../../widgets/number_paginator.dart';
 
 class AppointmentScreen extends ConsumerStatefulWidget {
@@ -480,12 +479,11 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
         onPressed: () async {
+          if (a.id == null) return;
           await ref.read(appointmentProvider.notifier).getAppointmentsDetail(id: a.id!);
-          ref.read(authViewModelProvider.notifier).navigateDailogIndexToNext(0);
-          showDialog(
-            context: context,
-            builder: (_) => const AppointmentReadyDailog(),
-          );
+          if (context.mounted) {
+            context.push(AppointmentDetailScreen.routeName);
+          }
         },
       ),
     );

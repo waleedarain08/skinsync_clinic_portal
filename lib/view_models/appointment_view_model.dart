@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
 import '../models/responses/filters_response.dart';
 import '../services/appointment_service.dart';
@@ -80,7 +81,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     return await runSafely(() async {
       final appointment = await locator<AppointmentService>()
           .appointmentDetail(id:id);
-          if(appointment.isSuccess){
+          if(appointment.success){
              state = state.copyWith(appointmentDetail: appointment.data);
           }
     });
@@ -100,7 +101,7 @@ class AppointmentState {
   final int page;
   final int? totalPage;
   final List<AppointmentData>? appointmentList;
-  final AppointmentData? appointmentDetail;
+  final AppointmentDetailData? appointmentDetail;
   final Filters? filter;
   final Filters? status;
   final List<Filters>? appointmentTypes;
@@ -133,7 +134,7 @@ class AppointmentState {
     bool clearFilter = false,
     bool clearStatus = false,
     int? practitionerId,
-    AppointmentData? appointmentDetail,
+    AppointmentDetailData? appointmentDetail,
   }) {
     return AppointmentState(
       loading: loading ?? this.loading,
@@ -149,3 +150,4 @@ class AppointmentState {
     );
   }
 }
+

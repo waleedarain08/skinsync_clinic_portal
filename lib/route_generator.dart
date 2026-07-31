@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_init.dart';
+import 'models/responses/appointment_detail_response.dart';
 import 'models/responses/register_practitioner_response.dart';
 import 'screens/about_screen.dart';
 import 'screens/add_practitioner_screen.dart';
@@ -15,6 +16,7 @@ import 'screens/create_appointment_screen.dart';
 import 'screens/create_session_screen.dart';
 import 'screens/create_staff_screen.dart';
 import 'screens/create_treatment_screen.dart';
+import 'screens/dashboard/appointment_detail_screen.dart';
 import 'screens/dashboard/appointment_screen.dart';
 import 'screens/dashboard/dashboard.dart';
 import 'screens/dashboard/forms_screen.dart';
@@ -122,6 +124,11 @@ class RouteGenerator {
             name: AppointmentScreen.routeName,
             path: AppointmentScreen.routeName,
             builder: (_, _) => const AppointmentScreen(),
+          ),
+          GoRoute(
+            name: AppointmentDetailScreen.routeName,
+            path: AppointmentDetailScreen.routeName,
+            builder: (_, state) => const AppointmentDetailScreen(),
           ),
           GoRoute(
             name: FormsScreen.routeName,
