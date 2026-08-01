@@ -37,7 +37,7 @@ jobs:
         run: flutter clean
 
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons --web-renderer canvaskit --no-wasm-dry-run
+        run: flutter build web --release --no-tree-shake-icons
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
