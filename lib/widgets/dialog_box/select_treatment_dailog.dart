@@ -83,8 +83,9 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                           )
                           .toList(),
                       onChanged: (value) {
-                        if (value == null || value == _selectedTreatment)
+                        if (value == null || value == _selectedTreatment) {
                           return;
+                        }
                         setState(() {
                           _selectedTreatment = value;
                           _sideAreas = value.sideAreas ?? [];

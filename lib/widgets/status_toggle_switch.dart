@@ -1,7 +1,6 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/color_constant.dart';
 import '../utils/theme.dart';
 
 class StatusToggleSwitch extends StatelessWidget {

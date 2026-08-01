@@ -212,7 +212,7 @@ class SessionDetailDto {
                 (e) => e is int
                     ? e
                     : ((e as Map<String, dynamic>)['product_id'] ??
-                              (e as Map<String, dynamic>)['id'])
+                              (e)['id'])
                           as int,
               )
               .toList() ??

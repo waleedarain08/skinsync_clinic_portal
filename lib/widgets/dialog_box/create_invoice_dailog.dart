@@ -75,7 +75,7 @@ class _CreateInvoiceDialogState extends State<CreateInvoiceDialog> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: _products.length,
-                  separatorBuilder: (_, __) => context.verticalSpace(12),
+                  separatorBuilder: (_, _) => context.verticalSpace(12),
                   itemBuilder: (context, index) =>
                       _ProductTile(product: _products[index]),
                 ),

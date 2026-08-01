@@ -146,11 +146,13 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                     child: TextFormField(
                       style: context.fonts.black14w400,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Quantity is required!';
+                        }
                         final quantity = int.tryParse(value);
-                        if (quantity == null || quantity <= 0)
+                        if (quantity == null || quantity <= 0) {
                           return 'Invalid quantity!';
+                        }
                         return null;
                       },
                       controller: _quantityController,
