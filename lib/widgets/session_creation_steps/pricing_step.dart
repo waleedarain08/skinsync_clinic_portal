@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../../utils/custom_fonts.dart';
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
@@ -71,7 +70,7 @@ class PricingStep extends ConsumerWidget {
                 Switch(
                   value: state.isFixedPrice,
                   onChanged: viewModel.toggleIsFixedPrice,
-                  activeColor: CustomColors.purple,
+                  activeThumbColor: CustomColors.purple,
                 ),
               ],
             ),
@@ -156,7 +155,7 @@ class PricingStep extends ConsumerWidget {
                                 // Trigger rebuild inside the provider to reflect changes
                                 ref.read(sessionViewModelProvider.notifier).syncUnitPriceControllersForState();
                               },
-                              activeColor: CustomColors.purple,
+                              activeThumbColor: CustomColors.purple,
                             ),
                           ],
                         ),

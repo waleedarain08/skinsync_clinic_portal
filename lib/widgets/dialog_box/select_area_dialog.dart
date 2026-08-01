@@ -74,7 +74,7 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
                 children: state.areas.map((area) {
                   final selected = state.selectedAreas?.id == area.id;
                   return ChoiceChip(
-                    label: Text(area.name ?? "N/A"),
+                    label: Text(area.name),
                     selected: selected,
                     selectedColor: CustomColors.purple,
                     checkmarkColor: CustomColors.white,
