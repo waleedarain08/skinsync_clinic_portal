@@ -223,7 +223,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
         }).toList(),
       );
 
-      await locator<PractitionerService>().updatepractitionerTreatment(
+      await locator<PractitionerService>().updatePractitionerTreatment(
         request: request,
       );
 

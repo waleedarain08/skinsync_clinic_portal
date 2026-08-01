@@ -64,6 +64,7 @@ class PractitionerService extends PractitionerRepository {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.practitionersID,
       requestType: RequestType.delete,
+      pathParams: {'id': id.toString()},
     );
     final model = BaseResponse.fromJson(response, (json) => json);
     if (!model.success) {
@@ -91,7 +92,7 @@ class PractitionerService extends PractitionerRepository {
   }
 
   @override
-  Future<void> updatepractitionerTreatment({
+  Future<void> updatePractitionerTreatment({
     required UpdatePractitionerRequest request,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
