@@ -33,8 +33,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Clean build
+        run: flutter clean
+
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons
+        run: flutter build web --release --no-tree-shake-icons --web-renderer canvaskit
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
