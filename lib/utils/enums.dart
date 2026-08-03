@@ -54,7 +54,7 @@ enum Endpoint {
   getBrands('admin/brands'),
   unitTypesList('admin/unit-types'),
   packageTypeList('admin/package-types'),
-  usageType('admin/usage-types'),
+  usageType('clinic/usage-types'),
   manufacturersList('admin/manufacturers'),
   suppliers('admin/suppliers'),
   adminProductList('admin/products/list'),
