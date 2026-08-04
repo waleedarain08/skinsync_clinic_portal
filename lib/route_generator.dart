@@ -15,6 +15,8 @@ import 'screens/create_appointment_screen.dart';
 import 'screens/create_session_screen.dart';
 import 'screens/create_staff_screen.dart';
 import 'screens/create_treatment_screen.dart';
+import 'screens/dashboard/add_administration_staff_screen.dart';
+import 'screens/dashboard/administration_staff_detail_screen.dart';
 import 'screens/dashboard/appointment_detail_screen.dart';
 import 'screens/dashboard/appointment_screen.dart';
 import 'screens/dashboard/dashboard.dart';
@@ -153,6 +155,16 @@ class RouteGenerator {
             name: ManagePractitionerScreen.routeName,
             path: ManagePractitionerScreen.routeName,
             builder: (_, _) => const ManagePractitionerScreen(),
+          ),
+          GoRoute(
+            name: AddAdministrationStaffScreen.routeName,
+            path: AddAdministrationStaffScreen.routeName,
+            builder: (_, _) => const AddAdministrationStaffScreen(),
+          ),
+          GoRoute(
+            name: AdministrationStaffDetailScreen.routeName,
+            path: AdministrationStaffDetailScreen.routeName,
+            builder: (_, _) => const AdministrationStaffDetailScreen(),
           ),
           GoRoute(
             name: PractitionerDetailScreen.routeName,
