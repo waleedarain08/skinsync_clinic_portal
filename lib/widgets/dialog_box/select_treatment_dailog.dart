@@ -46,7 +46,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
   @override
   Widget build(BuildContext context) {
     return StandardDialog(
-      title: "Add Practitioner Treatment",
+      title: "Add Provider Treatment",
       width: 600.w,
       content: SingleChildScrollView(
         child: Column(

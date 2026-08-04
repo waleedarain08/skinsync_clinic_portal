@@ -18,7 +18,7 @@ import '../add_practitioner_screen.dart';
 import 'practitioner_detail_screen.dart';
 
 class ManagePractitionerScreen extends ConsumerStatefulWidget {
-  static const String routeName = '/manage-practitioner';
+  static const String routeName = '/manage-providers';
 
   const ManagePractitionerScreen({super.key});
 
@@ -88,7 +88,7 @@ class _ManagePractitionerScreenState
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Practitioner Library', style: context.fonts.black26w700),
+            Text('Provider Library', style: context.fonts.black26w700),
             context.verticalSpace(6),
             Text(
               'Manage clinic doctors, injectors, assigned treatments, and weekly clinical schedules.',
@@ -102,7 +102,7 @@ class _ManagePractitionerScreenState
             context.push(AddPractitionerScreen.routeName);
           },
           icon: Icons.add_rounded,
-          label: 'Add Practitioner',
+          label: 'Add Provider',
           width: context.w(180),
         ),
       ],
@@ -131,7 +131,7 @@ class _ManagePractitionerScreenState
     return Row(
       children: [
         _buildStatCard(
-          'Total Practitioners',
+          'Total Providers',
           '$totalPractitioners',
           Icons.people_alt_outlined,
           CustomColors.purple,
@@ -216,7 +216,7 @@ class _ManagePractitionerScreenState
               style: context.fonts.black14w400,
               decoration: AppDecorations.input(
                 context,
-                hint: "Search practitioners by keyword, name, or email...",
+                hint: "Search Providers by keyword, name, or email...",
                 prefixIcon: const Icon(
                   Icons.search_rounded,
                   color: CustomColors.grey,
@@ -275,7 +275,7 @@ class _ManagePractitionerScreenState
                 border: Border(bottom: BorderSide(color: CustomColors.border)),
               ),
               children: [
-                _tableHeaderCell('PRACTITIONER NAME'),
+                _tableHeaderCell('Provider NAME'),
                 _tableHeaderCell('CLINICAL ROLE'),
                 _tableHeaderCell('ASSIGNED TREATMENTS'),
                 _tableHeaderCell('STATUS'),
@@ -438,7 +438,7 @@ class _ManagePractitionerScreenState
           IconButton(
             visualDensity: .compact,
             padding: EdgeInsets.zero,
-            tooltip: 'Delete Practitioner',
+            tooltip: 'Delete Provider',
             icon: const Icon(
               Icons.delete_outline_rounded,
               color: CustomColors.red,
@@ -453,7 +453,7 @@ class _ManagePractitionerScreenState
           IconButton(
             visualDensity: .compact,
             padding: EdgeInsets.zero,
-            tooltip: 'Edit Practitioner',
+            tooltip: 'Edit Provider',
             icon: const Icon(
               Icons.edit_outlined,
               color: CustomColors.purple,
@@ -495,12 +495,12 @@ class _ManagePractitionerScreenState
             ),
             context.verticalSpace(24),
             Text(
-              'No practitioners match your search refinement',
+              'No Providers match your search refinement',
               style: context.fonts.black18w600,
             ),
             context.verticalSpace(8),
             Text(
-              'Try clearing your search keyword, resetting the filter, or add a brand new clinical practitioner profile.',
+              'Try clearing your search keyword, resetting the filter, or add a brand new clinical Provider profile.',
               style: context.fonts.grey14w400,
               textAlign: TextAlign.center,
             ),
@@ -523,7 +523,7 @@ class _ManagePractitionerScreenState
                     context.push(AddPractitionerScreen.routeName);
                   },
                   icon: Icons.add_rounded,
-                  label: 'Add Practitioner',
+                  label: 'Add Provider',
                   width: context.w(180),
                 ),
               ],

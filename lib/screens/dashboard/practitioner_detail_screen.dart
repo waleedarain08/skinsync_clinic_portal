@@ -32,7 +32,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          practitioner.basicInfo?.name ?? 'Practitioner Details',
+          practitioner.basicInfo?.name ?? 'Provider Details',
           style: context.fonts.black18w600,
         ),
         leading: IconButton(

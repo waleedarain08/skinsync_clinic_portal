@@ -25,7 +25,7 @@ import '../widgets/borderd_container_widget.dart';
 
 class AddPractitionerScreen extends ConsumerStatefulWidget {
   const AddPractitionerScreen({super.key, this.practitioner});
-  static const String routeName = '/add-practitioner';
+  static const String routeName = '/add-Provider';
   final Practitioner? practitioner;
 
   @override
@@ -202,7 +202,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
         appBar: AppBar(
           flexibleSpace: AppDecorations.appBarGradient,
           title: Text(
-            isEditing ? 'Update Practitioner' : 'Add Practitioner',
+            isEditing ? 'Update Provider' : 'Add Provider',
             style: context.fonts.black18w600,
           ),
           centerTitle: true,
@@ -274,12 +274,12 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   children: [
                     Text(
                       isEditing
-                          ? 'Update Practitioner Profile'
-                          : 'Practitioner Onboarding',
+                          ? 'Update Provider Profile'
+                          : 'Provider Onboarding',
                       style: context.fonts.black16w600,
                     ),
                     Text(
-                      'Configure practitioner identity, licensing, and clinical availability.',
+                      'Configure Provider identity, licensing, and clinical availability.',
                       style: context.fonts.grey12w400,
                     ),
                   ],
@@ -298,8 +298,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 CustomPrimaryButton(
                   onTap: _submitForm,
                   label: isEditing
-                      ? 'Update Practitioner'
-                      : 'Save Practitioner',
+                      ? 'Update Provider'
+                      : 'Save Provider',
                   width: context.w(180),
                   height: context.h(40),
                   icon: isEditing

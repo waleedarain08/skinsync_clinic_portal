@@ -146,7 +146,7 @@ class AppSidebar extends StatelessWidget {
       ),
       SidebarXItem(
         icon: Icons.masks_outlined,
-        label: 'Practitioners',
+        label: 'Providers',
         onTap: () => _onItemTap(context, 4),
       ),
       SidebarXItem(
