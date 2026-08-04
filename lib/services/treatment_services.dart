@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../models/requests/add_treatment_req_model.dart';
+import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/treatment_detail_response.dart';
 import '../models/responses/treatment_template_list_response.dart';
@@ -49,19 +50,21 @@ class TreatmentServices implements TreatmentRepository {
   }
 
   @override
-  Future<List<TreatmentModel>> getAdminTreatments() async {
+  Future<List<AdminTreatment>> getAdminTreatments({
+    required int page,
+    int limit = 10,
+    String? search,
+  }) async {
     final jsonResponse = await _api.httpRequest(
       endPoint: Endpoint.getAdminTreatments,
       requestType: RequestType.get,
+      queryParams: {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search != null && search.isNotEmpty) 'search': search,
+      },
     );
-    final response = BaseResponse<List<TreatmentModel>>.fromJson(jsonResponse, (
-      treatmentList,
-    ) {
-      treatmentList as List;
-      return treatmentList
-          .map((json) => TreatmentModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    });
+    final response = AdminProductListResponse.fromJson(jsonResponse);
 
     if (!response.success) {
       throw BadRequestException(response.message);
@@ -91,14 +94,12 @@ class TreatmentServices implements TreatmentRepository {
     return response.data ?? [];
   }
 
-    @override
-  Future<TreatmentDetailResponse> getTreatmentDetail({
-    required int id,
-  }) async {
-   final jsonResponse = await _api.httpRequest(
+  @override
+  Future<TreatmentDetailResponse> getTreatmentDetail({required int id}) async {
+    final jsonResponse = await _api.httpRequest(
       endPoint: Endpoint.treatmentDetail,
       requestType: RequestType.get,
-      pathParams: {'id': id.toString()}
+      pathParams: {'id': id.toString()},
     );
     final response = TreatmentDetailResponse.fromJson(jsonResponse);
     if (!response.isSuccess) {

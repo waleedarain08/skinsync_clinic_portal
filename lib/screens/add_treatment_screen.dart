@@ -1,103 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/responses/admin_treatment_response.dart';
+import '../models/responses/area_list_response.dart';
 import '../utils/theme.dart';
+import '../view_models/area_view_model.dart';
+import '../view_models/treatment_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/dialog_box/standard_dialog.dart';
 import '../widgets/number_paginator.dart';
-
-class AdminTreatmentTemplate {
-  final int id;
-  final String name;
-  final String description;
-  final List<String> availableAreas;
-
-  AdminTreatmentTemplate({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.availableAreas,
-  });
-}
-
-final List<AdminTreatmentTemplate> dummyAdminTemplates = [
-  AdminTreatmentTemplate(
-    id: 1,
-    name: 'Botox Cosmetic Wrinkle Relaxation',
-    description: 'Advanced neurotoxin treatment for dynamic lines.',
-    availableAreas: ['Forehead', 'Glabella', 'Crow\'s Feet', 'Bunny Lines'],
-  ),
-  AdminTreatmentTemplate(
-    id: 2,
-    name: 'Dermal Fillers (Juvederm)',
-    description: 'Hyaluronic acid fillers for volume restoration and contouring.',
-    availableAreas: ['Lips', 'Cheeks', 'Nasolabial Folds', 'Jawline', 'Chin'],
-  ),
-  AdminTreatmentTemplate(
-    id: 3,
-    name: 'Chemical Peel (Glycolic Acid)',
-    description: 'Medical-grade skin resurfacing and rejuvenation.',
-    availableAreas: ['Full Face', 'Neck', 'Decolletage', 'Hands'],
-  ),
-  AdminTreatmentTemplate(
-    id: 4,
-    name: 'Microneedling (SkinPen)',
-    description: 'Collagen induction therapy for scarring and texture.',
-    availableAreas: ['Full Face', 'Neck', 'Scar Target Area'],
-  ),
-  AdminTreatmentTemplate(
-    id: 5,
-    name: 'Laser Hair Removal (Soprano Ice)',
-    description: 'Pain-free diode laser hair removal for all skin types.',
-    availableAreas: ['Full Face', 'Underarms', 'Full Arms', 'Full Legs', 'Back'],
-  ),
-  AdminTreatmentTemplate(
-    id: 6,
-    name: 'HydraFacial MD Rejuvenation',
-    description: 'Patented 3-step treatment to cleanse, extract, and hydrate.',
-    availableAreas: ['Full Face', 'Neck', 'Decolletage'],
-  ),
-  AdminTreatmentTemplate(
-    id: 7,
-    name: 'Platelet-Rich Plasma (PRP) Therapy',
-    description: 'Autologous platelet gel therapy for tissue regeneration.',
-    availableAreas: ['Full Face', 'Scalp', 'Scar Target Area'],
-  ),
-  AdminTreatmentTemplate(
-    id: 8,
-    name: 'Kybella Double Chin Treatment',
-    description: 'Injectable deoxycholic acid to dissolve submental fat cells.',
-    availableAreas: ['Submental Area', 'Jawline Contour'],
-  ),
-  AdminTreatmentTemplate(
-    id: 9,
-    name: 'IPL Photofacial (Intense Pulsed Light)',
-    description: 'Targeted light therapy for pigmentation, sun damage, and redness.',
-    availableAreas: ['Full Face', 'Neck', 'Hands', 'Chest'],
-  ),
-  AdminTreatmentTemplate(
-    id: 10,
-    name: 'CoolSculpting Body Contouring',
-    description: 'Non-invasive cryolipolysis to freeze and eliminate stubborn fat.',
-    availableAreas: ['Abdomen', 'Flanks', 'Thighs', 'Under Chin'],
-  ),
-  AdminTreatmentTemplate(
-    id: 11,
-    name: 'Thermage Skin Tightening',
-    description: 'Radiofrequency energy to stimulate collagen production and tighten skin.',
-    availableAreas: ['Full Face', 'Eyes', 'Neck', 'Abdomen'],
-  ),
-  AdminTreatmentTemplate(
-    id: 12,
-    name: 'Ultherapy Non-Surgical Lift',
-    description: 'Micro-focused ultrasound to lift and tighten eyebrows, chin, and neck.',
-    availableAreas: ['Full Face', 'Lower Face', 'Neck', 'Decolletage'],
-  ),
-];
 
 class AddTreatmentScreen extends ConsumerStatefulWidget {
   const AddTreatmentScreen({super.key});
@@ -110,51 +27,96 @@ class AddTreatmentScreen extends ConsumerStatefulWidget {
 
 class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
   final TextEditingController _searchController = TextEditingController();
-  
-  // Track selected areas per treatment template ID
-  final Map<int, Set<String>> _selectedTemplateAreas = {};
-  
-  List<AdminTreatmentTemplate> _filteredTemplates = [];
+  Timer? _searchDebounce;
+
+  // treatmentId -> (areaId -> AreaModel)
+  final Map<int, Map<int, AreaModel>> _selectedTemplateAreas = {};
+
+  // Accordion controllers, keyed by treatment id so expand state survives rebuilds.
+  final Map<int, ExpansionTileController> _tileControllers = {};
+
+  List<AdminTreatment> _treatments = [];
+  bool _loadingTemplates = false;
+  String? _templatesError;
+
+  int? _expandedTreatmentId;
+  int? _loadingAreasForId;
+
   int _currentPage = 1;
   final int _pageSize = 8;
 
   @override
   void initState() {
     super.initState();
-    _filteredTemplates = List.from(dummyAdminTemplates);
+    _fetchTemplates();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
-  void _onSearchChanged(String query) {
+  Future<void> _fetchTemplates({String? search}) async {
     setState(() {
-      _currentPage = 1;
-      _filteredTemplates = dummyAdminTemplates.where((template) {
-        final nameMatch = template.name.toLowerCase().contains(query.toLowerCase());
-        final descMatch = template.description.toLowerCase().contains(query.toLowerCase());
-        return nameMatch || descMatch;
-      }).toList();
+      _loadingTemplates = true;
+      _templatesError = null;
     });
+    try {
+      final result = await ref
+          .read(treatmentViewModelProvider.notifier)
+          .getAdminTreatments(search);
+      setState(() {
+        _treatments = result;
+        _currentPage = 1;
+        _loadingTemplates = false;
+      });
+    } catch (e) {
+      setState(() {
+        _templatesError = e.toString().replaceAll('Exception:', '').trim();
+        _loadingTemplates = false;
+      });
+    }
   }
 
-  void _toggleAreaSelection(int templateId, String area) {
+  void _onSearchChanged(String query) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      _fetchTemplates(search: query.isEmpty ? null : query);
+    });
+    setState(() {}); // refresh clear button
+  }
+
+Future<void> _onTileExpanded(AdminTreatment template) async {
+  // Collapse whatever else is open (accordion behavior).
+  if (_expandedTreatmentId != null && _expandedTreatmentId != template.id) {
+    _tileControllers[_expandedTreatmentId]?.collapse();
+  }
+
+  setState(() {
+    _expandedTreatmentId = template.id;
+    _loadingAreasForId = template.id;
+  });
+
+  try {
+    await ref
+        .read(areaViewModelProvider.notifier)
+        .fetchAreas(treatmentId: template.id, showLoading: false);
+  } finally {
+    if (mounted) {
+      setState(() => _loadingAreasForId = null);
+    }
+  }
+}
+  void _toggleAreaSelection(int templateId, AreaModel area) {
     setState(() {
-      if (!_selectedTemplateAreas.containsKey(templateId)) {
-        _selectedTemplateAreas[templateId] = {area};
+      final areas = _selectedTemplateAreas.putIfAbsent(templateId, () => {});
+      if (areas.containsKey(area.id)) {
+        areas.remove(area.id);
+        if (areas.isEmpty) _selectedTemplateAreas.remove(templateId);
       } else {
-        final areas = _selectedTemplateAreas[templateId]!;
-        if (areas.contains(area)) {
-          areas.remove(area);
-          if (areas.isEmpty) {
-            _selectedTemplateAreas.remove(templateId);
-          }
-        } else {
-          areas.add(area);
-        }
+        areas[area.id] = area;
       }
     });
   }
@@ -165,9 +127,16 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
     });
   }
 
-  Widget _buildTreatmentTile(BuildContext context, AdminTreatmentTemplate template) {
+  Widget _buildTreatmentTile(BuildContext context, AdminTreatment template) {
     final selectedAreas = _selectedTemplateAreas[template.id] ?? {};
     final isAnyAreaSelected = selectedAreas.isNotEmpty;
+    final isExpanded = _expandedTreatmentId == template.id;
+    final isLoadingAreas = _loadingAreasForId == template.id;
+
+    final controller = _tileControllers.putIfAbsent(
+      template.id,
+      () => ExpansionTileController(),
+    );
 
     return BorderdContainerWidget(
       margin: const EdgeInsets.only(bottom: 12),
@@ -177,17 +146,21 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
       borderWidth: isAnyAreaSelected ? 1.5 : 1.0,
       backgroundColor: CustomColors.white,
       child: Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-        ),
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          key: PageStorageKey<int>(template.id),
+          key: ValueKey(template.id),
+          controller: controller,
           tilePadding: context.appEdgeInsets(horizontal: 12, vertical: 4),
           childrenPadding: context.appEdgeInsets(horizontal: 12, bottom: 12),
+          onExpansionChanged: (expanded) {
+            if (expanded) _onTileExpanded(template);
+          },
           leading: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isAnyAreaSelected ? CustomColors.purple.withValues(alpha: 0.1) : CustomColors.whiteGrey,
+              color: isAnyAreaSelected
+                  ? CustomColors.purple.withValues(alpha: 0.1)
+                  : CustomColors.whiteGrey,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -198,16 +171,16 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
           ),
           title: Text(
             template.name,
-            style: isAnyAreaSelected 
-                ? context.fonts.purple13w700 
+            style: isAnyAreaSelected
+                ? context.fonts.purple13w700
                 : context.fonts.black13w600,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            isAnyAreaSelected 
-                ? '${selectedAreas.length} Areas Selected' 
-                : template.description,
+            isAnyAreaSelected
+                ? '${selectedAreas.length} Areas Selected'
+                : template.shortDescription,
             style: context.fonts.grey11w400,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -223,26 +196,49 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
               ],
             ),
             context.verticalSpace(8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: template.availableAreas.map((area) {
-                final isSelected = selectedAreas.contains(area);
-                return FilterChip(
-                  label: Text(area),
-                  selected: isSelected,
-                  onSelected: (_) => _toggleAreaSelection(template.id, area),
-                  checkmarkColor: Colors.white,
-                  selectedColor: CustomColors.purple,
-                  backgroundColor: CustomColors.whiteGrey,
-                  labelStyle: isSelected 
-                      ? context.fonts.white10w700.copyWith(fontSize: 9) 
-                      : context.fonts.black10w600.copyWith(fontSize: 9),
-                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
-                  visualDensity: VisualDensity.compact,
-                );
-              }).toList(),
-            ),
+            if (isLoadingAreas)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (isExpanded)
+              Consumer(
+                builder: (context, ref, _) {
+                  final areaState = ref.watch(areaViewModelProvider);
+                  if (areaState.areas.isEmpty) {
+                    return Text(
+                      'No areas available for this treatment.',
+                      style: context.fonts.grey11w400,
+                    );
+                  }
+                  return Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: areaState.areas.map((area) {
+                      final isSelected = selectedAreas.containsKey(area.id);
+                      return FilterChip(
+                        label: Text(area.name),
+                        selected: isSelected,
+                        onSelected: (_) => _toggleAreaSelection(template.id, area),
+                        checkmarkColor: Colors.white,
+                        selectedColor: CustomColors.purple,
+                        backgroundColor: CustomColors.whiteGrey,
+                        labelStyle: isSelected
+                            ? context.fonts.white10w700.copyWith(fontSize: 9)
+                            : context.fonts.black10w600.copyWith(fontSize: 9),
+                        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                        visualDensity: VisualDensity.compact,
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -250,7 +246,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
   }
 
   Widget _buildPaginationFooter(BuildContext context) {
-    final int totalPagesCount = (_filteredTemplates.length / _pageSize).ceil();
+    final int totalPagesCount = (_treatments.length / _pageSize).ceil();
     if (totalPagesCount <= 1) return const SizedBox.shrink();
 
     return Padding(
@@ -272,11 +268,11 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
   @override
   Widget build(BuildContext context) {
     final int startIndex = (_currentPage - 1) * _pageSize;
-    final int endIndex = startIndex + _pageSize > _filteredTemplates.length 
-        ? _filteredTemplates.length 
-        : startIndex + _pageSize;
-    
-    final List<AdminTreatmentTemplate> paginatedTemplates = _filteredTemplates.sublist(startIndex, endIndex);
+    final int endIndex =
+        startIndex + _pageSize > _treatments.length ? _treatments.length : startIndex + _pageSize;
+
+    final List<AdminTreatment> paginatedTemplates =
+        _treatments.isEmpty ? [] : _treatments.sublist(startIndex, endIndex);
     final bool isWideScreen = context.screenWidth > 700;
 
     return GradientScaffold(
@@ -313,14 +309,20 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                               color: CustomColors.purple.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.search_rounded, color: CustomColors.purple),
+                            child: const Icon(
+                              Icons.search_rounded,
+                              color: CustomColors.purple,
+                            ),
                           ),
                           context.horizontalSpace(12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Search Platform Templates', style: context.fonts.black16w600),
-                              Text('Choose templates and target areas to import.', style: context.fonts.grey12w400),
+                              Text(
+                                'Choose templates and target areas to import.',
+                                style: context.fonts.grey12w400,
+                              ),
                             ],
                           ),
                         ],
@@ -371,11 +373,17 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                     context.verticalSpace(12),
                     Row(
                       children: [
-                        Text('Batch Configuration (${_selectedTemplateAreas.length}):', style: context.fonts.black12w600),
+                        Text(
+                          'Batch Configuration (${_selectedTemplateAreas.length}):',
+                          style: context.fonts.black12w600,
+                        ),
                         const Spacer(),
                         TextButton(
                           onPressed: () => setState(() => _selectedTemplateAreas.clear()),
-                          child: Text('Clear All', style: context.fonts.purple12w700.copyWith(color: CustomColors.red)),
+                          child: Text(
+                            'Clear All',
+                            style: context.fonts.purple12w700.copyWith(color: CustomColors.red),
+                          ),
                         ),
                       ],
                     ),
@@ -387,11 +395,14 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                           spacing: 8,
                           runSpacing: 8,
                           children: _selectedTemplateAreas.entries.map((entry) {
-                            final template = dummyAdminTemplates.firstWhere((t) => t.id == entry.key);
+                            final template = _treatments.firstWhere((t) => t.id == entry.key);
                             return Chip(
                               backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
                               side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
-                              label: Text('${template.name} (${entry.value.length})', style: context.fonts.purple11w600),
+                              label: Text(
+                                '${template.name} (${entry.value.length})',
+                                style: context.fonts.purple11w600,
+                              ),
                               onDeleted: () => _clearTreatment(template.id),
                               deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
                             );
@@ -407,36 +418,54 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
 
           // Main List of Templates
           Expanded(
-            child: _filteredTemplates.isEmpty
-                ? Center(child: Text('No matching treatment templates found.', style: context.fonts.grey14w400))
-                : ListView.builder(
-                    padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
-                    itemCount: (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil() + 1,
-                    itemBuilder: (context, index) {
-                      if (index == (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil()) {
-                        return _buildPaginationFooter(context);
-                      }
-
-                      if (isWideScreen) {
-                        final int firstIdx = index * 2;
-                        final int secondIdx = firstIdx + 1;
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: _buildTreatmentTile(context, paginatedTemplates[firstIdx])),
-                            context.horizontalSpace(16),
-                            Expanded(
-                              child: secondIdx < paginatedTemplates.length 
-                                  ? _buildTreatmentTile(context, paginatedTemplates[secondIdx])
-                                  : const SizedBox(),
+            child: _loadingTemplates
+                ? const Center(child: CircularProgressIndicator())
+                : _templatesError != null
+                    ? Center(
+                        child: Text(
+                          _templatesError!,
+                          style: context.fonts.grey14w400,
+                        ),
+                      )
+                    : _treatments.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No matching treatment templates found.',
+                              style: context.fonts.grey14w400,
                             ),
-                          ],
-                        );
-                      } else {
-                        return _buildTreatmentTile(context, paginatedTemplates[index]);
-                      }
-                    },
-                  ),
+                          )
+                        : ListView.builder(
+                            padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
+                            itemCount:
+                                (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil() + 1,
+                            itemBuilder: (context, index) {
+                              if (index ==
+                                  (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil()) {
+                                return _buildPaginationFooter(context);
+                              }
+
+                              if (isWideScreen) {
+                                final int firstIdx = index * 2;
+                                final int secondIdx = firstIdx + 1;
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: _buildTreatmentTile(context, paginatedTemplates[firstIdx]),
+                                    ),
+                                    context.horizontalSpace(16),
+                                    Expanded(
+                                      child: secondIdx < paginatedTemplates.length
+                                          ? _buildTreatmentTile(context, paginatedTemplates[secondIdx])
+                                          : const SizedBox(),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return _buildTreatmentTile(context, paginatedTemplates[index]);
+                              }
+                            },
+                          ),
           ),
         ],
       ),
@@ -458,10 +487,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
             children: [
               Container(
                 padding: context.appEdgeInsets(all: 16),
-                decoration: const BoxDecoration(
-                  color: CustomColors.green,
-                  shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(color: CustomColors.green, shape: BoxShape.circle),
                 child: const Icon(Icons.check, size: 40, color: Colors.white),
               ),
               context.verticalSpace(24),
@@ -485,7 +511,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                   separatorBuilder: (context, index) => const Divider(height: 24),
                   itemBuilder: (context, index) {
                     final entry = _selectedTemplateAreas.entries.elementAt(index);
-                    final template = dummyAdminTemplates.firstWhere((t) => t.id == entry.key);
+                    final template = _treatments.firstWhere((t) => t.id == entry.key);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -494,7 +520,9 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
                         Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: entry.value.map((area) => Text("• $area", style: context.fonts.grey10w400)).toList(),
+                          children: entry.value.values
+                              .map((area) => Text("• ${area.name}", style: context.fonts.grey10w400))
+                              .toList(),
                         ),
                       ],
                     );
@@ -504,11 +532,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
             ],
           ),
           actions: [
-            CustomOutlinedButton(
-              onTap: () => Navigator.of(ctx).pop(),
-              label: "Cancel",
-              width: context.w(100),
-            ),
+            CustomOutlinedButton(onTap: () => Navigator.of(ctx).pop(), label: "Cancel", width: context.w(100)),
             CustomPrimaryButton(
               onTap: () {
                 Navigator.of(ctx).pop();

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/extentions.dart';
 import '../../utils/theme.dart';
 import '../../view_models/area_view_model.dart';
+import '../../view_models/treatment_view_model.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
 import 'standard_dialog.dart';
@@ -23,7 +24,13 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(areaViewModelProvider.notifier).clearSelectedAreas();
-      ref.read(areaViewModelProvider.notifier).fetchAreas();
+     final treatmentId = ref
+          .read(treatmentViewModelProvider)
+          .selectedTreatmentDetail
+          ?.id;
+          if(mounted && treatmentId != null){
+            ref.read(areaViewModelProvider.notifier).fetchAreas(treatmentId: treatmentId);
+          }
     });
   }
 

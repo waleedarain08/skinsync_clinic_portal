@@ -52,13 +52,8 @@ class AreaViewModel extends BaseViewModel<AreaState> {
 
   final AreaRepository _areaRepository = locator<AreaServices>();
 
-  Future<void> fetchAreas({bool showLoading = true}) async {
-    final treatmentId = ref
-        .read(treatmentViewModelProvider)
-        .selectedTreatmentDetail
-        ?.id;
-
-    if (treatmentId == null) return;
+  Future<List<AreaModel>> fetchAreas({bool showLoading = true,required int treatmentId}) async {
+   
 
     state = state.copyWith(loading: showLoading);
 
@@ -67,6 +62,7 @@ class AreaViewModel extends BaseViewModel<AreaState> {
 
       state = state.copyWith(areas: fetched, loading: false);
     });
+    return state.areas;
   }
 
 Future<void> addAreas() async {
@@ -90,7 +86,7 @@ Future<void> addAreas() async {
     );
 
     if (response.success) {
-      await fetchAreas(showLoading: false);
+      await fetchAreas(showLoading: false, treatmentId: treatmentId);
     }
   });
 }

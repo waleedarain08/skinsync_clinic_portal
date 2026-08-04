@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/treatment_detail_response.dart';
 import '../models/treatment_model.dart';
 import '../models/requests/add_treatment_req_model.dart';
@@ -86,16 +87,10 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     getTreatments(isRefresh: true);
   }
 
-  Future<List<TreatmentModel>> getAdminTreatments() async {
+  Future<List<AdminTreatment>> getAdminTreatments(String? search) async {
     final repository = locator<TreatmentRepository>();
-    final response = await repository.getTreatmentTemplates(page: 1, limit: 100);
-    return response.data?.map((item) => TreatmentModel(
-      id: item.id,
-      name: item.name,
-      description: item.shortDescription,
-      price: 0,
-      isArea: false,
-    )).toList() ?? [];
+    final response = await repository.getAdminTreatments(page: 1, search: search);
+    return  response;
   }
 
     Future<bool> fetchTreatmentDetail(int id, {bool loading = true}) async {

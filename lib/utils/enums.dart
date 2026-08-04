@@ -27,7 +27,7 @@ enum Endpoint {
   practitionersID('clinic/practitioners/{id}'),
    practitionerStatus('clinic/practitioners/{id}/status'),
 
-  getAdminTreatments('treatments/masters'),
+  getAdminTreatments('clinic/treatments/admin'),
   getTreatmentTemplates('clinic/treatments/admin'),
   getAdminTreatmentsSideAreas('clinic/side-areas/treatment/{treatmentId}'),
   addClinicTreatment('clinic/side-areas/bulk'),
