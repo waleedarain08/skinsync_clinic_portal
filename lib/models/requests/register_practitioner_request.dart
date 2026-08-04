@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'base_request.dart';
 
 class RegisterPractitionerRequest extends BaseRequest {
-  final BasicInfo basicInfo;
-  final ContactInfo contactInfo;
-  final LicenseInfo licenseInfo;
+  // final BasicInfo basicInfo;
+  // final ContactInfo contactInfo;
+  // final LicenseInfo licenseInfo;
   final ClinicAccess clinicAccess;
   final AvailabilityInfo availabilityInfo;
   final FinancialInfo financialInfo;
 
   RegisterPractitionerRequest({
-    required this.basicInfo,
-    required this.contactInfo,
-    required this.licenseInfo,
+    // required this.basicInfo,
+    // required this.contactInfo,
+    // required this.licenseInfo,
     required this.clinicAccess,
     required this.availabilityInfo,
     required this.financialInfo,
@@ -21,182 +21,12 @@ class RegisterPractitionerRequest extends BaseRequest {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'basic_info': basicInfo.toJson(),
-      'contact_info': contactInfo.toJson(),
-      'license_info': licenseInfo.toJson(),
+      // 'basic_info': basicInfo.toJson(),
+      // 'contact_info': contactInfo.toJson(),
+      // 'license_info': licenseInfo.toJson(),
       'clinic_access': clinicAccess.toJson(),
       'availability_info': availabilityInfo.toJson(),
       'financial_info': financialInfo.toJson(),
-    };
-  }
-}
-
-class BasicInfo {
-  final String name;
-  final String role;
-  final String title;
-  final String? image;
-  final String gender;
-  final String dateOfBirth;
-  final String specialization;
-  final int yearsOfExperience;
-  final List<String> qualifications;
-
-  BasicInfo({
-    required this.name,
-    required this.role,
-    required this.title,
-    this.image,
-    required this.gender,
-    required this.dateOfBirth,
-    required this.specialization,
-    required this.yearsOfExperience,
-    required this.qualifications,
-  });
-
-  factory BasicInfo.fromJson(Map<String, dynamic> json) => BasicInfo(
-      name: json["name"] ?? "",
-      role: json["role"] ?? "",
-      title: json["title"] ?? "",
-      image: json["image"],
-      gender: json["gender"] ?? "",
-      dateOfBirth: json["date_of_birth"] ?? "",
-      specialization: json["specialization"] ?? "",
-      yearsOfExperience: json["years_of_experience"] ?? 0,
-      qualifications: json["qualifications"] == null
-          ? []
-          : List<String>.from(json["qualifications"]),
-    );
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'role': role,
-      'title': title,
-      'image': image,
-      'gender': gender,
-      'date_of_birth': dateOfBirth,
-      'specialization': specialization,
-      'years_of_experience': yearsOfExperience,
-      'qualifications': qualifications,
-    };
-  }
-}
-
-class ContactInfo {
-  final String email;
-  final String phone;
-  final String cc;
-  final String country;
-  final EmergencyContact emergencyContact;
-
-  ContactInfo({
-    required this.email,
-    required this.phone,
-    required this.cc,
-    required this.country,
-    required this.emergencyContact,
-  });
-
-  factory ContactInfo.fromJson(Map<String, dynamic> json) => ContactInfo(
-      email: json["email"] ?? "",
-      phone: json["phone"] ?? "",
-      cc: json["cc"] ?? "",
-      country: json["country"] ?? "",
-      emergencyContact: json["emergency_contact"] != null
-          ? EmergencyContact.fromJson(json["emergency_contact"])
-          : EmergencyContact(
-              name: "",
-              phone: "",
-              cc: "",
-              country: "",
-              relationship: "",
-            ),
-    );
-
-  Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'phone': phone,
-      'cc': cc,
-      'country': country,
-      'emergency_contact': emergencyContact.toJson(),
-    };
-  }
-}
-
-class EmergencyContact {
-  final String name;
-  final String phone;
-  final String cc;
-  final String country;
-  final String relationship;
-
-  EmergencyContact({
-    required this.name,
-    required this.phone,
-    required this.cc,
-    required this.country,
-    required this.relationship,
-  });
-
-  factory EmergencyContact.fromJson(Map<String, dynamic> json) =>
-    EmergencyContact(
-      name: json["name"] ?? "",
-      phone: json["phone"] ?? "",
-      cc: json["cc"] ?? "",
-      country: json["country"] ?? "",
-      relationship: json["relationship"] ?? "",
-    ); 
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'phone': phone,
-      'cc': cc,
-      'country': country,
-      'relationship': relationship,
-    };
-  }
-}
-
-class LicenseInfo {
-  final String licenseNumber;
-  final String licenseExpiryDate;
-  final String issuingAuthority;
-  final String indemnityInsuranceNumber;
-  final String indemnityExpiryDate;
-  final List<String> documents;
-
-  LicenseInfo({
-    required this.licenseNumber,
-    required this.licenseExpiryDate,
-    required this.issuingAuthority,
-    required this.indemnityInsuranceNumber,
-    required this.indemnityExpiryDate,
-    required this.documents,
-  });
-
-  factory LicenseInfo.fromJson(Map<String, dynamic> json) => LicenseInfo(
-      licenseNumber: json["license_number"] ?? "",
-      licenseExpiryDate: json["license_expiry_date"] ?? "",
-      issuingAuthority: json["issuing_authority"] ?? "",
-      indemnityInsuranceNumber:
-          json["indemnity_insurance_number"] ?? "",
-      indemnityExpiryDate: json["indemnity_expiry_date"] ?? "",
-      documents: json["documents"] == null
-          ? []
-          : List<String>.from(json["documents"]),
-    );
-
-  Map<String, dynamic> toJson() {
-    return {
-      'license_number': licenseNumber,
-      'license_expiry_date': licenseExpiryDate,
-      'issuing_authority': issuingAuthority,
-      'indemnity_insurance_number': indemnityInsuranceNumber,
-      'indemnity_expiry_date': indemnityExpiryDate,
-      'documents': documents,
     };
   }
 }

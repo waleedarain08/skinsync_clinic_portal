@@ -222,10 +222,10 @@ class AppDecorations {
         filled: true,
         fillColor: fillColor ?? CustomColors.white,
         contentPadding: contentPadding ?? context.appEdgeInsets(horizontal: 16, vertical: 14),
-        constraints: BoxConstraints(
-            minHeight: context.h(52),
-            maxHeight: maxLines > 1 ? double.infinity : context.h(52)
-        ),
+        // constraints: BoxConstraints(
+        //     minHeight: context.h(52),
+        //     maxHeight: maxLines > 1 ? double.infinity : context.h(52)
+        // ),
         border: OutlineInputBorder(
           borderRadius: context.appBorderRadius(all: 12),
           borderSide: const BorderSide(color: CustomColors.border, width: 1),

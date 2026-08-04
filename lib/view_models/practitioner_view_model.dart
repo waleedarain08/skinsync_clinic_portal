@@ -126,9 +126,9 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   Future<void> registerPractitioner({
-    required BasicInfo basicInfo,
-    required ContactInfo contactInfo,
-    required LicenseInfo licenseInfo,
+    // required BasicInfo basicInfo,
+    // required ContactInfo contactInfo,
+    // required LicenseInfo licenseInfo,
     required ClinicAccess clinicAccess,
     required AvailabilityInfo availabilityInfo,
     required FinancialInfo financialInfo,
@@ -138,9 +138,9 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
 
       await locator<PractitionerService>().register(
         request: RegisterPractitionerRequest(
-          basicInfo: basicInfo,
-          contactInfo: contactInfo,
-          licenseInfo: licenseInfo,
+          // basicInfo: basicInfo,
+          // contactInfo: contactInfo,
+          // licenseInfo: licenseInfo,
           clinicAccess: clinicAccess,
           availabilityInfo: availabilityInfo,
           financialInfo: financialInfo,
