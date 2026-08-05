@@ -206,8 +206,8 @@ class RouteGenerator {
             name: TreatmentDetailScreen.routeName,
             path: TreatmentDetailScreen.routeName,
             builder: (_, state) {
-            //  final treatment = state.extra as model_treatment.TreatmentModel;
-              return const TreatmentDetailScreen();
+              final treatmentId = state.extra as int? ?? 0;
+              return TreatmentDetailScreen(treatmentId: treatmentId);
             },
           ),
           GoRoute(

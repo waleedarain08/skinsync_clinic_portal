@@ -455,6 +455,80 @@ class ClinicDummyData {
       basePrice: 300.00,
     ),
   ];
+
+  static const Map<String, dynamic> dummyAppointmentTreatmentDetail = {
+    "treatment_id": 1,
+    "treatment_name": "Botox Cosmetic",
+    "area_name": "Forehead",
+    "status": "Ongoing",
+    "current_session": {
+      "session_number": 1,
+      "date": "2023-10-25",
+      "consent_form_url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "protocols": [
+        "Cleanse and disinfect target area with alcohol swab",
+        "Verify patient identity and consent signature",
+        "Confirm lack of contraindications"
+      ],
+      "instructions": "Avoid lying down for 4 hours post-treatment."
+    },
+    "history": [
+      {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "summary": "Patient interested in forehead wrinkle reduction. No contraindications found."
+      },
+      {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "summary": "First session completed. 20 units injected in forehead area."
+      },
+      {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "summary": "Check-up after first session. Results are satisfactory. No touch-ups needed."
+      }
+    ]
+  };
+
+  static Map<String, dynamic> getHistoryDetail(int id) {
+    if (id == 101) {
+      return {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "notes": "Patient discussed expectations and potential side effects. Agreed to proceed with Botox.",
+        "vitals": {"bp": "120/80", "weight": "70kg"}
+      };
+    } else if (id == 102) {
+      return {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "dosage": "20 Units",
+        "product": "Botox Cosmetic",
+        "batch_number": "BX12345",
+        "expiry_date": "2025-12-01"
+      };
+    } else {
+      return {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "observations": "Facial symmetry is good. Patient is happy with the results.",
+        "next_appointment": "In 3 months"
+      };
+    }
+  }
 }
 
 class ClinicDummySessionConfig {
@@ -658,4 +732,78 @@ class ClinicDummyMasterProducts {
       unitsPerPackage: 1,
     ),
   ];
+
+  static const Map<String, dynamic> dummyAppointmentTreatmentDetail = {
+    "treatment_id": 1,
+    "treatment_name": "Botox Cosmetic",
+    "area_name": "Forehead",
+    "status": "Ongoing",
+    "current_session": {
+      "session_number": 1,
+      "date": "2023-10-25",
+      "consent_form_url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "protocols": [
+        "Cleanse and disinfect target area with alcohol swab",
+        "Verify patient identity and consent signature",
+        "Confirm lack of contraindications"
+      ],
+      "instructions": "Avoid lying down for 4 hours post-treatment."
+    },
+    "history": [
+      {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "summary": "Patient interested in forehead wrinkle reduction. No contraindications found."
+      },
+      {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "summary": "First session completed. 20 units injected in forehead area."
+      },
+      {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "summary": "Check-up after first session. Results are satisfactory. No touch-ups needed."
+      }
+    ]
+  };
+
+  static Map<String, dynamic> getHistoryDetail(int id) {
+    if (id == 101) {
+      return {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "notes": "Patient discussed expectations and potential side effects. Agreed to proceed with Botox.",
+        "vitals": {"bp": "120/80", "weight": "70kg"}
+      };
+    } else if (id == 102) {
+      return {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "dosage": "20 Units",
+        "product": "Botox Cosmetic",
+        "batch_number": "BX12345",
+        "expiry_date": "2025-12-01"
+      };
+    } else {
+      return {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "observations": "Facial symmetry is good. Patient is happy with the results.",
+        "next_appointment": "In 3 months"
+      };
+    }
+  }
 }

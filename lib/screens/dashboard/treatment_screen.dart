@@ -509,7 +509,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                       .read(treatmentViewModelProvider.notifier)
                       .fetchTreatmentDetail(t.id!);
                   if (mounted) {
-                    await context.push(TreatmentDetailScreen.routeName);
+                    await context.push(TreatmentDetailScreen.routeName, extra: t.id);
                   }
                 } catch (e) {
                   // Error handled gracefully by runSafely wrapper

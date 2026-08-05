@@ -10,6 +10,7 @@ import '../../view_models/appointment_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import 'treatment_detail_screen.dart';
 
 class AppointmentDetailScreen extends ConsumerWidget {
   static const String routeName = '/appointment-detail';
@@ -244,29 +245,37 @@ class AppointmentDetailScreen extends ConsumerWidget {
         ...appointment.treatments!.map((t) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Container(
-              padding: context.appEdgeInsets(all: 12),
-              decoration: BoxDecoration(
-                color: CustomColors.whiteGrey,
-                borderRadius: BorderRadius.circular(context.r(8)),
-                border: Border.all(color: CustomColors.border),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.treatmentName ?? 'Treatment', style: context.fonts.black14w600),
-                      context.verticalSpace(2),
-                      Text('Area: ${t.areaName ?? "N/A"}', style: context.fonts.grey12w400),
-                    ],
-                  ),
-                  Text(
-                    '\$${t.treatmentCost?.toStringAsFixed(2) ?? "0.00"}',
-                    style: context.fonts.purple14w700,
-                  ),
-                ],
+            child: InkWell(
+              onTap: () {
+                if (t.treatmentId != null) {
+                  context.push(TreatmentDetailScreen.routeName, extra: t.treatmentId);
+                }
+              },
+              borderRadius: BorderRadius.circular(context.r(8)),
+              child: Container(
+                padding: context.appEdgeInsets(all: 12),
+                decoration: BoxDecoration(
+                  color: CustomColors.whiteGrey,
+                  borderRadius: BorderRadius.circular(context.r(8)),
+                  border: Border.all(color: CustomColors.border),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.treatmentName ?? 'Treatment', style: context.fonts.black14w600),
+                        context.verticalSpace(2),
+                        Text('Area: ${t.areaName ?? "N/A"}', style: context.fonts.grey12w400),
+                      ],
+                    ),
+                    Text(
+                      '\$${t.treatmentCost?.toStringAsFixed(2) ?? "0.00"}',
+                      style: context.fonts.purple14w700,
+                    ),
+                  ],
+                ),
               ),
             ),
           );
