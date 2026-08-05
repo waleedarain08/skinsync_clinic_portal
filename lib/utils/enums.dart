@@ -25,12 +25,12 @@ enum Endpoint {
   createDoctor('clinic/practitioners/register'),
   getPractitioners('clinic/practitioners'),
   practitionersID('clinic/practitioners/{id}'),
-   practitionerStatus('clinic/practitioners/{id}/status'),
+  practitionerStatus('clinic/practitioners/{id}/status'),
 
   getAdminTreatments('clinic/treatments/admin'),
   getTreatmentTemplates('clinic/treatments/admin'),
   getAdminTreatmentsSideAreas('clinic/side-areas/treatment/{treatmentId}'),
-  addClinicTreatment('clinic/side-areas/bulk'),
+  addClinicTreatment('clinic/treatments/batch'),
   changePassword('clinic/change-password'),
   forgetPassword('clinic/forgot-password'),
   resetPassword('clinic/reset-password'),
@@ -159,9 +159,6 @@ enum AppointmentStatus {
         return 'Rescheduled';
     }
   }
-
-
-
 
   Color get color {
     switch (this) {

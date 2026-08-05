@@ -1,27 +1,28 @@
-import '../treatment_model.dart';
 import 'base_request.dart';
 
 class AddTreatmentReqModel extends BaseRequest {
-  final int treatmentId;
-  final double treatmentPrice;
-  final List<SideAreaModel> sideareas;
+  final List<Treatment>? treatments;
 
-  AddTreatmentReqModel({
-    required this.treatmentId,
-    required this.sideareas,
-    required this.treatmentPrice,
-  });
+  AddTreatmentReqModel({this.treatments});
 
   @override
-  Map<String, dynamic> toJson() {
-    return {
-      'treatment_id': treatmentId,
-      'treatment_price': treatmentPrice,
-      'side_area': sideareas
-          .map(
-            (area) => {'side_area_id': area.id, 'price': area.perSyringePrice},
-          )
-          .toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "treatments": treatments == null
+        ? []
+        : List<dynamic>.from(treatments!.map((x) => x.toJson())),
+  };
+}
+
+class Treatment {
+  final int? treatmentId;
+  final List<int>? areasId;
+
+  Treatment({this.treatmentId, this.areasId});
+
+  Map<String, dynamic> toJson() => {
+    "treatment_id": treatmentId,
+    "areas_id": areasId == null
+        ? []
+        : List<dynamic>.from(areasId!.map((x) => x)),
+  };
 }

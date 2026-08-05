@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/area_list_response.dart';
 import '../utils/theme.dart';
@@ -79,7 +81,31 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
       });
     }
   }
+Future<void> _importTreatments() async {
+  final notifier = ref.read(treatmentViewModelProvider.notifier);
 
+  final req = AddTreatmentReqModel(
+    treatments: _selectedTemplateAreas.entries
+        .map((entry) => Treatment(
+              treatmentId: entry.key,
+              areasId: entry.value.keys.toList(),
+            ))
+        .toList(),
+  );
+
+ 
+  final success = await notifier.addClinicTreatment(treatment: req);
+
+
+  if (!mounted) return;
+
+  if (success) {
+    setState(() => _selectedTemplateAreas.clear());
+    EasyLoading.showSuccess('Treatments imported successfully.');
+  } else {
+    EasyLoading.showError('Failed to import treatments.');
+  }
+}
   void _onSearchChanged(String query) {
     if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 500), () {
@@ -88,27 +114,28 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
     setState(() {}); // refresh clear button
   }
 
-Future<void> _onTileExpanded(AdminTreatment template) async {
-  // Collapse whatever else is open (accordion behavior).
-  if (_expandedTreatmentId != null && _expandedTreatmentId != template.id) {
-    _tileControllers[_expandedTreatmentId]?.collapse();
-  }
+  Future<void> _onTileExpanded(AdminTreatment template) async {
+    // Collapse whatever else is open (accordion behavior).
+    if (_expandedTreatmentId != null && _expandedTreatmentId != template.id) {
+      _tileControllers[_expandedTreatmentId]?.collapse();
+    }
 
-  setState(() {
-    _expandedTreatmentId = template.id;
-    _loadingAreasForId = template.id;
-  });
+    setState(() {
+      _expandedTreatmentId = template.id;
+      _loadingAreasForId = template.id;
+    });
 
-  try {
-    await ref
-        .read(areaViewModelProvider.notifier)
-        .fetchAreas(treatmentId: template.id, showLoading: false);
-  } finally {
-    if (mounted) {
-      setState(() => _loadingAreasForId = null);
+    try {
+      await ref
+          .read(areaViewModelProvider.notifier)
+          .fetchAreas(treatmentId: template.id, showLoading: false);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingAreasForId = null);
+      }
     }
   }
-}
+
   void _toggleAreaSelection(int templateId, AreaModel area) {
     setState(() {
       final areas = _selectedTemplateAreas.putIfAbsent(templateId, () => {});
@@ -142,7 +169,9 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
       margin: const EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.zero,
       borderRadius: 12,
-      borderColor: isAnyAreaSelected ? CustomColors.purple : CustomColors.border,
+      borderColor: isAnyAreaSelected
+          ? CustomColors.purple
+          : CustomColors.border,
       borderWidth: isAnyAreaSelected ? 1.5 : 1.0,
       backgroundColor: CustomColors.white,
       child: Theme(
@@ -165,7 +194,9 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
             ),
             child: Icon(
               Icons.spa_outlined,
-              color: isAnyAreaSelected ? CustomColors.purple : CustomColors.grey,
+              color: isAnyAreaSelected
+                  ? CustomColors.purple
+                  : CustomColors.grey,
               size: 18,
             ),
           ),
@@ -190,7 +221,11 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
             context.verticalSpace(12),
             Row(
               children: [
-                const Icon(Icons.layers_outlined, size: 12, color: CustomColors.purple),
+                const Icon(
+                  Icons.layers_outlined,
+                  size: 12,
+                  color: CustomColors.purple,
+                ),
                 context.horizontalSpace(6),
                 Text('Select Target Areas:', style: context.fonts.black11w600),
               ],
@@ -225,14 +260,18 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                       return FilterChip(
                         label: Text(area.name),
                         selected: isSelected,
-                        onSelected: (_) => _toggleAreaSelection(template.id, area),
+                        onSelected: (_) =>
+                            _toggleAreaSelection(template.id, area),
                         checkmarkColor: Colors.white,
                         selectedColor: CustomColors.purple,
                         backgroundColor: CustomColors.whiteGrey,
                         labelStyle: isSelected
                             ? context.fonts.white10w700.copyWith(fontSize: 9)
                             : context.fonts.black10w600.copyWith(fontSize: 9),
-                        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 2,
+                          vertical: 0,
+                        ),
                         visualDensity: VisualDensity.compact,
                       );
                     }).toList(),
@@ -268,11 +307,13 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
   @override
   Widget build(BuildContext context) {
     final int startIndex = (_currentPage - 1) * _pageSize;
-    final int endIndex =
-        startIndex + _pageSize > _treatments.length ? _treatments.length : startIndex + _pageSize;
+    final int endIndex = startIndex + _pageSize > _treatments.length
+        ? _treatments.length
+        : startIndex + _pageSize;
 
-    final List<AdminTreatment> paginatedTemplates =
-        _treatments.isEmpty ? [] : _treatments.sublist(startIndex, endIndex);
+    final List<AdminTreatment> paginatedTemplates = _treatments.isEmpty
+        ? []
+        : _treatments.sublist(startIndex, endIndex);
     final bool isWideScreen = context.screenWidth > 700;
 
     return GradientScaffold(
@@ -318,7 +359,10 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Search Platform Templates', style: context.fonts.black16w600),
+                              Text(
+                                'Search Platform Templates',
+                                style: context.fonts.black16w600,
+                              ),
                               Text(
                                 'Choose templates and target areas to import.',
                                 style: context.fonts.grey12w400,
@@ -330,7 +374,8 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                       if (_selectedTemplateAreas.isNotEmpty)
                         CustomPrimaryButton(
                           onTap: _showConfirmationDialog,
-                          label: 'Import ${_selectedTemplateAreas.length} Treatments',
+                          label:
+                              'Import ${_selectedTemplateAreas.length} Treatments',
                           width: context.w(200),
                           height: context.h(40),
                           icon: Icons.download_for_offline_outlined,
@@ -343,10 +388,16 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                     decoration: InputDecoration(
                       hintText: 'Search templates by name, keyword...',
                       hintStyle: context.fonts.grey14w400,
-                      prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: CustomColors.grey,
+                      ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: CustomColors.grey),
+                              icon: const Icon(
+                                Icons.clear,
+                                color: CustomColors.grey,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
@@ -355,15 +406,23 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                           : null,
                       border: OutlineInputBorder(
                         borderRadius: context.appBorderRadius(all: 12),
-                        borderSide: const BorderSide(color: CustomColors.border),
+                        borderSide: const BorderSide(
+                          color: CustomColors.border,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: context.appBorderRadius(all: 12),
-                        borderSide: const BorderSide(color: CustomColors.purple, width: 2),
+                        borderSide: const BorderSide(
+                          color: CustomColors.purple,
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: CustomColors.whiteGrey,
-                      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                      contentPadding: context.appEdgeInsets(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                     onChanged: _onSearchChanged,
                   ),
@@ -379,10 +438,13 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                         ),
                         const Spacer(),
                         TextButton(
-                          onPressed: () => setState(() => _selectedTemplateAreas.clear()),
+                          onPressed: () =>
+                              setState(() => _selectedTemplateAreas.clear()),
                           child: Text(
                             'Clear All',
-                            style: context.fonts.purple12w700.copyWith(color: CustomColors.red),
+                            style: context.fonts.purple12w700.copyWith(
+                              color: CustomColors.red,
+                            ),
                           ),
                         ),
                       ],
@@ -395,16 +457,28 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                           spacing: 8,
                           runSpacing: 8,
                           children: _selectedTemplateAreas.entries.map((entry) {
-                            final template = _treatments.firstWhere((t) => t.id == entry.key);
+                            final template = _treatments.firstWhere(
+                              (t) => t.id == entry.key,
+                            );
                             return Chip(
-                              backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
-                              side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
+                              backgroundColor: CustomColors.purple.withValues(
+                                alpha: 0.1,
+                              ),
+                              side: BorderSide(
+                                color: CustomColors.purple.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
                               label: Text(
                                 '${template.name} (${entry.value.length})',
                                 style: context.fonts.purple11w600,
                               ),
                               onDeleted: () => _clearTreatment(template.id),
-                              deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
+                              deleteIcon: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: CustomColors.purple,
+                              ),
                             );
                           }).toList(),
                         ),
@@ -421,51 +495,63 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
             child: _loadingTemplates
                 ? const Center(child: CircularProgressIndicator())
                 : _templatesError != null
-                    ? Center(
-                        child: Text(
-                          _templatesError!,
-                          style: context.fonts.grey14w400,
-                        ),
-                      )
-                    : _treatments.isEmpty
-                        ? Center(
-                            child: Text(
-                              'No matching treatment templates found.',
-                              style: context.fonts.grey14w400,
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
-                            itemCount:
-                                (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil() + 1,
-                            itemBuilder: (context, index) {
-                              if (index ==
-                                  (paginatedTemplates.length / (isWideScreen ? 2 : 1)).ceil()) {
-                                return _buildPaginationFooter(context);
-                              }
+                ? Center(
+                    child: Text(
+                      _templatesError!,
+                      style: context.fonts.grey14w400,
+                    ),
+                  )
+                : _treatments.isEmpty
+                ? Center(
+                    child: Text(
+                      'No matching treatment templates found.',
+                      style: context.fonts.grey14w400,
+                    ),
+                  )
+                : ListView.builder(
+                    padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
+                    itemCount:
+                        (paginatedTemplates.length / (isWideScreen ? 2 : 1))
+                            .ceil() +
+                        1,
+                    itemBuilder: (context, index) {
+                      if (index ==
+                          (paginatedTemplates.length / (isWideScreen ? 2 : 1))
+                              .ceil()) {
+                        return _buildPaginationFooter(context);
+                      }
 
-                              if (isWideScreen) {
-                                final int firstIdx = index * 2;
-                                final int secondIdx = firstIdx + 1;
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: _buildTreatmentTile(context, paginatedTemplates[firstIdx]),
-                                    ),
-                                    context.horizontalSpace(16),
-                                    Expanded(
-                                      child: secondIdx < paginatedTemplates.length
-                                          ? _buildTreatmentTile(context, paginatedTemplates[secondIdx])
-                                          : const SizedBox(),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return _buildTreatmentTile(context, paginatedTemplates[index]);
-                              }
-                            },
-                          ),
+                      if (isWideScreen) {
+                        final int firstIdx = index * 2;
+                        final int secondIdx = firstIdx + 1;
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _buildTreatmentTile(
+                                context,
+                                paginatedTemplates[firstIdx],
+                              ),
+                            ),
+                            context.horizontalSpace(16),
+                            Expanded(
+                              child: secondIdx < paginatedTemplates.length
+                                  ? _buildTreatmentTile(
+                                      context,
+                                      paginatedTemplates[secondIdx],
+                                    )
+                                  : const SizedBox(),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return _buildTreatmentTile(
+                          context,
+                          paginatedTemplates[index],
+                        );
+                      }
+                    },
+                  ),
           ),
         ],
       ),
@@ -487,7 +573,10 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
             children: [
               Container(
                 padding: context.appEdgeInsets(all: 16),
-                decoration: const BoxDecoration(color: CustomColors.green, shape: BoxShape.circle),
+                decoration: const BoxDecoration(
+                  color: CustomColors.green,
+                  shape: BoxShape.circle,
+                ),
                 child: const Icon(Icons.check, size: 40, color: Colors.white),
               ),
               context.verticalSpace(24),
@@ -508,10 +597,15 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                   shrinkWrap: true,
                   padding: const EdgeInsets.all(16),
                   itemCount: _selectedTemplateAreas.length,
-                  separatorBuilder: (context, index) => const Divider(height: 24),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 24),
                   itemBuilder: (context, index) {
-                    final entry = _selectedTemplateAreas.entries.elementAt(index);
-                    final template = _treatments.firstWhere((t) => t.id == entry.key);
+                    final entry = _selectedTemplateAreas.entries.elementAt(
+                      index,
+                    );
+                    final template = _treatments.firstWhere(
+                      (t) => t.id == entry.key,
+                    );
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -521,7 +615,12 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
                           spacing: 4,
                           runSpacing: 4,
                           children: entry.value.values
-                              .map((area) => Text("• ${area.name}", style: context.fonts.grey10w400))
+                              .map(
+                                (area) => Text(
+                                  "• ${area.name}",
+                                  style: context.fonts.grey10w400,
+                                ),
+                              )
                               .toList(),
                         ),
                       ],
@@ -532,11 +631,16 @@ Future<void> _onTileExpanded(AdminTreatment template) async {
             ],
           ),
           actions: [
-            CustomOutlinedButton(onTap: () => Navigator.of(ctx).pop(), label: "Cancel", width: context.w(100)),
+            CustomOutlinedButton(
+              onTap: () => Navigator.of(ctx).pop(),
+              label: "Cancel",
+              width: context.w(100),
+            ),
             CustomPrimaryButton(
-              onTap: () {
+              onTap: () async {
                 Navigator.of(ctx).pop();
-                context.pop();
+                await _importTreatments();
+                if (mounted) context.pop();
               },
               label: "Confirm Import",
               width: context.w(160),
