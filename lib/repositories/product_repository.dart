@@ -1,5 +1,5 @@
-
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/add_product_request.dart';
 import '../models/requests/lot_item_update_request.dart';
 import '../models/requests/product_batch_request.dart';
 import '../models/requests/product_lot_request.dart';
@@ -21,11 +21,13 @@ import '../models/responses/usage_type_list_response.dart';
 import '../utils/enums.dart';
 
 abstract class ProductRepository {
-  Future<BaseApiResponseModel> addBatch({required ProductBatchRequest request});
+  Future<BaseResponse> addBatch({required ProductBatchRequest request});
 
-  Future<BaseApiResponseModel> addLot({required ProductLotRequest request});
+  Future<BaseResponse> addLot({required ProductLotRequest request});
 
-  Future<BaseApiResponseModel> updateLotItem({required LotItemUpdateRequest request});
+  Future<BaseResponse> updateLotItem({
+    required LotItemUpdateRequest request,
+  });
 
   Future<LotItemsListResponse> getLotItems({
     required int lotId,
@@ -69,8 +71,9 @@ abstract class ProductRepository {
   Future<PackageTypeListResponse> fetchPackageTypes();
   Future<UsageTypeListResponse> fetchUsageTypes();
   Future<SupplierListResponse> fetchSuppliers();
-   Future<List<CatalogItem>> getCatalog();
-    Future<List<ClinicProduct>> getClinicProducts();
-    Future<ClinicProduct> addInventoryItem(AddInventoryRequest request);
- // Future<BaseApiResponseModel> updateProductStatus({required int productId, required String status});
+  Future<List<CatalogItem>> getCatalog();
+  Future<List<ClinicProduct>> getClinicProducts();
+  Future<ClinicProduct> addInventoryItem(AddInventoryRequest request);
+  Future<BaseResponse> addProductToClinic({required AddProductRequest request,});
+  // Future<BaseApiResponseModel> updateProductStatus({required int productId, required String status});
 }

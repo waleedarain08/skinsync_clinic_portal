@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/requests/add_product_request.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_outlined_button.dart';
@@ -18,7 +19,8 @@ class AddProductScreen extends ConsumerStatefulWidget {
   static const String routeName = '/clinic-add-product';
 
   @override
-  ConsumerState<AddProductScreen> createState() => _ClinicAddProductScreenState();
+  ConsumerState<AddProductScreen> createState() =>
+      _ClinicAddProductScreenState();
 }
 
 class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
@@ -30,7 +32,9 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(productViewModelProvider.notifier).fetchAdminProducts(page: 1, search: '');
+      ref
+          .read(productViewModelProvider.notifier)
+          .fetchAdminProducts(page: 1, search: '');
     });
   }
 
@@ -44,7 +48,9 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
     setState(() {
       _searchQuery = query;
     });
-    ref.read(productViewModelProvider.notifier).fetchAdminProducts(page: 1, search: query);
+    ref
+        .read(productViewModelProvider.notifier)
+        .fetchAdminProducts(page: 1, search: query);
   }
 
   void _toggleSelection(AdminProduct product) {
@@ -87,7 +93,9 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                     isSelected
                         ? Icons.check_circle_outline
                         : Icons.inventory_2_outlined,
-                    color: isSelected ? CustomColors.green : CustomColors.purple,
+                    color: isSelected
+                        ? CustomColors.green
+                        : CustomColors.purple,
                     size: 18,
                   ),
                 ),
@@ -140,7 +148,11 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
     );
   }
 
-  Widget _buildPaginationFooter(BuildContext context, int currentPage, int totalPages) {
+  Widget _buildPaginationFooter(
+    BuildContext context,
+    int currentPage,
+    int totalPages,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24.0),
       child: Center(
@@ -148,10 +160,9 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
           totalPages: totalPages,
           currentPage: currentPage - 1,
           onPageChanged: (pageIndex) {
-            ref.read(productViewModelProvider.notifier).goToAdminProductPage(
-              pageIndex + 1,
-              search: _searchQuery,
-            );
+            ref
+                .read(productViewModelProvider.notifier)
+                .goToAdminProductPage(pageIndex + 1, search: _searchQuery);
           },
         ),
       ),
@@ -161,7 +172,7 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(productViewModelProvider);
-    
+
     int gridColumns = 1;
     if (context.screenWidth > 1200) {
       gridColumns = 4;
@@ -205,14 +216,23 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                               color: CustomColors.purple.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.search_rounded, color: CustomColors.purple),
+                            child: const Icon(
+                              Icons.search_rounded,
+                              color: CustomColors.purple,
+                            ),
                           ),
                           context.horizontalSpace(12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Search Master Catalog', style: context.fonts.black16w600),
-                              Text('Select platform products to add to inventory.', style: context.fonts.grey12w400),
+                              Text(
+                                'Search Master Catalog',
+                                style: context.fonts.black16w600,
+                              ),
+                              Text(
+                                'Select platform products to add to inventory.',
+                                style: context.fonts.grey12w400,
+                              ),
                             ],
                           ),
                         ],
@@ -231,12 +251,19 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search master products by name, brand, global SKU...',
+                      hintText:
+                          'Search master products by name, brand, global SKU...',
                       hintStyle: context.fonts.grey14w400,
-                      prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: CustomColors.grey,
+                      ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: CustomColors.grey),
+                              icon: const Icon(
+                                Icons.clear,
+                                color: CustomColors.grey,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
@@ -245,15 +272,23 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                           : null,
                       border: OutlineInputBorder(
                         borderRadius: context.appBorderRadius(all: 12),
-                        borderSide: const BorderSide(color: CustomColors.border),
+                        borderSide: const BorderSide(
+                          color: CustomColors.border,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: context.appBorderRadius(all: 12),
-                        borderSide: const BorderSide(color: CustomColors.purple, width: 2),
+                        borderSide: const BorderSide(
+                          color: CustomColors.purple,
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: CustomColors.whiteGrey,
-                      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+                      contentPadding: context.appEdgeInsets(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                     onChanged: _onSearchChanged,
                   ),
@@ -263,11 +298,20 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                     context.verticalSpace(12),
                     Row(
                       children: [
-                        Text('Selected Items (${_selectedProducts.length}):', style: context.fonts.black12w600),
+                        Text(
+                          'Selected Items (${_selectedProducts.length}):',
+                          style: context.fonts.black12w600,
+                        ),
                         const Spacer(),
                         TextButton(
-                          onPressed: () => setState(() => _selectedProducts.clear()),
-                          child: Text('Clear All', style: context.fonts.purple12w700.copyWith(color: CustomColors.red)),
+                          onPressed: () =>
+                              setState(() => _selectedProducts.clear()),
+                          child: Text(
+                            'Clear All',
+                            style: context.fonts.purple12w700.copyWith(
+                              color: CustomColors.red,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -280,11 +324,24 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                           runSpacing: 8,
                           children: _selectedProducts.map((product) {
                             return Chip(
-                              backgroundColor: CustomColors.purple.withValues(alpha: 0.1),
-                              side: BorderSide(color: CustomColors.purple.withValues(alpha: 0.2)),
-                              label: Text(product.name, style: context.fonts.purple11w600),
+                              backgroundColor: CustomColors.purple.withValues(
+                                alpha: 0.1,
+                              ),
+                              side: BorderSide(
+                                color: CustomColors.purple.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                              label: Text(
+                                product.name,
+                                style: context.fonts.purple11w600,
+                              ),
                               onDeleted: () => _toggleSelection(product),
-                              deleteIcon: const Icon(Icons.close, size: 14, color: CustomColors.purple),
+                              deleteIcon: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: CustomColors.purple,
+                              ),
                             );
                           }).toList(),
                         ),
@@ -299,28 +356,50 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
           // Grid of Products
           Expanded(
             child: state.loadingAdminProducts
-                ? const Center(child: CircularProgressIndicator(color: CustomColors.purple))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: CustomColors.purple,
+                    ),
+                  )
                 : state.adminProducts.isEmpty
-                    ? Center(child: Text('No matching master products found.', style: context.fonts.grey14w400))
-                    : Column(
-                        children: [
-                          Expanded(
-                            child: GridView.builder(
-                              padding: context.appEdgeInsets(horizontal: 24, vertical: 8),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                ? Center(
+                    child: Text(
+                      'No matching master products found.',
+                      style: context.fonts.grey14w400,
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: GridView.builder(
+                          padding: context.appEdgeInsets(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: gridColumns,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
-                                childAspectRatio: context.screenWidth > 600 ? 1.6 : 1.1,
+                                childAspectRatio: context.screenWidth > 600
+                                    ? 1.6
+                                    : 1.1,
                               ),
-                              itemCount: state.adminProducts.length,
-                              itemBuilder: (context, index) => _buildProductCard(context, state.adminProducts[index]),
-                            ),
+                          itemCount: state.adminProducts.length,
+                          itemBuilder: (context, index) => _buildProductCard(
+                            context,
+                            state.adminProducts[index],
                           ),
-                          if (state.adminTotalPages > 1)
-                            _buildPaginationFooter(context, state.adminPage, state.adminTotalPages),
-                        ],
+                        ),
                       ),
+                      if (state.adminTotalPages > 1)
+                        _buildPaginationFooter(
+                          context,
+                          state.adminPage,
+                          state.adminTotalPages,
+                        ),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -367,12 +446,17 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
                     shrinkWrap: true,
                     padding: const EdgeInsets.all(12),
                     itemCount: _selectedProducts.length,
-                    separatorBuilder: (context, index) => const Divider(height: 16),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 16),
                     itemBuilder: (context, index) {
                       final p = _selectedProducts[index];
                       return Row(
                         children: [
-                          const Icon(Icons.check_circle, color: CustomColors.green, size: 16),
+                          const Icon(
+                            Icons.check_circle,
+                            color: CustomColors.green,
+                            size: 16,
+                          ),
                           context.horizontalSpace(8),
                           Expanded(
                             child: Text(
@@ -397,9 +481,29 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
               width: context.w(100),
             ),
             CustomPrimaryButton(
-              onTap: () {
-                Navigator.of(ctx).pop();
-                context.pop();
+              onTap: () async {
+                final request = AddProductRequest(
+                  productIds: _selectedProducts.map((p) => p.id).toList(),
+                );
+                final success = await ref
+                    .read(productViewModelProvider.notifier)
+                    .addProductToClinic(request: request);
+
+                if (!ctx.mounted) return;
+                Navigator.of(ctx).pop(); // close confirmation dialog
+
+                if (success) {
+                  setState(() => _selectedProducts.clear());
+                  if (context.mounted) context.pop(); // leave screen
+                } else if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Failed to add products. Please try again.',
+                      ),
+                    ),
+                  );
+                }
               },
               label: "Add Now",
               width: context.w(140),

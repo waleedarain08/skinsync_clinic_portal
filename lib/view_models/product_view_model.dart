@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
 import '../models/product_model.dart';
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/add_product_request.dart';
 import '../models/requests/lot_item_update_request.dart';
 import '../models/requests/product_batch_request.dart';
 import '../models/requests/product_lot_request.dart';
@@ -187,11 +188,16 @@ class ProductState {
       adminPage: adminPage ?? this.adminPage,
       adminTotalPages: adminTotalPages ?? this.adminTotalPages,
       loadingAdminProducts: loadingAdminProducts ?? this.loadingAdminProducts,
-      loadingMoreAdminProducts: loadingMoreAdminProducts ?? this.loadingMoreAdminProducts,
-      selectedProductBatches: selectedProductBatches ?? this.selectedProductBatches,
-      selectedProductBatchPage: selectedProductBatchPage ?? this.selectedProductBatchPage,
-      selectedProductBatchTotalPages: selectedProductBatchTotalPages ?? this.selectedProductBatchTotalPages,
-      loadingSelectedProductBatches: loadingSelectedProductBatches ?? this.loadingSelectedProductBatches,
+      loadingMoreAdminProducts:
+          loadingMoreAdminProducts ?? this.loadingMoreAdminProducts,
+      selectedProductBatches:
+          selectedProductBatches ?? this.selectedProductBatches,
+      selectedProductBatchPage:
+          selectedProductBatchPage ?? this.selectedProductBatchPage,
+      selectedProductBatchTotalPages:
+          selectedProductBatchTotalPages ?? this.selectedProductBatchTotalPages,
+      loadingSelectedProductBatches:
+          loadingSelectedProductBatches ?? this.loadingSelectedProductBatches,
       batchLots: batchLots ?? this.batchLots,
       batchLotPages: batchLotPages ?? this.batchLotPages,
       batchLotTotalPages: batchLotTotalPages ?? this.batchLotTotalPages,
@@ -254,7 +260,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         manufactureDate: manufactureDate,
       );
       await _productRepository.addBatch(request: request);
-      
+
       // Refresh batches
       await fetchProductBatches(productId: productId, page: 1);
       return true;
@@ -288,6 +294,19 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       // Refresh lots for this specific batch
       final currentPage = state.batchLotPages[batchId] ?? 1;
       await fetchLotsForBatch(batchId: batchId, page: currentPage);
+      return true;
+    });
+    return result ?? false;
+  }
+
+  Future<bool> addProductToClinic({required AddProductRequest request}) async {
+    final result = await runSafely(showLoading: true, () async {
+      final response = await _productRepository.addProductToClinic(
+        request: request,
+      );
+      if (response.success) {
+        await fetchAdminProducts(page: 1, search: '');
+      }
       return true;
     });
     return result ?? false;
@@ -358,17 +377,17 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     );
   }
 
- Future<void> getData() async {
+  Future<void> getData() async {
     return await runSafely(showLoading: false, () async {
       state = state.copyWith(loading: true);
       final result = await Future.wait([
         _productRepository.getCatalog(),
-       _productRepository.getClinicProducts(),
+        _productRepository.getClinicProducts(),
       ]);
       state = state.copyWith(
         loading: false,
         catalog: result[0] as List<CatalogItem>,
-       clinicProducts : result[1] as List<ClinicProduct>,
+        clinicProducts: result[1] as List<ClinicProduct>,
       );
     });
   }
@@ -453,7 +472,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         limit: 8,
         search: search,
       );
-      
+
       state = state.copyWith(
         adminProducts: response.data ?? [],
         adminPage: response.page,
@@ -491,7 +510,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
           batchLotLoading: {},
           batchLotLoadingMore: {},
         );
-        
+
         // Directly trigger fetching Page 1 of Batches as soon as Product Detail API responds
         await fetchProductBatches(productId: productId, page: 1);
       } catch (e) {
@@ -501,7 +520,10 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     });
   }
 
-  Future<void> fetchProductBatches({required int productId, int page = 1}) async {
+  Future<void> fetchProductBatches({
+    required int productId,
+    int page = 1,
+  }) async {
     state = state.copyWith(loadingSelectedProductBatches: true);
     try {
       final response = await _productRepository.getProductBatches(
@@ -545,7 +567,8 @@ class ProductViewModel extends BaseViewModel<ProductState> {
 
   Future<void> fetchLotsForBatch({required int batchId, int page = 1}) async {
     // Show a loading indicator inside the expanded batch area
-    final updatedLoading = Map<int, bool>.from(state.batchLotLoading)..[batchId] = true;
+    final updatedLoading = Map<int, bool>.from(state.batchLotLoading)
+      ..[batchId] = true;
     state = state.copyWith(batchLotLoading: updatedLoading);
 
     try {
@@ -555,10 +578,14 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         limit: 2, // Low limit to demonstrate clean pagination!
       );
 
-      final updatedLots = Map<int, List<LotModel>>.from(state.batchLots)..[batchId] = response.data ?? [];
-      final updatedPages = Map<int, int>.from(state.batchLotPages)..[batchId] = response.page;
-      final updatedTotalPages = Map<int, int>.from(state.batchLotTotalPages)..[batchId] = response.totalPages;
-      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)..[batchId] = false;
+      final updatedLots = Map<int, List<LotModel>>.from(state.batchLots)
+        ..[batchId] = response.data ?? [];
+      final updatedPages = Map<int, int>.from(state.batchLotPages)
+        ..[batchId] = response.page;
+      final updatedTotalPages = Map<int, int>.from(state.batchLotTotalPages)
+        ..[batchId] = response.totalPages;
+      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)
+        ..[batchId] = false;
 
       state = state.copyWith(
         batchLots: updatedLots,
@@ -567,7 +594,8 @@ class ProductViewModel extends BaseViewModel<ProductState> {
         batchLotLoading: updatedLoadingDone,
       );
     } catch (e) {
-      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)..[batchId] = false;
+      final updatedLoadingDone = Map<int, bool>.from(state.batchLotLoading)
+        ..[batchId] = false;
       state = state.copyWith(
         batchLotLoading: updatedLoadingDone,
         errorMessage: e.toString(),
@@ -599,11 +627,12 @@ class ProductViewModel extends BaseViewModel<ProductState> {
 
   // --- Paginated Lot Items API Flow ---
 
-  Future<bool> fetchLotItems({required int lotId, int page = 1, String search = ''}) async {
-    state = state.copyWith(
-      loadingLotItems: true,
-      activeLotId: lotId,
-    );
+  Future<bool> fetchLotItems({
+    required int lotId,
+    int page = 1,
+    String search = '',
+  }) async {
+    state = state.copyWith(loadingLotItems: true, activeLotId: lotId);
     try {
       final response = await _productRepository.getLotItems(
         lotId: lotId,

@@ -14,7 +14,6 @@ import '../models/treatment_model.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 
-    
 import '../services/practitioner_service.dart';
 import 'base_view_model.dart';
 
@@ -132,6 +131,8 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     required ClinicAccess clinicAccess,
     required AvailabilityInfo availabilityInfo,
     required FinancialInfo financialInfo,
+    required String role,
+    required String email,
   }) async {
     return await runSafely(() async {
       state = state.copyWith(loading: true);
@@ -141,6 +142,8 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
           // basicInfo: basicInfo,
           // contactInfo: contactInfo,
           // licenseInfo: licenseInfo,
+          email: email,
+          role: role,
           clinicAccess: clinicAccess,
           availabilityInfo: availabilityInfo,
           financialInfo: financialInfo,
@@ -150,7 +153,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
-  Future<void> getPractitioner({ bool showLoading = true}) async {
+  Future<void> getPractitioner({bool showLoading = true}) async {
     return await runSafely(() async {
       state = state.copyWith(loading: showLoading);
       final doctors = await locator<PractitionerService>().fetchPractitioner();
@@ -168,25 +171,29 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
-    Future<void> deletePractitioner({required int id}) async {
+  Future<void> deletePractitioner({required int id}) async {
     return await runSafely(() async {
-      final doctors = await locator<PractitionerService>()
-          .deletePractitioner(id: id);
+      final doctors = await locator<PractitionerService>().deletePractitioner(
+        id: id,
+      );
       if (doctors.success) {
         await getPractitioner(showLoading: false);
       }
     });
   }
-    Future<void> updatePractitionerStatus({required int id,required StatusRequest request}) async {
+
+  Future<void> updatePractitionerStatus({
+    required int id,
+    required StatusRequest request,
+  }) async {
     return await runSafely(() async {
       final doctors = await locator<PractitionerService>()
-          .updatePractitionerStatus(id: id,request: request);
+          .updatePractitionerStatus(id: id, request: request);
       if (doctors.success) {
-      await getPractitioner(showLoading: false);
+        await getPractitioner(showLoading: false);
       }
     });
   }
-
 
   Future<void> updatePractitionerTreatment({
     required String email,
