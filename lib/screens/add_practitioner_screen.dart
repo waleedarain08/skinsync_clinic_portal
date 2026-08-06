@@ -9,6 +9,7 @@ import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
 import '../view_models/practitioner_view_model.dart';
+import '../view_models/provider_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
@@ -32,7 +33,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Section 1: Basic Info
- // final _imageNotifier = ValueNotifier<String?>(null);
+  // final _imageNotifier = ValueNotifier<String?>(null);
   // String? _selectedTitle;
   final _nameController = TextEditingController();
   //  String? _selectedGender;
@@ -43,7 +44,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
   // Section 2: Contact Info
   final _emailController = TextEditingController();
- // CountryCode? _selectedCountry;
+  // CountryCode? _selectedCountry;
   final _phoneController = TextEditingController();
 
   final _emergencyNameController = TextEditingController();
@@ -86,7 +87,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     _qualificationControllers.add(TextEditingController());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //  ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
       ref.read(treatmentViewModelProvider.notifier).getTreatments();
 
       final practitioner = widget.practitioner;
@@ -833,13 +834,48 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     return _buildSection(
       title: 'Add Doctor',
       children: [
-        BuildTextField(
-          label: 'Doctor Email',
-          controller: _emailController,
-          hintText: 'Enter doctor email',
-          keyboardType: TextInputType.emailAddress,
-          prefixIcon: const Icon(Icons.email_outlined),
-          validator: Validators.email,
+        Row(  
+          children: [
+            Expanded(
+              child: BuildTextField(
+                label: 'Doctor Email',
+                controller: _emailController,
+                hintText: 'Enter doctor email',
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined),
+                validator: Validators.email,
+              ),
+            ),
+            context.horizontalSpace(16),
+            Expanded(
+              child: Consumer(
+                builder: (_, ref, _) {
+                  final role = ref.watch(
+                    practitionerProvider.select((s) => s.role),
+                  );
+                  final providerRoles =
+                      ref.watch(
+                        providerRoleViewModelProvider.select(
+                          (s) => s.providerRoles,
+                        ),
+                      ) ??
+                      [];
+                  return _buildDropdownField<String>(
+                    items: providerRoles.map((r) => r.name ?? "").toList(),
+                    value: role,
+                    onChanged: (selectedRole) {
+                      ref
+                          .read(practitionerProvider.notifier)
+                          .changeRole(selectedRole);
+                    },
+                    label: 'Role',
+                    hintText: 'Select Role',
+                    builder: (r) => Text(r.capitalize),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -1255,6 +1291,8 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
       ref
           .read(practitionerProvider.notifier)
           .registerPractitioner(
+            role: state.role ?? '',
+            email: _emailController.text.trim(),
             // basicInfo: basicInfo,
             // contactInfo: contactInfo,
             // licenseInfo: licenseInfo,

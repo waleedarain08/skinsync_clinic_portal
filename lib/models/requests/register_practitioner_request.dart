@@ -5,6 +5,8 @@ class RegisterPractitionerRequest extends BaseRequest {
   // final BasicInfo basicInfo;
   // final ContactInfo contactInfo;
   // final LicenseInfo licenseInfo;
+  final String email;
+  final String role;
   final ClinicAccess clinicAccess;
   final AvailabilityInfo availabilityInfo;
   final FinancialInfo financialInfo;
@@ -13,6 +15,8 @@ class RegisterPractitionerRequest extends BaseRequest {
     // required this.basicInfo,
     // required this.contactInfo,
     // required this.licenseInfo,
+    required this.email,
+    required this.role,
     required this.clinicAccess,
     required this.availabilityInfo,
     required this.financialInfo,
@@ -24,6 +28,8 @@ class RegisterPractitionerRequest extends BaseRequest {
       // 'basic_info': basicInfo.toJson(),
       // 'contact_info': contactInfo.toJson(),
       // 'license_info': licenseInfo.toJson(),
+      'doctor_email': email,
+      'role': role,
       'clinic_access': clinicAccess.toJson(),
       'availability_info': availabilityInfo.toJson(),
       'financial_info': financialInfo.toJson(),

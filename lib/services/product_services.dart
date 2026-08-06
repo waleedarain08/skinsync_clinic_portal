@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../models/requests/add_inventory_request.dart';
+import '../models/requests/add_product_request.dart';
 import '../models/requests/lot_item_update_request.dart';
 import '../models/requests/product_batch_request.dart';
 import '../models/requests/product_lot_request.dart';
@@ -31,49 +32,55 @@ class ProductServices implements ProductRepository {
   ProductServices({required ApiBaseService api}) : _api = api;
 
   @override
-  Future<BaseApiResponseModel> addBatch({
-    required ProductBatchRequest request,
-  }) async {
+  Future<BaseResponse> addBatch({required ProductBatchRequest request}) async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.post,
       endPoint: Endpoint.productBatches,
       pathParams: {'productId': request.productId.toString()},
       requestBody: request,
     );
-    final response = BaseApiResponseModel(
-      success: jsonResponse['is_success'] ?? false,
-      message: jsonResponse['message'] ?? '',
-      data: jsonResponse['data'],
-    );
-    if (!response.isSuccess) {
+    final response = BaseResponse.fromJson(jsonResponse, (json) => json);
+
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response;
   }
 
   @override
-  Future<BaseApiResponseModel> addLot({
-    required ProductLotRequest request,
+  Future<BaseResponse> addProductToClinic({
+    required AddProductRequest request,
   }) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.post,
+      endPoint: Endpoint.clinicProducts,
+      requestBody: request,
+    );
+    final response = BaseResponse.fromJson(jsonResponse, (json) => json);
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
+  @override
+  Future<BaseResponse> addLot({required ProductLotRequest request}) async {
     final jsonResponse = await _api.httpRequest(
       requestType: RequestType.post,
       endPoint: Endpoint.batchLots,
       pathParams: {'batchId': request.batchId.toString()},
       requestBody: request,
     );
-    final response = BaseApiResponseModel(
-      success: jsonResponse['is_success'] ?? false,
-      message: jsonResponse['message'] ?? '',
-      data: jsonResponse['data'],
-    );
-    if (!response.isSuccess) {
+    final response = BaseResponse.fromJson(jsonResponse, (json) => json);
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response;
   }
 
   @override
-  Future<BaseApiResponseModel> updateLotItem({
+  Future<BaseResponse> updateLotItem({
     required LotItemUpdateRequest request,
   }) async {
     final jsonResponse = await _api.httpRequest(
@@ -82,12 +89,8 @@ class ProductServices implements ProductRepository {
       pathParams: {'id': request.itemId.toString()},
       requestBody: request,
     );
-    final response = BaseApiResponseModel(
-      success: jsonResponse['is_success'] ?? false,
-      message: jsonResponse['message'] ?? '',
-      data: jsonResponse['data'],
-    );
-    if (!response.isSuccess) {
+    final response = BaseResponse.fromJson(jsonResponse, (json) => json);
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
     return response;
@@ -188,17 +191,17 @@ class ProductServices implements ProductRepository {
 
   @override
   Future<ProductDetailResponse> getProductDetail({required int id}) async {
-  //  try {
-      final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,
-        endPoint: Endpoint.updateProduct,
-        pathParams: {'id': id.toString()},
-      );
-      final response = ProductDetailResponse.fromJson(jsonResponse);
-      if (!response.isSuccess) {
-        throw BadRequestException(response.message);
-      }
-      return response;
+    //  try {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.updateProduct,
+      pathParams: {'id': id.toString()},
+    );
+    final response = ProductDetailResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
     // } catch (e) {
     //   // return ProductDetailResponse(
     //   //   success: true,
@@ -399,18 +402,18 @@ class ProductServices implements ProductRepository {
     required int page,
     required int limit,
   }) async {
-   // try {
-      final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,
-        endPoint: Endpoint.batchLots,
-        pathParams: {'batchId': batchId.toString()},
-        queryParams: {'page': page.toString(), 'limit': limit.toString()},
-      );
-      final response = ProductLotsResponse.fromJson(jsonResponse);
-      if (!response.isSuccess) {
-        throw BadRequestException(response.message);
-      }
-      return response;
+    // try {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.batchLots,
+      pathParams: {'batchId': batchId.toString()},
+      queryParams: {'page': page.toString(), 'limit': limit.toString()},
+    );
+    final response = ProductLotsResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
     // } catch (e) {
     //   final list = BatchLotsDummy.getDummyLotsForBatch(batchId, page, limit);
     //   return ProductLotsResponse(
@@ -430,18 +433,18 @@ class ProductServices implements ProductRepository {
     required int page,
     required int limit,
   }) async {
-  //  try {
-      final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,
-        endPoint: Endpoint.productBatches,
-        pathParams: {'productId': productId.toString()},
-        queryParams: {'page': page.toString(), 'limit': limit.toString()},
-      );
-      final response = ProductBatchListResponse.fromJson(jsonResponse);
-      if (!response.isSuccess) {
-        throw BadRequestException(response.message);
-      }
-      return response;
+    //  try {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.productBatches,
+      pathParams: {'productId': productId.toString()},
+      queryParams: {'page': page.toString(), 'limit': limit.toString()},
+    );
+    final response = ProductBatchListResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
     // } catch (e) {
     //   final list = BatchDummyProducts.getDummyBatchesForPage(
     //     productId,
@@ -466,22 +469,22 @@ class ProductServices implements ProductRepository {
     required int limit,
     String search = '',
   }) async {
-   // try {
-      final jsonResponse = await _api.httpRequest(
-        requestType: RequestType.get,
-        endPoint: Endpoint.lotItems,
-        pathParams: {'lotId': lotId.toString()},
-        queryParams: {
-          'page': page.toString(),
-          'limit': limit.toString(),
-          'search': search,
-        },
-      );
-      final response = LotItemsListResponse.fromJson(jsonResponse);
-      if (!response.isSuccess) {
-        throw BadRequestException(response.message);
-      }
-      return response;
+    // try {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.lotItems,
+      pathParams: {'lotId': lotId.toString()},
+      queryParams: {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        'search': search,
+      },
+    );
+    final response = LotItemsListResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
     // } catch (e) {
     //   final list = LotItemsDummy.getDummyLotItems(lotId, page, limit, search);
     //   final totalPages = LotItemsDummy.getTotalPages(lotId, limit, search);
