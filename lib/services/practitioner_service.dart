@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import '../models/requests/fetch_practitioner_by_email_request.dart';
 import '../models/requests/register_practitioner_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/fetch_practitioner_by_email_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/responses/practitioner_detail_response.dart';
 import '../models/responses/register_practitioner_response.dart';
@@ -104,5 +106,17 @@ class PractitionerService extends PractitionerRepository {
     if (response['is_success'] != true) {
       throw Exception(response['message']);
     }
+  }
+
+  @override
+  Future<FetchPractitionerByEmailResponse> fetchPractitionerByEmail({
+    required FetchPractitionerByEmailRequest request,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.fetchPractitionerByEmail,
+      requestType: RequestType.post,
+      requestBody: request,
+    );
+    return FetchPractitionerByEmailResponse.fromJson(response);
   }
 }

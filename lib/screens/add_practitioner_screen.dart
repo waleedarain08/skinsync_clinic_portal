@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/requests/register_practitioner_request.dart';
+import '../models/responses/fetch_practitioner_by_email_response.dart';
 import '../models/responses/register_practitioner_response.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -31,6 +32,7 @@ class AddPractitionerScreen extends ConsumerStatefulWidget {
 
 class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   final _formKey = GlobalKey<FormState>();
+  String? _fetchEmailError;
 
   // Section 1: Basic Info
   // final _imageNotifier = ValueNotifier<String?>(null);
@@ -303,7 +305,6 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   icon: isEditing
                       ? Icons.save_as_outlined
                       : Icons.check_circle_outline,
-                  isLoading: ref.watch(practitionerProvider).loading,
                 ),
               ],
             ),
@@ -845,19 +846,28 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: const Icon(Icons.email_outlined),
                 validator: Validators.email,
+                onChanged: (val) {
+                  if (_fetchEmailError != null) {
+                    setState(() => _fetchEmailError = null);
+                  }
+                },
               ),
             ),
             context.horizontalSpace(16),
             CustomPrimaryButton(
               onTap: () {
-                if (_emailController.text.isNotEmpty) {
-                  ref.read(practitionerProvider.notifier).fetchPractitionerByEmail(_emailController.text.trim());
+                final email = _emailController.text.trim();
+                final error = Validators.email(email);
+                if (error != null) {
+                  setState(() => _fetchEmailError = error);
+                } else {
+                  setState(() => _fetchEmailError = null);
+                  ref.read(practitionerProvider.notifier).fetchPractitionerByEmail(email);
                 }
               },
               label: 'Fetch Details',
               width: context.w(150),
               height: context.h(52),
-              isLoading: ref.watch(practitionerProvider).loading,
             ),
           ],
         ),
@@ -870,6 +880,14 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     final state = ref.watch(practitionerProvider);
 
     if (state.loading) return const SizedBox.shrink();
+
+    if (_fetchEmailError != null) {
+      return _buildSearchInfoMessage(
+        'Invalid Email: $_fetchEmailError. Please enter a valid email address to search.',
+        color: CustomColors.red,
+        icon: Icons.error_outline,
+      );
+    }
 
     if (state.fetchedPractitioner != null) {
       final p = state.fetchedPractitioner!;
@@ -886,39 +904,47 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
       );
     } else if (_emailController.text.isNotEmpty && !state.loading && state.fetchedPractitioner == null) {
       // Show invitation message only if we've tried to fetch
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          context.verticalSpace(24),
-          const Divider(color: CustomColors.border),
-          context.verticalSpace(16),
-          Container(
-            padding: context.appEdgeInsets(all: 16),
-            decoration: BoxDecoration(
-              color: CustomColors.amber.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(context.r(12)),
-              border: Border.all(color: CustomColors.amber.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: CustomColors.amber),
-                context.horizontalSpace(12),
-                Expanded(
-                  child: Text(
-                    'This doctor is not yet registered with SkinSync. Please provide their details below to send an invitation.',
-                    style: context.fonts.black14w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      return _buildSearchInfoMessage(
+        'This doctor is not yet registered with SkinSync. Please provide their details below to send an invitation.',
+        color: CustomColors.amber,
+        icon: Icons.info_outline,
       );
     }
     return const SizedBox.shrink();
   }
 
-  Widget _buildPractitionerSummaryCard(Practitioner p) {
+  Widget _buildSearchInfoMessage(String message, {required Color color, required IconData icon}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        context.verticalSpace(24),
+        const Divider(color: CustomColors.border),
+        context.verticalSpace(16),
+        Container(
+          padding: context.appEdgeInsets(all: 16),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(context.r(12)),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color),
+              context.horizontalSpace(12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: context.fonts.black14w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPractitionerSummaryCard(FetchedPractitionerData p) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 20),
       backgroundColor: CustomColors.whiteGrey,
