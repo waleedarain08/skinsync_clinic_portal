@@ -379,7 +379,7 @@ class ProductServices implements ProductRepository {
                       (p.brand ?? '').toLowerCase().contains(
                         search.toLowerCase(),
                       ) ||
-                      (p.globalSku ?? '').toLowerCase().contains(
+                      (p.id.toString()).contains(
                         search.toLowerCase(),
                       ),
                 )

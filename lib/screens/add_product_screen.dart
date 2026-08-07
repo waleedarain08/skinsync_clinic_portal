@@ -122,8 +122,8 @@ class _ClinicAddProductScreenState extends ConsumerState<AddProductScreen> {
               ],
             ),
             context.verticalSpace(4),
-            _buildCompactDetail(context, 'SKU', product.globalSku ?? 'N/A'),
-            _buildCompactDetail(context, 'Category', product.category ?? 'N/A'),
+            _buildCompactDetail(context, 'Manufacturer', product.manufacturer ?? 'N/A'),
+          //  _buildCompactDetail(context, 'Category', product.category ?? 'N/A'),
             _buildCompactDetail(
               context,
               'Usage',
