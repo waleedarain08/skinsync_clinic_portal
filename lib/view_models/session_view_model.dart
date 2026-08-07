@@ -135,7 +135,7 @@ class SessionState {
     this.allowProviderOverride = false,
     this.onlineBookable = false,
     this.manualApprovalRequired = false,
-    this.isFixedDuration = false,
+    this.isFixedDuration = true,
     this.isFixedPrice = false,
     this.totalSessions = 0,
     this.preNotificationOffset,

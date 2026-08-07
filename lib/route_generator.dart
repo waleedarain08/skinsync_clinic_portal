@@ -32,8 +32,9 @@ import 'screens/dashboard/payment_and_wallet_screen.dart';
 import 'screens/dashboard/payment_history_screen.dart';
 import 'screens/dashboard/profile_screen.dart';
 import 'screens/dashboard/roles_screen.dart';
-import 'screens/dashboard/treatment_screen.dart';
 import 'screens/dashboard/treatment_detail_screen.dart';
+import 'screens/dashboard/treatment_screen.dart';
+import 'screens/dashboard/appointment_treatment_detail_screen.dart';
 import 'screens/dashboard/practitioner_detail_screen.dart';
 import 'screens/dynamic_pricing.dart';
 import 'screens/notification_screen.dart';
@@ -202,12 +203,20 @@ class RouteGenerator {
             path: CreateAppointmentScreen.routeName,
             builder: (_, _) => const CreateAppointmentScreen(),
           ),
-          GoRoute(
+            GoRoute(
             name: TreatmentDetailScreen.routeName,
             path: TreatmentDetailScreen.routeName,
             builder: (_, state) {
+            //  final treatment = state.extra as model_treatment.TreatmentModel;
+              return const TreatmentDetailScreen();
+            },
+          ),
+          GoRoute(
+            name: AppointmentTreatmentDetailScreen.routeName,
+            path: AppointmentTreatmentDetailScreen.routeName,
+            builder: (_, state) {
               final treatmentId = state.extra as int? ?? 0;
-              return TreatmentDetailScreen(treatmentId: treatmentId);
+              return AppointmentTreatmentDetailScreen(treatmentId: treatmentId);
             },
           ),
           GoRoute(

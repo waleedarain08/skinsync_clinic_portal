@@ -10,7 +10,7 @@ import '../../view_models/appointment_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
-import 'treatment_detail_screen.dart';
+import 'appointment_treatment_detail_screen.dart';
 
 class AppointmentDetailScreen extends ConsumerWidget {
   static const String routeName = '/appointment-detail';
@@ -248,7 +248,7 @@ class AppointmentDetailScreen extends ConsumerWidget {
             child: InkWell(
               onTap: () {
                 if (t.treatmentId != null) {
-                  context.push(TreatmentDetailScreen.routeName, extra: t.treatmentId);
+                  context.push(AppointmentTreatmentDetailScreen.routeName, extra: t.treatmentId);
                 }
               },
               borderRadius: BorderRadius.circular(context.r(8)),

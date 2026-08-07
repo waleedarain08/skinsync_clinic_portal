@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
-import '../../view_models/treatment_view_model.dart';
 import '../build_textfield.dart';
 import 'authorized_roles_widget.dart';
 
@@ -21,12 +20,12 @@ class SchedulingStep extends ConsumerWidget {
     );
   }
 
-  double _getProductMinQuantity(
-    ProductUsageEntry entry,
-    List<dynamic> allSubAreas,
-  ) {
-    return double.tryParse(entry.minQuantityController.text) ?? 0.0;
-  }
+  // double _getProductMinQuantity(
+  //   ProductUsageEntry entry,
+  //   List<dynamic> allSubAreas,
+  // ) {
+  //   return double.tryParse(entry.minQuantityController.text) ?? 0.0;
+  // }
 
   // double _getProductMaxQuantity(
   //   ProductUsageEntry entry,
@@ -35,27 +34,27 @@ class SchedulingStep extends ConsumerWidget {
   //   return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
   // }
 
-  double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
-    double total = 0.0;
-    for (final entry in sessionState.productUsageEntries) {
-      final minQty = _getProductMinQuantity(entry, const []);
-      final perUnit =
-          double.tryParse(entry.perUnitDurationController.text) ?? 0.0;
-      total += minQty * perUnit;
-    }
-    return total;
-  }
+  // double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
+  //   double total = 0.0;
+  //   for (final entry in sessionState.productUsageEntries) {
+  //     final minQty = _getProductMinQuantity(entry, const []);
+  //     final perUnit =
+  //         double.tryParse(entry.perUnitDurationController.text) ?? 0.0;
+  //     total += minQty * perUnit;
+  //   }
+  //   return total;
+  // }
 
-  String _formatUnitLabel(String unit) {
-    if (unit.isEmpty) return 'Unit';
-    return unit[0].toUpperCase() + unit.substring(1);
-  }
+  // String _formatUnitLabel(String unit) {
+  //   if (unit.isEmpty) return 'Unit';
+  //   return unit[0].toUpperCase() + unit.substring(1);
+  // }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionState state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    final treatmentState = ref.watch(treatmentViewModelProvider);
+  //  final treatmentState = ref.watch(treatmentViewModelProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,8 +87,9 @@ class SchedulingStep extends ConsumerWidget {
                   ),
                 ),
                 Switch(
-                  value: state.isFixedDuration,
-                  onChanged: viewModel.toggleIsFixedDuration,
+                  value: true,
+                  //state.isFixedDuration,
+                  onChanged: (_){},
                   activeThumbColor: CustomColors.purple,
                 ),
               ],
@@ -97,7 +97,8 @@ class SchedulingStep extends ConsumerWidget {
           ),
         ),
         context.verticalSpace(32),
-        if (state.isFixedDuration) ...[
+     //   if (   state.isFixedDuration) ...[
+             if ( true) ...[
           _sectionTitle(context, 'Fixed Duration'),
           context.verticalSpace(24),
           Row(
@@ -116,7 +117,7 @@ class SchedulingStep extends ConsumerWidget {
               ),
             ],
           ),
-        ] else ...[
+        ] /*else ...[
           _sectionTitle(context, 'Base Duration'),
           context.verticalSpace(24),
           Row(
@@ -328,7 +329,7 @@ class SchedulingStep extends ConsumerWidget {
               );
             },
           ),
-        ],
+        ] */,
         context.verticalSpace(32),
         _sectionTitle(context, 'Override & Booking Controls'),
         context.verticalSpace(24),
