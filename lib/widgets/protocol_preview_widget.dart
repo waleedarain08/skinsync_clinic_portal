@@ -79,7 +79,7 @@ class ProtocolFormPreview extends StatelessWidget {
         child: Center(
           child: Text(
             'No clinical protocols configured yet.',
-            style:   TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.normal,
               color: PdfColors.grey,
@@ -103,7 +103,7 @@ class ProtocolFormPreview extends StatelessWidget {
             if (checkboxes.isNotEmpty) ...[
               Text(
                 'CHECKLIST',
-                style:  TextStyle(
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -133,7 +133,7 @@ class ProtocolFormPreview extends StatelessWidget {
                           children: [
                             Text(
                               p.title,
-                              style:  TextStyle(
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -157,7 +157,7 @@ class ProtocolFormPreview extends StatelessWidget {
             if (textFields.isNotEmpty) ...[
               Text(
                 'NOTES',
-                style:  TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -172,7 +172,7 @@ class ProtocolFormPreview extends StatelessWidget {
                     children: [
                       Text(
                         p.title,
-                        style:  TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -205,7 +205,7 @@ class ProtocolFormPreview extends StatelessWidget {
               ],
               Text(
                 'NOTES / INSTRUCTIONS',
-                style:  TextStyle(
+                style: const TextStyle(
                   color: PdfColors.grey,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -234,7 +234,7 @@ class ProtocolFormPreview extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 note.title!,
-                                style:  TextStyle(
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),

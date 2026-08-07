@@ -15,6 +15,7 @@ import '../services/locator.dart';
 import '../services/media_service.dart';
 
 import '../services/practitioner_service.dart';
+import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
 final practitionerProvider =
@@ -195,6 +196,22 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
+  Future<void> fetchPractitionerByEmail(String email) async {
+    return await runSafely(() async {
+      state = state.copyWith(loading: true, fetchedPractitioner: null);
+
+      // Simulate API call
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (email.toLowerCase() == "doctor@example.com") {
+        final practitioner = Practitioner.fromJson(ClinicDummyData.dummyFetchedPractitioner);
+        state = state.copyWith(fetchedPractitioner: practitioner, loading: false);
+      } else {
+        state = state.copyWith(loading: false, fetchedPractitioner: null);
+      }
+    });
+  }
+
   Future<void> updatePractitionerTreatment({
     required String email,
     required int clinicUserId,
@@ -281,6 +298,7 @@ class PractitionerState {
   final List<PractitionerListItem> doctors;
   final PractitionerListItem? selectedDoctor;
   final Practitioner? practitioner;
+  final Practitioner? fetchedPractitioner;
   final bool success;
   final List<Availability> availability;
   final CountryCode country;
@@ -301,6 +319,7 @@ class PractitionerState {
     this.cc,
     this.countryCode,
     this.practitioner,
+    this.fetchedPractitioner,
   });
 
   PractitionerState copyWith({
@@ -316,6 +335,7 @@ class PractitionerState {
     String? countryIso,
     List<String>? documents,
     Practitioner? practitioner,
+    Practitioner? fetchedPractitioner,
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -330,6 +350,7 @@ class PractitionerState {
       countryCode: countryIso ?? countryCode,
       documents: documents ?? this.documents,
       practitioner: practitioner ?? this.practitioner,
+      fetchedPractitioner: fetchedPractitioner ?? this.fetchedPractitioner,
     );
   }
 

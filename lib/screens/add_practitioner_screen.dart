@@ -832,13 +832,14 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
 
   Widget _buildDoctorEmailSection() {
     return _buildSection(
-      title: 'Add Doctor',
+      title: 'Provider Search',
       children: [
-        Row(  
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: BuildTextField(
-                label: 'Doctor Email',
+                label: 'Provider Email',
                 controller: _emailController,
                 hintText: 'Enter doctor email',
                 keyboardType: TextInputType.emailAddress,
@@ -847,6 +848,140 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
               ),
             ),
             context.horizontalSpace(16),
+            CustomPrimaryButton(
+              onTap: () {
+                if (_emailController.text.isNotEmpty) {
+                  ref.read(practitionerProvider.notifier).fetchPractitionerByEmail(_emailController.text.trim());
+                }
+              },
+              label: 'Fetch Details',
+              width: context.w(150),
+              height: context.h(52),
+              isLoading: ref.watch(practitionerProvider).loading,
+            ),
+          ],
+        ),
+        _buildFetchedResultSection(),
+      ],
+    );
+  }
+
+  Widget _buildFetchedResultSection() {
+    final state = ref.watch(practitionerProvider);
+
+    if (state.loading) return const SizedBox.shrink();
+
+    if (state.fetchedPractitioner != null) {
+      final p = state.fetchedPractitioner!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          context.verticalSpace(24),
+          const Divider(color: CustomColors.border),
+          context.verticalSpace(16),
+          Text('Registered Provider Found', style: context.fonts.black16w600.copyWith(color: CustomColors.green)),
+          context.verticalSpace(16),
+          _buildPractitionerSummaryCard(p),
+        ],
+      );
+    } else if (_emailController.text.isNotEmpty && !state.loading && state.fetchedPractitioner == null) {
+      // Show invitation message only if we've tried to fetch
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          context.verticalSpace(24),
+          const Divider(color: CustomColors.border),
+          context.verticalSpace(16),
+          Container(
+            padding: context.appEdgeInsets(all: 16),
+            decoration: BoxDecoration(
+              color: CustomColors.amber.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(context.r(12)),
+              border: Border.all(color: CustomColors.amber.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, color: CustomColors.amber),
+                context.horizontalSpace(12),
+                Expanded(
+                  child: Text(
+                    'This doctor is not yet registered with SkinSync. Please provide their details below to send an invitation.',
+                    style: context.fonts.black14w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildPractitionerSummaryCard(Practitioner p) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 20),
+      backgroundColor: CustomColors.whiteGrey,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: context.r(30),
+                backgroundColor: CustomColors.softGrey,
+                child: const Icon(Icons.person, color: CustomColors.grey),
+              ),
+              context.horizontalSpace(16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.basicInfo?.name ?? 'N/A', style: context.fonts.black18w600),
+                    Text(p.basicInfo?.specialization ?? 'N/A', style: context.fonts.grey14w400),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 32, color: CustomColors.border),
+          _summaryRow(Icons.email_outlined, 'Email', p.contactInfo?.email ?? 'N/A'),
+          _summaryRow(Icons.phone_outlined, 'Phone', '${p.contactInfo?.cc ?? ""} ${p.contactInfo?.phone ?? "N/A"}'),
+          _summaryRow(Icons.badge_outlined, 'License', p.licenseInfo?.licenseNumber ?? 'N/A'),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: CustomColors.purple),
+          context.horizontalSpace(12),
+          Text('$label: ', style: context.fonts.grey12w600),
+          Text(value, style: context.fonts.black12w600),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClinicAccessSection() {
+    return _buildSection(
+      title: 'Clinic Access & Operations',
+      trailing: CustomPrimaryButton(
+        onTap: () => showDialog(
+          context: context,
+          builder: (context) => const SelectTreatmentDialog(),
+        ),
+        label: 'Assign Treatments',
+        icon: Icons.add,
+        height: context.h(32),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+      ),
+      children: [
+        Row(
+          children: [
             Expanded(
               child: Consumer(
                 builder: (_, ref, _) {
@@ -868,33 +1003,18 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                           .read(practitionerProvider.notifier)
                           .changeRole(selectedRole);
                     },
-                    label: 'Role',
+                    label: 'Main Role',
                     hintText: 'Select Role',
                     builder: (r) => Text(r.capitalize),
                   );
                 },
               ),
             ),
+            context.horizontalSpace(16),
+            const Spacer(),
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildClinicAccessSection() {
-    return _buildSection(
-      title: 'Clinic Access & Operations',
-      trailing: CustomPrimaryButton(
-        onTap: () => showDialog(
-          context: context,
-          builder: (context) => const SelectTreatmentDialog(),
-        ),
-        label: 'Assign Treatments',
-        icon: Icons.add,
-        height: context.h(32),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
-      children: [
+        SizedBox(height: context.h(24)),
         Text('Assigned Treatments', style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(12)),
         _buildTreatmentChips(),

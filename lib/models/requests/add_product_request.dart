@@ -5,6 +5,7 @@ class AddProductRequest extends BaseRequest {
 
   AddProductRequest({this.productIds});
 
+  @override
   Map<String, dynamic> toJson() => {
     "product_ids": productIds == null
         ? []
