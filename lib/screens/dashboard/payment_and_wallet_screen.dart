@@ -1,73 +1,232 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../../utils/assets.dart';
-import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
-import '../../widgets/dialog_box/payment_withdrawal_dailog_box.dart';
+import '../../widgets/analytics_card_widget.dart';
+import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/transcation_tile_widget.dart';
 import 'payment_history_screen.dart';
 
-class PaymentAndWalletScreen extends StatelessWidget {
+class PaymentAndWalletScreen extends StatefulWidget {
   static const String routeName = '/payment-and-wallet';
   const PaymentAndWalletScreen({super.key});
+
+  @override
+  State<PaymentAndWalletScreen> createState() => _PaymentAndWalletScreenState();
+}
+
+class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
+  final List<BankCardData> _bankCards = [];
+  final List<PaymentTransaction> _transactions = [
+    PaymentTransaction(
+      clientName: 'Sarah Johnson',
+      service: 'Botox',
+      appointmentId: 'APT-0001',
+      appointmentType: 'Consultation',
+      date: '10/29/2025',
+      time: '3:00 PM',
+      amount: '\$ 350',
+    ),
+    PaymentTransaction(
+      clientName: 'Olivia Brown',
+      service: 'Skin Therapy',
+      appointmentId: 'APT-0002',
+      appointmentType: 'Follow-up',
+      date: '10/31/2025',
+      time: '11:15 AM',
+      amount: '\$ 220',
+    ),
+    PaymentTransaction(
+      clientName: 'Mia Williams',
+      service: 'Laser Removal',
+      appointmentId: 'APT-0003',
+      appointmentType: 'Procedure',
+      date: '11/01/2025',
+      time: '1:45 PM',
+      amount: '\$ 760',
+    ),
+  ];
+
+  CardFieldInputDetails? _cardDetails;
+  String _cardHolderName = '';
+
+  void _showAddBankDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: CustomColors.white,
+              surfaceTintColor: Colors.transparent,
+              title: Text('Add Payment Card', style: context.fonts.black18w600),
+              content: SizedBox(
+                width: context.screenWidth > 600 ? 500 : context.screenWidth * 0.9,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Enter your card details securely via Stripe. We do not store your card information.',
+                      style: context.fonts.grey14w400,
+                    ),
+                    context.verticalSpace(24),
+                    Text('Card Holder Name', style: context.fonts.black14w600),
+                    context.verticalSpace(8),
+                    TextFormField(
+                      decoration: AppDecorations.input(context, hint: 'e.g. John Doe'),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          _cardHolderName = value;
+                        });
+                      },
+                    ),
+                    context.verticalSpace(20),
+                    Text('Card Details', style: context.fonts.black14w600),
+                    context.verticalSpace(8),
+                    CardField(
+                      onCardChanged: (details) {
+                        setDialogState(() {
+                          _cardDetails = details;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: CustomColors.border),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: CustomColors.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: CustomColors.purple, width: 1.5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: Text('Cancel', style: context.fonts.black14w600),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_cardDetails?.complete ?? false) {
+                      try {
+                        // Create payment method using Stripe
+                        final paymentMethod = await Stripe.instance.createPaymentMethod(
+                          params: PaymentMethodParams.card(
+                            paymentMethodData: PaymentMethodData(
+                              billingDetails: BillingDetails(name: _cardHolderName),
+                            ),
+                          ),
+                        );
+                        final month = paymentMethod.card.expMonth;
+                        final year = paymentMethod.card.expYear;
+                        final expiry = month != null && year != null ? '$month/$year' : '';
+                        setState(() {
+                          _bankCards.add(
+                            BankCardData(
+                              // cardNumber: paymentMethod.card.last4,
+                              cardNumber: paymentMethod.card.last4 ?? '',
+                              expiryDate: expiry,
+                              cardHolderName: _cardHolderName.isEmpty ? 'Clinic Member' : _cardHolderName,
+                              cvvCode: '***',
+                              bankName: (paymentMethod.card.brand ?? 'Card').toUpperCase(),
+                            ),
+                          );
+                        });
+
+                        if (context.mounted) {
+                          Navigator.of(dialogContext).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Card added successfully')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error adding card: $e')),
+                          );
+                        }
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please complete card details')),
+                      );
+                    }
+                  },
+                  child: Text('Save Card', style: context.fonts.white14w600),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.w(20)),
+        padding: context.appEdgeInsets(horizontal: 20, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: context.h(20)),
-            Text('Payment and Wallet', style: context.fonts.black20w600),
-            SizedBox(height: context.h(14)),
-            const Divider(color: CustomColors.border),
-            SizedBox(height: context.h(20)),
-            walletInfo(context),
-            SizedBox(height: context.h(10)),
-            Text(
-              "Payments are processed securely through Stripe. All transactions are encrypted and compliant with PCI DSS and HIPAA standards.",
-              style: context.fonts.grey14w400,
-            ),
-            SizedBox(height: context.h(20)),
-            totalEarnings(context),
-            SizedBox(height: context.h(20)),
-            searchAndFilter(context),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Transactions", style: context.fonts.black20w600),
-                GestureDetector(
-                  onTap: () {
-                    context.go(PaymentHistoryScreen.routeName);
-                  },
-                  child: Text(
-                    "View All",
-                    style: context.fonts.purple14w600.copyWith(
-                      decoration: TextDecoration.underline,
-                    ),
+                Text('Payment and Wallet', style: context.fonts.black20w600),
+                ElevatedButton.icon(
+                  onPressed: _showAddBankDialog,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(
+                    'Add Payment Method',
+                    style: context.fonts.white14w600,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(14),
+            const Divider(color: CustomColors.border),
+            context.verticalSpace(20),
+            walletInfo(context),
+            context.verticalSpace(20),
+            bankAccountsSection(context),
+            context.verticalSpace(20),
+            Text(
+              'Payments are processed securely through Stripe. All transactions are encrypted and compliant with PCI DSS and HIPAA standards.',
+              style: context.fonts.grey14w400,
+            ),
+            context.verticalSpace(20),
+            totalEarnings(context),
+            context.verticalSpace(20),
+            searchAndFilter(context),
+            context.verticalSpace(20),
+            transactionHeader(context),
+            context.verticalSpace(20),
             ListView.separated(
-              separatorBuilder: (context, index) {
-                return SizedBox(height: context.h(15));
-              },
+              separatorBuilder: (context, index) => context.verticalSpace(15),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return const TranscationTileWidget();
-              },
+              itemCount: _transactions.length,
+              itemBuilder: (context, index) => transactionTile(context, _transactions[index]),
             ),
+            context.verticalSpace(20),
           ],
         ),
       ),
@@ -75,115 +234,33 @@ class PaymentAndWalletScreen extends StatelessWidget {
   }
 
   Widget walletInfo(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.w(24),
-        vertical: context.h(40),
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(context.r(15)),
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [Color(0xFF0C3987), Color(0xFF6B0DAE)],
-        ),
-      ),
-      child: AdaptiveLayoutRowColumn(
-        alignment: MainAxisAlignment.spaceBetween,
-        widthBetween: 0,
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 24),
+      borderRadius: context.r(12),
+      child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Available Balance",
-                style: context.fonts.white16w400.copyWith(
-                  fontSize: context.sp(22),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                "\$ 228,565",
-                style: context.fonts.black40w700.copyWith(
-                  color: CustomColors.white,
-                  fontSize: context.sp(40),
-                ),
-              ),
-            ],
-          ),
-          context.isLandscape ? const Spacer() : const SizedBox.shrink(),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                CupertinoIcons.arrowtriangle_up_fill,
-                size: context.r(14),
-                color: CustomColors.green,
-              ),
-              SizedBox(width: context.w(10)),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "\$ 20,600 ",
-                      style: context.fonts.green14w600.copyWith(
-                        fontSize: context.sp(16),
-                      ),
-                    ),
-                    TextSpan(
-                      text: "Last Week ",
-                      style: context.fonts.white14w600.copyWith(
-                        fontSize: context.sp(16),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(width: context.w(20)),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => const PaymentWithDrawalDailogBox(),
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.w(14),
-                vertical: context.h(8),
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(context.r(8)),
-                color: CustomColors.white,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    SvgAssets.withdraw,
-                    colorFilter: const ColorFilter.mode(
-                      CustomColors.purple,
-                      BlendMode.srcIn,
-                    ),
-                    height: context.h(14),
-                    width: context.w(16.5),
-                  ),
-                  SizedBox(width: context.w(8)),
-                  Center(
-                    child: Text(
-                      "Withdraw Balance",
-                      style: context.fonts.purple14w600,
-                    ),
-                  ),
-                ],
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Total Balance', style: context.fonts.grey14w400),
+                context.verticalSpace(8),
+                Text('\$ 12,450.00', style: context.fonts.black32w700),
+              ],
             ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              padding: context.appEdgeInsets(horizontal: 20),
+            ),
+            icon: SvgPicture.asset(
+              SvgAssets.withdraw,
+              height: context.h(18),
+              width: context.w(18),
+              colorFilter: const ColorFilter.mode(CustomColors.white, BlendMode.srcIn),
+            ),
+            label: const Text('Withdraw'),
           ),
         ],
       ),
@@ -191,53 +268,55 @@ class PaymentAndWalletScreen extends StatelessWidget {
   }
 
   Widget totalEarnings(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.w(15),
-        vertical: context.h(15),
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(context.r(15)),
-        color: CustomColors.palePurple,
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("\$ 4,500", style: context.fonts.black30w600),
-              Text("Today’s Earnings", style: context.fonts.grey14w500),
-            ],
-          ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text("Next Deposit Will Be", style: context.fonts.grey14w500),
-              Text("Added After 12:00 am", style: context.fonts.grey14w500),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Earnings Overview', style: context.fonts.black18w600),
+        context.verticalSpace(16),
+        Row(
+          children: [
+            const Expanded(
+              child: AnalyticsCardWidget(
+                icon: Icons.payments_outlined,
+                iconColor: Color(0xFF7DD3D3),
+                bgColor: Color(0xFFE8F6F6),
+                value: '\$ 45,200',
+                label: 'Total Earnings',
+              ),
+            ),
+            context.horizontalSpace(16),
+            const Expanded(
+              child: AnalyticsCardWidget(
+                icon: Icons.account_balance_wallet_outlined,
+                iconColor: Color(0xFFE89FD5),
+                bgColor: Color(0xFFFCEFF9),
+                value: '\$ 12,450',
+                label: 'Available Balance',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget searchAndFilter(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: CupertinoSearchTextField(
             backgroundColor: CustomColors.softGrey,
+            padding: context.appEdgeInsets(horizontal: 12, vertical: 12),
+            placeholder: 'Search transactions...',
+            style: context.fonts.black14w400,
+            placeholderStyle: context.fonts.grey14w400,
           ),
         ),
-        SizedBox(width: context.w(8)),
+        context.horizontalSpace(12),
         Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.w(15),
-            vertical: context.h(15),
-          ),
+          padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(context.r(10)),
+            borderRadius: context.appBorderRadius(all: 10),
             color: CustomColors.white,
             border: Border.all(color: CustomColors.border),
           ),
@@ -245,16 +324,16 @@ class PaymentAndWalletScreen extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 SvgAssets.filter,
-                height: context.h(13),
-                width: context.w(13),
+                height: context.h(16),
+                width: context.w(16),
                 colorFilter: const ColorFilter.mode(
                   CustomColors.grey,
                   BlendMode.srcIn,
                 ),
               ),
-              SizedBox(width: context.w(10)),
-              Text("All Status", style: context.fonts.grey14w500),
-              SizedBox(width: context.w(10)),
+              context.horizontalSpace(8),
+              Text("Filter", style: context.fonts.grey14w500),
+              context.horizontalSpace(4),
               Icon(
                 CupertinoIcons.chevron_down,
                 size: context.r(16),
@@ -266,4 +345,185 @@ class PaymentAndWalletScreen extends StatelessWidget {
       ],
     );
   }
+
+  Widget bankAccountsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Payment Methods', style: context.fonts.black18w600),
+        context.verticalSpace(16),
+        if (_bankCards.isEmpty)
+          BorderdContainerWidget(
+            width: double.infinity,
+            padding: context.appEdgeInsets(horizontal: 20, vertical: 24),
+            borderRadius: context.r(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No saved payment methods yet.',
+                  style: context.fonts.black16w600,
+                ),
+                context.verticalSpace(10),
+                Text(
+                  'Tap Add Payment Method to securely store your card details via Stripe.',
+                  style: context.fonts.grey14w400,
+                ),
+              ],
+            ),
+          )
+        else
+          SizedBox(
+            height: context.h(220),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _bankCards.length,
+              separatorBuilder: (context, index) => context.horizontalSpace(16),
+              itemBuilder: (context, index) {
+                final card = _bankCards[index];
+                return CreditCardWidget(
+                  onCreditCardWidgetChange: (_) {},
+                  cardNumber: card.cardNumber,
+                  obscureInitialCardNumber: true,
+                  expiryDate: card.expiryDate,
+                  cardHolderName: card.cardHolderName,
+                  cvvCode: card.cvvCode,
+                  // bankName: card.bankName,
+                  showBackView: false,
+                  obscureCardNumber: false,
+                  obscureCardCvv: false,
+                  isHolderNameVisible: true,
+                  enableFloatingCard: true,
+                  isChipVisible: false,
+                  cardBgColor: CustomColors.purple,
+                  frontCardBorder: Border.all(
+                    color: CustomColors.white.withValues(alpha: 0.2),
+                  ),
+                  backCardBorder: Border.all(
+                    color: CustomColors.white.withValues(alpha: 0.2),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: context.sp(14),
+                    color: CustomColors.white,
+                  ),
+                  width: context.w(270),
+                  height: context.h(190),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget transactionHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Transactions', style: context.fonts.black20w600),
+        GestureDetector(
+          onTap: () {
+            context.go(PaymentHistoryScreen.routeName);
+          },
+          child: Text(
+            'View All',
+            style: context.fonts.purple14w600.copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget transactionTile(BuildContext context, PaymentTransaction transaction) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(horizontal: 18, vertical: 18),
+      borderRadius: context.r(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: context.appEdgeInsets(all: 12),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: CustomColors.lightPurple,
+                ),
+                child: Icon(
+                  Icons.payment,
+                  size: context.r(20),
+                  color: CustomColors.purple,
+                ),
+              ),
+              context.horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.clientName,
+                      style: context.fonts.black16w600,
+                    ),
+                    Text(
+                      '${transaction.service} • ${transaction.appointmentType}',
+                      style: context.fonts.grey14w400,
+                    ),
+                    Text(
+                      'Appointment: ${transaction.appointmentId}',
+                      style: context.fonts.grey12w400,
+                    ),
+                  ],
+                ),
+              ),
+              Text(transaction.amount, style: context.fonts.purple16w700),
+            ],
+          ),
+          context.verticalSpace(12),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                size: context.r(14),
+                color: CustomColors.grey,
+              ),
+              context.horizontalSpace(8),
+              Text(transaction.date, style: context.fonts.grey14w400),
+              context.horizontalSpace(16),
+              Icon(
+                Icons.access_time,
+                size: context.r(14),
+                color: CustomColors.grey,
+              ),
+              context.horizontalSpace(8),
+              Text(transaction.time, style: context.fonts.grey14w400),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BankCardData {
+  final String cardNumber;
+  final String expiryDate;
+  final String cardHolderName;
+  final String cvvCode;
+  final String bankName;
+
+  BankCardData({
+    required this.cardNumber,
+    required this.expiryDate,
+    required this.cardHolderName,
+    required this.cvvCode,
+    required this.bankName,
+  });
+}
+
+class PaymentTransaction {
+  final String clientName, service, appointmentId, appointmentType, date, time, amount;
+
+  PaymentTransaction({required this.clientName, required this.service, required this.appointmentId, required this.appointmentType, required this.date, required this.time, required this.amount});
 }

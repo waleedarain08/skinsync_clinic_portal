@@ -41,6 +41,7 @@ dependencies:
   http: ^1.6.0
   iconsax: ^0.0.8
   flutter_svg: ^2.2.3
+  flutter_credit_card: ^4.1.0
   pinput: ^6.0.2
   country_picker: ^2.0.27
   camera: ^0.12.0
@@ -77,6 +78,8 @@ dependencies:
   duration_picker: ^1.2.0
   flutter_localizations:
     sdk: flutter
+  flutter_stripe: ^13.1.0
+  flutter_stripe_web: ^8.1.0
 
 dev_dependencies:
   flutter_test:
