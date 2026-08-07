@@ -216,7 +216,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       }
 
       // Show dummy data if API fails or for specific email during development
-      if (email.toLowerCase() == "doctor@example.com") {
+      if (email.toLowerCase() == "wal@yopmail.com") {
         final practitioner = FetchedPractitionerData.fromJson(ClinicDummyData.dummyFetchedPractitioner);
         state = state.copyWith(fetchedPractitioner: practitioner, loading: false);
       } else {

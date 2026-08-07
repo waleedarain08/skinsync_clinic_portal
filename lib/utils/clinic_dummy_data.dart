@@ -541,7 +541,7 @@ class ClinicDummyData {
       "qualifications": ["MBBS", "MD Dermatology", "Fellowship in Cosmetic Surgery"]
     },
     "contact_info": {
-      "email": "doctor@example.com",
+      "email": "wal@yopmail.com",
       "phone": "1234567890",
       "cc": "+1",
       "country": "US",
