@@ -5,9 +5,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../exceptions/app_exception.dart';
+import '../models/requests/fetch_practitioner_by_email_request.dart';
 import '../models/requests/register_practitioner_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/requests/update_practitioner_treament_request.dart';
+import '../models/responses/fetch_practitioner_by_email_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/responses/register_practitioner_response.dart';
 import '../models/treatment_model.dart';
@@ -15,6 +17,7 @@ import '../services/locator.dart';
 import '../services/media_service.dart';
 
 import '../services/practitioner_service.dart';
+import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
 final practitionerProvider =
@@ -195,6 +198,33 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
+  Future<void> fetchPractitionerByEmail(String email) async {
+    return await runSafely(() async {
+      state = state.copyWith(loading: true, fetchedPractitioner: null);
+
+      try {
+        final response = await locator<PractitionerService>().fetchPractitionerByEmail(
+          request: FetchPractitionerByEmailRequest(email: email),
+        );
+
+        if (response.success && response.data != null) {
+          state = state.copyWith(fetchedPractitioner: response.data, loading: false);
+          return;
+        }
+      } catch (e) {
+        log('API Error: $e');
+      }
+
+      // Show dummy data if API fails or for specific email during development
+      if (email.toLowerCase() == "wal@yopmail.com") {
+        final practitioner = FetchedPractitionerData.fromJson(ClinicDummyData.dummyFetchedPractitioner);
+        state = state.copyWith(fetchedPractitioner: practitioner, loading: false);
+      } else {
+        state = state.copyWith(loading: false, fetchedPractitioner: null);
+      }
+    });
+  }
+
   Future<void> updatePractitionerTreatment({
     required String email,
     required int clinicUserId,
@@ -281,6 +311,7 @@ class PractitionerState {
   final List<PractitionerListItem> doctors;
   final PractitionerListItem? selectedDoctor;
   final Practitioner? practitioner;
+  final FetchedPractitionerData? fetchedPractitioner;
   final bool success;
   final List<Availability> availability;
   final CountryCode country;
@@ -301,6 +332,7 @@ class PractitionerState {
     this.cc,
     this.countryCode,
     this.practitioner,
+    this.fetchedPractitioner,
   });
 
   PractitionerState copyWith({
@@ -316,6 +348,7 @@ class PractitionerState {
     String? countryIso,
     List<String>? documents,
     Practitioner? practitioner,
+    FetchedPractitionerData? fetchedPractitioner,
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -330,6 +363,7 @@ class PractitionerState {
       countryCode: countryIso ?? countryCode,
       documents: documents ?? this.documents,
       practitioner: practitioner ?? this.practitioner,
+      fetchedPractitioner: fetchedPractitioner ?? this.fetchedPractitioner,
     );
   }
 

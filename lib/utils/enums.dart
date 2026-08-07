@@ -26,6 +26,7 @@ enum Endpoint {
   getPractitioners('clinic/practitioners'),
   practitionersID('clinic/practitioners/{id}'),
   practitionerStatus('clinic/practitioners/{id}/status'),
+  fetchPractitionerByEmail('clinic/practitioners/search'),
 
   getAdminTreatments('clinic/treatments/admin'),
   getTreatmentTemplates('clinic/treatments/admin'),

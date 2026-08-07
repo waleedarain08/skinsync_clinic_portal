@@ -1,4 +1,3 @@
-import '../models/product_model.dart';
 import '../models/responses/treatment_products_response.dart';
 
 class ClinicDummyProduct {
@@ -455,6 +454,114 @@ class ClinicDummyData {
       basePrice: 300.00,
     ),
   ];
+
+  static const Map<String, dynamic> dummyAppointmentTreatmentDetail = {
+    "treatment_id": 1,
+    "treatment_name": "Botox Cosmetic",
+    "area_name": "Forehead",
+    "status": "Ongoing",
+    "current_session": {
+      "session_number": 1,
+      "date": "2023-10-25",
+      "consent_form_url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "protocols": [
+        "Cleanse and disinfect target area with alcohol swab",
+        "Verify patient identity and consent signature",
+        "Confirm lack of contraindications"
+      ],
+      "instructions": "Avoid lying down for 4 hours post-treatment."
+    },
+    "history": [
+      {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "summary": "Patient interested in forehead wrinkle reduction. No contraindications found."
+      },
+      {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "summary": "First session completed. 20 units injected in forehead area."
+      },
+      {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "summary": "Check-up after first session. Results are satisfactory. No touch-ups needed."
+      }
+    ]
+  };
+
+  static Map<String, dynamic> getHistoryDetail(int id) {
+    if (id == 101) {
+      return {
+        "id": 101,
+        "type": "Consultation",
+        "date": "2023-09-10",
+        "provider": "Dr. Smith",
+        "notes": "Patient discussed expectations and potential side effects. Agreed to proceed with Botox.",
+        "vitals": {"bp": "120/80", "weight": "70kg"}
+      };
+    } else if (id == 102) {
+      return {
+        "id": 102,
+        "type": "Session",
+        "date": "2023-09-15",
+        "provider": "Dr. Smith",
+        "dosage": "20 Units",
+        "product": "Botox Cosmetic",
+        "batch_number": "BX12345",
+        "expiry_date": "2025-12-01"
+      };
+    } else {
+      return {
+        "id": 103,
+        "type": "Follow-Up",
+        "date": "2023-09-30",
+        "provider": "Dr. Smith",
+        "observations": "Facial symmetry is good. Patient is happy with the results.",
+        "next_appointment": "In 3 months"
+      };
+    }
+  }
+
+  static const Map<String, dynamic> dummyFetchedPractitioner = {
+    "basic_info": {
+      "name": "Dr. John Smith",
+      "title": "Dermatologist",
+      "image": "https://example.com/photo.jpg",
+      "gender": "male",
+      "date_of_birth": "1990-01-15",
+      "specialization": "Cosmetic Dermatology",
+      "years_of_experience": 10,
+      "qualifications": ["MBBS", "MD Dermatology", "Fellowship in Cosmetic Surgery"]
+    },
+    "contact_info": {
+      "email": "wal@yopmail.com",
+      "phone": "1234567890",
+      "cc": "+1",
+      "country": "US",
+      "emergency_contact": {
+        "name": "Jane Smith",
+        "phone": "9876543210",
+        "cc": "+1",
+        "country": "US",
+        "relationship": "Spouse"
+      }
+    },
+    "license_info": {
+      "license_number": "LIC-2024-12345",
+      "license_expiry_date": "2027-12-31",
+      "issuing_authority": "State Medical Board",
+      "indemnity_insurance_number": "INS-98765",
+      "indemnity_expiry_date": "2027-06-30",
+      "documents": ["https://example.com/license.pdf", "https://example.com/insurance.pdf"]
+    }
+  };
 }
 
 class ClinicDummySessionConfig {
@@ -581,81 +688,4 @@ class ClinicDummySessionConfig {
       ],
     },
   };
-}
-
-class ClinicDummyMasterProducts {
-  static final List<ProductModel> masterCatalog = [
-    ProductModel(
-      id: 101,
-      name: 'Botox Cosmetic 100U',
-      brand: 'Allergan',
-      globalSku: 'BOTOX-100-ALLERGAN',
-      image: '',
-      description: 'OnabotulinumtoxinA injection vial for cosmetic wrinkle relaxation.',
-      unit: 'Vial',
-      category: 'Injectables',
-      packageType: 'Box of 1 Vial',
-      unitsPerPackage: 1,
-    ),
-    ProductModel(
-      id: 102,
-      name: 'Juvederm Ultra XC 1mL',
-      brand: 'Allergan',
-      globalSku: 'JUVEDERM-ULTRA-XC-1ML',
-      image: '',
-      description: 'Hyaluronic acid dermal filler syringe for lip contouring and volume.',
-      unit: 'Syringe',
-      category: 'Injectables',
-      packageType: 'Box of 2 Syringes',
-      unitsPerPackage: 2,
-    ),
-    ProductModel(
-      id: 103,
-      name: 'Restylane Lyft 1mL',
-      brand: 'Galderma',
-      globalSku: 'RESTYLANE-LYFT-1ML',
-      image: '',
-      description: 'Deep hyaluronic acid filler for cheek augmentation and mid-face support.',
-      unit: 'Syringe',
-      category: 'Injectables',
-      packageType: 'Box of 1 Syringe',
-      unitsPerPackage: 1,
-    ),
-    ProductModel(
-      id: 104,
-      name: 'Glycolic Acid Peel 30%',
-      brand: 'Perfect Derma',
-      globalSku: 'PEEL-GLYCOLIC-30',
-      image: '',
-      description: 'Medical-grade glycolic acid skin resurfacing chemical peel solution.',
-      unit: 'Bottle',
-      category: 'Chemical Peels',
-      packageType: '50mL Bottle',
-      unitsPerPackage: 1,
-    ),
-    ProductModel(
-      id: 105,
-      name: 'SkinPen Microneedling Cartridges',
-      brand: 'Crown Aesthetics',
-      globalSku: 'SKINPEN-CARTRIDGE-12',
-      image: '',
-      description: 'Sterile 12-needle disposable cartridges for SkinPen microneedling device.',
-      unit: 'Cartridge',
-      category: 'Consumables',
-      packageType: 'Box of 12 Cartridges',
-      unitsPerPackage: 12,
-    ),
-    ProductModel(
-      id: 106,
-      name: 'Hyaluronic Acid Healing Serum',
-      brand: 'SkinCeuticals',
-      globalSku: 'SKINC-HA-SERUM-50',
-      image: '',
-      description: 'Post-treatment deeply hydrating recovery hyaluronic acid serum.',
-      unit: 'Bottle',
-      category: 'Skincare / Retail',
-      packageType: '50mL Dropper Bottle',
-      unitsPerPackage: 1,
-    ),
-  ];
 }

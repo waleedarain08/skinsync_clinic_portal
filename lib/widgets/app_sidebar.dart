@@ -7,7 +7,6 @@ import '../screens/dashboard/appointment_screen.dart';
 import '../screens/dashboard/forms_screen.dart';
 import '../screens/dashboard/home_screen.dart';
 import '../screens/dashboard/inventory_screen.dart';
-import '../screens/dashboard/manage_practitioner_screen.dart';
 import '../screens/dashboard/mange_staff_screen.dart';
 import '../screens/dashboard/patient_management.dart';
 import '../screens/dashboard/payment_and_wallet_screen.dart';
@@ -23,7 +22,6 @@ abstract final class AppSidebarRoutes {
     PatientManagementScreen.routeName,
     AppointmentScreen.routeName,
     TreatmentScreen.routeName,
-    ManagePractitionerScreen.routeName,
     InventoryScreen.routeName,
     FormsScreen.routeName,
     RolesScreen.routeName,
@@ -145,39 +143,34 @@ class AppSidebar extends StatelessWidget {
         onTap: () => _onItemTap(context, 3),
       ),
       SidebarXItem(
-        icon: Icons.masks_outlined,
-        label: 'Providers',
-        onTap: () => _onItemTap(context, 4),
-      ),
-      SidebarXItem(
         icon: Icons.inventory,
         label: 'Inventory',
-        onTap: () => _onItemTap(context, 5),
+        onTap: () => _onItemTap(context, 4),
       ),
       SidebarXItem(
         icon: Icons.document_scanner,
         label: 'Forms',
-        onTap: () => _onItemTap(context, 6),
+        onTap: () => _onItemTap(context, 5),
       ),
       SidebarXItem(
         icon: Icons.person_outline,
         label: 'Roles',
-        onTap: () => _onItemTap(context, 7),
+        onTap: () => _onItemTap(context, 6),
       ),
       SidebarXItem(
         icon: Iconsax.user_octagon,
         label: 'Staff',
-        onTap: () => _onItemTap(context, 8),
+        onTap: () => _onItemTap(context, 7),
       ),
       SidebarXItem(
         icon: Iconsax.wallet_3,
         label: 'Payments & Wallets',
-        onTap: () => _onItemTap(context, 9),
+        onTap: () => _onItemTap(context, 8),
       ),
       SidebarXItem(
         icon: Iconsax.profile_circle,
         label: 'Profile',
-        onTap: () => _onItemTap(context, 10),
+        onTap: () => _onItemTap(context, 9),
       ),
     ];
   }
@@ -197,13 +190,13 @@ class AppSidebar extends StatelessWidget {
     if (index == 2) {
       return _SectionLabel(title: 'CLINICAL', controller: controller);
     }
-    if (index == 4) {
+    if (index == 3) {
       return _SectionLabel(title: 'OPERATIONS', controller: controller);
     }
-    if (index == 8) {
+    if (index == 7) {
       return _SectionLabel(title: 'FINANCIALS', controller: controller);
     }
-    if (index == 9) {
+    if (index == 8) {
       return _SectionLabel(title: 'SYSTEM', controller: controller);
     }
     return context.verticalSpace(2);

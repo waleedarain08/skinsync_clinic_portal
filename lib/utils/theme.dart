@@ -141,7 +141,7 @@ class AppTheme {
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         hintStyle: CustomFonts.grey12w400,
         labelStyle: CustomFonts.black14w400,
-      //  constraints: BoxConstraints(minHeight: inputHeight, maxHeight: inputHeight),
+        constraints: BoxConstraints(minHeight: inputHeight, maxHeight: inputHeight),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(color: CustomColors.border, width: borderWidth),
@@ -222,10 +222,10 @@ class AppDecorations {
         filled: true,
         fillColor: fillColor ?? CustomColors.white,
         contentPadding: contentPadding ?? context.appEdgeInsets(horizontal: 16, vertical: 14),
-        // constraints: BoxConstraints(
-        //     minHeight: context.h(52),
-        //     maxHeight: maxLines > 1 ? double.infinity : context.h(52)
-        // ),
+        constraints: BoxConstraints(
+            minHeight: context.h(52),
+            maxHeight: maxLines > 1 ? double.infinity : context.h(52)
+        ),
         border: OutlineInputBorder(
           borderRadius: context.appBorderRadius(all: 12),
           borderSide: const BorderSide(color: CustomColors.border, width: 1),

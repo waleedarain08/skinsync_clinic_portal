@@ -19,8 +19,9 @@ import 'practitioner_detail_screen.dart';
 
 class ManagePractitionerScreen extends ConsumerStatefulWidget {
   static const String routeName = '/manage-providers';
+  final bool showScaffold;
 
-  const ManagePractitionerScreen({super.key});
+  const ManagePractitionerScreen({super.key, this.showScaffold = true});
 
   @override
   ConsumerState<ManagePractitionerScreen> createState() =>
@@ -60,24 +61,30 @@ class _ManagePractitionerScreenState
           doc.specialization.toLowerCase().contains(query);
     }).toList();
 
-    return GradientScaffold(
-      body: SingleChildScrollView(
-        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(context),
-            context.verticalSpace(32),
-            _buildQuickInsights(state),
-            context.verticalSpace(32),
-            _buildFilters(context),
-            context.verticalSpace(24),
-            _buildDoctorsTable(filteredDoctors, state.loading),
-            context.verticalSpace(24),
-            _buildFooterPaginator(),
-          ],
-        ),
+    final content = SingleChildScrollView(
+      padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(context),
+          context.verticalSpace(32),
+          _buildQuickInsights(state),
+          context.verticalSpace(32),
+          _buildFilters(context),
+          context.verticalSpace(24),
+          _buildDoctorsTable(filteredDoctors, state.loading),
+          context.verticalSpace(24),
+          _buildFooterPaginator(),
+        ],
       ),
+    );
+
+    if (!widget.showScaffold) {
+      return content;
+    }
+
+    return GradientScaffold(
+      body: content,
     );
   }
 

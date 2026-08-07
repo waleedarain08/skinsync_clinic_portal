@@ -1,480 +1,293 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import '../create_staff_screen.dart';
+import '../../models/responses/administration_staff_response.dart';
+import '../../view_models/administration_staff_view_model.dart';
+import '../../widgets/app_loader.dart';
+import '../../widgets/borderd_container_widget.dart';
+import '../../widgets/status_toggle_switch.dart';
 import '../../utils/theme.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/patient_selection_tile.dart';
 
-import '../../../utils/assets.dart';
+import 'add_administration_staff_screen.dart';
+import 'administration_staff_detail_screen.dart';
+import 'manage_practitioner_screen.dart';
 
-class ManageStaffScreen extends StatefulWidget {
+class ManageStaffScreen extends ConsumerStatefulWidget {
   static const String routeName = '/manage-staff';
 
   const ManageStaffScreen({super.key});
 
   @override
-  State<ManageStaffScreen> createState() => _ManageStaffScreenState();
+  ConsumerState<ManageStaffScreen> createState() => _ManageStaffScreenState();
 }
 
-class _ManageStaffScreenState extends State<ManageStaffScreen> {
+class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
   bool isSchedule = true;
+  int _selectedMainTab = 0; // 0 for Provider, 1 for Administration
 
-  DateTime? scheduleStartDateTime;
-  DateTime? scheduleEndDateTime;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  DateTime? timeOffStartDateTime;
-  DateTime? timeOffEndDateTime;
-
-  DateTime selectedDate = DateTime.now();
-
-  String getSelectedDayName() {
-    return DateFormat('EEEE').format(selectedDate);
-  } // from calendar
-
-  String formatDateTime(DateTime? dt) {
-    if (dt == null) return "";
-    return TimeOfDay.fromDateTime(dt).format(context);
-  }
-
-  Future<void> pickTime({
-    required bool isStart,
-    required bool isScheduleTab,
-  }) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    if (picked != null) {
-      final combined = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        picked.hour,
-        picked.minute,
-      );
-
-      setState(() {
-        if (isScheduleTab) {
-          if (isStart) {
-            scheduleStartDateTime = combined;
-          } else {
-            scheduleEndDateTime = combined;
-          }
-        } else {
-          if (isStart) {
-            timeOffStartDateTime = combined;
-          } else {
-            timeOffEndDateTime = combined;
-          }
-        }
-      });
-    }
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.w(20),
-          vertical: context.h(16),
-        ),
-        child: Column(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(28),
+              vertical: context.h(20),
+            ),
+            child: Row(
+              children: [
+                _mainTabItem("Providers", 0),
+                SizedBox(width: context.w(32)),
+                _mainTabItem("Administration Staff", 1),
+              ],
+            ),
+          ),
+          const Divider(color: CustomColors.border, height: 1),
+          Expanded(
+            child: _selectedMainTab == 0
+                ? const ManagePractitionerScreen(showScaffold: false)
+                : _buildAdministrationStaffContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mainTabItem(String title, int index) {
+    bool isSelected = _selectedMainTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMainTab = index),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: isSelected
+                ? context.fonts.black18w600.copyWith(color: CustomColors.purple)
+                : context.fonts.black18w600.copyWith(color: CustomColors.grey),
+          ),
+          if (isSelected)
+            Container(
+              margin: EdgeInsets.only(top: context.h(4)),
+              height: 2,
+              width: context.w(40),
+              color: CustomColors.purple,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdministrationStaffContent() {
+    final state = ref.watch(administrationStaffProvider);
+
+    final filteredStaff = state.staff.where((s) {
+      final query = _searchQuery.toLowerCase();
+      return query.isEmpty ||
+          s.name.toLowerCase().contains(query) ||
+          s.email.toLowerCase().contains(query) ||
+          s.role.toLowerCase().contains(query);
+    }).toList();
+
+    return SingleChildScrollView(
+      padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStaffHeader(context),
+          context.verticalSpace(32),
+          _buildFilters(context),
+          context.verticalSpace(24),
+          _buildStaffTable(filteredStaff, state.loading),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStaffHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: context.h(20)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Manage Staff", style: context.fonts.black20w600),
-                IconButton(
-                  onPressed: () {
-                    context.pushNamed(CreateStaffScreen.routeName);
-                  },
-                  icon: SvgPicture.asset(
-                    SvgAssets.plus,
-                    width: context.h(30),
-                    height: context.h(30),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: context.h(14)),
-            const Divider(color: CustomColors.border),
-            SizedBox(height: context.h(50)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                patientSelection(),
-                SizedBox(width: context.w(24)),
-                Expanded(child: rightSideContent()),
-              ],
+            Text('Administration Staff', style: context.fonts.black26w700),
+            context.verticalSpace(6),
+            Text(
+              'Manage clinic receptionists, managers, and administrative support.',
+              style: context.fonts.grey13w500,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget rightSideContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        patientInfo(context: context),
-        SizedBox(height: context.h(20)),
-        medicalInfo(context: context),
-        SizedBox(height: context.h(20)),
-        calendarAndTimeOffTap(),
-        SizedBox(height: context.h(20)),
-      ],
-    );
-  }
-
-  Widget calendarAndTimeOffTap() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(context.w(15)),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(context.r(15)),
-        border: Border.all(color: CustomColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isSchedule = true;
-                        });
-                      },
-                      child: Text(
-                        "Schedule",
-                        style: isSchedule
-                            ? context.fonts.black20w600
-                            : context.fonts.grey18w400,
-                      ),
-                    ),
-                    SizedBox(height: context.h(4)),
-                    Divider(
-                      height: context.h(2),
-                      color: isSchedule ? CustomColors.black : CustomColors.grey,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: context.w(20)),
-              Expanded(
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isSchedule = false;
-                        });
-                      },
-                      child: Text(
-                        "Time Off",
-                        style: !isSchedule
-                            ? context.fonts.black20w600
-                            : context.fonts.grey18w400,
-                      ),
-                    ),
-                    SizedBox(height: context.h(4)),
-                    Divider(
-                      height: context.h(2),
-                      color: !isSchedule ? CustomColors.black : CustomColors.grey,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: context.h(20)),
-          if (isSchedule) scheduleTap(),
-          if (!isSchedule) timeOffTap(),
-          CustomPrimaryButton(
-            onTap: () {},
-            label: "Save Schedule",
-            width: double.infinity,
-          ),
-          SizedBox(height: context.h(20)),
-        ],
-      ),
-    );
-  }
-
-  Widget timeOffTap() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Text("18 Dec, 2020", style: context.fonts.black20w600),
-            SizedBox(width: context.w(24)),
-            const Expanded(child: Divider(color: CustomColors.border)),
-            SizedBox(width: context.w(9)),
-            Icon(
-              Icons.delete_outline_rounded,
-              size: context.sp(31),
-              color: CustomColors.red,
-            ),
-          ],
-        ),
-        SizedBox(height: context.h(16)),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => pickTime(isStart: true, isScheduleTab: false),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(18),
-                    vertical: context.h(14),
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(context.r(10)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Text(
-                    timeOffStartDateTime == null
-                        ? "Select Start Time"
-                        : formatDateTime(timeOffStartDateTime),
-                    style: timeOffStartDateTime == null
-                        ? context.fonts.grey18w400
-                        : context.fonts.black14w500,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: context.w(10)),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => pickTime(isStart: false, isScheduleTab: false),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(18),
-                    vertical: context.h(14),
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(context.r(10)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Text(
-                    timeOffEndDateTime == null
-                        ? "Select End Time"
-                        : formatDateTime(timeOffEndDateTime),
-                    style: timeOffEndDateTime == null
-                        ? context.fonts.grey18w400
-                        : context.fonts.black14w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: context.h(20)),
-      ],
-    );
-  }
-
-  Widget scheduleTap() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyLarge: context.fonts.black20w600,
-                  ),
-              colorScheme: const ColorScheme.light(
-                primary: CustomColors.purple,
-                onPrimary: CustomColors.white,
-                onSurface: CustomColors.black,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(foregroundColor: CustomColors.black),
-              ),
-            ),
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topCenter,
-                heightFactor: 0.80,
-                child: CalendarDatePicker(
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
-                  onDateChanged: (value) {
-                    setState(() {
-                      selectedDate = value;
-                    });
-                  },
-                  currentDate: DateTime.now(),
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: context.w(20)),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(getSelectedDayName(), style: context.fonts.black20w600),
-              SizedBox(height: context.h(4)),
-              const Divider(color: CustomColors.border),
-              SizedBox(height: context.h(20)),
-              // START TIME
-              GestureDetector(
-                onTap: () => pickTime(isStart: true, isScheduleTab: true),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(18),
-                    vertical: context.h(14),
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(context.r(10)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Text(
-                    scheduleStartDateTime == null
-                        ? "Select Start Time"
-                        : formatDateTime(scheduleStartDateTime),
-                    style: scheduleStartDateTime == null
-                        ? context.fonts.grey18w400
-                        : context.fonts.black14w500,
-                  ),
-                ),
-              ),
-              SizedBox(height: context.h(10)),
-              GestureDetector(
-                onTap: () => pickTime(isStart: false, isScheduleTab: true),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(18),
-                    vertical: context.h(14),
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(context.r(10)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Text(
-                    scheduleEndDateTime == null
-                        ? "Select End Time"
-                        : formatDateTime(scheduleEndDateTime),
-                    style: scheduleEndDateTime == null
-                        ? context.fonts.grey18w400
-                        : context.fonts.black14w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        CustomPrimaryButton(
+          onTap: () {
+            context.push(AddAdministrationStaffScreen.routeName);
+          },
+          icon: Icons.add_rounded,
+          label: 'Add Admin Staff',
+          width: context.w(180),
         ),
       ],
     );
   }
 
-  Widget medicalInfo({required BuildContext context}) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(context.w(15)),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(context.r(15)),
-        border: Border.all(color: CustomColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Services", style: context.fonts.black20w600),
-          SizedBox(height: context.h(20)),
-          Wrap(
-            spacing: context.w(10),
-            runSpacing: context.h(10),
-            children: List.generate(7, (index) {
-              return Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(12),
-                  vertical: context.h(10),
-                ),
-                decoration: BoxDecoration(
-                  color: CustomColors.softGrey,
-                  borderRadius: BorderRadius.circular(context.r(10)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      SvgAssets.stethoscope,
-                      height: context.h(17),
-                      width: context.w(17),
-                      colorFilter: const ColorFilter.mode(
-                        CustomColors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    SizedBox(width: context.w(6)),
-                    Text("Laser Treatments", style: context.fonts.black14w500),
-                  ],
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget patientInfo({required BuildContext context}) {
-    return Container(
-      padding: EdgeInsets.all(context.w(15)),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.circular(context.r(15)),
-        border: Border.all(color: CustomColors.border),
-      ),
+  Widget _buildFilters(BuildContext context) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
       child: Row(
         children: [
-          ClipOval(
-            child: Image.asset(
-              PngAssets.person,
-              height: context.r(80),
-              width: context.r(80),
-              fit: BoxFit.cover,
+          Expanded(
+            child: TextFormField(
+              controller: _searchController,
+              style: context.fonts.black14w400,
+              decoration: AppDecorations.input(
+                context,
+                hint: "Search Staff by name, email, or role...",
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: CustomColors.grey,
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: CustomColors.grey),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+              ),
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val;
+                });
+              },
             ),
           ),
-          SizedBox(width: context.w(15)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStaffTable(List<AdministrationStaffListItem> staff, bool isLoading) {
+    if (isLoading) {
+      return const Center(child: AppLoader());
+    }
+
+    if (staff.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: context.appEdgeInsets(vertical: 48),
+          child: Text("No staff members found", style: context.fonts.grey14w400),
+        ),
+      );
+    }
+
+    return BorderdContainerWidget(
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(context.r(12)),
+        child: Table(
+          columnWidths: const {
+            0: FlexColumnWidth(4), // Staff Name / Details
+            1: FlexColumnWidth(3), // Role
+            2: FlexColumnWidth(2), // Status
+            3: FlexColumnWidth(1.5), // Actions
+          },
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: [
+            // Header Row
+            TableRow(
+              decoration: const BoxDecoration(
+                color: CustomColors.whiteGrey,
+                border: Border(bottom: BorderSide(color: CustomColors.border)),
+              ),
+              children: [
+                _tableHeaderCell('STAFF NAME'),
+                _tableHeaderCell('ROLE'),
+                _tableHeaderCell('STATUS'),
+                _tableHeaderCell('ACTIONS'),
+              ],
+            ),
+            // Data Rows
+            ...staff.map((s) {
+              return TableRow(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: CustomColors.border),
+                  ),
+                ),
+                children: [
+                  _staffNameCell(s),
+                  _tableTextCell(
+                    s.role,
+                    style: context.fonts.black14w600,
+                  ),
+                  _statusBadgeCell(s),
+                  _actionsCell(s),
+                ],
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tableHeaderCell(String label) {
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Text(
+        label,
+        style: context.fonts.grey12w600.copyWith(letterSpacing: 1),
+      ),
+    );
+  }
+
+  Widget _staffNameCell(AdministrationStaffListItem s) {
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: context.r(21),
+            backgroundColor: CustomColors.softGrey,
+            child: Icon(Icons.person, size: context.r(20), color: CustomColors.grey),
+          ),
+          context.horizontalSpace(16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Charmaine Arnaud", style: context.fonts.black18w600),
-                SizedBox(height: context.h(4)),
-                Text("Doctor", style: context.fonts.grey14w400),
+                Text(
+                  s.name,
+                  style: context.fonts.black14w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                context.verticalSpace(2),
+                Text(
+                  s.email,
+                  style: context.fonts.purple12w700,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
-            ),
-          ),
-          Text(
-            "Remove",
-            style: context.fonts.black14w600.copyWith(
-              color: CustomColors.purple,
-              decoration: TextDecoration.underline,
             ),
           ),
         ],
@@ -482,19 +295,64 @@ class _ManageStaffScreenState extends State<ManageStaffScreen> {
     );
   }
 
-  Widget patientSelection() {
-    return SizedBox(
-      width: context.w(386),
-      child: Column(
+  Widget _tableTextCell(String text, {required TextStyle style}) {
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Text(
+        text,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _statusBadgeCell(AdministrationStaffListItem s) {
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: StatusToggleSwitch(
+        status: s.status,
+        width: context.w(110),
+        height: context.h(32),
+        onChanged: (newStatus) {
+          ref.read(administrationStaffProvider.notifier).updateStaffStatus(s.id, newStatus);
+        },
+      ),
+    );
+  }
+
+  Widget _actionsCell(AdministrationStaffListItem s) {
+    return Padding(
+      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+      child: Row(
         children: [
-          const CupertinoSearchTextField(backgroundColor: CustomColors.softGrey),
-          SizedBox(height: context.h(20)),
-          ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: context.h(12)),
-            shrinkWrap: true,
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              return const PatientSelectionTile(title: "Sarah Johnson");
+          IconButton(
+            visualDensity: .compact,
+            padding: EdgeInsets.zero,
+            tooltip: 'View Details',
+            icon: const Icon(
+              Icons.visibility_outlined,
+              color: CustomColors.grey,
+              size: 20,
+            ),
+            onPressed: () async {
+              await ref.read(administrationStaffProvider.notifier).getStaffDetail(s.id);
+              if (context.mounted) {
+                context.push(AdministrationStaffDetailScreen.routeName);
+              }
+            },
+          ),
+          IconButton(
+            visualDensity: .compact,
+            padding: EdgeInsets.zero,
+            tooltip: 'Delete Staff',
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: CustomColors.red,
+              size: 20,
+            ),
+            onPressed: () {
+              ref.read(administrationStaffProvider.notifier).deleteStaff(s.id);
             },
           ),
         ],
