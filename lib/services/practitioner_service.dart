@@ -114,8 +114,9 @@ class PractitionerService extends PractitionerRepository {
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.fetchPractitionerByEmail,
-      requestType: RequestType.post,
+      requestType: RequestType.get,
       requestBody: request,
+      queryParams: {'email': request.email},
     );
     return FetchPractitionerByEmailResponse.fromJson(response);
   }

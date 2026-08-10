@@ -26,7 +26,7 @@ enum Endpoint {
   getPractitioners('clinic/practitioners'),
   practitionersID('clinic/practitioners/{id}'),
   practitionerStatus('clinic/practitioners/{id}/status'),
-  fetchPractitionerByEmail('clinic/practitioners/search'),
+  fetchPractitionerByEmail('clinic/practitioners/fetch'),
 
   getAdminTreatments('clinic/treatments/admin'),
   getTreatmentTemplates('clinic/treatments/admin'),
@@ -68,6 +68,7 @@ enum Endpoint {
   appointmentTypes('clinic/appointment-types'),
   areasAvailable('clinic/treatments/{treatmentId}/available-areas'),
   areas('clinic/treatments/{treatmentId}/areas'),
+  adminAreas('admin/treatments/{treatmentId}/areas'),
   getMe("clinic/me");
 
   final String path;
