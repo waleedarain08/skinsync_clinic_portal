@@ -4,6 +4,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../exceptions/app_exception.dart';
 import '../models/requests/fetch_practitioner_by_email_request.dart';
 import '../models/requests/register_practitioner_request.dart';
@@ -15,7 +16,6 @@ import '../models/responses/register_practitioner_response.dart';
 import '../models/treatment_model.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
-
 import '../services/practitioner_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
@@ -95,10 +95,9 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   Future<String?> pickAndUploadDocument() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      withData: true,
     );
 
     if (result == null || result.files.isEmpty) {
@@ -203,12 +202,16 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       state = state.copyWith(loading: true, fetchedPractitioner: null);
 
       try {
-        final response = await locator<PractitionerService>().fetchPractitionerByEmail(
-          request: FetchPractitionerByEmailRequest(email: email),
-        );
+        final response = await locator<PractitionerService>()
+            .fetchPractitionerByEmail(
+              request: FetchPractitionerByEmailRequest(email: email),
+            );
 
         if (response.success && response.data != null) {
-          state = state.copyWith(fetchedPractitioner: response.data, loading: false);
+          state = state.copyWith(
+            fetchedPractitioner: response.data,
+            loading: false,
+          );
           return;
         }
       } catch (e) {
@@ -217,8 +220,13 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
 
       // Show dummy data if API fails or for specific email during development
       if (email.toLowerCase() == "wal@yopmail.com") {
-        final practitioner = FetchedPractitionerData.fromJson(ClinicDummyData.dummyFetchedPractitioner);
-        state = state.copyWith(fetchedPractitioner: practitioner, loading: false);
+        final practitioner = FetchedPractitionerData.fromJson(
+          ClinicDummyData.dummyFetchedPractitioner,
+        );
+        state = state.copyWith(
+          fetchedPractitioner: practitioner,
+          loading: false,
+        );
       } else {
         state = state.copyWith(loading: false, fetchedPractitioner: null);
       }

@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 import 'dart:developer';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -11,6 +12,7 @@ import '../models/notification_entry.dart';
 import '../models/responses/session_detail_response.dart';
 import '../models/responses/session_model.dart';
 import '../models/responses/treatment_products_response.dart';
+import '../models/treatment_data_models.dart';
 import '../models/treatment_model.dart';
 import '../repositories/session_repository.dart';
 import '../services/locator.dart';
@@ -18,7 +20,6 @@ import '../services/media_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../utils/list_utils.dart';
 import 'base_view_model.dart';
-import '../models/treatment_data_models.dart';
 
 final sessionViewModelProvider =
     NotifierProvider<SessionViewModel, SessionState>(SessionViewModel._);
@@ -36,13 +37,12 @@ class SessionState {
   final bool isLoadingProducts;
   final String? error;
 
-
   // Protocols
   final List<String> selectedProtocolIds;
   final List<TreatmentProtocolNote> selectedProtocolNotes;
   final List<TreatmentProtocolNoteItem> standaloneNotes;
 
-// New redesigned MaterialsStep properties
+  // New redesigned MaterialsStep properties
   final int? selectedUnitTypeId;
   final String? selectedUnitTypeName;
 
@@ -108,7 +108,7 @@ class SessionState {
 
     this.otherMaterialsUsageEntries = const [],
     this.products = const [],
-     this.selectedUnitTypeId,
+    this.selectedUnitTypeId,
     this.selectedUnitTypeName,
     this.isLoadingProducts = false,
     this.error,
@@ -160,7 +160,7 @@ class SessionState {
     int? activeSessionIndex,
     int? sessionStep,
     List<ProductUsageEntry>? productUsageEntries,
-     List<ProductUsageEntry>? otherMaterialsUsageEntries,
+    List<ProductUsageEntry>? otherMaterialsUsageEntries,
     List<TreatmentProductData>? products,
     bool? isLoadingProducts,
     String? error,
@@ -214,7 +214,7 @@ class SessionState {
       activeSessionIndex: activeSessionIndex ?? this.activeSessionIndex,
       sessionStep: sessionStep ?? this.sessionStep,
       productUsageEntries: productUsageEntries ?? this.productUsageEntries,
-       otherMaterialsUsageEntries:
+      otherMaterialsUsageEntries:
           otherMaterialsUsageEntries ?? this.otherMaterialsUsageEntries,
       products: products ?? this.products,
       isLoadingProducts: isLoadingProducts ?? this.isLoadingProducts,
@@ -267,12 +267,10 @@ class SessionState {
       isFollowUpRequired: isFollowUpRequired ?? this.isFollowUpRequired,
       sessionId: sessionId ?? this.sessionId,
       materialsRoles: materialsRoles ?? this.materialsRoles,
-      schedulingRoles: schedulingRoles?? this.schedulingRoles,
-      pricingRoles: pricingRoles?? this.pricingRoles,
+      schedulingRoles: schedulingRoles ?? this.schedulingRoles,
+      pricingRoles: pricingRoles ?? this.pricingRoles,
       selectedUnitTypeId: selectedUnitTypeId ?? this.selectedUnitTypeId,
       selectedUnitTypeName: selectedUnitTypeName ?? this.selectedUnitTypeName,
-
-
     );
   }
 }
@@ -287,7 +285,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     fixedDurationController.addListener(_triggerRebuild);
     preTreatmentInstructionsController.addListener(_triggerRebuild);
     postTreatmentInstructionsController.addListener(_triggerRebuild);
-     minUnitsController.addListener(_triggerRebuild);
+    minUnitsController.addListener(_triggerRebuild);
     maxUnitsController.addListener(_triggerRebuild);
   }
 
@@ -317,7 +315,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
   final durationHoursController = TextEditingController();
   final durationMinutesController = TextEditingController();
-    final minUnitsController = TextEditingController(text: '0');
+  final minUnitsController = TextEditingController(text: '0');
   final maxUnitsController = TextEditingController(text: '0');
   final treatmentDurationController = TextEditingController();
   final prepTimeController = TextEditingController();
@@ -443,13 +441,15 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     state = state.copyWith(activeSessionIndex: index);
   }
 
-Future<void> fetchProductsByTreatmentCategory() async {
-  final repository = locator<SessionRepository>();
+  Future<void> fetchProductsByTreatmentCategory() async {
+    final repository = locator<SessionRepository>();
     state = state.copyWith(isLoadingProducts: true);
 
     try {
       final response = await repository.getProductsByTreatment();
-      if (response.isSuccess && response.data != null && response.data!.isNotEmpty) {
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data!.isNotEmpty) {
         state = state.copyWith(
           products: response.data!,
           isLoadingProducts: false,
@@ -468,311 +468,310 @@ Future<void> fetchProductsByTreatmentCategory() async {
     }
   }
 
-
   Future<bool> fetchAndPopulateSessionDetail(int sessionId) async {
-     final repository = locator<SessionRepository>();
-    return await runSafely<bool>(
-          showLoading: true,
-          () async {
-            final response = await repository.getSessionDetail(
-              id: sessionId,
+    final repository = locator<SessionRepository>();
+    return await runSafely<bool>(showLoading: true, () async {
+          final response = await repository.getSessionDetail(id: sessionId);
+          if (response.isSuccess && response.data != null) {
+            final SessionDetailDto detail = response.data!;
+
+            // Set Session ID
+            setSessionId(detail.id);
+
+            // 1. Materials Step
+            final mappedUsages = detail.productUsages.map((e) {
+              final durationMatch = detail.productDurations.firstWhereOrNull(
+                (d) => d.productId == e.productId,
+              );
+              final perUnitDuration = durationMatch?.perUnitDuration ?? 0.0;
+
+              return ProductUsageEntry(
+                productId: e.productId,
+                productName: e.productName,
+                unit: 'Unit',
+                notesController: TextEditingController(text: e.notes),
+                minQuantityController: TextEditingController(
+                  text: e.minQuantity.toString(),
+                ),
+                maxQuantityController: TextEditingController(
+                  text: e.maxQuantity.toString(),
+                ),
+                perUnitDurationController: TextEditingController(
+                  text: perUnitDuration.toString(),
+                ),
+                allowSubstitution: e.allowSubstitution,
+                deductionTiming: e.deductionTiming,
+              );
+            }).toList();
+
+            final mappedOtherUsages = detail.otherMaterials.map((id) {
+              final product = state.products.firstWhereOrNull(
+                (p) => p.id == id,
+              );
+              return ProductUsageEntry(
+                productId: id,
+                productName: product?.name ?? 'Product #$id',
+                unit: 'Unit',
+                notesController: TextEditingController(),
+                minQuantityController: TextEditingController(text: '0'),
+                maxQuantityController: TextEditingController(text: '0'),
+                perUnitDurationController: TextEditingController(text: '0'),
+                allowSubstitution: false,
+                deductionTiming: 'On_Completion',
+              );
+            }).toList();
+
+            minUnitsController.text = (detail.minimumUnits ?? 0.0)
+                .toStringAsFixed(0);
+            maxUnitsController.text = (detail.maximumUnits ?? 0.0)
+                .toStringAsFixed(0);
+
+            state = state.copyWith(
+              productUsageEntries: mappedUsages,
+              otherMaterialsUsageEntries: mappedOtherUsages,
+              selectedUnitTypeId: detail.selectedUnitTypeId,
             );
-            if (response.isSuccess && response.data != null) {
-              final SessionDetailDto detail = response.data!;
 
-              // Set Session ID
-              setSessionId(detail.id);
+            // 2. Schedule Step
+            treatmentDurationController.text = detail.baseDuration.toString();
+            prepTimeController.text = detail.prepTime.toString();
+            cleanupTimeController.text = detail.cleanupTime.toString();
+            minimumBookingNoticeController.text = detail.minimumBookingNotice
+                .toString();
+            maximumDaysInAdvanceController.text = detail.maximumDaysInAdvance
+                .toString();
+            fixedDurationController.text = detail.fixedDuration.toString();
 
-              // 1. Materials Step
-              final mappedUsages = detail.productUsages.map((e) {
-                final durationMatch = detail.productDurations.firstWhereOrNull(
-                  (d) => d.productId == e.productId,
-                );
-                final perUnitDuration = durationMatch?.perUnitDuration ?? 0.0;
+            state = state.copyWith(
+              allowClinicOverride: detail.allowClinicOverride,
+              allowProviderOverride: detail.allowProviderOverride,
+              onlineBookable: detail.onlineBookable,
+              manualApprovalRequired: detail.manualApprovalRequired,
+              isFixedDuration: detail.isFixedDuration,
+            );
 
-                return ProductUsageEntry(
-                  productId: e.productId,
-                  productName: e.productName,
-                  unit: 'Unit',
-                  notesController: TextEditingController(text: e.notes),
-                  minQuantityController: TextEditingController(
-                    text: e.minQuantity.toString(),
-                  ),
-                  maxQuantityController: TextEditingController(
-                    text: e.maxQuantity.toString(),
-                  ),
-                  perUnitDurationController: TextEditingController(
-                    text: perUnitDuration.toString(),
-                  ),
-                  allowSubstitution: e.allowSubstitution,
-                  deductionTiming: e.deductionTiming,
-                );
-              }).toList();
+            // 3. Pricing Step
+            basePriceController.text = detail.basePrice.toString();
+            fixedPriceController.text = detail.fixedPrice.toString();
+            state = state.copyWith(isFixedPrice: detail.isFixedPrice);
 
-              final mappedOtherUsages = detail.otherMaterials.map((id) {
-                final product = state.products.firstWhereOrNull(
-                  (p) => p.id == id,
-                );
-                return ProductUsageEntry(
-                  productId: id,
-                  productName: product?.name ?? 'Product #$id',
-                  unit: 'Unit',
-                  notesController: TextEditingController(),
-                  minQuantityController: TextEditingController(text: '0'),
-                  maxQuantityController: TextEditingController(text: '0'),
-                  perUnitDurationController: TextEditingController(text: '0'),
-                  allowSubstitution: false,
-                  deductionTiming: 'On_Completion',
-                );
-              }).toList();
+            unitPriceControllers.forEach((_, c) => c.dispose());
+            unitPriceControllers.clear();
 
-              minUnitsController.text = (detail.minimumUnits ?? 0.0)
-                  .toStringAsFixed(0);
-              maxUnitsController.text = (detail.maximumUnits ?? 0.0)
-                  .toStringAsFixed(0);
-
-              state = state.copyWith(
-                productUsageEntries: mappedUsages,
-                otherMaterialsUsageEntries: mappedOtherUsages,
-                selectedUnitTypeId: detail.selectedUnitTypeId,
+            for (final override in detail.unitPriceOverrides) {
+              final entry = mappedUsages.firstWhereOrNull(
+                (e) => e.productId == override.productId,
               );
-
-              // 2. Schedule Step
-              treatmentDurationController.text = detail.baseDuration.toString();
-              prepTimeController.text = detail.prepTime.toString();
-              cleanupTimeController.text = detail.cleanupTime.toString();
-              minimumBookingNoticeController.text = detail.minimumBookingNotice
-                  .toString();
-              maximumDaysInAdvanceController.text = detail.maximumDaysInAdvance
-                  .toString();
-              fixedDurationController.text = detail.fixedDuration.toString();
-
-              state = state.copyWith(
-                allowClinicOverride: detail.allowClinicOverride,
-                allowProviderOverride: detail.allowProviderOverride,
-                onlineBookable: detail.onlineBookable,
-                manualApprovalRequired: detail.manualApprovalRequired,
-                isFixedDuration: detail.isFixedDuration,
-              );
-
-              // 3. Pricing Step
-              basePriceController.text = detail.basePrice.toString();
-              fixedPriceController.text = detail.fixedPrice.toString();
-              state = state.copyWith(isFixedPrice: detail.isFixedPrice);
-
-              unitPriceControllers.forEach((_, c) => c.dispose());
-              unitPriceControllers.clear();
-
-              for (final override in detail.unitPriceOverrides) {
-                final entry = mappedUsages.firstWhereOrNull(
-                  (e) => e.productId == override.productId,
-                );
-                if (entry != null) {
-                  final controller = getControllerForUnit(entry.unit);
-                  controller.text = override.pricePerUnit.toString();
-                }
+              if (entry != null) {
+                final controller = getControllerForUnit(entry.unit);
+                controller.text = override.pricePerUnit.toString();
               }
-
-              // 5. Pre-Treatment Instructions
-              preTreatmentInstructionsController.text =
-                  detail.preTreatmentInstructions;
-              final List<Attachment> preAttachments = detail
-                  .preTreatmentAttachments
-                  .map((a) {
-                    return Attachment(
-                      url: a.url,
-                      type: a.type ?? 'pdf',
-                      name: a.name,
-                    );
-                  })
-                  .toList();
-
-              // 6. Post-Treatment Instructions
-              postTreatmentInstructionsController.text =
-                  detail.postTreatmentInstructions;
-              final List<Attachment> postAttachments = detail
-                  .postTreatmentAttachments
-                  .map((a) {
-                    return Attachment(
-                      url: a.url,
-                      type: a.type ?? 'pdf',
-                      name: a.name,
-                    );
-                  })
-                  .toList();
-
-              // 7. Post-Treatment Photos
-              postTreatmentPhotoCountController.text = detail
-                  .photoMilestone
-                  .length
-                  .toString();
-              final List<PostTreatmentPhotoConfig> photoConfigs = detail
-                  .photoMilestone
-                  .map((m) {
-                    return PostTreatmentPhotoConfig(
-                      days: m.numberOfDays.toString(),
-                      count: m.requiredPhotos.toString(),
-                    );
-                  })
-                  .toList();
-
-              state = state.copyWith(
-                existingPreAttachments: preAttachments,
-                existingPostAttachments: postAttachments,
-                requirePostTreatmentPhotos: detail.requirePostTreatmentPhotos,
-                postTreatmentPhotoConfigs: photoConfigs,
-              );
-
-              // 8 & 9. Phase Notifications
-              final List<NotificationEntry> preNotifs = detail.preNotifications
-                  .map((n) {
-                    return NotificationEntry(
-                      titleController: TextEditingController(text: n.title),
-                      messageController: TextEditingController(text: n.message),
-                      timingValueController: TextEditingController(
-                        text: n.timing.toString(),
-                      ),
-                      timingUnit: n.timingUnit,
-                      type: n.type,
-                    );
-                  })
-                  .toList();
-
-              final List<NotificationEntry> postNotifs = detail
-                  .postNotifications
-                  .map((n) {
-                    return NotificationEntry(
-                      titleController: TextEditingController(text: n.title),
-                      messageController: TextEditingController(text: n.message),
-                      timingValueController: TextEditingController(
-                        text: n.timing.toString(),
-                      ),
-                      timingUnit: n.timingUnit,
-                      type: n.type,
-                    );
-                  })
-                  .toList();
-
-              state = state.copyWith(
-                preNotificationEntries: preNotifs,
-                postNotificationEntries: postNotifs,
-              );
-
-              // 10. Downtime Level & Provider Roles
-              state = state.copyWith(
-                downtimeLevel: detail.downtimeLevel,
-                selectedRoles: detail.allowedRoles,
-                materialsRoles: detail.allowedRoles,
-                materialsRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
-                schedulingRoles: detail.allowedRoles,
-                schedulingRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
-                pricingRoles: detail.allowedRoles,
-                pricingRolesSource: detail.allowedRoles.isNotEmpty ? 'custom' : 'category',
-              );
-
-              // 11. Follow ups
-              final List<FollowUpEntry> mappedFollowUps = detail.followUps.map((
-                f,
-              ) {
-                return FollowUpEntry(
-                  type: f.type,
-                  durationUnit: f.durationUnit,
-                  durationValueController: TextEditingController(
-                    text: f.durationValue.toString(),
-                  ),
-                  notesController: TextEditingController(text: f.notes),
-                  intervalValueController: TextEditingController(
-                    text: f.intervalValue.toString(),
-                  ),
-                  intervalUnit: f.intervalUnit,
-                  isImageRequired: f.isImageRequired,
-                );
-              }).toList();
-
-              final bool hasFollowUps = mappedFollowUps.isNotEmpty;
-
-              final updatedSessions = state.sessions.map((s) {
-                if (s.sessionId == detail.id) {
-                  final durationText = detail.isFixedDuration
-                      ? "Fixed: ${detail.fixedDuration} mins"
-                      : "Total: ${detail.calculatedTotalDuration} mins (Base: ${detail.baseDuration}, Prep: ${detail.prepTime}, Cleanup: ${detail.cleanupTime})";
-
-                  final priceText = detail.isFixedPrice
-                      ? "\$${detail.fixedPrice} (Fixed Rate)"
-                      : "\$${detail.basePrice} (Base) + Custom Overrides";
-
-                  final List<String> protocols = [];
-                  if (detail.clinicalProtocolPdf != null) {
-                    protocols.add(
-                      "${detail.clinicalProtocolPdf!.name} (Clinical Protocol)",
-                    );
-                  } else {
-                    protocols.add("No clinical protocols configured");
-                  }
-
-                  final List<String> preNotifs = detail.preNotifications
-                      .map(
-                        (n) =>
-                            "${n.title} - Send ${n.timing} ${n.timingUnit}(s) before",
-                      )
-                      .toList();
-
-                  final List<String> postNotifs = detail.postNotifications
-                      .map(
-                        (n) =>
-                            "${n.title} - Send ${n.timing} ${n.timingUnit}(s) after",
-                      )
-                      .toList();
-
-                  final newS = SessionViewModelEntry(
-                    sessionId: s.sessionId,
-                    sessionNumber: s.sessionNumber,
-                    title: s.title,
-                    status: detail.status,
-                    totalFollowUpsController: s.totalFollowUpsController,
-                    followUps: mappedFollowUps,
-                    isDetailedEntered: true,
-                    productUsageSnapshot: List<ProductUsageEntry>.from(
-                      mappedUsages,
-                    ),
-                    durationSnapshot: durationText,
-                    priceSnapshot: priceText,
-                    protocolSnapshot: protocols,
-                    preInstructionsSnapshot: detail.preTreatmentInstructions,
-                    postInstructionsSnapshot: detail.postTreatmentInstructions,
-                    requirePhotosSnapshot: detail.requirePostTreatmentPhotos,
-                    photosCountSnapshot: detail.photoMilestone.length,
-                    preNotificationsSnapshot: preNotifs,
-                    postNotificationsSnapshot: postNotifs,
-                    downtimeSnapshot: detail.downtimeLevel,
-                    rolesSnapshot: List.from(detail.allowedRoles),
-                    consentSnapshot: detail.preTreatmentConsentForm?.name ?? '',
-                  );
-                  newS.totalFollowUpsController.text = mappedFollowUps.length
-                      .toString();
-                  return newS;
-                }
-                return s;
-              }).toList();
-
-              state = state.copyWith(
-                sessions: updatedSessions,
-                isFollowUpRequired: hasFollowUps,
-              );
-
-              // 12. Pre-Treatment Consent Form
-              state = state.copyWith(
-                consentFormUrl: detail.preTreatmentConsentForm?.url ?? '',
-              );
-
-              // Now let's set the Step open index
-              setSessionStep(detail.currentStep);
-
-              return true;
             }
-            return false;
-          },
-        ) ??
+
+            // 5. Pre-Treatment Instructions
+            preTreatmentInstructionsController.text =
+                detail.preTreatmentInstructions;
+            final List<Attachment> preAttachments = detail
+                .preTreatmentAttachments
+                .map((a) {
+                  return Attachment(
+                    url: a.url,
+                    type: a.type ?? 'pdf',
+                    name: a.name,
+                  );
+                })
+                .toList();
+
+            // 6. Post-Treatment Instructions
+            postTreatmentInstructionsController.text =
+                detail.postTreatmentInstructions;
+            final List<Attachment> postAttachments = detail
+                .postTreatmentAttachments
+                .map((a) {
+                  return Attachment(
+                    url: a.url,
+                    type: a.type ?? 'pdf',
+                    name: a.name,
+                  );
+                })
+                .toList();
+
+            // 7. Post-Treatment Photos
+            postTreatmentPhotoCountController.text = detail
+                .photoMilestone
+                .length
+                .toString();
+            final List<PostTreatmentPhotoConfig> photoConfigs = detail
+                .photoMilestone
+                .map((m) {
+                  return PostTreatmentPhotoConfig(
+                    days: m.numberOfDays.toString(),
+                    count: m.requiredPhotos.toString(),
+                  );
+                })
+                .toList();
+
+            state = state.copyWith(
+              existingPreAttachments: preAttachments,
+              existingPostAttachments: postAttachments,
+              requirePostTreatmentPhotos: detail.requirePostTreatmentPhotos,
+              postTreatmentPhotoConfigs: photoConfigs,
+            );
+
+            // 8 & 9. Phase Notifications
+            final List<NotificationEntry> preNotifs = detail.preNotifications
+                .map((n) {
+                  return NotificationEntry(
+                    titleController: TextEditingController(text: n.title),
+                    messageController: TextEditingController(text: n.message),
+                    timingValueController: TextEditingController(
+                      text: n.timing.toString(),
+                    ),
+                    timingUnit: n.timingUnit,
+                    type: n.type,
+                  );
+                })
+                .toList();
+
+            final List<NotificationEntry> postNotifs = detail.postNotifications
+                .map((n) {
+                  return NotificationEntry(
+                    titleController: TextEditingController(text: n.title),
+                    messageController: TextEditingController(text: n.message),
+                    timingValueController: TextEditingController(
+                      text: n.timing.toString(),
+                    ),
+                    timingUnit: n.timingUnit,
+                    type: n.type,
+                  );
+                })
+                .toList();
+
+            state = state.copyWith(
+              preNotificationEntries: preNotifs,
+              postNotificationEntries: postNotifs,
+            );
+
+            // 10. Downtime Level & Provider Roles
+            state = state.copyWith(
+              downtimeLevel: detail.downtimeLevel,
+              selectedRoles: detail.allowedRoles,
+              materialsRoles: detail.allowedRoles,
+              materialsRolesSource: detail.allowedRoles.isNotEmpty
+                  ? 'custom'
+                  : 'category',
+              schedulingRoles: detail.allowedRoles,
+              schedulingRolesSource: detail.allowedRoles.isNotEmpty
+                  ? 'custom'
+                  : 'category',
+              pricingRoles: detail.allowedRoles,
+              pricingRolesSource: detail.allowedRoles.isNotEmpty
+                  ? 'custom'
+                  : 'category',
+            );
+
+            // 11. Follow ups
+            final List<FollowUpEntry> mappedFollowUps = detail.followUps.map((
+              f,
+            ) {
+              return FollowUpEntry(
+                type: f.type,
+                durationUnit: f.durationUnit,
+                durationValueController: TextEditingController(
+                  text: f.durationValue.toString(),
+                ),
+                notesController: TextEditingController(text: f.notes),
+                intervalValueController: TextEditingController(
+                  text: f.intervalValue.toString(),
+                ),
+                intervalUnit: f.intervalUnit,
+                isImageRequired: f.isImageRequired,
+              );
+            }).toList();
+
+            final bool hasFollowUps = mappedFollowUps.isNotEmpty;
+
+            final updatedSessions = state.sessions.map((s) {
+              if (s.sessionId == detail.id) {
+                final durationText = detail.isFixedDuration
+                    ? "Fixed: ${detail.fixedDuration} mins"
+                    : "Total: ${detail.calculatedTotalDuration} mins (Base: ${detail.baseDuration}, Prep: ${detail.prepTime}, Cleanup: ${detail.cleanupTime})";
+
+                final priceText = detail.isFixedPrice
+                    ? "\$${detail.fixedPrice} (Fixed Rate)"
+                    : "\$${detail.basePrice} (Base) + Custom Overrides";
+
+                final List<String> protocols = [];
+                if (detail.clinicalProtocolPdf != null) {
+                  protocols.add(
+                    "${detail.clinicalProtocolPdf!.name} (Clinical Protocol)",
+                  );
+                } else {
+                  protocols.add("No clinical protocols configured");
+                }
+
+                final List<String> preNotifs = detail.preNotifications
+                    .map(
+                      (n) =>
+                          "${n.title} - Send ${n.timing} ${n.timingUnit}(s) before",
+                    )
+                    .toList();
+
+                final List<String> postNotifs = detail.postNotifications
+                    .map(
+                      (n) =>
+                          "${n.title} - Send ${n.timing} ${n.timingUnit}(s) after",
+                    )
+                    .toList();
+
+                final newS = SessionViewModelEntry(
+                  sessionId: s.sessionId,
+                  sessionNumber: s.sessionNumber,
+                  title: s.title,
+                  status: detail.status,
+                  totalFollowUpsController: s.totalFollowUpsController,
+                  followUps: mappedFollowUps,
+                  isDetailedEntered: true,
+                  productUsageSnapshot: List<ProductUsageEntry>.from(
+                    mappedUsages,
+                  ),
+                  durationSnapshot: durationText,
+                  priceSnapshot: priceText,
+                  protocolSnapshot: protocols,
+                  preInstructionsSnapshot: detail.preTreatmentInstructions,
+                  postInstructionsSnapshot: detail.postTreatmentInstructions,
+                  requirePhotosSnapshot: detail.requirePostTreatmentPhotos,
+                  photosCountSnapshot: detail.photoMilestone.length,
+                  preNotificationsSnapshot: preNotifs,
+                  postNotificationsSnapshot: postNotifs,
+                  downtimeSnapshot: detail.downtimeLevel,
+                  rolesSnapshot: List.from(detail.allowedRoles),
+                  consentSnapshot: detail.preTreatmentConsentForm?.name ?? '',
+                );
+                newS.totalFollowUpsController.text = mappedFollowUps.length
+                    .toString();
+                return newS;
+              }
+              return s;
+            }).toList();
+
+            state = state.copyWith(
+              sessions: updatedSessions,
+              isFollowUpRequired: hasFollowUps,
+            );
+
+            // 12. Pre-Treatment Consent Form
+            state = state.copyWith(
+              consentFormUrl: detail.preTreatmentConsentForm?.url ?? '',
+            );
+
+            // Now let's set the Step open index
+            setSessionStep(detail.currentStep);
+
+            return true;
+          }
+          return false;
+        }) ??
         false;
   }
 
@@ -1045,8 +1044,6 @@ Future<void> fetchProductsByTreatmentCategory() async {
     state = state.copyWith(sessions: const [], activeSessionIndex: 0);
   }
 
-   
-
   // Products and Inventory Original Implementations
   // Future<void> fetchProductsByTreatmentCategory() async {
   //   // final treatmentState = ref.read(treatmentViewModelProvider);
@@ -1164,6 +1161,7 @@ Future<void> fetchProductsByTreatmentCategory() async {
           .toList(),
     );
   }
+
   void selectUnitType(int? id, String? name) {
     state = state.copyWith(selectedUnitTypeId: id, selectedUnitTypeName: name);
   }
@@ -1192,8 +1190,7 @@ Future<void> fetchProductsByTreatmentCategory() async {
     );
   }
 
-  
-   void removeOtherMaterial(int productId) {
+  void removeOtherMaterial(int productId) {
     final entry = state.otherMaterialsUsageEntries.firstWhere(
       (e) => e.productId == productId,
     );
@@ -1204,7 +1201,6 @@ Future<void> fetchProductsByTreatmentCategory() async {
           .toList(),
     );
   }
-
 
   // Future<bool?> callProductUsage({required int stepNumber}) async {
   //   final minUnits = double.tryParse(minUnitsController.text) ?? 0.0;
@@ -1302,66 +1298,66 @@ Future<void> fetchProductsByTreatmentCategory() async {
   //     },
   //   );
   // }
-//   Future<bool?> callStepPricing({required int stepNumber}) async {
-//     final request = StepPricingRequest(
-//       stepNumber: stepNumber,
-//       basePrice: state.isFixedPrice
-//           ? null
-//           : int.tryParse(basePriceController.text.trim()),
-//       unitPriceOverrides: state.isFixedPrice
-//           ? []
-//           : state.productUsageEntries.map((entry) {
-//               final maxQty =
-//                   (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
-//                       .ceil();
-//               entry.syncUnitPriceControllers(maxQty);
+  //   Future<bool?> callStepPricing({required int stepNumber}) async {
+  //     final request = StepPricingRequest(
+  //       stepNumber: stepNumber,
+  //       basePrice: state.isFixedPrice
+  //           ? null
+  //           : int.tryParse(basePriceController.text.trim()),
+  //       unitPriceOverrides: state.isFixedPrice
+  //           ? []
+  //           : state.productUsageEntries.map((entry) {
+  //               final maxQty =
+  //                   (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
+  //                       .ceil();
+  //               entry.syncUnitPriceControllers(maxQty);
 
-//               final List<int> prices = [];
-//               if (entry.useDifferentPricingPerUnit) {
-//                 for (final c in entry.unitPriceControllers) {
-//                   prices.add(int.tryParse(c.text.trim()) ?? 0);
-//                 }
-//               } else {
-//                 final singlePrice =
-//                     int.tryParse(
-//                       entry.unitPriceControllers.isEmpty
-//                           ? '0'
-//                           : entry.unitPriceControllers[0].text.trim(),
-//                     ) ??
-//                     0;
-//                 prices.addAll(List.filled(maxQty, singlePrice));
-//               }
+  //               final List<int> prices = [];
+  //               if (entry.useDifferentPricingPerUnit) {
+  //                 for (final c in entry.unitPriceControllers) {
+  //                   prices.add(int.tryParse(c.text.trim()) ?? 0);
+  //                 }
+  //               } else {
+  //                 final singlePrice =
+  //                     int.tryParse(
+  //                       entry.unitPriceControllers.isEmpty
+  //                           ? '0'
+  //                           : entry.unitPriceControllers[0].text.trim(),
+  //                     ) ??
+  //                     0;
+  //                 prices.addAll(List.filled(maxQty, singlePrice));
+  //               }
 
-//               return UnitPriceOverride(
-//                 productId: entry.productId,
-//                 pricePerUnit: prices,
-//               );
-//             }).toList(),
-//       isFixedPrice: state.isFixedPrice,
-//       fixedPrice: state.isFixedPrice
-//           ? int.tryParse(fixedPriceController.text.trim())
-//           : null,
-//       allowedRoles: state.pricingRoles,
-//     );
-//     log('''
-// =========== PRODUCT USAGE REQUEST ===========
+  //               return UnitPriceOverride(
+  //                 productId: entry.productId,
+  //                 pricePerUnit: prices,
+  //               );
+  //             }).toList(),
+  //       isFixedPrice: state.isFixedPrice,
+  //       fixedPrice: state.isFixedPrice
+  //           ? int.tryParse(fixedPriceController.text.trim())
+  //           : null,
+  //       allowedRoles: state.pricingRoles,
+  //     );
+  //     log('''
+  // =========== PRODUCT USAGE REQUEST ===========
 
-// Step No    : $stepNumber
-// Body       : ${request.toJson()}
-// ============================================
-// ''');
+  // Step No    : $stepNumber
+  // Body       : ${request.toJson()}
+  // ============================================
+  // ''');
 
-//     return await runSafely<bool>(() async {
-//       await _sessionRepository.stepPricing(
-//         request: request,
-//         id: state.sessionId!,
-//       );
+  //     return await runSafely<bool>(() async {
+  //       await _sessionRepository.stepPricing(
+  //         request: request,
+  //         id: state.sessionId!,
+  //       );
 
-//       log('Step Pricing Created : ${state.sessionId!}');
+  //       log('Step Pricing Created : ${state.sessionId!}');
 
-//       return true;
-//     });
-//   }
+  //       return true;
+  //     });
+  //   }
 
   //   Future<bool?> callDownTimeLevels({required int stepNumber}) async {
   //     // Resolve the actual days from the selected level + category presets
@@ -1752,7 +1748,7 @@ Future<void> fetchProductsByTreatmentCategory() async {
     state = state.copyWith(selectedProtocolIds: ids);
   }
 
-    void toggleMaterialsRole(String role) {
+  void toggleMaterialsRole(String role) {
     final List<String> current = List.from(state.materialsRoles);
     if (current.contains(role)) {
       current.remove(role);
@@ -1937,9 +1933,7 @@ Future<void> fetchProductsByTreatmentCategory() async {
   }
 
   Future<void> pickAttachments(bool isPreTreatment) async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      withData: true,
+    final FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
         'pdf',
@@ -2072,10 +2066,9 @@ Future<void> fetchProductsByTreatmentCategory() async {
   }
 
   Future<void> pickConsentForm() async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+    final FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      withData: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -2165,7 +2158,9 @@ Future<void> fetchProductsByTreatmentCategory() async {
 
     switch (step) {
       case 1: // Inventory Products
-        _presetBackups[step]?['productUsageEntries'] = [...state.productUsageEntries];
+        _presetBackups[step]?['productUsageEntries'] = [
+          ...state.productUsageEntries,
+        ];
         final newEntry = ProductUsageEntry(
           productId: 1,
           productName: 'Botox Cosmetic (Allergan)',
@@ -2179,7 +2174,8 @@ Future<void> fetchProductsByTreatmentCategory() async {
         break;
 
       case 2: // Scheduling
-        _presetBackups[step]?['treatmentDuration'] = treatmentDurationController.text;
+        _presetBackups[step]?['treatmentDuration'] =
+            treatmentDurationController.text;
         _presetBackups[step]?['prepTime'] = prepTimeController.text;
         _presetBackups[step]?['cleanupTime'] = cleanupTimeController.text;
         _presetBackups[step]?['isFixedDuration'] = state.isFixedDuration;
@@ -2197,43 +2193,74 @@ Future<void> fetchProductsByTreatmentCategory() async {
 
       case 4: // Protocols
         _presetBackups[step]?['standaloneNotes'] = [...state.standaloneNotes];
-        state = state.copyWith(standaloneNotes: [
-          TreatmentProtocolNoteItem(description: 'Cleanse and disinfect target area with alcohol swab', order: 1),
-          TreatmentProtocolNoteItem(description: 'Verify patient identity and consent signature', order: 2),
-          TreatmentProtocolNoteItem(description: 'Confirm lack of contraindications (pregnancy, neuromuscular disorders)', order: 3)
-        ]);
+        state = state.copyWith(
+          standaloneNotes: [
+            TreatmentProtocolNoteItem(
+              description:
+                  'Cleanse and disinfect target area with alcohol swab',
+              order: 1,
+            ),
+            TreatmentProtocolNoteItem(
+              description: 'Verify patient identity and consent signature',
+              order: 2,
+            ),
+            TreatmentProtocolNoteItem(
+              description:
+                  'Confirm lack of contraindications (pregnancy, neuromuscular disorders)',
+              order: 3,
+            ),
+          ],
+        );
         break;
 
       case 5: // Pre-Treatment Instructions
-        _presetBackups[step]?['preInstructions'] = preTreatmentInstructionsController.text;
-        preTreatmentInstructionsController.text = 'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.';
+        _presetBackups[step]?['preInstructions'] =
+            preTreatmentInstructionsController.text;
+        preTreatmentInstructionsController.text =
+            'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.';
         break;
 
       case 6: // Post-Treatment Instructions
-        _presetBackups[step]?['postInstructions'] = postTreatmentInstructionsController.text;
-        postTreatmentInstructionsController.text = 'Avoid lying down for 4 hours, and do not massage the treated area.';
+        _presetBackups[step]?['postInstructions'] =
+            postTreatmentInstructionsController.text;
+        postTreatmentInstructionsController.text =
+            'Avoid lying down for 4 hours, and do not massage the treated area.';
         break;
 
       case 7: // Post Treatment Photos
-        _presetBackups[step]?['requirePhotos'] = state.requirePostTreatmentPhotos;
-        _presetBackups[step]?['photoCount'] = postTreatmentPhotoCountController.text;
+        _presetBackups[step]?['requirePhotos'] =
+            state.requirePostTreatmentPhotos;
+        _presetBackups[step]?['photoCount'] =
+            postTreatmentPhotoCountController.text;
         state = state.copyWith(requirePostTreatmentPhotos: true);
         postTreatmentPhotoCountController.text = '3';
         break;
 
       case 8: // Phase Notifications
-        _presetBackups[step]?['preNotifications'] = [...state.preNotificationEntries];
-        _presetBackups[step]?['postNotifications'] = [...state.postNotificationEntries];
+        _presetBackups[step]?['preNotifications'] = [
+          ...state.preNotificationEntries,
+        ];
+        _presetBackups[step]?['postNotifications'] = [
+          ...state.postNotificationEntries,
+        ];
         final preEntry = NotificationEntry(
-          titleController: TextEditingController(text: 'Preparing for your Botox treatment'),
-          messageController: TextEditingController(text: 'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.'),
+          titleController: TextEditingController(
+            text: 'Preparing for your Botox treatment',
+          ),
+          messageController: TextEditingController(
+            text:
+                'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.',
+          ),
           timingValueController: TextEditingController(text: '24'),
           timingUnit: 'hours',
           type: 'reminder',
         );
         final postEntry = NotificationEntry(
           titleController: TextEditingController(text: 'Botox Aftercare Guide'),
-          messageController: TextEditingController(text: 'Avoid lying down for 4 hours, and do not massage the treated area.'),
+          messageController: TextEditingController(
+            text:
+                'Avoid lying down for 4 hours, and do not massage the treated area.',
+          ),
           timingValueController: TextEditingController(text: '4'),
           timingUnit: 'hours',
           type: 'instruction',
@@ -2258,9 +2285,10 @@ Future<void> fetchProductsByTreatmentCategory() async {
         final sIdx = state.activeSessionIndex;
         if (sIdx < state.sessions.length) {
           final s = state.sessions[sIdx];
-          _presetBackups[step]?['totalFollowUps'] = s.totalFollowUpsController.text;
+          _presetBackups[step]?['totalFollowUps'] =
+              s.totalFollowUpsController.text;
           _presetBackups[step]?['followUps'] = [...s.followUps];
-          
+
           s.totalFollowUpsController.text = '1';
           final fu = FollowUpEntry(
             durationValueController: TextEditingController(text: '15'),
@@ -2268,7 +2296,9 @@ Future<void> fetchProductsByTreatmentCategory() async {
             intervalValueController: TextEditingController(text: '14'),
             intervalUnit: 'days',
             isImageRequired: true,
-            notesController: TextEditingController(text: 'Check symmetry; touch-up if needed.'),
+            notesController: TextEditingController(
+              text: 'Check symmetry; touch-up if needed.',
+            ),
             type: 'in_person',
           );
           s.followUps = [fu];
@@ -2291,7 +2321,10 @@ Future<void> fetchProductsByTreatmentCategory() async {
     switch (step) {
       case 1:
         if (backup.containsKey('productUsageEntries')) {
-          state = state.copyWith(productUsageEntries: backup['productUsageEntries'] as List<ProductUsageEntry>);
+          state = state.copyWith(
+            productUsageEntries:
+                backup['productUsageEntries'] as List<ProductUsageEntry>,
+          );
         }
         break;
 
@@ -2299,7 +2332,9 @@ Future<void> fetchProductsByTreatmentCategory() async {
         treatmentDurationController.text = backup['treatmentDuration'] ?? '';
         prepTimeController.text = backup['prepTime'] ?? '';
         cleanupTimeController.text = backup['cleanupTime'] ?? '';
-        state = state.copyWith(isFixedDuration: backup['isFixedDuration'] ?? false);
+        state = state.copyWith(
+          isFixedDuration: backup['isFixedDuration'] ?? false,
+        );
         break;
 
       case 3:
@@ -2308,39 +2343,56 @@ Future<void> fetchProductsByTreatmentCategory() async {
 
       case 4:
         if (backup.containsKey('standaloneNotes')) {
-          state = state.copyWith(standaloneNotes: backup['standaloneNotes'] as List<TreatmentProtocolNoteItem>);
+          state = state.copyWith(
+            standaloneNotes:
+                backup['standaloneNotes'] as List<TreatmentProtocolNoteItem>,
+          );
         }
         break;
 
       case 5:
-        preTreatmentInstructionsController.text = backup['preInstructions'] ?? '';
+        preTreatmentInstructionsController.text =
+            backup['preInstructions'] ?? '';
         break;
 
       case 6:
-        postTreatmentInstructionsController.text = backup['postInstructions'] ?? '';
+        postTreatmentInstructionsController.text =
+            backup['postInstructions'] ?? '';
         break;
 
       case 7:
-        state = state.copyWith(requirePostTreatmentPhotos: backup['requirePhotos'] ?? false);
+        state = state.copyWith(
+          requirePostTreatmentPhotos: backup['requirePhotos'] ?? false,
+        );
         postTreatmentPhotoCountController.text = backup['photoCount'] ?? '';
         break;
 
       case 8:
         if (backup.containsKey('preNotifications')) {
-          state = state.copyWith(preNotificationEntries: backup['preNotifications'] as List<NotificationEntry>);
+          state = state.copyWith(
+            preNotificationEntries:
+                backup['preNotifications'] as List<NotificationEntry>,
+          );
         }
         if (backup.containsKey('postNotifications')) {
-          state = state.copyWith(postNotificationEntries: backup['postNotifications'] as List<NotificationEntry>);
+          state = state.copyWith(
+            postNotificationEntries:
+                backup['postNotifications'] as List<NotificationEntry>,
+          );
         }
         break;
 
       case 9:
-        state = state.copyWith(downtimeLevel: backup['downtimeLevel'] ?? 'None');
+        state = state.copyWith(
+          downtimeLevel: backup['downtimeLevel'] ?? 'None',
+        );
         break;
 
       case 10:
         if (backup.containsKey('selectedRoles')) {
-          state = state.copyWith(selectedRoles: backup['selectedRoles'] as List<String>);
+          state = state.copyWith(
+            selectedRoles: backup['selectedRoles'] as List<String>,
+          );
         }
         break;
 

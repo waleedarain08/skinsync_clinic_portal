@@ -8,9 +8,9 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../models/form_template.dart';
-import '../../view_models/forms_controller.dart';
 import '../../services/locator.dart';
 import '../../utils/theme.dart';
+import '../../view_models/forms_controller.dart';
 import '../form_builder/form_builder_screen.dart';
 
 class FormsScreen extends StatefulWidget {
@@ -263,19 +263,16 @@ class _FormsScreenState extends State<FormsScreen> {
 
   Future<void> _uploadPdf() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        withData: kIsWeb,
       );
 
       if (result != null) {
         XFile pickedFile;
         if (kIsWeb) {
-          pickedFile = XFile.fromData(
-            result.files.single.bytes!,
-            name: result.files.single.name,
-          );
+          final bytes = await result.files.single.readAsBytes();
+          pickedFile = XFile.fromData(bytes, name: result.files.single.name);
         } else {
           if (result.files.single.path == null) return;
           pickedFile = XFile(result.files.single.path!);
