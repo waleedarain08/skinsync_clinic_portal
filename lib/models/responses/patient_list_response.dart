@@ -35,29 +35,28 @@ class PatientListResponse extends BaseResponse<List<PatientData>> {
     );
   }
 }
-
 class PatientData {
-  final int id;
-  final String patientName;
-  final String email;
+  final int? id;
+  final String? patientName;
+  final String? email;
   final String? image;
-  final String phoneNumber;
+  final String? phoneNumber;
 
   PatientData({
-    required this.id,
-    required this.patientName,
-    required this.email,
+    this.id,
+    this.patientName,
+    this.email,
     this.image,
-    required this.phoneNumber,
+    this.phoneNumber,
   });
 
   factory PatientData.fromJson(Map<String, dynamic> json) {
     return PatientData(
-      id: json['id'] ?? 0,
-      patientName: json['patient_name'] ?? '',
-      email: json['email'] ?? '',
+      id: json['id'],
+      patientName: json['patient_name'],
+      email: json['email'],
       image: json['image'],
-      phoneNumber: json['phone_number'] ?? '',
+      phoneNumber: json['phone_number'],
     );
   }
 }
