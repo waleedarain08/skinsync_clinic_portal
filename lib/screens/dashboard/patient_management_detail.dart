@@ -8,7 +8,6 @@ import 'patient_management.dart';
 import '../../utils/theme.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/borderd_container_widget.dart';
-import '../../models/dummy/patient_dummy.dart';
 import '../../models/responses/patient_detail_response.dart';
 import '../../models/responses/patient_treatment_request_response.dart';
 import '../../view_models/patient_view_model.dart';
@@ -37,9 +36,9 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
 
   @override
   Widget build(BuildContext context) {
-    final patient = dummyPatientDetail.data;
+   
     final patientState = ref.watch(patientProvider);
-
+     final patient = patientState.patientDetail;
     if (patient == null) {
       return const GradientScaffold(
         body: Center(child: AppLoader()),

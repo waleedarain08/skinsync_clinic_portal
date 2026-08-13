@@ -40,7 +40,7 @@ class PatientDetailData {
   factory PatientDetailData.fromJson(Map<String, dynamic> json) {
     return PatientDetailData(
       id: json['id'] ?? 0,
-      patientName: json['patient_name'] ?? '',
+      patientName: json['name'] ?? '',
       email: json['email'] ?? '',
       image: json['image'],
       phoneNumber: json['phone_number'] ?? '',

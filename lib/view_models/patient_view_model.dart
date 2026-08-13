@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/responses/patient_detail_response.dart';
@@ -10,8 +11,8 @@ import 'base_view_model.dart';
 
 final patientProvider =
     NotifierProvider.autoDispose<PatientViewModel, PatientState>(
-  () => PatientViewModel._(),
-);
+      () => PatientViewModel._(),
+    );
 
 class PatientViewModel extends BaseViewModel<PatientState> {
   PatientViewModel._();
@@ -30,9 +31,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
   void setPageNumber(int page) {
     state = state.copyWith(page: page);
 
-    getPatients(
-      initialCall: false,
-    );
+    getPatients(initialCall: false);
   }
 
   Future<void> getPatients({
@@ -43,93 +42,78 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       state = state.copyWith(page: 1);
     }
 
-    await runSafely(
-      showLoading: showEasyLoading,
-      () async {
+    await runSafely(showLoading: showEasyLoading, () async {
+      state = state.copyWith(loading: !showEasyLoading);
+
+      final response = await _repository.getPatients(
+        page: state.page,
+        limit: state.pageSize,
+        search: searchController.text,
+      );
+
+      if (response.success) {
         state = state.copyWith(
-          loading: !showEasyLoading,
+          loading: false,
+          patients: response.data ?? [],
+          totalPage: response.totalPages,
+          totalResults: response.totalResults,
+          page: response.page,
         );
-
-        final response = await _repository.getPatients(
-          page: state.page,
-          limit: state.pageSize,
-          search: searchController.text,
+      } else {
+        state = state.copyWith(
+          loading: false,
+          patients: [],
+          totalPage: 0,
+          totalResults: 0,
         );
+      }
+    });
 
-        if (response.success) {
-          state = state.copyWith(
-            loading: false,
-            patients: response.data ?? [],
-            totalPage: response.totalPages,
-            totalResults: response.totalResults,
-            page: response.page,
-          );
-        } else {
-          state = state.copyWith(
-            loading: false,
-            patients: [],
-            totalPage: 0,
-            totalResults: 0,
-          );
-        }
-      },
-    );
-
-    state = state.copyWith(
-      loading: false,
-    );
+    state = state.copyWith(loading: false);
   }
 
   void searchPatients() {
-    getPatients(
-      initialCall: true,
-    );
+    getPatients(initialCall: true);
   }
 
   void clearSearch() {
     searchController.clear();
 
-    getPatients(
-      initialCall: true,
-    );
+    getPatients(initialCall: true);
   }
 
-  Future<void> getPatientDetail({
-    required int patientId,
-  }) async {
-    await runSafely(
-      () async {
+ Future<bool> getPatientDetail({required int patientId}) async {
+  var success = false;
+
+  await runSafely(
+    showLoading: true,
+    () async {
+      state = state.copyWith(detailLoading: true);
+
+      final response = await _repository.getPatientDetail(
+        patientId: patientId,
+      );
+
+      if (response.success) {
         state = state.copyWith(
-          detailLoading: true,
+          patientDetail: response.data,
         );
 
-        final response = await _repository.getPatientDetail(
-          patientId: patientId,
-        );
+        success = true;
+      }
+    },
+  );
 
-        if (response.success) {
-          state = state.copyWith(
-            patientDetail: response.data,
-          );
-        }
-      },
-    );
+  state = state.copyWith(detailLoading: false);
 
-    state = state.copyWith(
-      detailLoading: false,
-    );
-  }
-
+  return success;
+}
   void clearPatientDetail() {
-    state = state.copyWith(
-      clearPatientDetail: true,
-    );
+    state = state.copyWith(clearPatientDetail: true);
   }
 
   void setTreatmentPageNumber(int page) {
-    state = state.copyWith(
-      treatmentPage: page,
-    );
+    state = state.copyWith(treatmentPage: page);
 
     getPatientTreatmentRequests();
   }
@@ -139,46 +123,43 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     bool showEasyLoading = false,
   }) async {
     if (initialCall) {
-      state = state.copyWith(
-        treatmentPage: 1,
-      );
+      state = state.copyWith(treatmentPage: 1);
     }
 
-    await runSafely(
-      showLoading: showEasyLoading,
-      () async {
+    await runSafely(showLoading: showEasyLoading, () async {
+      state = state.copyWith(treatmentLoading: !showEasyLoading);
+
+      final response = await _repository.getPatientTreatmentRequests(
+        page: state.treatmentPage,
+        limit: state.treatmentPageSize,
+      );
+
+      if (response.success) {
         state = state.copyWith(
-          treatmentLoading: !showEasyLoading,
+          treatmentLoading: false,
+          treatmentRequests: response.data ?? [],
+          treatmentTotalPage: response.totalPages,
+          treatmentTotalResults: response.total,
+          treatmentPage: response.page,
         );
-
-        final response = await _repository.getPatientTreatmentRequests(
-          page: state.treatmentPage,
-          limit: state.treatmentPageSize,
+      } else {
+        state = state.copyWith(
+          treatmentLoading: false,
+          treatmentRequests: [],
+          treatmentTotalPage: 0,
+          treatmentTotalResults: 0,
         );
+      }
+    });
 
-        if (response.success) {
-          state = state.copyWith(
-            treatmentLoading: false,
-            treatmentRequests: response.data ?? [],
-            treatmentTotalPage: response.totalPages,
-            treatmentTotalResults: response.total,
-            treatmentPage: response.page,
-          );
-        } else {
-          state = state.copyWith(
-            treatmentLoading: false,
-            treatmentRequests: [],
-            treatmentTotalPage: 0,
-            treatmentTotalResults: 0,
-          );
-        }
-      },
-    );
-
-    state = state.copyWith(
-      treatmentLoading: false,
-    );
+    state = state.copyWith(treatmentLoading: false);
   }
+ @mustCallSuper
+  void onError(String message) {
+    state.copyWith(loading: false);
+    EasyLoading.dismiss();
+  }
+  
 }
 
 class PatientState {
@@ -239,12 +220,15 @@ class PatientState {
       totalResults: totalResults ?? this.totalResults,
       patients: patients ?? this.patients,
       detailLoading: detailLoading ?? this.detailLoading,
-      patientDetail: clearPatientDetail ? null : (patientDetail ?? this.patientDetail),
+      patientDetail: clearPatientDetail
+          ? null
+          : (patientDetail ?? this.patientDetail),
       treatmentLoading: treatmentLoading ?? this.treatmentLoading,
       treatmentPage: treatmentPage ?? this.treatmentPage,
       treatmentPageSize: treatmentPageSize ?? this.treatmentPageSize,
       treatmentTotalPage: treatmentTotalPage ?? this.treatmentTotalPage,
-      treatmentTotalResults: treatmentTotalResults ?? this.treatmentTotalResults,
+      treatmentTotalResults:
+          treatmentTotalResults ?? this.treatmentTotalResults,
       treatmentRequests: treatmentRequests ?? this.treatmentRequests,
     );
   }

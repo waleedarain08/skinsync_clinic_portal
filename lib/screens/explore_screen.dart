@@ -618,10 +618,10 @@ class _ReelCard extends ConsumerWidget {
                   child: Column(
                     children: [
                       _CircleActionBtn(
-                        icon: reel.status == 'Active'
+                        icon: reel.status == 'active'
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: reel.status == 'Active'
+                        color: reel.status == 'active'
                             ? CustomColors.purple
                             : CustomColors.grey,
                         onTap: () {
@@ -649,7 +649,7 @@ class _ReelCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if (reel.status != 'Active')
+                if (reel.status != 'active')
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.4),
@@ -828,7 +828,7 @@ class _PostListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isHidden = post.status != 'Active';
+    final isHidden = post.status != 'active';
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
       child: Opacity(

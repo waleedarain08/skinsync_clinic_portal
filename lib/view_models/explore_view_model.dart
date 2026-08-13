@@ -227,35 +227,64 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
   }
 
   Future<void> toggleReelVisibility(
-    int id,
-    String currentStatus,
-  ) async {
-    final newStatus =
-        currentStatus == 'Active' ? 'In Active' : 'Active';
+  int id,
+  String currentStatus,
+) async {
+  final newStatus =
+      currentStatus == 'active' ? 'inActive' : 'active';
 
-    await runSafely(
-      showLoading: false,
-      () async {
-        state = state.copyWith(loading: true);
+  await runSafely(
+    showLoading: false,
+    () async {
+      state = state.copyWith(loading: true);
 
-        await _repository.updateReelStatus(
-          id,
-          newStatus,
-        );
+      await _repository.updateReelStatus(
+        id,
+        newStatus,
+      );
 
-        EasyLoading.showSuccess(
-          'Reel status updated to $newStatus',
-        );
+      EasyLoading.showSuccess(
+        'Reel status updated to $newStatus',
+      );
 
-        await fetchReels(
-          page: state.reelsCurrentPage,
-        );
-      },
-    );
+      await fetchReels(
+        page: state.reelsCurrentPage,
+      );
+    },
+  );
 
-    state = state.copyWith(loading: false);
-  }
+  state = state.copyWith(loading: false);
+}
 
+Future<void> togglePostVisibility(
+  int id,
+  String currentStatus,
+) async {
+  final newStatus =
+      currentStatus == 'active' ? 'inActive' : 'active';
+
+  await runSafely(
+    showLoading: false,
+    () async {
+      state = state.copyWith(loading: true);
+
+      await _repository.updatePostStatus(
+        id,
+        newStatus,
+      );
+
+      EasyLoading.showSuccess(
+        'Post status updated to $newStatus',
+      );
+
+      await fetchPosts(
+        page: state.postsCurrentPage,
+      );
+    },
+  );
+
+  state = state.copyWith(loading: false);
+}
   Future<void> deleteReel(int id) async {
     await runSafely(
       showLoading: false,
@@ -277,36 +306,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
     state = state.copyWith(loading: false);
   }
 
-  Future<void> togglePostVisibility(
-    int id,
-    String currentStatus,
-  ) async {
-    final newStatus =
-        currentStatus == 'Active' ? 'In Active' : 'Active';
-
-    await runSafely(
-      showLoading: false,
-      () async {
-        state = state.copyWith(loading: true);
-
-        await _repository.updatePostStatus(
-          id,
-          newStatus,
-        );
-
-        EasyLoading.showSuccess(
-          'Post status updated to $newStatus',
-        );
-
-        await fetchPosts(
-          page: state.postsCurrentPage,
-        );
-      },
-    );
-
-    state = state.copyWith(loading: false);
-  }
-
+ 
   Future<void> deletePost(int id) async {
     await runSafely(
       showLoading: false,

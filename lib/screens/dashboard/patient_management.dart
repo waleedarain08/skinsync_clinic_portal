@@ -248,11 +248,11 @@ class _PatientManagementContent extends ConsumerWidget {
         borderRadius: BorderRadius.circular(context.r(12)),
         child: Table(
           columnWidths: const {
-  0: FlexColumnWidth(4),
-  1: FlexColumnWidth(3),
-  2: FlexColumnWidth(3),
-  3: FlexColumnWidth(2),
-},
+            0: FlexColumnWidth(4),
+            1: FlexColumnWidth(3),
+            2: FlexColumnWidth(3),
+            3: FlexColumnWidth(2),
+          },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
             TableRow(
@@ -261,23 +261,11 @@ class _PatientManagementContent extends ConsumerWidget {
                 border: Border(bottom: BorderSide(color: CustomColors.border)),
               ),
               children: [
-  _tableHeaderCell(
-    context,
-    'PATIENT NAME',
-  ),
-  _tableHeaderCell(
-    context,
-    'EMAIL',
-  ),
-  _tableHeaderCell(
-    context,
-    'PHONE NUMBER',
-  ),
-  _tableHeaderCell(
-    context,
-    'ACTIONS',
-  ),
-],
+                _tableHeaderCell(context, 'PATIENT NAME'),
+                _tableHeaderCell(context, 'EMAIL'),
+                _tableHeaderCell(context, 'PHONE NUMBER'),
+                _tableHeaderCell(context, 'ACTIONS'),
+              ],
             ),
 
             ...patients.map(
@@ -287,32 +275,26 @@ class _PatientManagementContent extends ConsumerWidget {
                     bottom: BorderSide(color: CustomColors.border),
                   ),
                 ),
-             children: [
-  _patientNameCell(
-    context,
-    patient,
-  ),
+                children: [
+                  _patientNameCell(context, patient),
 
-  _tableTextCell(
-    context,
-    patient.email ?? 'N/A',
-    style: context.fonts.grey14w400,
-  ),
+                  _tableTextCell(
+                    context,
+                    patient.email ?? 'N/A',
+                    style: context.fonts.grey14w400,
+                  ),
 
-  _tableTextCell(
-    context,
-    patient.phoneNumber ?? 'N/A',
-    style: context.fonts.grey14w400,
-  ),
+                  _tableTextCell(
+                    context,
+                    patient.phoneNumber ?? 'N/A',
+                    style: context.fonts.grey14w400,
+                  ),
 
-  _actionsCell(
-    context,
-    patient,
-  ),
-], ),
+                  _actionsCell(context, patient),
+                ],
+              ),
             ),
           ],
-       
         ),
       ),
     );
@@ -403,17 +385,29 @@ class _PatientManagementContent extends ConsumerWidget {
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
         children: [
-          IconButton(
-            tooltip: 'View Patient Details',
-            icon: const Icon(
-              Icons.visibility_outlined,
-              color: CustomColors.grey,
-              size: 20,
-            ),
-            onPressed: () {
-              context.push(
-                PatientManagementDetailScreen.routeName,
-                extra: patient.id,
+          Consumer(
+            builder: (context, ref, _) {
+              return IconButton(
+                tooltip: 'View Patient Details',
+                icon: const Icon(
+                  Icons.visibility_outlined,
+                  color: CustomColors.grey,
+                  size: 20,
+                ),
+                onPressed: () async {
+                  if (patient.id == null) return;
+
+                  final success = await ref
+                      .read(patientProvider.notifier)
+                      .getPatientDetail(patientId: patient.id!);
+
+                  if (success && context.mounted) {
+                    context.push(
+                      PatientManagementDetailScreen.routeName,
+                      extra: patient.id,
+                    );
+                  }
+                },
               );
             },
           ),
