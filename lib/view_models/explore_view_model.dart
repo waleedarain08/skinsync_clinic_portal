@@ -1,4 +1,3 @@
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +34,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
   }
 
   Future<void> fetchReels({int page = 1}) async {
-   return await runSafely(showLoading: false, () async {
+    return await runSafely(showLoading: false, () async {
       state = state.copyWith(loading: true);
 
       final response = await _repository.fetchReels(
@@ -50,12 +49,10 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
         reelsCurrentPage: response.page,
       );
     });
-
-    
   }
 
   Future<void> fetchPosts({int page = 1}) async {
-  return  await runSafely(showLoading: false, () async {
+    return await runSafely(showLoading: false, () async {
       state = state.copyWith(loading: true);
 
       final response = await _repository.fetchPosts(
@@ -70,8 +67,6 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
         postsCurrentPage: response.page,
       );
     });
-
-  
   }
 
   Future<void> pickAndUploadImage() async {
@@ -79,7 +74,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
 
     if (image == null) return;
 
-  return  await runSafely(showLoading: true, () async {
+    return await runSafely(showLoading: true, () async {
       final String? url = await _mediaService.uploadImage(
         'explore/posts/',
         image,
@@ -98,7 +93,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
 
     if (image == null) return;
 
-  return  await runSafely(showLoading: true, () async {
+    return await runSafely(showLoading: true, () async {
       final String? url = await _mediaService.uploadImage(
         'explore/reels/thumbnails/',
         image,
@@ -123,7 +118,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
 
     final file = result.files.first;
 
-  return await runSafely(showLoading: true, () async {
+    return await runSafely(showLoading: true, () async {
       final String? url = await _mediaService.uploadMedia(
         path: 'explore/reels/',
         file: file,
@@ -187,14 +182,13 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
         ? Status.inactive.name
         : Status.active.name;
 
-   return    await runSafely(() async {
+    return await runSafely(() async {
       final response = await _repository.updateReelStatus(id, newStatus);
       if (response.success) {
         EasyLoading.showSuccess('Reel status updated to $newStatus');
         await fetchReels(page: state.reelsCurrentPage);
       }
     });
-   
   }
 
   Future<void> togglePostVisibility(int id, String currentStatus) async {
@@ -204,7 +198,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
         ? Status.inactive.name
         : Status.active.name;
 
-  return  await runSafely(() async {
+    return await runSafely(() async {
       final response = await _repository.updatePostStatus(id, newStatus);
       if (response.success) {
         EasyLoading.showSuccess('Post status updated to $newStatus');
@@ -214,7 +208,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
   }
 
   Future<void> deleteReel(int id) async {
- return   await runSafely(showLoading: false, () async {
+    return await runSafely(showLoading: false, () async {
       state = state.copyWith(loading: true);
 
       await _repository.deleteReel(id);
@@ -223,12 +217,10 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
 
       await fetchReels(page: state.reelsCurrentPage);
     });
-
-    state = state.copyWith(loading: false);
   }
 
   Future<void> deletePost(int id) async {
- return   await runSafely(showLoading: false, () async {
+    return await runSafely(showLoading: false, () async {
       state = state.copyWith(loading: true);
 
       await _repository.deletePost(id);
@@ -237,12 +229,10 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
 
       await fetchPosts(page: state.postsCurrentPage);
     });
-
-  
   }
 
   Future<void> fetchPostCategories() async {
-  return  await runSafely(() async {
+    return await runSafely(() async {
       final categories = await _repository.fetchPostCategories();
 
       state = state.copyWith(postCategories: categories);
@@ -250,7 +240,7 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
   }
 
   Future<void> createPostCategory(String name) async {
- return   await runSafely(showLoading: true, () async {
+    return await runSafely(showLoading: true, () async {
       final response = await _repository.createPostCategory(name);
       if (response.success) {
         EasyLoading.showSuccess('Category created successfully');
