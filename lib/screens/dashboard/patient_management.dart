@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/responses/patient_list_response.dart';
 import '../../utils/theme.dart';
+import '../../view_models/patient_view_model.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/custom_outlined_button.dart';
@@ -9,79 +12,39 @@ import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import 'patient_management_detail.dart';
 
-class PatientManagementScreen extends StatefulWidget {
+class PatientManagementScreen extends ConsumerStatefulWidget {
   static const String routeName = '/patient-management';
+
   const PatientManagementScreen({super.key});
 
   @override
-  State<PatientManagementScreen> createState() => _PatientManagementScreenState();
+  ConsumerState<PatientManagementScreen> createState() =>
+      _PatientManagementScreenState();
 }
 
-class _PatientManagementScreenState extends State<PatientManagementScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  int _currentPage = 0;
-
-  // Local list of clinical patients (high-fidelity mock data)
-  final List<Map<String, String>> _dummyPatients = [
-    {
-      'id': '1',
-      'name': 'Sarah Johnson',
-      'email': 'sarah.johnson@email.com',
-      'gender': 'Female',
-      'phone': '+1 (555) 0192',
-      'lastVisit': '02 Feb 2025',
-    },
-    {
-      'id': '2',
-      'name': 'Michael Brown',
-      'email': 'michael.brown@email.com',
-      'gender': 'Male',
-      'phone': '+1 (555) 0143',
-      'lastVisit': '28 Jan 2025',
-    },
-    {
-      'id': '3',
-      'name': 'Alyssa Davis',
-      'email': 'alyssa.davis@email.com',
-      'gender': 'Female',
-      'phone': '+1 (555) 0188',
-      'lastVisit': '15 Jan 2025',
-    },
-    {
-      'id': '4',
-      'name': 'Emily Wilson',
-      'email': 'emily.wilson@email.com',
-      'gender': 'Female',
-      'phone': '+1 (555) 0177',
-      'lastVisit': '10 Jan 2025',
-    },
-    {
-      'id': '5',
-      'name': 'James Taylor',
-      'email': 'james.taylor@email.com',
-      'gender': 'Male',
-      'phone': '+1 (555) 0199',
-      'lastVisit': '05 Jan 2025',
-    },
-  ];
-
+class _PatientManagementScreenState
+    extends ConsumerState<PatientManagementScreen> {
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      ref.read(patientProvider.notifier).getPatients(initialCall: true);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Filter patients dynamically based on search query
-    final filteredPatients = _dummyPatients.where((p) {
-      final query = _searchQuery.toLowerCase();
-      return query.isEmpty ||
-          (p['name']?.toLowerCase().contains(query) ?? false) ||
-          (p['email']?.toLowerCase().contains(query) ?? false) ||
-          (p['phone']?.toLowerCase().contains(query) ?? false);
-    }).toList();
+    return const _PatientManagementContent();
+  }
+}
+
+class _PatientManagementContent extends ConsumerWidget {
+  const _PatientManagementContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final patientState = ref.watch(patientProvider);
 
     return GradientScaffold(
       body: SingleChildScrollView(
@@ -91,13 +54,28 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
           children: [
             _buildHeader(context),
             context.verticalSpace(32),
-            _buildQuickInsights(),
+
+            _buildQuickInsights(context, patientState),
+
             context.verticalSpace(32),
-            _buildFilters(context),
+
+            _buildFilters(context, ref, patientState),
+
             context.verticalSpace(24),
-            _buildPatientsTable(filteredPatients),
+
+            if (patientState.loading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(60),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+              _buildPatientsTable(context, ref, patientState.patients ?? []),
+
             context.verticalSpace(24),
-            _buildFooterPaginator(),
+
+            _buildFooterPaginator(context, ref, patientState),
           ],
         ),
       ),
@@ -121,9 +99,10 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
         ),
         CustomPrimaryButton(
           onTap: () {
-            // Mock Trigger
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Add Patient Form initialization...')),
+              const SnackBar(
+                content: Text('Add Patient Form initialization...'),
+              ),
             );
           },
           icon: Icons.add_rounded,
@@ -134,38 +113,34 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _buildQuickInsights() {
-    final totalPatients = _dummyPatients.length;
-    final activePatients = _dummyPatients.length;
-    final femaleCount = _dummyPatients.where((p) => p['gender'] == 'Female').length;
-    final maleCount = _dummyPatients.where((p) => p['gender'] == 'Male').length;
+  Widget _buildQuickInsights(BuildContext context, PatientState state) {
+    final totalPatients = state.totalResults ?? 0;
 
     return Row(
       children: [
         _buildStatCard(
+          context,
           'Total Patients',
           '$totalPatients',
           Icons.people_alt_outlined,
           CustomColors.purple,
         ),
         context.horizontalSpace(16),
+
         _buildStatCard(
+          context,
           'Active Patients',
-          '$activePatients',
+          '$totalPatients',
           Icons.check_circle_outline_rounded,
           CustomColors.green,
         ),
-        _buildStatCard(
-          'Female Profiles',
-          '$femaleCount',
-          Icons.face_retouching_natural_rounded,
-          CustomColors.purple,
-        ),
         context.horizontalSpace(16),
+
         _buildStatCard(
-          'Male Profiles',
-          '$maleCount',
-          Icons.man_outlined,
+          context,
+          'Patient Profiles',
+          '${state.patients?.length ?? 0}',
+          Icons.face_retouching_natural_rounded,
           CustomColors.blue,
         ),
       ],
@@ -173,6 +148,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
   }
 
   Widget _buildStatCard(
+    BuildContext context,
     String title,
     String value,
     IconData icon,
@@ -216,46 +192,54 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _buildFilters(BuildContext context) {
+  Widget _buildFilters(
+    BuildContext context,
+    WidgetRef ref,
+    PatientState state,
+  ) {
+    final controller = ref.read(patientProvider.notifier).searchController;
+
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: _searchController,
-              style: context.fonts.black14w400,
-              decoration: AppDecorations.input(
-                context,
-                hint: "Search patients by name, email, or phone number...",
-                prefixIcon: const Icon(Icons.search_rounded, color: CustomColors.grey),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: CustomColors.grey),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (val) {
-                setState(() {
-                  _searchQuery = val;
-                });
-              },
-            ),
+      child: TextFormField(
+        controller: controller,
+        style: context.fonts.black14w400,
+        decoration: AppDecorations.input(
+          context,
+          hint: 'Search patients by name, email, or phone number...',
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: CustomColors.grey,
           ),
-        ],
+          suffixIcon: controller.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: CustomColors.grey),
+                  onPressed: () {
+                    controller.clear();
+
+                    ref
+                        .read(patientProvider.notifier)
+                        .getPatients(initialCall: true);
+                  },
+                )
+              : null,
+        ),
+        onFieldSubmitted: (_) {
+          ref
+              .read(patientProvider.notifier)
+              .getPatients(initialCall: true, showEasyLoading: true);
+        },
       ),
     );
   }
 
-  Widget _buildPatientsTable(List<Map<String, String>> patients) {
+  Widget _buildPatientsTable(
+    BuildContext context,
+    WidgetRef ref,
+    List<PatientData> patients,
+  ) {
     if (patients.isEmpty) {
-      return _buildEmptyState(context);
+      return _buildEmptyState(context, ref);
     }
 
     return BorderdContainerWidget(
@@ -264,58 +248,77 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
         borderRadius: BorderRadius.circular(context.r(12)),
         child: Table(
           columnWidths: const {
-            0: FlexColumnWidth(4), // Patient Name / Details
-            1: FlexColumnWidth(2), // Gender
-            2: FlexColumnWidth(3), // Phone Number
-            3: FlexColumnWidth(2), // Status
-            4: FlexColumnWidth(2), // Actions
-          },
+  0: FlexColumnWidth(4),
+  1: FlexColumnWidth(3),
+  2: FlexColumnWidth(3),
+  3: FlexColumnWidth(2),
+},
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
-            // Header Row
             TableRow(
               decoration: const BoxDecoration(
                 color: CustomColors.whiteGrey,
                 border: Border(bottom: BorderSide(color: CustomColors.border)),
               ),
               children: [
-                _tableHeaderCell('PATIENT NAME'),
-                _tableHeaderCell('GENDER'),
-                _tableHeaderCell('PHONE NUMBER'),
-                _tableHeaderCell('STATUS'),
-                _tableHeaderCell('ACTIONS'),
-              ],
+  _tableHeaderCell(
+    context,
+    'PATIENT NAME',
+  ),
+  _tableHeaderCell(
+    context,
+    'EMAIL',
+  ),
+  _tableHeaderCell(
+    context,
+    'PHONE NUMBER',
+  ),
+  _tableHeaderCell(
+    context,
+    'ACTIONS',
+  ),
+],
             ),
-            // Data Rows
-            ...patients.map((p) {
-              return TableRow(
+
+            ...patients.map(
+              (patient) => TableRow(
                 decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(color: CustomColors.border),
                   ),
                 ),
-                children: [
-                  _patientNameCell(p),
-                  _tableTextCell(
-                    p['gender'] ?? 'N/A',
-                    style: context.fonts.black14w600,
-                  ),
-                  _tableTextCell(
-                    p['phone'] ?? 'N/A',
-                    style: context.fonts.grey14w400,
-                  ),
-                  _statusBadgeCell(),
-                  _actionsCell(p),
-                ],
-              );
-            }),
+             children: [
+  _patientNameCell(
+    context,
+    patient,
+  ),
+
+  _tableTextCell(
+    context,
+    patient.email ?? 'N/A',
+    style: context.fonts.grey14w400,
+  ),
+
+  _tableTextCell(
+    context,
+    patient.phoneNumber ?? 'N/A',
+    style: context.fonts.grey14w400,
+  ),
+
+  _actionsCell(
+    context,
+    patient,
+  ),
+], ),
+            ),
           ],
+       
         ),
       ),
     );
   }
 
-  Widget _tableHeaderCell(String label) {
+  Widget _tableHeaderCell(BuildContext context, String label) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Text(
@@ -325,7 +328,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _patientNameCell(Map<String, String> p) {
+  Widget _patientNameCell(BuildContext context, PatientData patient) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
@@ -333,31 +336,22 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
           CircleAvatar(
             radius: context.r(21),
             backgroundColor: CustomColors.softGrey,
-            child: const Icon(
-              Icons.person,
-              color: CustomColors.grey,
-              size: 20,
-            ),
+            backgroundImage: patient.image != null && patient.image!.isNotEmpty
+                ? NetworkImage(patient.image!)
+                : null,
+            child: patient.image == null || patient.image!.isEmpty
+                ? const Icon(Icons.person, color: CustomColors.grey, size: 20)
+                : null,
           ),
+
           context.horizontalSpace(16),
+
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  p['name'] ?? 'N/A',
-                  style: context.fonts.black14w600,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                context.verticalSpace(2),
-                Text(
-                  p['email'] ?? 'N/A',
-                  style: context.fonts.purple12w700,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: Text(
+              patient.patientName ?? 'N/A',
+              style: context.fonts.black14w600,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -365,7 +359,11 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _tableTextCell(String text, {required TextStyle style}) {
+  Widget _tableTextCell(
+    BuildContext context,
+    String text, {
+    required TextStyle style,
+  }) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Text(
@@ -377,49 +375,46 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _statusBadgeCell() {
-    Color badgeColor = CustomColors.green;
-    String label = 'Active';
+  // Widget _statusBadgeCell(BuildContext context) {
+  //   const badgeColor = CustomColors.green;
 
-    return Padding(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.1),
-              borderRadius: context.appBorderRadius(all: 20),
-              border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              label,
-              style: context.fonts.grey12w600.copyWith(
-                color: badgeColor,
-                fontSize: context.sp(10),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Padding(
+  //     padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
+  //     child: Container(
+  //       padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
+  //       decoration: BoxDecoration(
+  //         color: badgeColor.withValues(alpha: 0.1),
+  //         borderRadius: context.appBorderRadius(all: 20),
+  //         border: Border.all(color: badgeColor.withValues(alpha: 0.2)),
+  //       ),
+  //       child: Text(
+  //         'Active',
+  //         style: context.fonts.grey12w600.copyWith(
+  //           color: badgeColor,
+  //           fontSize: context.sp(10),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _actionsCell(Map<String, String> p) {
+  Widget _actionsCell(BuildContext context, PatientData patient) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
         children: [
           IconButton(
-            tooltip: 'View Journey Details',
+            tooltip: 'View Patient Details',
             icon: const Icon(
               Icons.visibility_outlined,
               color: CustomColors.grey,
               size: 20,
             ),
             onPressed: () {
-              context.push(PatientManagementDetailScreen.routeName);
+              context.push(
+                PatientManagementDetailScreen.routeName,
+                extra: patient.id,
+              );
             },
           ),
           IconButton(
@@ -431,7 +426,9 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Edit profile for ${p['name']}')),
+                SnackBar(
+                  content: Text('Edit profile for ${patient.patientName}'),
+                ),
               );
             },
           ),
@@ -440,7 +437,7 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 48),
       child: Center(
@@ -459,42 +456,34 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
                 color: CustomColors.grey,
               ),
             ),
+
             context.verticalSpace(24),
-            Text(
-              'No patients match your search refinement',
-              style: context.fonts.black18w600,
-            ),
+
+            Text('No patients found', style: context.fonts.black18w600),
+
             context.verticalSpace(8),
+
             Text(
-              'Try clearing your search keyword, resetting the filter, or register a brand new patient profile.',
+              'Try clearing your search keyword or search for another patient.',
               style: context.fonts.grey14w400,
               textAlign: TextAlign.center,
             ),
+
             context.verticalSpace(24),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomOutlinedButton(
-                  onTap: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchQuery = '';
-                    });
-                  },
-                  label: 'Clear Search Filter',
-                ),
-                context.horizontalSpace(16),
-                CustomPrimaryButton(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Add Patient Form initialization...')),
-                    );
-                  },
-                  icon: Icons.add_rounded,
-                  label: 'Add Patient',
-                  width: context.w(180),
-                ),
-              ],
+
+            CustomOutlinedButton(
+              onTap: () {
+                final controller = ref
+                    .read(patientProvider.notifier)
+                    .searchController;
+
+                controller.clear();
+
+                ref
+                    .read(patientProvider.notifier)
+                    .getPatients(initialCall: true);
+              },
+              label: 'Clear Search',
             ),
           ],
         ),
@@ -502,15 +491,22 @@ class _PatientManagementScreenState extends State<PatientManagementScreen> {
     );
   }
 
-  Widget _buildFooterPaginator() {
+  Widget _buildFooterPaginator(
+    BuildContext context,
+    WidgetRef ref,
+    PatientState state,
+  ) {
+    final totalPages = state.totalPage ?? 1;
+
     return Center(
       child: NumberPaginator(
-        totalPages: 1,
-        currentPage: _currentPage,
+        totalPages: totalPages < 1 ? 1 : totalPages,
+        currentPage: (state.page - 1).clamp(
+          0,
+          totalPages > 0 ? totalPages - 1 : 0,
+        ),
         onPageChanged: (pageIndex) {
-          setState(() {
-            _currentPage = pageIndex;
-          });
+          ref.read(patientProvider.notifier).setPageNumber(pageIndex + 1);
         },
       ),
     );

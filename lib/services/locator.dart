@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../repositories/auth_repository.dart';
 import '../repositories/explore_repository.dart';
+import '../repositories/patient_repository.dart';
 import '../repositories/product_repository.dart';
 import '../repositories/provider_role_repository.dart';
 import '../repositories/session_repository.dart';
@@ -11,6 +12,7 @@ import 'appointment_service.dart';
 import 'area_services.dart';
 import 'auth_service.dart';
 import 'explore_service.dart';
+import 'patient_service.dart';
 import 'practitioner_service.dart';
 import '../view_models/forms_controller.dart';
 import 'media_service.dart';
@@ -53,6 +55,9 @@ Future<void> initializeServices() async {
   );
   locator.registerLazySingleton<ExploreRepository>(
     () => ExploreService(),
+  );
+   locator.registerLazySingleton<PatientRepository>(
+    () => PatientService(),
   );
   locator.registerLazySingleton(() => MediaService());
   locator.registerLazySingleton(() => PractitionerService());
