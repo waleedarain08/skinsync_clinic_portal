@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:before_after/before_after.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/assets.dart';
 import 'patient_management.dart';
 import '../../utils/theme.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -23,6 +25,8 @@ class PatientManagementDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PatientManagementDetailScreenState extends ConsumerState<PatientManagementDetailScreen> {
+  final Map<String, double> _sliderValues = {};
+
   @override
   void initState() {
     super.initState();
@@ -210,30 +214,134 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
       children: [
         Text('Before & After Photos', style: context.fonts.black14w600),
         context.verticalSpace(12),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: images.length,
-          separatorBuilder: (context, index) => context.verticalSpace(16),
-          itemBuilder: (context, index) {
-            final (label, before, after) = images[index];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: context.fonts.grey12w600),
-                context.verticalSpace(8),
-                Row(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: List.generate(images.length, (index) {
+              final (label, before, after) = images[index];
+              final isLast = index == images.length - 1;
+
+              Widget item;
+              if (before != null && after != null) {
+                final key = '${request.id}_$label';
+                _sliderValues.putIfAbsent(key, () => 0.5);
+
+                item = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildComparisonImage(context, before, 'Before')),
-                    context.horizontalSpace(8),
-                    Expanded(child: _buildComparisonImage(context, after, 'After')),
+                    Text(label, style: context.fonts.grey12w600),
+                    context.verticalSpace(8),
+                    Container(
+                      height: context.h(326),
+                      width: context.w(300),
+                      decoration: BoxDecoration(
+                        color: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(20)),
+                        border: Border.all(color: CustomColors.border),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        children: [
+                          BeforeAfter(
+                            value: _sliderValues[key]!,
+                            onValueChanged: (value) => setState(() => _sliderValues[key] = value),
+                            before: _buildComparisonImageOnly(context, before, 'Before'),
+                            after: _buildComparisonImageOnly(context, after, 'After'),
+                            trackColor: Colors.white,
+                            trackWidth: context.w(2),
+                            thumbDecoration: const BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(PngAssets.customMarker),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            thumbWidth: context.w(32),
+                            thumbHeight: context.w(32),
+                          ),
+                          Positioned(
+                            top: context.h(12),
+                            left: context.w(12),
+                            child: _buildBadge("BEFORE", Colors.black.withValues(alpha: 0.6)),
+                          ),
+                          Positioned(
+                            top: context.h(12),
+                            right: context.w(12),
+                            child: _buildBadge("AFTER", Colors.black.withValues(alpha: 0.6)),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
-                ),
-              ],
-            );
-          },
+                );
+              } else {
+                item = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: context.fonts.grey12w600),
+                    context.verticalSpace(8),
+                    SizedBox(
+                      width: context.w(300),
+                      child: Row(
+                        children: [
+                          Expanded(child: _buildComparisonImage(context, before, 'Before')),
+                          context.horizontalSpace(8),
+                          Expanded(child: _buildComparisonImage(context, after, 'After')),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(right: isLast ? 0 : context.w(16)),
+                child: item,
+              );
+            }),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildComparisonImageOnly(BuildContext context, String? url, String label) {
+    return url != null
+        ? (url.startsWith('http')
+            ? CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+              )
+            : Image.asset(
+                url,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 24),
+              ))
+        : Center(child: Text(label, style: context.fonts.grey12w400));
+  }
+
+  Widget _buildBadge(String text, Color bgColor) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(10),
+        vertical: context.h(4),
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(context.r(4)),
+      ),
+      child: Text(
+        text,
+        style: context.fonts.white12w700.copyWith(
+          letterSpacing: 0.8,
+          fontSize: context.sp(10),
+        ),
+      ),
     );
   }
 

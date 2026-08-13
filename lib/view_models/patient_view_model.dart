@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/dummy/patient_dummy.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
@@ -17,11 +16,9 @@ final patientProvider =
 class PatientViewModel extends BaseViewModel<PatientState> {
   PatientViewModel._();
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
-  final PatientRepository _repository =
-      locator<PatientRepository>();
+  final PatientRepository _repository = locator<PatientRepository>();
 
   @override
   PatientState build() {
@@ -30,7 +27,6 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     return const PatientState();
   }
 
-  
   void setPageNumber(int page) {
     state = state.copyWith(page: page);
 
@@ -39,75 +35,51 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     );
   }
 
- Future<void> getPatients({
-  bool initialCall = false,
-  bool showEasyLoading = false,
-}) async {
-  if (initialCall) {
-    state = state.copyWith(page: 1);
-  }
+  Future<void> getPatients({
+    bool initialCall = false,
+    bool showEasyLoading = false,
+  }) async {
+    if (initialCall) {
+      state = state.copyWith(page: 1);
+    }
 
-  final dummyPatients = [
-    PatientData(
-      id: 1,
-      patientName: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      image: null,
-      phoneNumber: '+1 (555) 0192',
-    ),
-    PatientData(
-      id: 2,
-      patientName: 'Michael Brown',
-      email: 'michael.brown@email.com',
-      image: null,
-      phoneNumber: '+1 (555) 0143',
-    ),
-  ];
-
-  bool apiSuccess = false;
-
-  await runSafely(
-    showLoading: showEasyLoading,
-    () async {
-      state = state.copyWith(
-        loading: !showEasyLoading,
-      );
-
-      final response = await _repository.getPatients(
-        page: state.page,
-        limit: state.pageSize,
-        search: searchController.text,
-      );
-
-      if (response.success) {
-        apiSuccess = true;
-
+    await runSafely(
+      showLoading: showEasyLoading,
+      () async {
         state = state.copyWith(
-          loading: false,
-          patients: response.data ?? [],
-          totalPage: response.totalPages,
-          totalResults: response.totalResults,
-          page: response.page,
+          loading: !showEasyLoading,
         );
-      }
-    },
-  );
 
-  // API failed because runSafely swallowed the exception
-  if (!apiSuccess) {
-    state = state.copyWith(
-      loading: false,
-      patients: dummyPatients,
-      totalPage: 1,
-      totalResults: dummyPatients.length,
-      page: 1,
+        final response = await _repository.getPatients(
+          page: state.page,
+          limit: state.pageSize,
+          search: searchController.text,
+        );
+
+        if (response.success) {
+          state = state.copyWith(
+            loading: false,
+            patients: response.data ?? [],
+            totalPage: response.totalPages,
+            totalResults: response.totalResults,
+            page: response.page,
+          );
+        } else {
+          state = state.copyWith(
+            loading: false,
+            patients: [],
+            totalPage: 0,
+            totalResults: 0,
+          );
+        }
+      },
     );
-  } else {
+
     state = state.copyWith(
       loading: false,
     );
   }
-}
+
   void searchPatients() {
     getPatients(
       initialCall: true,
@@ -172,8 +144,6 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       );
     }
 
-    bool apiSuccess = false;
-
     await runSafely(
       showLoading: showEasyLoading,
       () async {
@@ -181,14 +151,12 @@ class PatientViewModel extends BaseViewModel<PatientState> {
           treatmentLoading: !showEasyLoading,
         );
 
-        final response =
-            await _repository.getPatientTreatmentRequests(
+        final response = await _repository.getPatientTreatmentRequests(
           page: state.treatmentPage,
           limit: state.treatmentPageSize,
         );
 
         if (response.success) {
-          apiSuccess = true;
           state = state.copyWith(
             treatmentLoading: false,
             treatmentRequests: response.data ?? [],
@@ -196,25 +164,21 @@ class PatientViewModel extends BaseViewModel<PatientState> {
             treatmentTotalResults: response.total,
             treatmentPage: response.page,
           );
+        } else {
+          state = state.copyWith(
+            treatmentLoading: false,
+            treatmentRequests: [],
+            treatmentTotalPage: 0,
+            treatmentTotalResults: 0,
+          );
         }
       },
     );
 
-    if (!apiSuccess) {
-      state = state.copyWith(
-        treatmentLoading: false,
-        treatmentRequests: dummyTreatmentRequests,
-        treatmentTotalPage: 1,
-        treatmentTotalResults: dummyTreatmentRequests.length,
-        treatmentPage: 1,
-      );
-    } else {
-      state = state.copyWith(
-        treatmentLoading: false,
-      );
-    }
+    state = state.copyWith(
+      treatmentLoading: false,
+    );
   }
-
 }
 
 class PatientState {
@@ -275,21 +239,13 @@ class PatientState {
       totalResults: totalResults ?? this.totalResults,
       patients: patients ?? this.patients,
       detailLoading: detailLoading ?? this.detailLoading,
-      patientDetail: clearPatientDetail
-          ? null
-          : (patientDetail ?? this.patientDetail),
-      treatmentLoading:
-          treatmentLoading ?? this.treatmentLoading,
-      treatmentPage:
-          treatmentPage ?? this.treatmentPage,
-      treatmentPageSize:
-          treatmentPageSize ?? this.treatmentPageSize,
-      treatmentTotalPage:
-          treatmentTotalPage ?? this.treatmentTotalPage,
-      treatmentTotalResults:
-          treatmentTotalResults ?? this.treatmentTotalResults,
-      treatmentRequests:
-          treatmentRequests ?? this.treatmentRequests,
+      patientDetail: clearPatientDetail ? null : (patientDetail ?? this.patientDetail),
+      treatmentLoading: treatmentLoading ?? this.treatmentLoading,
+      treatmentPage: treatmentPage ?? this.treatmentPage,
+      treatmentPageSize: treatmentPageSize ?? this.treatmentPageSize,
+      treatmentTotalPage: treatmentTotalPage ?? this.treatmentTotalPage,
+      treatmentTotalResults: treatmentTotalResults ?? this.treatmentTotalResults,
+      treatmentRequests: treatmentRequests ?? this.treatmentRequests,
     );
   }
 }

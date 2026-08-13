@@ -29,6 +29,7 @@ abstract class PngAssets {
   static const String pdf = '${_assets}pdf.png';
   static const String signature = '${_assets}signature.png';
   static const String masterLogo = '${_assets}master_logo.png';
+  static const String customMarker = '${_assets}custom_marker.png';
   static const String appointmentCalendar =
       '${_assets}appointment_calendar.png';
 }

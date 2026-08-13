@@ -19,8 +19,7 @@ class PatientService extends PatientRepository {
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
-        if (search != null && search.isNotEmpty)
-          'search': search,
+        if (search != null && search.isNotEmpty) 'search': search,
       },
     );
 
@@ -55,8 +54,7 @@ class PatientService extends PatientRepository {
   }
 
   @override
-  Future<PatientTreatmentRequestResponse>
-      getPatientTreatmentRequests({
+  Future<PatientTreatmentRequestResponse> getPatientTreatmentRequests({
     required int page,
     required int limit,
   }) async {
@@ -69,8 +67,7 @@ class PatientService extends PatientRepository {
       },
     );
 
-    final model =
-        PatientTreatmentRequestResponse.fromJson(response);
+    final model = PatientTreatmentRequestResponse.fromJson(response);
 
     if (!model.success) {
       throw Exception(model.message);
