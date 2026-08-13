@@ -1,44 +1,412 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'patient_management.dart';
 import '../../utils/theme.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/patient_mangement_widget.dart';
+import '../../widgets/borderd_container_widget.dart';
+import '../../models/dummy/patient_dummy.dart';
+import '../../models/responses/patient_detail_response.dart';
+import '../../models/responses/patient_treatment_request_response.dart';
+import '../../view_models/patient_view_model.dart';
+import '../../widgets/app_loader.dart';
 
-class PatientManagementDetailScreen extends StatelessWidget {
+class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   static const String path = 'details';
   static const String routeName =
       '${PatientManagementScreen.routeName}/details';
   const PatientManagementDetailScreen({super.key});
 
   @override
+  ConsumerState<PatientManagementDetailScreen> createState() => _PatientManagementDetailScreenState();
+}
+
+class _PatientManagementDetailScreenState extends ConsumerState<PatientManagementDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(patientProvider.notifier).getPatientTreatmentRequests(initialCall: true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bool isDesktop = context.screenWidth > 1200;
+    final patient = dummyPatientDetail.data;
+    final patientState = ref.watch(patientProvider);
+
+    if (patient == null) {
+      return const GradientScaffold(
+        body: Center(child: AppLoader()),
+      );
+    }
 
     return GradientScaffold(
       appBar: AppBar(
         flexibleSpace: AppDecorations.appBarGradient,
         elevation: 0,
         centerTitle: true,
-        title: Text('Patient EHR Profile', style: context.fonts.black18w600),
+        title: Text('Patient Details', style: context.fonts.black18w600),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: CustomColors.black),
-          onPressed: () {
-            context.pop();
-          },
+          onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(
-        padding: context.appEdgeInsets(horizontal: 24, vertical: 32),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: context.w(isDesktop ? 800 : 900),
-            ),
-            child: const PatientMangementWidget(),
-          ),
+        padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildProfileHeader(context, patient),
+            context.verticalSpace(24),
+            _buildInfoSection(context, patient),
+            context.verticalSpace(24),
+            _buildTreatmentRequestsSection(context, patientState),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileHeader(BuildContext context, PatientDetailData p) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 24),
+      backgroundColor: CustomColors.white,
+      child: Row(
+        children: [
+          _buildAvatar(context, p.image, 40),
+          context.horizontalSpace(24),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  p.patientName,
+                  style: context.fonts.black26w700,
+                ),
+                context.verticalSpace(4),
+                Container(
+                  padding: context.appEdgeInsets(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(context.r(20)),
+                  ),
+                  child: Text(
+                    'Active Patient',
+                    style: context.fonts.purple12w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(BuildContext context, PatientDetailData p) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 24),
+      backgroundColor: CustomColors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Contact Information', style: context.fonts.black18w600),
+          const Divider(color: CustomColors.border, height: 32),
+          _infoRow(context, Icons.email_outlined, 'Email Address', p.email),
+          _infoRow(context, Icons.phone_outlined, 'Phone Number', p.phoneNumber),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTreatmentRequestsSection(BuildContext context, PatientState state) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 24),
+      backgroundColor: CustomColors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Treatment Requests', style: context.fonts.black18w600),
+              if (state.treatmentLoading)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+          const Divider(color: CustomColors.border, height: 32),
+          if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
+            Padding(
+              padding: context.appEdgeInsets(vertical: 20),
+              child: Center(child: Text('No treatment requests found', style: context.fonts.grey14w400)),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: state.treatmentRequests.length,
+              separatorBuilder: (context, index) => const Divider(color: CustomColors.border, height: 32),
+              itemBuilder: (context, index) {
+                final request = state.treatmentRequests[index];
+                return _buildTreatmentRequestItem(context, request);
+              },
+            ),
+          if (state.treatmentTotalPage != null && state.treatmentTotalPage! > 1) ...[
+            context.verticalSpace(24),
+            _buildPagination(context, state),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTreatmentRequestItem(BuildContext context, PatientTreatmentRequestData request) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.assignment_outlined, size: 22, color: CustomColors.purple),
+            context.horizontalSpace(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(request.name, style: context.fonts.black18w600),
+                  Text('Request Date: ${request.createdAt?.substring(0, 10) ?? ""}', style: context.fonts.grey12w400),
+                ],
+              ),
+            ),
+          ],
+        ),
+        context.verticalSpace(16),
+        _buildImageComparison(context, request),
+        context.verticalSpace(16),
+        ...request.treatments.map((treatment) => _buildTreatmentDetail(context, treatment)),
+      ],
+    );
+  }
+
+  Widget _buildImageComparison(BuildContext context, PatientTreatmentRequestData request) {
+    final images = [
+      if (request.frontImageBefore != null || request.frontImageAfter != null)
+        ('Front View', request.frontImageBefore, request.frontImageAfter),
+      if (request.leftImageBefore != null || request.leftImageAfter != null)
+        ('Left Profile', request.leftImageBefore, request.leftImageAfter),
+      if (request.rightImageBefore != null || request.rightImageAfter != null)
+        ('Right Profile', request.rightImageBefore, request.rightImageAfter),
+    ];
+
+    if (images.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Before & After Photos', style: context.fonts.black14w600),
+        context.verticalSpace(12),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: images.length,
+          separatorBuilder: (context, index) => context.verticalSpace(16),
+          itemBuilder: (context, index) {
+            final (label, before, after) = images[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.fonts.grey12w600),
+                context.verticalSpace(8),
+                Row(
+                  children: [
+                    Expanded(child: _buildComparisonImage(context, before, 'Before')),
+                    context.horizontalSpace(8),
+                    Expanded(child: _buildComparisonImage(context, after, 'After')),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildComparisonImage(BuildContext context, String? url, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: context.h(180),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: CustomColors.softGrey,
+            borderRadius: BorderRadius.circular(context.r(12)),
+            border: Border.all(color: CustomColors.border),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(context.r(12)),
+            child: url != null
+                ? (url.startsWith('http')
+                    ? CachedNetworkImage(
+                        imageUrl: url,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+                      )
+                    : Image.asset(
+                        url,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 24),
+                      ))
+                : Center(child: Text(label, style: context.fonts.grey12w400)),
+          ),
+        ),
+        context.verticalSpace(4),
+        Center(
+          child: Text(
+            label,
+            style: context.fonts.black12w600.copyWith(color: label == 'Before' ? CustomColors.red : CustomColors.green),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget _buildTreatmentDetail(BuildContext context, PatientTreatmentData treatment) {
+    return Container(
+      margin: EdgeInsets.only(bottom: context.h(16)),
+      padding: context.appEdgeInsets(all: 16),
+      decoration: BoxDecoration(
+        color: CustomColors.softGrey.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(color: CustomColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.medical_services_outlined, size: 18, color: CustomColors.purple),
+              context.horizontalSpace(8),
+              Text(treatment.treatmentName, style: context.fonts.black16w600),
+            ],
+          ),
+          const Divider(height: 24),
+          ...treatment.areas.map((area) => Padding(
+                padding: EdgeInsets.only(bottom: context.h(12)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(area.areaName, style: context.fonts.black14w600.copyWith(color: CustomColors.purple)),
+                    context.verticalSpace(8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: area.materials.map((m) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: CustomColors.white,
+                              borderRadius: BorderRadius.circular(context.r(6)),
+                              border: Border.all(color: CustomColors.border),
+                            ),
+                            child: Text(
+                              '${m.name} x ${m.selectedQuantity}',
+                              style: context.fonts.black12w600,
+                            ),
+                          )).toList(),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildPagination(BuildContext context, PatientState state) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: state.treatmentPage > 1
+              ? () => ref.read(patientProvider.notifier).setTreatmentPageNumber(state.treatmentPage - 1)
+              : null,
+          icon: const Icon(Icons.arrow_back_ios, size: 16),
+        ),
+        Text(
+          'Page ${state.treatmentPage} of ${state.treatmentTotalPage}',
+          style: context.fonts.black14w600,
+        ),
+        IconButton(
+          onPressed: state.treatmentPage < (state.treatmentTotalPage ?? 1)
+              ? () => ref.read(patientProvider.notifier).setTreatmentPageNumber(state.treatmentPage + 1)
+              : null,
+          icon: const Icon(Icons.arrow_forward_ios, size: 16),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(BuildContext context, IconData icon, String label, String value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.h(20)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: CustomColors.purple),
+          context.horizontalSpace(16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.fonts.grey12w400),
+                context.verticalSpace(4),
+                Text(value, style: context.fonts.black14w600, softWrap: true),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(BuildContext context, String? imageUrl, double radius) {
+    return ClipOval(
+      child: imageUrl != null && imageUrl.isNotEmpty
+          ? (imageUrl.startsWith('http')
+              ? CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  height: context.r(radius * 2),
+                  width: context.r(radius * 2),
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => _buildDefaultAvatar(context, radius),
+                )
+              : Image.asset(
+                  imageUrl,
+                  height: context.r(radius * 2),
+                  width: context.r(radius * 2),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(context, radius),
+                ))
+          : _buildDefaultAvatar(context, radius),
+    );
+  }
+
+
+  Widget _buildDefaultAvatar(BuildContext context, double radius) {
+    return CircleAvatar(
+      radius: context.r(radius),
+      backgroundColor: CustomColors.softGrey,
+      child: Icon(Icons.person, size: context.r(radius), color: CustomColors.grey),
     );
   }
 }

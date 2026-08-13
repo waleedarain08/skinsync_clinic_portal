@@ -1,6 +1,6 @@
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
-import '../models/responses/patient_treatment_request.dart';
+import '../models/responses/patient_treatment_request_response.dart';
 
 abstract class PatientRepository {
   Future<PatientListResponse> getPatients({

@@ -1,6 +1,6 @@
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
-import '../models/responses/patient_treatment_request.dart';
+import '../models/responses/patient_treatment_request_response.dart';
 import '../repositories/patient_repository.dart';
 import '../utils/enums.dart';
 import 'api_base_helper.dart';

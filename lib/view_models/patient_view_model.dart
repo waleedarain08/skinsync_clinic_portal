@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/dummy/patient_dummy.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
-import '../models/responses/patient_treatment_request.dart';
+import '../models/responses/patient_treatment_request_response.dart';
 import '../repositories/patient_repository.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
@@ -171,6 +172,8 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       );
     }
 
+    bool apiSuccess = false;
+
     await runSafely(
       showLoading: showEasyLoading,
       () async {
@@ -185,6 +188,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
         );
 
         if (response.success) {
+          apiSuccess = true;
           state = state.copyWith(
             treatmentLoading: false,
             treatmentRequests: response.data ?? [],
@@ -192,21 +196,25 @@ class PatientViewModel extends BaseViewModel<PatientState> {
             treatmentTotalResults: response.total,
             treatmentPage: response.page,
           );
-        } else {
-          state = state.copyWith(
-            treatmentLoading: false,
-            treatmentRequests: [],
-            treatmentTotalPage: 0,
-            treatmentTotalResults: 0,
-          );
         }
       },
     );
 
-    state = state.copyWith(
-      treatmentLoading: false,
-    );
+    if (!apiSuccess) {
+      state = state.copyWith(
+        treatmentLoading: false,
+        treatmentRequests: dummyTreatmentRequests,
+        treatmentTotalPage: 1,
+        treatmentTotalResults: dummyTreatmentRequests.length,
+        treatmentPage: 1,
+      );
+    } else {
+      state = state.copyWith(
+        treatmentLoading: false,
+      );
+    }
   }
+
 }
 
 class PatientState {
