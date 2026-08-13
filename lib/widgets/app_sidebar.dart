@@ -13,12 +13,14 @@ import '../screens/dashboard/payment_and_wallet_screen.dart';
 import '../screens/dashboard/profile_screen.dart';
 import '../screens/dashboard/roles_screen.dart';
 import '../screens/dashboard/treatment_screen.dart';
+import '../screens/explore_screen.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
 
 abstract final class AppSidebarRoutes {
   static const routes = <String>[
     HomeScreen.routeName,
+    ExploreScreen.routeName,
     PatientManagementScreen.routeName,
     AppointmentScreen.routeName,
     TreatmentScreen.routeName,
@@ -33,13 +35,14 @@ abstract final class AppSidebarRoutes {
   static int indexOf(String location) {
     final exact = routes.indexOf(location);
     if (exact >= 0) return exact;
+
     for (var i = 0; i < routes.length; i++) {
       if (location.startsWith(routes[i])) return i;
     }
+
     return -1;
   }
 }
-
 class AppSidebar extends StatelessWidget {
   const AppSidebar({
     super.key,
@@ -120,61 +123,65 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-  List<SidebarXItem> _buildItems(BuildContext context) {
-    return [
-      SidebarXItem(
-        icon: Iconsax.home_2,
-        label: 'Home',
-        onTap: () => _onItemTap(context, 0),
-      ),
-      SidebarXItem(
-        icon: Iconsax.profile_2user,
-        label: 'Patient Management',
-        onTap: () => _onItemTap(context, 1),
-      ),
-      SidebarXItem(
-        icon: Iconsax.calendar,
-        label: 'Appointments',
-        onTap: () => _onItemTap(context, 2),
-      ),
-      SidebarXItem(
-        icon: Icons.vaccines_outlined,
-        label: 'Treatments',
-        onTap: () => _onItemTap(context, 3),
-      ),
-      SidebarXItem(
-        icon: Icons.inventory,
-        label: 'Inventory',
-        onTap: () => _onItemTap(context, 4),
-      ),
-      SidebarXItem(
-        icon: Icons.document_scanner,
-        label: 'Forms',
-        onTap: () => _onItemTap(context, 5),
-      ),
-      SidebarXItem(
-        icon: Icons.person_outline,
-        label: 'Roles',
-        onTap: () => _onItemTap(context, 6),
-      ),
-      SidebarXItem(
-        icon: Iconsax.user_octagon,
-        label: 'Staff',
-        onTap: () => _onItemTap(context, 7),
-      ),
-      SidebarXItem(
-        icon: Iconsax.wallet_3,
-        label: 'Payments & Wallets',
-        onTap: () => _onItemTap(context, 8),
-      ),
-      SidebarXItem(
-        icon: Iconsax.profile_circle,
-        label: 'Profile',
-        onTap: () => _onItemTap(context, 9),
-      ),
-    ];
-  }
-
+List<SidebarXItem> _buildItems(BuildContext context) {
+  return [
+    SidebarXItem(
+      icon: Iconsax.home_2,
+      label: 'Home',
+      onTap: () => _onItemTap(context, 0),
+    ),
+    SidebarXItem(
+      icon: Iconsax.discover,
+      label: 'Explore',
+      onTap: () => _onItemTap(context, 1),
+    ),
+    SidebarXItem(
+      icon: Iconsax.profile_2user,
+      label: 'Patient Management',
+      onTap: () => _onItemTap(context, 2),
+    ),
+    SidebarXItem(
+      icon: Iconsax.calendar,
+      label: 'Appointments',
+      onTap: () => _onItemTap(context, 3),
+    ),
+    SidebarXItem(
+      icon: Icons.vaccines_outlined,
+      label: 'Treatments',
+      onTap: () => _onItemTap(context, 4),
+    ),
+    SidebarXItem(
+      icon: Icons.inventory,
+      label: 'Inventory',
+      onTap: () => _onItemTap(context, 5),
+    ),
+    SidebarXItem(
+      icon: Icons.document_scanner,
+      label: 'Forms',
+      onTap: () => _onItemTap(context, 6),
+    ),
+    SidebarXItem(
+      icon: Icons.person_outline,
+      label: 'Roles',
+      onTap: () => _onItemTap(context, 7),
+    ),
+    SidebarXItem(
+      icon: Iconsax.user_octagon,
+      label: 'Staff',
+      onTap: () => _onItemTap(context, 8),
+    ),
+    SidebarXItem(
+      icon: Iconsax.wallet_3,
+      label: 'Payments & Wallets',
+      onTap: () => _onItemTap(context, 9),
+    ),
+    SidebarXItem(
+      icon: Iconsax.profile_circle,
+      label: 'Profile',
+      onTap: () => _onItemTap(context, 10),
+    ),
+  ];
+}
   void _onItemTap(BuildContext context, int index) {
     context.go(AppSidebarRoutes.routes[index]);
     if (Scaffold.of(context).isDrawerOpen) {
@@ -182,26 +189,41 @@ class AppSidebar extends StatelessWidget {
     }
   }
 
-  Widget _separatorBuilder(
-    BuildContext context,
-    int index,
-    SidebarXController controller,
-  ) {
-    if (index == 2) {
-      return _SectionLabel(title: 'CLINICAL', controller: controller);
-    }
-    if (index == 3) {
-      return _SectionLabel(title: 'OPERATIONS', controller: controller);
-    }
-    if (index == 7) {
-      return _SectionLabel(title: 'FINANCIALS', controller: controller);
-    }
-    if (index == 8) {
-      return _SectionLabel(title: 'SYSTEM', controller: controller);
-    }
-    return context.verticalSpace(2);
+ Widget _separatorBuilder(
+  BuildContext context,
+  int index,
+  SidebarXController controller,
+) {
+  if (index == 3) {
+    return _SectionLabel(
+      title: 'CLINICAL',
+      controller: controller,
+    );
   }
 
+  if (index == 4) {
+    return _SectionLabel(
+      title: 'OPERATIONS',
+      controller: controller,
+    );
+  }
+
+  if (index == 8) {
+    return _SectionLabel(
+      title: 'FINANCIALS',
+      controller: controller,
+    );
+  }
+
+  if (index == 9) {
+    return _SectionLabel(
+      title: 'SYSTEM',
+      controller: controller,
+    );
+  }
+
+  return context.verticalSpace(2);
+}
   Widget _headerBuilder(BuildContext context, bool extended) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),

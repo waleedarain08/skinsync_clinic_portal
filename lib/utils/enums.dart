@@ -69,6 +69,13 @@ enum Endpoint {
   areasAvailable('clinic/treatments/{treatmentId}/available-areas'),
   areas('clinic/treatments/{treatmentId}/areas'),
   adminAreas('admin/treatments/{treatmentId}/areas'),
+   explorerReels('clinic/reels'),
+  updateReel('clinic/reels/{id}'),
+  deleteReel('clinic/reels/{id}'),
+  explorerCommunity('clinic/community-posts'),
+  updatePost('clinic/community-posts/{id}'),
+  deletePost('clinic/posts/{id}'),
+  postCategories('clinic/community-post/categories'),
   getMe("clinic/me");
 
   final String path;

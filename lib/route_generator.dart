@@ -37,6 +37,7 @@ import 'screens/dashboard/treatment_screen.dart';
 import 'screens/dashboard/appointment_treatment_detail_screen.dart';
 import 'screens/dashboard/practitioner_detail_screen.dart';
 import 'screens/dynamic_pricing.dart';
+import 'screens/explore_screen.dart';
 import 'screens/notification_screen.dart';
 import 'screens/product_detail_screen.dart';
 import 'screens/lot_items_screen.dart';
@@ -94,6 +95,11 @@ class RouteGenerator {
             name: HomeScreen.routeName,
             path: HomeScreen.routeName,
             builder: (_, _) => HomeScreen(),
+          ),
+           GoRoute(
+            name: ExploreScreen.routeName,
+            path: ExploreScreen.routeName,
+            builder: (_, _) => const ExploreScreen(),
           ),
           GoRoute(
             name: PatientAiManagementScreen.routeName,

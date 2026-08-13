@@ -1,0 +1,455 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../exceptions/app_exception.dart';
+import '../models/explore_models.dart';
+import '../models/requests/community_post_request.dart';
+import '../models/requests/reel_request.dart';
+import '../models/responses/post_category_list_response.dart';
+import '../repositories/explore_repository.dart';
+import '../services/locator.dart';
+import '../services/media_service.dart';
+import 'base_view_model.dart';
+
+final exploreViewModelProvider =
+    NotifierProvider.autoDispose<ExploreViewModel, ExploreState>(
+  () => ExploreViewModel._(),
+);
+
+class ExploreViewModel extends BaseViewModel<ExploreState> {
+  ExploreViewModel._();
+
+  final ExploreRepository _repository = locator<ExploreRepository>();
+  final ImagePicker _picker = ImagePicker();
+  final MediaService _mediaService = MediaService();
+
+  @override
+  ExploreState build() {
+    init();
+    ref.onDispose(dispose);
+    return const ExploreState();
+  }
+
+  Future<void> fetchReels({int page = 1}) async {
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        final response = await _repository.fetchReels(
+          page: page,
+          limit: state.pageSize,
+        );
+
+        state = state.copyWith(
+          loading: false,
+          reels: response.data ?? [],
+          reelsTotalPages: response.totalPages,
+          reelsCurrentPage: response.page,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> fetchPosts({int page = 1}) async {
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        final response = await _repository.fetchPosts(
+          page: page,
+          limit: state.pageSize,
+        );
+
+        state = state.copyWith(
+          loading: false,
+          posts: response.data ?? [],
+          postsTotalPages: response.totalPages,
+          postsCurrentPage: response.page,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> pickAndUploadImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image == null) return;
+
+    await runSafely(
+      showLoading: true,
+      () async {
+        final String? url = await _mediaService.uploadImage(
+          'explore/posts/',
+          image,
+        );
+
+        if (url == null) {
+          throw const UnknownException(message: 'Failed to upload image');
+        }
+
+        state = state.copyWith(
+          pickedImageUrl: url,
+        );
+      },
+    );
+  }
+
+  Future<void> pickAndUploadThumbnail() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image == null) return;
+
+    await runSafely(
+      showLoading: true,
+      () async {
+        final String? url = await _mediaService.uploadImage(
+          'explore/reels/thumbnails/',
+          image,
+        );
+
+        if (url == null) {
+          throw const UnknownException(
+            message: 'Failed to upload thumbnail',
+          );
+        }
+
+        state = state.copyWith(
+          pickedThumbnailUrl: url,
+        );
+      },
+    );
+  }
+
+  Future<void> pickAndUploadVideo() async {
+    final FilePickerResult? result = await FilePicker.pickFiles(
+      type: FileType.video,
+      allowMultiple: false,
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+
+    await runSafely(
+      showLoading: true,
+      () async {
+        final String? url = await _mediaService.uploadMedia(
+          path: 'explore/reels/',
+          file: file,
+        );
+
+        if (url == null) {
+          throw const UnknownException(
+            message: 'Failed to upload video',
+          );
+        }
+
+        state = state.copyWith(
+          pickedVideoUrl: url,
+        );
+      },
+    );
+  }
+
+  void clearPickedImageOnly() {
+    state = state.copyWith(
+      clearPickedImage: true,
+    );
+  }
+
+  void clearPickedVideoOnly() {
+    state = state.copyWith(
+      clearPickedVideo: true,
+    );
+  }
+
+  void clearPickedThumbnailOnly() {
+    state = state.copyWith(
+      clearPickedThumbnail: true,
+    );
+  }
+
+  void clearPickedFiles() {
+    state = state.clearFiles();
+  }
+
+  Future<bool> createReel(CreateReelRequest reel) async {
+    return await runSafely(
+          showLoading: true,
+          () async {
+            await _repository.createReel(reel);
+
+            EasyLoading.showSuccess(
+              'Reel created successfully',
+            );
+
+            clearPickedFiles();
+
+            await fetchReels();
+
+            return true;
+          },
+        ) ??
+        false;
+  }
+
+  Future<bool> createPost(CreateCommunityPostRequest post) async {
+    return await runSafely(
+          showLoading: true,
+          () async {
+            await _repository.createPost(post);
+
+            EasyLoading.showSuccess(
+              'Post created successfully',
+            );
+
+            clearPickedFiles();
+
+            await fetchPosts();
+
+            return true;
+          },
+        ) ??
+        false;
+  }
+
+  Future<void> toggleReelVisibility(
+    int id,
+    String currentStatus,
+  ) async {
+    final newStatus =
+        currentStatus == 'Active' ? 'In Active' : 'Active';
+
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        await _repository.updateReelStatus(
+          id,
+          newStatus,
+        );
+
+        EasyLoading.showSuccess(
+          'Reel status updated to $newStatus',
+        );
+
+        await fetchReels(
+          page: state.reelsCurrentPage,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> deleteReel(int id) async {
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        await _repository.deleteReel(id);
+
+        EasyLoading.showSuccess(
+          'Reel deleted successfully',
+        );
+
+        await fetchReels(
+          page: state.reelsCurrentPage,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> togglePostVisibility(
+    int id,
+    String currentStatus,
+  ) async {
+    final newStatus =
+        currentStatus == 'Active' ? 'In Active' : 'Active';
+
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        await _repository.updatePostStatus(
+          id,
+          newStatus,
+        );
+
+        EasyLoading.showSuccess(
+          'Post status updated to $newStatus',
+        );
+
+        await fetchPosts(
+          page: state.postsCurrentPage,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> deletePost(int id) async {
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        await _repository.deletePost(id);
+
+        EasyLoading.showSuccess(
+          'Post deleted successfully',
+        );
+
+        await fetchPosts(
+          page: state.postsCurrentPage,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> fetchPostCategories() async {
+    await runSafely(
+      showLoading: false,
+      () async {
+        state = state.copyWith(loading: true);
+
+        final categories =
+            await _repository.fetchPostCategories();
+
+        state = state.copyWith(
+          loading: false,
+          postCategories: categories,
+        );
+      },
+    );
+
+    state = state.copyWith(loading: false);
+  }
+
+  Future<void> createPostCategory(String name) async {
+    await runSafely(
+      showLoading: true,
+      () async {
+        await _repository.createPostCategory(name);
+
+        EasyLoading.showSuccess(
+          'Category created successfully',
+        );
+
+        await fetchPostCategories();
+      },
+    );
+  }
+}
+
+class ExploreState {
+  final List<ReelModel> reels;
+  final List<CommunityPostModel> posts;
+  final int reelsTotalPages;
+  final int postsTotalPages;
+  final int reelsCurrentPage;
+  final int postsCurrentPage;
+  final int pageSize;
+  final String? pickedImageUrl;
+  final String? pickedVideoUrl;
+  final String? pickedThumbnailUrl;
+  final List<PostCategoryModel> postCategories;
+  final bool loading;
+
+  const ExploreState({
+    this.loading = false,
+    this.reels = const [],
+    this.posts = const [],
+    this.reelsTotalPages = 1,
+    this.postsTotalPages = 1,
+    this.reelsCurrentPage = 1,
+    this.postsCurrentPage = 1,
+    this.pageSize = 20,
+    this.pickedImageUrl,
+    this.pickedVideoUrl,
+    this.pickedThumbnailUrl,
+    this.postCategories = const [],
+  });
+
+  ExploreState copyWith({
+    bool? loading,
+    List<ReelModel>? reels,
+    List<CommunityPostModel>? posts,
+    int? reelsTotalPages,
+    int? postsTotalPages,
+    int? reelsCurrentPage,
+    int? postsCurrentPage,
+    int? pageSize,
+    String? pickedImageUrl,
+    String? pickedVideoUrl,
+    String? pickedThumbnailUrl,
+    bool clearPickedImage = false,
+    bool clearPickedVideo = false,
+    bool clearPickedThumbnail = false,
+    List<PostCategoryModel>? postCategories,
+  }) {
+    return ExploreState(
+      loading: loading ?? this.loading,
+      reels: reels ?? this.reels,
+      posts: posts ?? this.posts,
+      reelsTotalPages:
+          reelsTotalPages ?? this.reelsTotalPages,
+      postsTotalPages:
+          postsTotalPages ?? this.postsTotalPages,
+      reelsCurrentPage:
+          reelsCurrentPage ?? this.reelsCurrentPage,
+      postsCurrentPage:
+          postsCurrentPage ?? this.postsCurrentPage,
+      pageSize: pageSize ?? this.pageSize,
+      pickedImageUrl: clearPickedImage
+          ? null
+          : (pickedImageUrl ?? this.pickedImageUrl),
+      pickedVideoUrl: clearPickedVideo
+          ? null
+          : (pickedVideoUrl ?? this.pickedVideoUrl),
+      pickedThumbnailUrl: clearPickedThumbnail
+          ? null
+          : (pickedThumbnailUrl ?? this.pickedThumbnailUrl),
+      postCategories:
+          postCategories ?? this.postCategories,
+    );
+  }
+
+  ExploreState clearFiles() {
+    return ExploreState(
+      loading: loading,
+      reels: reels,
+      posts: posts,
+      reelsTotalPages: reelsTotalPages,
+      postsTotalPages: postsTotalPages,
+      reelsCurrentPage: reelsCurrentPage,
+      postsCurrentPage: postsCurrentPage,
+      pageSize: pageSize,
+      pickedImageUrl: null,
+      pickedVideoUrl: null,
+      pickedThumbnailUrl: null,
+      postCategories: postCategories,
+    );
+  }
+}
