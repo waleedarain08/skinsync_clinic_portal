@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/explore_models.dart';
 import '../models/requests/community_post_request.dart';
 import '../models/requests/reel_request.dart';
+import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../view_models/explore_view_model.dart';
 import '../widgets/app_loader.dart';
@@ -618,10 +619,10 @@ class _ReelCard extends ConsumerWidget {
                   child: Column(
                     children: [
                       _CircleActionBtn(
-                        icon: reel.status == 'active'
+                        icon: reel.status.toLowerCase() == Status.active.name
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: reel.status == 'active'
+                        color:  reel.status.toLowerCase() == Status.active.name
                             ? CustomColors.purple
                             : CustomColors.grey,
                         onTap: () {
@@ -649,7 +650,7 @@ class _ReelCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if (reel.status != 'active')
+                if (reel.status.toLowerCase() != Status.active.name)
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.4),
@@ -828,7 +829,8 @@ class _PostListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isHidden = post.status != 'active';
+   final isHidden =
+    post.status.toLowerCase() != Status.active.name;
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
       child: Opacity(

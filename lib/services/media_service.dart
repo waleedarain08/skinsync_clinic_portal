@@ -27,7 +27,7 @@ class MediaService {
   Future<String?> uploadImage(
     String path,
     XFile image, {
-    bool acceptAnyFormat = false,
+    bool acceptAnyFormat = true,
   }) async {
     final storagePath = '$path/${image.name}';
     final ref = _storage

@@ -42,7 +42,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       state = state.copyWith(page: 1);
     }
 
-    await runSafely(showLoading: showEasyLoading, () async {
+    return await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(loading: !showEasyLoading);
 
       final response = await _repository.getPatients(
@@ -82,32 +82,26 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     getPatients(initialCall: true);
   }
 
- Future<bool> getPatientDetail({required int patientId}) async {
-  var success = false;
+  Future<bool> getPatientDetail({required int patientId}) async {
+    var success = false;
 
-  await runSafely(
-    showLoading: true,
-    () async {
+    await runSafely(showLoading: true, () async {
       state = state.copyWith(detailLoading: true);
 
-      final response = await _repository.getPatientDetail(
-        patientId: patientId,
-      );
+      final response = await _repository.getPatientDetail(patientId: patientId);
 
       if (response.success) {
-        state = state.copyWith(
-          patientDetail: response.data,
-        );
+        state = state.copyWith(patientDetail: response.data);
 
         success = true;
       }
-    },
-  );
+    });
 
-  state = state.copyWith(detailLoading: false);
+    state = state.copyWith(detailLoading: false);
 
-  return success;
-}
+    return success;
+  }
+
   void clearPatientDetail() {
     state = state.copyWith(clearPatientDetail: true);
   }
@@ -126,7 +120,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       state = state.copyWith(treatmentPage: 1);
     }
 
-    await runSafely(showLoading: showEasyLoading, () async {
+    return await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(treatmentLoading: !showEasyLoading);
 
       final response = await _repository.getPatientTreatmentRequests(
@@ -151,15 +145,13 @@ class PatientViewModel extends BaseViewModel<PatientState> {
         );
       }
     });
-
-    state = state.copyWith(treatmentLoading: false);
   }
- @mustCallSuper
+
+  @mustCallSuper
   void onError(String message) {
     state.copyWith(loading: false);
     EasyLoading.dismiss();
   }
-  
 }
 
 class PatientState {

@@ -2,7 +2,6 @@ import 'base_response_model.dart';
 
 class PatientDetailResponse extends BaseResponse<PatientDetailData> {
  
-
   PatientDetailResponse({
     required super.success,
     required super.message,

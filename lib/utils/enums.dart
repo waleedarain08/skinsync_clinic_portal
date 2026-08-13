@@ -144,6 +144,11 @@ enum CreateTreatmentSteps {
   const CreateTreatmentSteps(this.name);
 }
 
+enum Status {
+  active,
+  inactive,
+}
+
 enum AppointmentStatus {
   allStatus,
   noShow,

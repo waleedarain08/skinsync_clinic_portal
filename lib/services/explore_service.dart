@@ -2,6 +2,7 @@ import '../models/requests/community_post_request.dart';
 import '../models/requests/name_request.dart';
 import '../models/requests/reel_request.dart';
 import '../models/requests/status_request.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/community_posts_list_response.dart';
 import '../models/responses/post_category_list_response.dart';
 import '../models/responses/reels_list_response.dart';
@@ -29,48 +30,44 @@ class ExploreService implements ExploreRepository {
 
     final model = ReelsListResponse.fromJson(response);
 
-    if (!model.success) {
-      throw Exception(model.message);
-    }
+    return model;
+  }
+
+  @override
+  Future<BaseResponse> createReel(CreateReelRequest reel) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.explorerReels,
+      requestType: RequestType.post,
+      requestBody: reel,
+    );
+    final model = BaseResponse.fromJson(response, (json) => json);
 
     return model;
   }
 
   @override
-  Future<void> createReel(CreateReelRequest reel) async {
-     await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.explorerReels,
-      requestType: RequestType.post,
-      requestBody: reel,
-    );
-
-    // If your create response doesn't need parsing,
-    // nothing else is required here.
-  }
-
-  @override
-  Future<void> updateReelStatus(int id, String status) async {
-    await locator<ApiBaseService>().httpRequest(
+  Future<BaseResponse> updateReelStatus(int id, String status) async {
+    final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.updateReel,
       requestType: RequestType.patch,
-      pathParams: {
-        'id': id.toString(),
-      },
-      requestBody: StatusRequest(
-        status: status,
-      ),
+      pathParams: {'id': id.toString()},
+      requestBody: StatusRequest(status: status),
     );
+    final model = BaseResponse.fromJson(response, (json) => json);
+
+    return model;
   }
 
   @override
-  Future<void> deleteReel(int id) async {
-    await locator<ApiBaseService>().httpRequest(
+  Future<BaseResponse> deleteReel(int id) async {
+    final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.deleteReel,
       requestType: RequestType.delete,
-      pathParams: {
-        'id': id.toString(),
-      },
+      pathParams: {'id': id.toString()},
     );
+    final model = BaseResponse.fromJson(response, (json) => json);
+
+    return model;
   }
 
   @override
@@ -87,57 +84,50 @@ class ExploreService implements ExploreRepository {
         'page': page.toString(),
         'limit': limit.toString(),
         if (search != null && search.isNotEmpty) 'search': search,
-        if (category != null && category.isNotEmpty)
-          'category': category,
+        if (category != null && category.isNotEmpty) 'category': category,
       },
     );
 
     final model = CommunityPostsListResponse.fromJson(response);
 
-    if (!model.success) {
-      throw Exception(model.message);
-    }
+    return model;
+  }
+
+  @override
+  Future<BaseResponse> createPost(CreateCommunityPostRequest post) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.explorerCommunity,
+      requestType: RequestType.post,
+      requestBody: post,
+    );
+    final model = BaseResponse.fromJson(response, (json) => json);
 
     return model;
   }
 
   @override
-  Future<void> createPost(
-    CreateCommunityPostRequest post,
-  ) async {
-    await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.explorerCommunity,
-      requestType: RequestType.post,
-      requestBody: post,
-    );
-  }
-
-  @override
-  Future<void> updatePostStatus(
-    int id,
-    String status,
-  ) async {
-    await locator<ApiBaseService>().httpRequest(
+  Future<BaseResponse> updatePostStatus(int id, String status) async {
+    final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.updatePost,
       requestType: RequestType.patch,
-      pathParams: {
-        'id': id.toString(),
-      },
-      requestBody: StatusRequest(
-        status: status,
-      ),
+      pathParams: {'id': id.toString()},
+      requestBody: StatusRequest(status: status),
     );
+    final model = BaseResponse.fromJson(response, (json) => json);
+
+    return model;
   }
 
   @override
-  Future<void> deletePost(int id) async {
-    await locator<ApiBaseService>().httpRequest(
+  Future<BaseResponse> deletePost(int id) async {
+    final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.deletePost,
       requestType: RequestType.delete,
-      pathParams: {
-        'id': id.toString(),
-      },
+      pathParams: {'id': id.toString()},
     );
+    final model = BaseResponse.fromJson(response, (json) => json);
+
+    return model;
   }
 
   @override
@@ -149,21 +139,18 @@ class ExploreService implements ExploreRepository {
 
     final model = PostCategoryListResponse.fromJson(response);
 
-    if (!model.success) {
-      throw Exception(model.message);
-    }
-
     return model.data ?? [];
   }
 
   @override
-  Future<void> createPostCategory(String name) async {
-    await locator<ApiBaseService>().httpRequest(
+  Future<BaseResponse> createPostCategory(String name) async {
+    final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.postCategories,
       requestType: RequestType.post,
-      requestBody: NameRequest(
-        name: name,
-      ),
+      requestBody: NameRequest(name: name),
     );
+    final model = BaseResponse.fromJson(response, (json) => json);
+
+    return model;
   }
 }
