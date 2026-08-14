@@ -650,21 +650,23 @@ class _ReelCard extends ConsumerWidget {
                   ),
                 ),
                 if (reel.status.toLowerCase() != Status.active.name)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      borderRadius: context.appBorderRadius(
-                        topLeft: 12,
-                        topRight: 12,
+                  IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: context.appBorderRadius(
+                          topLeft: 12,
+                          topRight: 12,
+                        ),
                       ),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'HIDDEN',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                      child: const Center(
+                        child: Text(
+                          'HIDDEN',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
                         ),
                       ),
                     ),

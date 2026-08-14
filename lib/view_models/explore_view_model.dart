@@ -33,9 +33,9 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
     return const ExploreState();
   }
 
-  Future<void> fetchReels({int page = 1}) async {
+  Future<void> fetchReels({int page = 1, bool showLoading = true}) async {
     return await runSafely(showLoading: false, () async {
-      state = state.copyWith(loading: true);
+      state = state.copyWith(loading: showLoading);
 
       final response = await _repository.fetchReels(
         page: page,
@@ -51,9 +51,9 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
     });
   }
 
-  Future<void> fetchPosts({int page = 1}) async {
+  Future<void> fetchPosts({int page = 1, bool showLoading = true}) async {
     return await runSafely(showLoading: false, () async {
-      state = state.copyWith(loading: true);
+      state = state.copyWith(loading: showLoading);
 
       final response = await _repository.fetchPosts(
         page: page,
@@ -169,7 +169,6 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
             clearPickedFiles();
             await fetchPosts();
           }
-
           return true;
         }) ??
         false;
@@ -185,8 +184,8 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
     return await runSafely(() async {
       final response = await _repository.updateReelStatus(id, newStatus);
       if (response.success) {
-        EasyLoading.showSuccess('Reel status updated to $newStatus');
-        await fetchReels(page: state.reelsCurrentPage);
+        await EasyLoading.showSuccess('Reel status updated to $newStatus');
+        await fetchReels(page: state.reelsCurrentPage, showLoading: false);
       }
     });
   }
@@ -201,33 +200,30 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
     return await runSafely(() async {
       final response = await _repository.updatePostStatus(id, newStatus);
       if (response.success) {
-        EasyLoading.showSuccess('Post status updated to $newStatus');
-        await fetchPosts(page: state.postsCurrentPage);
+        await EasyLoading.showSuccess('Post status updated to $newStatus');
+        await fetchPosts(page: state.postsCurrentPage, showLoading: false);
       }
     });
   }
 
   Future<void> deleteReel(int id) async {
-    return await runSafely(showLoading: false, () async {
-      state = state.copyWith(loading: true);
-
-      await _repository.deleteReel(id);
-
-      EasyLoading.showSuccess('Reel deleted successfully');
-
-      await fetchReels(page: state.reelsCurrentPage);
+    return await runSafely(() async {
+      final response = await _repository.deleteReel(id);
+      if (response.success) {
+        await EasyLoading.showSuccess('Reel deleted successfully');
+        await fetchReels(page: state.reelsCurrentPage, showLoading: false);
+      }
     });
   }
 
   Future<void> deletePost(int id) async {
-    return await runSafely(showLoading: false, () async {
-      state = state.copyWith(loading: true);
+    return await runSafely(() async {
+      final response = await _repository.deletePost(id);
+      if (response.success) {
+        await EasyLoading.showSuccess('Post deleted successfully');
 
-      await _repository.deletePost(id);
-
-      EasyLoading.showSuccess('Post deleted successfully');
-
-      await fetchPosts(page: state.postsCurrentPage);
+        await fetchPosts(page: state.postsCurrentPage, showLoading: false);
+      }
     });
   }
 

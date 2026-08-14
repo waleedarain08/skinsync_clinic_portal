@@ -6,7 +6,6 @@ import '../../models/responses/patient_list_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
 import '../../widgets/borderd_container_widget.dart';
-import '../../widgets/custom_primary_button.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
@@ -97,18 +96,19 @@ class _PatientManagementContent extends ConsumerWidget {
             ),
           ],
         ),
-        CustomPrimaryButton(
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Add Patient Form initialization...'),
-              ),
-            );
-          },
-          icon: Icons.add_rounded,
-          label: 'Add New Patient',
-          width: context.w(180),
-        ),
+        // CustomPrimaryButton(
+        //   onTap: () {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(
+        //         content: Text('Add Patient Form initialization...'),
+        //       ),
+        //     );
+        //   },
+        //   icon: Icons.add_rounded,
+        //   label: 'Add New Patient',
+        //   width: context.w(180),
+        // ),
+     
       ],
     );
   }

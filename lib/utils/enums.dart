@@ -71,10 +71,10 @@ enum Endpoint {
   adminAreas('admin/treatments/{treatmentId}/areas'),
   explorerReels('clinic/reels'),
   updateReel('clinic/reels/{id}'),
-  deleteReel('clinic/reels/{id}'),
+ 
   explorerCommunity('clinic/community-posts'),
   updatePost('clinic/community-posts/{id}'),
-  deletePost('clinic/posts/{id}'),
+ 
   postCategories('clinic/community-post/categories'),
   patients('clinic/patients'),
   patientDetail('clinic/patients/{id}'),
@@ -95,7 +95,8 @@ enum Endpoint {
 
 enum BaseUrls {
   // api('http://3.128.27.193/api/');
-  api('https://api-qa.skinsyncai.com/api/');
+  apiDEV('https://api-dev.skinsyncai.com/api/'),
+  apiQA('https://api-qa.skinsyncai.com/api/');
   // api('https://s21hn0m8-8084.asse.devtunnels.ms/api/');
 
   final String url;

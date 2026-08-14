@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../main.dart';
 import '../screens/dashboard/appointment_screen.dart';
 import '../screens/dashboard/forms_screen.dart';
 import '../screens/dashboard/home_screen.dart';
@@ -17,32 +18,108 @@ import '../screens/explore_screen.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
 
-abstract final class AppSidebarRoutes {
-  static const routes = <String>[
-    HomeScreen.routeName,
-    ExploreScreen.routeName,
-    PatientManagementScreen.routeName,
-    AppointmentScreen.routeName,
-    TreatmentScreen.routeName,
-    InventoryScreen.routeName,
-    FormsScreen.routeName,
-    RolesScreen.routeName,
-    ManageStaffScreen.routeName,
-    PaymentAndWalletScreen.routeName,
-    ProfileScreen.routeName,
+class _SidebarEntry {
+  const _SidebarEntry({
+    required this.icon,
+    required this.label,
+    required this.routeName,
+    this.sectionLabel,
+  });
+
+  final IconData icon;
+  final String label;
+  final String routeName;
+  final String? sectionLabel;
+}
+
+/// Builds the full list of sidebar entries, hiding the deployment-mode-only
+/// tabs (Appointments, Treatments, Inventory, Forms, Roles, Payments &
+/// Wallets) when [isDeploymentMode] is true. They only show when it's false.
+List<_SidebarEntry> _sidebarEntries() {
+  return [
+    const _SidebarEntry(
+      icon: Iconsax.home_2,
+      label: 'Home',
+      routeName: HomeScreen.routeName,
+    ),
+    const _SidebarEntry(
+      icon: Iconsax.discover,
+      label: 'Explore',
+      routeName: ExploreScreen.routeName,
+    ),
+    const _SidebarEntry(
+      icon: Iconsax.profile_2user,
+      label: 'Patient Management',
+      routeName: PatientManagementScreen.routeName,
+    ),
+    if (!isDeploymentMode) ...[
+      const _SidebarEntry(
+        icon: Iconsax.calendar,
+        label: 'Appointments',
+        routeName: AppointmentScreen.routeName,
+        sectionLabel: 'CLINICAL',
+      ),
+      const _SidebarEntry(
+        icon: Icons.vaccines_outlined,
+        label: 'Treatments',
+        routeName: TreatmentScreen.routeName,
+        sectionLabel: 'OPERATIONS',
+      ),
+      const _SidebarEntry(
+        icon: Icons.inventory,
+        label: 'Inventory',
+        routeName: InventoryScreen.routeName,
+      ),
+      const _SidebarEntry(
+        icon: Icons.document_scanner,
+        label: 'Forms',
+        routeName: FormsScreen.routeName,
+      ),
+      const _SidebarEntry(
+        icon: Icons.person_outline,
+        label: 'Roles',
+        routeName: RolesScreen.routeName,
+      ),
+      const _SidebarEntry(
+        icon: Iconsax.wallet_3,
+        label: 'Payments & Wallets',
+        routeName: PaymentAndWalletScreen.routeName,
+        sectionLabel: 'FINANCIALS',
+      ),
+    ],
+    const _SidebarEntry(
+      icon: Iconsax.user_octagon,
+      label: 'Staff',
+      routeName: ManageStaffScreen.routeName,
+      sectionLabel: 'SYSTEM',
+    ),
+    const _SidebarEntry(
+      icon: Iconsax.profile_circle,
+      label: 'Profile',
+      routeName: ProfileScreen.routeName,
+    ),
   ];
+}
+
+abstract final class AppSidebarRoutes {
+  /// Dynamic now — recomputed from the same entry list the sidebar renders,
+  /// so it always matches what's actually on screen.
+  static List<String> get routes =>
+      _sidebarEntries().map((e) => e.routeName).toList();
 
   static int indexOf(String location) {
-    final exact = routes.indexOf(location);
+    final routeList = routes;
+    final exact = routeList.indexOf(location);
     if (exact >= 0) return exact;
 
-    for (var i = 0; i < routes.length; i++) {
-      if (location.startsWith(routes[i])) return i;
+    for (var i = 0; i < routeList.length; i++) {
+      if (location.startsWith(routeList[i])) return i;
     }
 
     return -1;
   }
 }
+
 class AppSidebar extends StatelessWidget {
   const AppSidebar({
     super.key,
@@ -123,65 +200,18 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-List<SidebarXItem> _buildItems(BuildContext context) {
-  return [
-    SidebarXItem(
-      icon: Iconsax.home_2,
-      label: 'Home',
-      onTap: () => _onItemTap(context, 0),
-    ),
-    SidebarXItem(
-      icon: Iconsax.discover,
-      label: 'Explore',
-      onTap: () => _onItemTap(context, 1),
-    ),
-    SidebarXItem(
-      icon: Iconsax.profile_2user,
-      label: 'Patient Management',
-      onTap: () => _onItemTap(context, 2),
-    ),
-    SidebarXItem(
-      icon: Iconsax.calendar,
-      label: 'Appointments',
-      onTap: () => _onItemTap(context, 3),
-    ),
-    SidebarXItem(
-      icon: Icons.vaccines_outlined,
-      label: 'Treatments',
-      onTap: () => _onItemTap(context, 4),
-    ),
-    SidebarXItem(
-      icon: Icons.inventory,
-      label: 'Inventory',
-      onTap: () => _onItemTap(context, 5),
-    ),
-    SidebarXItem(
-      icon: Icons.document_scanner,
-      label: 'Forms',
-      onTap: () => _onItemTap(context, 6),
-    ),
-    SidebarXItem(
-      icon: Icons.person_outline,
-      label: 'Roles',
-      onTap: () => _onItemTap(context, 7),
-    ),
-    SidebarXItem(
-      icon: Iconsax.user_octagon,
-      label: 'Staff',
-      onTap: () => _onItemTap(context, 8),
-    ),
-    SidebarXItem(
-      icon: Iconsax.wallet_3,
-      label: 'Payments & Wallets',
-      onTap: () => _onItemTap(context, 9),
-    ),
-    SidebarXItem(
-      icon: Iconsax.profile_circle,
-      label: 'Profile',
-      onTap: () => _onItemTap(context, 10),
-    ),
-  ];
-}
+  List<SidebarXItem> _buildItems(BuildContext context) {
+    final entries = _sidebarEntries();
+    return List.generate(entries.length, (i) {
+      final entry = entries[i];
+      return SidebarXItem(
+        icon: entry.icon,
+        label: entry.label,
+        onTap: () => _onItemTap(context, i),
+      );
+    });
+  }
+
   void _onItemTap(BuildContext context, int index) {
     context.go(AppSidebarRoutes.routes[index]);
     if (Scaffold.of(context).isDrawerOpen) {
@@ -189,41 +219,26 @@ List<SidebarXItem> _buildItems(BuildContext context) {
     }
   }
 
- Widget _separatorBuilder(
-  BuildContext context,
-  int index,
-  SidebarXController controller,
-) {
-  if (index == 3) {
-    return _SectionLabel(
-      title: 'CLINICAL',
-      controller: controller,
-    );
+  Widget _separatorBuilder(
+    BuildContext context,
+    int index,
+    SidebarXController controller,
+  ) {
+    final entries = _sidebarEntries();
+    // `index` here is the separator slot BEFORE entries[index + 1],
+    // matching SidebarX's separatorBuilder(context, index) contract:
+    // separator at `index` sits between item[index] and item[index + 1].
+    final nextEntryIndex = index + 1;
+    if (nextEntryIndex < entries.length) {
+      final sectionLabel = entries[nextEntryIndex].sectionLabel;
+      if (sectionLabel != null) {
+        return _SectionLabel(title: sectionLabel, controller: controller);
+      }
+    }
+
+    return context.verticalSpace(2);
   }
 
-  if (index == 4) {
-    return _SectionLabel(
-      title: 'OPERATIONS',
-      controller: controller,
-    );
-  }
-
-  if (index == 8) {
-    return _SectionLabel(
-      title: 'FINANCIALS',
-      controller: controller,
-    );
-  }
-
-  if (index == 9) {
-    return _SectionLabel(
-      title: 'SYSTEM',
-      controller: controller,
-    );
-  }
-
-  return context.verticalSpace(2);
-}
   Widget _headerBuilder(BuildContext context, bool extended) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),

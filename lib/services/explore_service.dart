@@ -61,7 +61,7 @@ class ExploreService implements ExploreRepository {
   @override
   Future<BaseResponse> deleteReel(int id) async {
     final response = await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.deleteReel,
+      endPoint: Endpoint.updateReel,
       requestType: RequestType.delete,
       pathParams: {'id': id.toString()},
     );
@@ -121,7 +121,7 @@ class ExploreService implements ExploreRepository {
   @override
   Future<BaseResponse> deletePost(int id) async {
     final response = await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.deletePost,
+      endPoint: Endpoint.updatePost,
       requestType: RequestType.delete,
       pathParams: {'id': id.toString()},
     );

@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../main.dart';
 import '../about_screen.dart';
-import 'mange_staff_screen.dart';
 import '../dynamic_pricing.dart';
 import '../notification_screen.dart';
 import '../../utils/theme.dart';
@@ -12,8 +12,7 @@ import '../../widgets/gradient_scaffold.dart';
 
 import '../business_info_screen.dart';
 import '../change_password_screen.dart';
-import '../create_treatment_screen.dart';
-import '../update_treatment_screen.dart';
+
 
 class ProfileScreen extends StatelessWidget {
   static const String routeName = '/profile';
@@ -61,6 +60,7 @@ class ProfileScreen extends StatelessWidget {
                       context.push(BusinessInformationScreen.routeName);
                     },
                   ),
+                  if(!isDeploymentMode)
                   _SettingItemData(
                     icon: Icons.calendar_month_outlined,
                     title: "Dynamic Pricing",
@@ -69,44 +69,13 @@ class ProfileScreen extends StatelessWidget {
                       context.pushNamed(DynamicPricing.routeName);
                     },
                   ),
-                  _SettingItemData(
-                    icon: Icons.people_outline,
-                    title: "Manage Staff",
-                    subtitle: "Manage clinic staff and services",
-                    onTap: () {
-                      context.push(ManageStaffScreen.routeName);
-                    },
-                  ),
+                
                 ],
               ),
             ),
             SizedBox(height: context.h(20)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildSettingsSection(
-                context: context,
-                title: "Treatment Management",
-                items: [
-                  _SettingItemData(
-                    icon: Icons.add_circle_outline,
-                    title: "Create Treatment",
-                    subtitle: "Add new treatments and services",
-                    onTap: () {
-                      context.push(CreateTreatmentScreen.routeName);
-                    },
-                  ),
-                  _SettingItemData(
-                    icon: Icons.edit_outlined,
-                    title: "Update Treatment",
-                    subtitle: "Edit existing treatment details",
-                    onTap: () {
-                      context.push(UpdateTreatmentScreen.routeName);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: context.h(20)),
+          
+      
             // password security
             Padding(
               padding: EdgeInsets.symmetric(horizontal: context.w(16)),
@@ -114,6 +83,7 @@ class ProfileScreen extends StatelessWidget {
                 context: context,
                 title: "Security",
                 items: [
+                  if(!isDeploymentMode)
                   _SettingItemData(
                     icon: Icons.shield_outlined,
                     title: "Two-Factor Authentication",
