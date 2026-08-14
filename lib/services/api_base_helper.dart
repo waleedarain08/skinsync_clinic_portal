@@ -8,6 +8,7 @@ import 'package:mime/mime.dart';
 
 import '../app_init.dart';
 import '../exceptions/app_exception.dart';
+import '../main.dart';
 import '../models/requests/base_request.dart';
 import '../models/requests/multi_part_model.dart';
 import '../models/responses/refresh_token_response.dart';
@@ -20,8 +21,9 @@ import 'storage_service.dart';
 
 class ApiBaseService {
   final _secureStorage = locator<SecureStorageService>();
-  final String _baseUrl  =  BaseUrls.apiQA.url;
- // = isDeploymentMode?  BaseUrls.apiDEV.url:  BaseUrls.apiQA.url;
+  final String _baseUrl = isDeploymentMode
+      ? BaseUrls.apiDEV.url
+      : BaseUrls.apiQA.url;
   String? authToken;
 
   Future<Map<String, dynamic>> httpRequest({
