@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../models/product_model.dart';
 import '../../models/responses/manufacturers_list_response.dart';
 import '../../utils/enums.dart';
@@ -14,11 +15,12 @@ import '../../widgets/custom_dropdown_widget.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/mini_stat_card.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/select_or_create_dropdown_widget.dart';
 import '../../widgets/status_toggle_switch.dart';
-import '../product_detail_screen.dart';
 import '../add_product_screen.dart';
+import '../product_detail_screen.dart';
 
 class InventoryScreen extends ConsumerStatefulWidget {
   const InventoryScreen({super.key});
@@ -159,32 +161,33 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
     return Row(
       children: [
-        _buildCatalogStat(
-          'Total Master SKUs',
-          '$totalSkus',
-          Icons.inventory_2_outlined,
-          CustomColors.purple,
+        MiniStatCard(
+          title: 'Total Master SKUs',
+          value: totalSkus,
+          icon: Icons.inventory_2_outlined,
+          color: CustomColors.purple,
         ),
         context.horizontalSpace(16),
-        _buildCatalogStat(
-          'Published Brands',
-          '$totalBrands',
-          Icons.workspace_premium_outlined,
-          CustomColors.amber,
+        MiniStatCard(
+          title: 'Published Brands',
+          value: totalBrands,
+          icon: Icons.workspace_premium_outlined,
+          color: CustomColors.amber,
         ),
         context.horizontalSpace(16),
-        _buildCatalogStat(
-          'Lot Tracking Enabled',
-          '$lotTrackingEnabled',
-          Icons.pin_outlined,
-          CustomColors.green,
+        MiniStatCard(
+          title: 'Lot Tracking Enabled',
+          value: lotTrackingEnabled,
+          icon: Icons.pin_outlined,
+          color: CustomColors.green,
         ),
         context.horizontalSpace(16),
-        _buildCatalogStat(
-          'Device Catalog',
-          '$devicesCount Devices',
-          Icons.biotech_outlined,
-          CustomColors.black,
+        MiniStatCard(
+          title: 'Device Catalog',
+          value: devicesCount,
+          suffix: ' Devices',
+          icon: Icons.biotech_outlined,
+          color: CustomColors.black,
         ),
       ],
     );
@@ -230,49 +233,6 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildCatalogStat(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Expanded(
-      child: BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 20),
-        child: Row(
-          children: [
-            Container(
-              padding: context.appEdgeInsets(all: 12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: context.appBorderRadius(all: 10),
-              ),
-              child: Icon(icon, color: color, size: context.sp(24)),
-            ),
-            context.horizontalSpace(16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: context.fonts.black20w600,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    title,
-                    style: context.fonts.grey12w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -769,14 +729,14 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '$qty remaining',
-                style: context.fonts.black14w600,
-              ),
+              Text('$qty remaining', style: context.fonts.black14w600),
               if (isLow) ...[
                 context.horizontalSpace(8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: CustomColors.red.withValues(alpha: 0.1),
                     borderRadius: context.appBorderRadius(all: 4),
@@ -814,10 +774,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Expiry: $expiry',
-            style: context.fonts.black13w600,
-          ),
+          Text('Expiry: $expiry', style: context.fonts.black13w600),
           context.verticalSpace(6),
           _usageBadge(usageType),
         ],
@@ -833,9 +790,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         decoration: BoxDecoration(
           color: CustomColors.grey.withValues(alpha: 0.1),
           borderRadius: context.appBorderRadius(all: 20),
-          border: Border.all(
-            color: CustomColors.grey.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: CustomColors.grey.withValues(alpha: 0.2)),
         ),
         child: Text(
           'N/A',

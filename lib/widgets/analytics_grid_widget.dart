@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/responsive.dart';
 
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
-import 'analytics_card_widget.dart';
+import 'mini_stat_card.dart';
 
 class AnalyticsGridWidget extends StatelessWidget {
   const AnalyticsGridWidget({super.key});
@@ -14,26 +14,23 @@ class AnalyticsGridWidget extends StatelessWidget {
         const AdaptiveLayoutRowColumn(
           expandedWidget: true,
           children: [
-            AnalyticsCardWidget(
+            MiniStatCard(
               icon: Icons.calendar_today_outlined,
-              iconColor: Color(0xFF7DD3D3),
-              bgColor: Color(0xFFE8F6F6),
-              value: "0",
-              label: "Completed Appointments",
+              color: Color(0xFF7DD3D3),
+              value: 0,
+              title: "Completed Appointments",
             ),
-            AnalyticsCardWidget(
+            MiniStatCard(
               icon: Icons.schedule_outlined,
-              iconColor: Color(0xFFE89FD5),
-              bgColor: Color(0xFFFCEFF9),
-              value: "0",
-              label: "Pending Appointments",
+              color: Color(0xFFE89FD5),
+              value: 0,
+              title: "Pending Appointments",
             ),
-            AnalyticsCardWidget(
+            MiniStatCard(
               icon: Icons.cancel_outlined,
-              iconColor: Color(0xFFFF9B9B),
-              bgColor: Color(0xFFFFEDED),
-              value: "0",
-              label: "Cancelled Appointments",
+              color: Color(0xFFFF9B9B),
+              value: 0,
+              title: "Cancelled Appointments",
             ),
           ],
         ),
@@ -41,19 +38,17 @@ class AnalyticsGridWidget extends StatelessWidget {
         const AdaptiveLayoutRowColumn(
           expandedWidget: true,
           children: [
-            AnalyticsCardWidget(
+            MiniStatCard(
               icon: Icons.medical_services_outlined,
-              iconColor: Color(0xFF7DD3D3),
-              bgColor: Color(0xFFE8F6F6),
-              value: "0",
-              label: "Total Treatments",
+              color: Color(0xFF7DD3D3),
+              value: 0,
+              title: "Total Treatments",
             ),
-            AnalyticsCardWidget(
+            MiniStatCard(
               icon: Icons.star_outline,
-              iconColor: Color(0xFFFFB366),
-              bgColor: Color(0xFFFFF3E8),
-              value: "0.0",
-              label: "Ratings",
+              color: Color(0xFFFFB366),
+              value: 0,
+              title: "Ratings",
             ),
           ],
         ),

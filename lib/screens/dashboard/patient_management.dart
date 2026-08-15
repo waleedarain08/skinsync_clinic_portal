@@ -8,6 +8,7 @@ import '../../view_models/patient_view_model.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/mini_stat_card.dart';
 import '../../widgets/number_paginator.dart';
 import 'patient_management_detail.dart';
 
@@ -70,7 +71,7 @@ class _PatientManagementContent extends ConsumerWidget {
                 ),
               )
             else
-              _buildPatientsTable(context, ref, patientState.patients ?? []),
+              _buildPatientsTable(context, ref, patientState.patients),
 
             context.verticalSpace(24),
 
@@ -96,6 +97,7 @@ class _PatientManagementContent extends ConsumerWidget {
             ),
           ],
         ),
+
         // CustomPrimaryButton(
         //   onTap: () {
         //     ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +110,6 @@ class _PatientManagementContent extends ConsumerWidget {
         //   label: 'Add New Patient',
         //   width: context.w(180),
         // ),
-     
       ],
     );
   }
@@ -118,77 +119,27 @@ class _PatientManagementContent extends ConsumerWidget {
 
     return Row(
       children: [
-        _buildStatCard(
-          context,
-          'Total Patients',
-          '$totalPatients',
-          Icons.people_alt_outlined,
-          CustomColors.purple,
+        MiniStatCard(
+          title: 'Total Patients',
+          value: totalPatients,
+          icon: Icons.people_alt_outlined,
+          color: CustomColors.purple,
         ),
         context.horizontalSpace(16),
-
-        _buildStatCard(
-          context,
-          'Active Patients',
-          '$totalPatients',
-          Icons.check_circle_outline_rounded,
-          CustomColors.green,
+        MiniStatCard(
+          title: 'Active Patients',
+          value: totalPatients,
+          icon: Icons.check_circle_outline_rounded,
+          color: CustomColors.green,
         ),
         context.horizontalSpace(16),
-
-        _buildStatCard(
-          context,
-          'Patient Profiles',
-          '${state.patients?.length ?? 0}',
-          Icons.face_retouching_natural_rounded,
-          CustomColors.blue,
+        MiniStatCard(
+          title: 'Patient Profiles',
+          value: state.patients.length,
+          icon: Icons.face_retouching_natural_rounded,
+          color: CustomColors.blue,
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(
-    BuildContext context,
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Expanded(
-      child: BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: context.appEdgeInsets(all: 10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: context.appBorderRadius(all: 8),
-              ),
-              child: Icon(icon, color: color, size: context.sp(20)),
-            ),
-            context.horizontalSpace(14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: context.fonts.black18w600,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  context.verticalSpace(2),
-                  Text(
-                    title,
-                    style: context.fonts.grey11w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

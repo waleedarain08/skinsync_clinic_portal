@@ -1,17 +1,18 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:before_after/before_after.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../utils/assets.dart';
-import 'patient_management.dart';
-import '../../utils/theme.dart';
-import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/borderd_container_widget.dart';
+
 import '../../models/responses/patient_detail_response.dart';
 import '../../models/responses/patient_treatment_request_response.dart';
+import '../../utils/assets.dart';
+import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/borderd_container_widget.dart';
+import '../../widgets/gradient_scaffold.dart';
+import 'patient_management.dart';
 
 class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   static const String path = 'details';
@@ -20,29 +21,30 @@ class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   const PatientManagementDetailScreen({super.key});
 
   @override
-  ConsumerState<PatientManagementDetailScreen> createState() => _PatientManagementDetailScreenState();
+  ConsumerState<PatientManagementDetailScreen> createState() =>
+      _PatientManagementDetailScreenState();
 }
 
-class _PatientManagementDetailScreenState extends ConsumerState<PatientManagementDetailScreen> {
+class _PatientManagementDetailScreenState
+    extends ConsumerState<PatientManagementDetailScreen> {
   final Map<String, double> _sliderValues = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(patientProvider.notifier).getPatientTreatmentRequests(initialCall: true);
+      ref
+          .read(patientProvider.notifier)
+          .getPatientTreatmentRequests(initialCall: true);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-   
     final patientState = ref.watch(patientProvider);
-     final patient = patientState.patientDetail;
+    final patient = patientState.patientDetail;
     if (patient == null) {
-      return const GradientScaffold(
-        body: Center(child: AppLoader()),
-      );
+      return const GradientScaffold(body: Center(child: AppLoader()));
     }
 
     return GradientScaffold(
@@ -52,7 +54,10 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
         centerTitle: true,
         title: Text('Patient Details', style: context.fonts.black18w600),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: CustomColors.black),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: CustomColors.black,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -84,10 +89,7 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  p.patientName,
-                  style: context.fonts.black26w700,
-                ),
+                Text(p.patientName, style: context.fonts.black26w700),
                 context.verticalSpace(4),
                 Container(
                   padding: context.appEdgeInsets(horizontal: 12, vertical: 4),
@@ -118,13 +120,21 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
           Text('Contact Information', style: context.fonts.black18w600),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.email_outlined, 'Email Address', p.email),
-          _infoRow(context, Icons.phone_outlined, 'Phone Number', p.phoneNumber),
+          _infoRow(
+            context,
+            Icons.phone_outlined,
+            'Phone Number',
+            p.phoneNumber,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTreatmentRequestsSection(BuildContext context, PatientState state) {
+  Widget _buildTreatmentRequestsSection(
+    BuildContext context,
+    PatientState state,
+  ) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
       backgroundColor: CustomColors.white,
@@ -147,20 +157,27 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
           if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
             Padding(
               padding: context.appEdgeInsets(vertical: 20),
-              child: Center(child: Text('No treatment requests found', style: context.fonts.grey14w400)),
+              child: Center(
+                child: Text(
+                  'No treatment requests found',
+                  style: context.fonts.grey14w400,
+                ),
+              ),
             )
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: state.treatmentRequests.length,
-              separatorBuilder: (context, index) => const Divider(color: CustomColors.border, height: 32),
+              separatorBuilder: (context, index) =>
+                  const Divider(color: CustomColors.border, height: 32),
               itemBuilder: (context, index) {
                 final request = state.treatmentRequests[index];
                 return _buildTreatmentRequestItem(context, request);
               },
             ),
-          if (state.treatmentTotalPage != null && state.treatmentTotalPage! > 1) ...[
+          if (state.treatmentTotalPage != null &&
+              state.treatmentTotalPage! > 1) ...[
             context.verticalSpace(24),
             _buildPagination(context, state),
           ],
@@ -169,20 +186,30 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
     );
   }
 
-  Widget _buildTreatmentRequestItem(BuildContext context, PatientTreatmentRequestData request) {
+  Widget _buildTreatmentRequestItem(
+    BuildContext context,
+    PatientTreatmentRequestData request,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Icons.assignment_outlined, size: 22, color: CustomColors.purple),
+            const Icon(
+              Icons.assignment_outlined,
+              size: 22,
+              color: CustomColors.purple,
+            ),
             context.horizontalSpace(12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(request.name, style: context.fonts.black18w600),
-                  Text('Request Date: ${request.createdAt?.substring(0, 10) ?? ""}', style: context.fonts.grey12w400),
+                  Text(
+                    'Request Date: ${request.createdAt?.substring(0, 10) ?? ""}',
+                    style: context.fonts.grey12w400,
+                  ),
                 ],
               ),
             ),
@@ -191,12 +218,17 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
         context.verticalSpace(16),
         _buildImageComparison(context, request),
         context.verticalSpace(16),
-        ...request.treatments.map((treatment) => _buildTreatmentDetail(context, treatment)),
+        ...request.treatments.map(
+          (treatment) => _buildTreatmentDetail(context, treatment),
+        ),
       ],
     );
   }
 
-  Widget _buildImageComparison(BuildContext context, PatientTreatmentRequestData request) {
+  Widget _buildImageComparison(
+    BuildContext context,
+    PatientTreatmentRequestData request,
+  ) {
     final images = [
       if (request.frontImageBefore != null || request.frontImageAfter != null)
         ('Front View', request.frontImageBefore, request.frontImageAfter),
@@ -243,9 +275,18 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
                         children: [
                           BeforeAfter(
                             value: _sliderValues[key]!,
-                            onValueChanged: (value) => setState(() => _sliderValues[key] = value),
-                            before: _buildComparisonImageOnly(context, before, 'Before'),
-                            after: _buildComparisonImageOnly(context, after, 'After'),
+                            onValueChanged: (value) =>
+                                setState(() => _sliderValues[key] = value),
+                            before: _buildComparisonImageOnly(
+                              context,
+                              before,
+                              'Before',
+                            ),
+                            after: _buildComparisonImageOnly(
+                              context,
+                              after,
+                              'After',
+                            ),
                             trackColor: Colors.white,
                             trackWidth: context.w(2),
                             thumbDecoration: const BoxDecoration(
@@ -260,12 +301,18 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
                           Positioned(
                             top: context.h(12),
                             left: context.w(12),
-                            child: _buildBadge("BEFORE", Colors.black.withValues(alpha: 0.6)),
+                            child: _buildBadge(
+                              "BEFORE",
+                              Colors.black.withValues(alpha: 0.6),
+                            ),
                           ),
                           Positioned(
                             top: context.h(12),
                             right: context.w(12),
-                            child: _buildBadge("AFTER", Colors.black.withValues(alpha: 0.6)),
+                            child: _buildBadge(
+                              "AFTER",
+                              Colors.black.withValues(alpha: 0.6),
+                            ),
                           ),
                         ],
                       ),
@@ -282,9 +329,21 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
                       width: context.w(300),
                       child: Row(
                         children: [
-                          Expanded(child: _buildComparisonImage(context, before, 'Before')),
+                          Expanded(
+                            child: _buildComparisonImage(
+                              context,
+                              before,
+                              'Before',
+                            ),
+                          ),
                           context.horizontalSpace(8),
-                          Expanded(child: _buildComparisonImage(context, after, 'After')),
+                          Expanded(
+                            child: _buildComparisonImage(
+                              context,
+                              after,
+                              'After',
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -303,24 +362,32 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
     );
   }
 
-  Widget _buildComparisonImageOnly(BuildContext context, String? url, String label) {
+  Widget _buildComparisonImageOnly(
+    BuildContext context,
+    String? url,
+    String label,
+  ) {
     return url != null
         ? (url.startsWith('http')
-            ? CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
-              )
-            : Image.asset(
-                url,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 24),
-              ))
+              ? CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.broken_image, size: 24),
+                )
+              : Image.asset(
+                  url,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 24),
+                ))
         : Center(child: Text(label, style: context.fonts.grey12w400));
   }
 
@@ -344,7 +411,11 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
     );
   }
 
-  Widget _buildComparisonImage(BuildContext context, String? url, String label) {
+  Widget _buildComparisonImage(
+    BuildContext context,
+    String? url,
+    String label,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -360,17 +431,21 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
             borderRadius: BorderRadius.circular(context.r(12)),
             child: url != null
                 ? (url.startsWith('http')
-                    ? CachedNetworkImage(
-                        imageUrl: url,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                        errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
-                      )
-                    : Image.asset(
-                        url,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 24),
-                      ))
+                      ? CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.broken_image, size: 24),
+                        )
+                      : Image.asset(
+                          url,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 24),
+                        ))
                 : Center(child: Text(label, style: context.fonts.grey12w400)),
           ),
         ),
@@ -378,15 +453,19 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
         Center(
           child: Text(
             label,
-            style: context.fonts.black12w600.copyWith(color: label == 'Before' ? CustomColors.red : CustomColors.green),
+            style: context.fonts.black12w600.copyWith(
+              color: label == 'Before' ? CustomColors.red : CustomColors.green,
+            ),
           ),
         ),
       ],
     );
   }
 
-
-  Widget _buildTreatmentDetail(BuildContext context, PatientTreatmentData treatment) {
+  Widget _buildTreatmentDetail(
+    BuildContext context,
+    PatientTreatmentData treatment,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: context.h(16)),
       padding: context.appEdgeInsets(all: 16),
@@ -400,24 +479,39 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
         children: [
           Row(
             children: [
-              const Icon(Icons.medical_services_outlined, size: 18, color: CustomColors.purple),
+              const Icon(
+                Icons.medical_services_outlined,
+                size: 18,
+                color: CustomColors.purple,
+              ),
               context.horizontalSpace(8),
               Text(treatment.treatmentName, style: context.fonts.black16w600),
             ],
           ),
           const Divider(height: 24),
-          ...treatment.areas.map((area) => Padding(
-                padding: EdgeInsets.only(bottom: context.h(12)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(area.areaName, style: context.fonts.black14w600.copyWith(color: CustomColors.purple)),
-                    context.verticalSpace(8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: area.materials.map((m) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          ...treatment.areas.map(
+            (area) => Padding(
+              padding: EdgeInsets.only(bottom: context.h(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    area.areaName,
+                    style: context.fonts.black14w600.copyWith(
+                      color: CustomColors.purple,
+                    ),
+                  ),
+                  context.verticalSpace(8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: area.materials
+                        .map(
+                          (m) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: CustomColors.white,
                               borderRadius: BorderRadius.circular(context.r(6)),
@@ -427,17 +521,18 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
                               '${m.name} x ${m.selectedQuantity}',
                               style: context.fonts.black12w600,
                             ),
-                          )).toList(),
-                    ),
-                  ],
-                ),
-              )),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-
-
 
   Widget _buildPagination(BuildContext context, PatientState state) {
     return Row(
@@ -445,7 +540,9 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
       children: [
         IconButton(
           onPressed: state.treatmentPage > 1
-              ? () => ref.read(patientProvider.notifier).setTreatmentPageNumber(state.treatmentPage - 1)
+              ? () => ref
+                    .read(patientProvider.notifier)
+                    .setTreatmentPageNumber(state.treatmentPage - 1)
               : null,
           icon: const Icon(Icons.arrow_back_ios, size: 16),
         ),
@@ -455,7 +552,9 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
         ),
         IconButton(
           onPressed: state.treatmentPage < (state.treatmentTotalPage ?? 1)
-              ? () => ref.read(patientProvider.notifier).setTreatmentPageNumber(state.treatmentPage + 1)
+              ? () => ref
+                    .read(patientProvider.notifier)
+                    .setTreatmentPageNumber(state.treatmentPage + 1)
               : null,
           icon: const Icon(Icons.arrow_forward_ios, size: 16),
         ),
@@ -463,7 +562,12 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
     );
   }
 
-  Widget _infoRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _infoRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Padding(
       padding: EdgeInsets.only(bottom: context.h(20)),
       child: Row(
@@ -490,30 +594,35 @@ class _PatientManagementDetailScreenState extends ConsumerState<PatientManagemen
     return ClipOval(
       child: imageUrl != null && imageUrl.isNotEmpty
           ? (imageUrl.startsWith('http')
-              ? CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  height: context.r(radius * 2),
-                  width: context.r(radius * 2),
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => _buildDefaultAvatar(context, radius),
-                )
-              : Image.asset(
-                  imageUrl,
-                  height: context.r(radius * 2),
-                  width: context.r(radius * 2),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(context, radius),
-                ))
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    height: context.r(radius * 2),
+                    width: context.r(radius * 2),
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) =>
+                        _buildDefaultAvatar(context, radius),
+                  )
+                : Image.asset(
+                    imageUrl,
+                    height: context.r(radius * 2),
+                    width: context.r(radius * 2),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildDefaultAvatar(context, radius),
+                  ))
           : _buildDefaultAvatar(context, radius),
     );
   }
-
 
   Widget _buildDefaultAvatar(BuildContext context, double radius) {
     return CircleAvatar(
       radius: context.r(radius),
       backgroundColor: CustomColors.softGrey,
-      child: Icon(Icons.person, size: context.r(radius), color: CustomColors.grey),
+      child: Icon(
+        Icons.person,
+        size: context.r(radius),
+        color: CustomColors.grey,
+      ),
     );
   }
 }

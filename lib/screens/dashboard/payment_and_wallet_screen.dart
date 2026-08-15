@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../../utils/assets.dart';
 import '../../utils/theme.dart';
-import '../../widgets/analytics_card_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/mini_stat_card.dart';
 import 'payment_history_screen.dart';
 
 class PaymentAndWalletScreen extends StatefulWidget {
@@ -66,7 +66,9 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
               surfaceTintColor: Colors.transparent,
               title: Text('Add Payment Card', style: context.fonts.black18w600),
               content: SizedBox(
-                width: context.screenWidth > 600 ? 500 : context.screenWidth * 0.9,
+                width: context.screenWidth > 600
+                    ? 500
+                    : context.screenWidth * 0.9,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +81,10 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                     Text('Card Holder Name', style: context.fonts.black14w600),
                     context.verticalSpace(8),
                     TextFormField(
-                      decoration: AppDecorations.input(context, hint: 'e.g. John Doe'),
+                      decoration: AppDecorations.input(
+                        context,
+                        hint: 'e.g. John Doe',
+                      ),
                       onChanged: (value) {
                         setDialogState(() {
                           _cardHolderName = value;
@@ -96,18 +101,28 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 14),
+                        contentPadding: context.appEdgeInsets(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: CustomColors.border),
+                          borderSide: const BorderSide(
+                            color: CustomColors.border,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: CustomColors.border),
+                          borderSide: const BorderSide(
+                            color: CustomColors.border,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: CustomColors.purple, width: 1.5),
+                          borderSide: const BorderSide(
+                            color: CustomColors.purple,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),
@@ -126,25 +141,33 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                     if (_cardDetails?.complete ?? false) {
                       try {
                         // Create payment method using Stripe
-                        final paymentMethod = await Stripe.instance.createPaymentMethod(
-                          params: PaymentMethodParams.card(
-                            paymentMethodData: PaymentMethodData(
-                              billingDetails: BillingDetails(name: _cardHolderName),
-                            ),
-                          ),
-                        );
+                        final paymentMethod = await Stripe.instance
+                            .createPaymentMethod(
+                              params: PaymentMethodParams.card(
+                                paymentMethodData: PaymentMethodData(
+                                  billingDetails: BillingDetails(
+                                    name: _cardHolderName,
+                                  ),
+                                ),
+                              ),
+                            );
                         final month = paymentMethod.card.expMonth;
                         final year = paymentMethod.card.expYear;
-                        final expiry = month != null && year != null ? '$month/$year' : '';
+                        final expiry = month != null && year != null
+                            ? '$month/$year'
+                            : '';
                         setState(() {
                           _bankCards.add(
                             BankCardData(
                               // cardNumber: paymentMethod.card.last4,
                               cardNumber: paymentMethod.card.last4 ?? '',
                               expiryDate: expiry,
-                              cardHolderName: _cardHolderName.isEmpty ? 'Clinic Member' : _cardHolderName,
+                              cardHolderName: _cardHolderName.isEmpty
+                                  ? 'Clinic Member'
+                                  : _cardHolderName,
                               cvvCode: '***',
-                              bankName: (paymentMethod.card.brand ?? 'Card').toUpperCase(),
+                              bankName: (paymentMethod.card.brand ?? 'Card')
+                                  .toUpperCase(),
                             ),
                           );
                         });
@@ -152,7 +175,9 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                         if (context.mounted) {
                           Navigator.of(dialogContext).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Card added successfully')),
+                            const SnackBar(
+                              content: Text('Card added successfully'),
+                            ),
                           );
                         }
                       } catch (e) {
@@ -164,7 +189,9 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please complete card details')),
+                        const SnackBar(
+                          content: Text('Please complete card details'),
+                        ),
                       );
                     }
                   },
@@ -224,7 +251,8 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _transactions.length,
-              itemBuilder: (context, index) => transactionTile(context, _transactions[index]),
+              itemBuilder: (context, index) =>
+                  transactionTile(context, _transactions[index]),
             ),
             context.verticalSpace(20),
           ],
@@ -258,7 +286,10 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
               SvgAssets.withdraw,
               height: context.h(18),
               width: context.w(18),
-              colorFilter: const ColorFilter.mode(CustomColors.white, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                CustomColors.white,
+                BlendMode.srcIn,
+              ),
             ),
             label: const Text('Withdraw'),
           ),
@@ -276,22 +307,22 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
         Row(
           children: [
             const Expanded(
-              child: AnalyticsCardWidget(
+              child: MiniStatCard(
                 icon: Icons.payments_outlined,
-                iconColor: Color(0xFF7DD3D3),
-                bgColor: Color(0xFFE8F6F6),
-                value: '\$ 45,200',
-                label: 'Total Earnings',
+                color: Color(0xFF7DD3D3),
+                value: 45200,
+                prefix: '\$ ',
+                title: 'Total Earnings',
               ),
             ),
             context.horizontalSpace(16),
             const Expanded(
-              child: AnalyticsCardWidget(
+              child: MiniStatCard(
                 icon: Icons.account_balance_wallet_outlined,
-                iconColor: Color(0xFFE89FD5),
-                bgColor: Color(0xFFFCEFF9),
-                value: '\$ 12,450',
-                label: 'Available Balance',
+                color: Color(0xFFE89FD5),
+                value: 12450,
+                prefix: '\$ ',
+                title: 'Available Balance',
               ),
             ),
           ],
@@ -523,7 +554,21 @@ class BankCardData {
 }
 
 class PaymentTransaction {
-  final String clientName, service, appointmentId, appointmentType, date, time, amount;
+  final String clientName,
+      service,
+      appointmentId,
+      appointmentType,
+      date,
+      time,
+      amount;
 
-  PaymentTransaction({required this.clientName, required this.service, required this.appointmentId, required this.appointmentType, required this.date, required this.time, required this.amount});
+  PaymentTransaction({
+    required this.clientName,
+    required this.service,
+    required this.appointmentId,
+    required this.appointmentType,
+    required this.date,
+    required this.time,
+    required this.amount,
+  });
 }
