@@ -22,8 +22,8 @@ import 'storage_service.dart';
 class ApiBaseService {
   final _secureStorage = locator<SecureStorageService>();
   final String _baseUrl = isDeploymentMode
-      ? BaseUrls.apiDEV.url
-      : BaseUrls.apiQA.url;
+      ? BaseUrls.api.url
+      : BaseUrls.apiQa.url;
   String? authToken;
 
   Future<Map<String, dynamic>> httpRequest({
