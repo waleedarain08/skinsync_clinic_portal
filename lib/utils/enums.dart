@@ -90,6 +90,7 @@ enum Endpoint {
       updatedPath = updatedPath.replaceAll('{$key}', value);
     });
     return updatedPath;
+
   }
 }
 
