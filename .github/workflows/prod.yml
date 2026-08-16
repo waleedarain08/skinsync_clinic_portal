@@ -24,26 +24,32 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.9'
           channel: stable
           cache: true
+
+      - name: Verify Flutter version
+        run: |
+          flutter --version
+          dart --version
 
       - name: Enable web
         run: flutter config --enable-web
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Clean build
+      - name: Clean Flutter
         run: flutter clean
 
+      - name: Get dependencies
+        run: flutter pub get
+
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons
+        run: flutter build web --release --no-tree-shake-icons --no-wasm-dry-run
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
-      
+
       - name: Deploy to Vercel
-        run: vercel deploy build/web --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy build/web --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
