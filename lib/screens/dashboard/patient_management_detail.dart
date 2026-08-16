@@ -18,7 +18,8 @@ class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   static const String path = 'details';
   static const String routeName =
       '${PatientManagementScreen.routeName}/details';
-  const PatientManagementDetailScreen({super.key});
+  final int? patientId;
+  const PatientManagementDetailScreen({super.key, this.patientId});
 
   @override
   ConsumerState<PatientManagementDetailScreen> createState() =>
@@ -35,7 +36,7 @@ class _PatientManagementDetailScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(patientProvider.notifier)
-          .getPatientTreatmentRequests(initialCall: true);
+          .getPatientTreatmentRequests(initialCall: true, patientId: widget.patientId);
     });
   }
 

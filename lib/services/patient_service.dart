@@ -57,6 +57,7 @@ class PatientService extends PatientRepository {
   Future<PatientTreatmentRequestResponse> getPatientTreatmentRequests({
     required int page,
     required int limit,
+    int? patientId,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.patientTreatmentRequest,
@@ -64,6 +65,7 @@ class PatientService extends PatientRepository {
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
+        if (patientId != null) 'patient_id': patientId.toString(),
       },
     );
 
