@@ -67,7 +67,7 @@ class MediaService {
         .ref(isDeploymentMode ? 'production/' : 'staging/')
         .child(storagePath);
     final metadata = SettableMetadata(
-      contentType: file.extension == 'pdf'
+      contentType: file.name.toLowerCase().endsWith('.pdf')
           ? 'application/pdf'
           : 'application/octet-stream',
     );
@@ -108,7 +108,7 @@ class MediaService {
         bytes = await file.readAsBytes();
 
         if (bytes.isEmpty) {
-          throw Exception('PlatformFile.bytes is null. Use withData:true');
+          throw Exception('PlatformFile.bytes is null.');
         }
       } else {
         throw Exception('Unsupported file type');

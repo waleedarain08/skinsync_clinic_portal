@@ -67,7 +67,7 @@ dependencies:
   pdf: ^3.13.0
   printing: ^5.15.0
   pdf_kit_editor: ^0.2.0
-  file_picker: ^12.0.0-beta.7
+  file_picker: ^12.0.0
   path_provider: ^2.1.6
   uuid: ^4.6.0
   country_code_picker: ^3.4.1
@@ -79,7 +79,7 @@ dependencies:
   duration_picker: ^1.2.0
   flutter_localizations:
     sdk: flutter
-  flutter_stripe: ^13.1.0
+  flutter_stripe: ^14.0.0
   flutter_stripe_web: ^8.1.0
 
 dependency_overrides:

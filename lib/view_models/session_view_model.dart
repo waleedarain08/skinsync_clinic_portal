@@ -1933,7 +1933,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   Future<void> pickAttachments(bool isPreTreatment) async {
-    final FilePickerResult? result = await FilePicker.pickFiles(
+    final List<PlatformFile> result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
         'pdf',
@@ -1949,12 +1949,12 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       ],
     );
 
-    if (result == null) return;
+    if (result.isEmpty) return;
 
     await runSafely(() async {
       final uploaded = <Attachment>[];
 
-      for (final file in result.files) {
+      for (final file in result) {
         log('Uploading: ${file.name}');
 
         final url = await MediaService().uploadMedia(
@@ -1996,7 +1996,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   String _getFileType(PlatformFile file) {
-    final ext = file.extension?.toLowerCase();
+    final ext = file.name.split('.').last.toLowerCase();
     if (ext == 'pdf') return 'pdf';
     if (['jpg', 'jpeg', 'png', 'webp'].contains(ext)) return 'image';
     if (['mp4', 'mov', 'avi', 'mkv'].contains(ext)) return 'video';
@@ -2066,14 +2066,12 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   Future<void> pickConsentForm() async {
-    final FilePickerResult? result = await FilePicker.pickFiles(
+    final PlatformFile? file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
 
-    if (result != null && result.files.isNotEmpty) {
-      final file = result.files.first;
-
+    if (file != null) {
       final String? url = await MediaService().uploadMedia(
         path: 'treatment',
         file: file,

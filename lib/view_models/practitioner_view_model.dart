@@ -95,16 +95,14 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   Future<String?> pickAndUploadDocument() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
 
-    if (result == null || result.files.isEmpty) {
+    if (file == null) {
       return null;
     }
-
-    final file = result.files.first;
 
     return await runSafely(() async {
       final url = await MediaService().uploadMedia(
