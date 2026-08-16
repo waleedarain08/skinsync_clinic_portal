@@ -133,7 +133,9 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       if (response.success) {
         state = state.copyWith(
           treatmentLoading: false,
-          treatmentRequests: response.data ?? [],
+          treatmentRequests: (response.data ?? [])
+              .where((element) => element.userId == patientId)
+              .toList(),
           treatmentTotalPage: response.totalPages,
           treatmentTotalResults: response.total,
           treatmentPage: response.page,
