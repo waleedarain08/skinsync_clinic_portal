@@ -80,7 +80,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_stripe: ^14.0.0
-  flutter_stripe_web: ^8.1.0
+  flutter_stripe_web: ^8.2.0
 
 dependency_overrides:
   intl: ^0.20.3
