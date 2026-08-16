@@ -89,7 +89,6 @@ enum Endpoint {
     params.forEach((key, value) {
       updatedPath = updatedPath.replaceAll('{$key}', value);
     });
-
     return updatedPath;
   }
 }
