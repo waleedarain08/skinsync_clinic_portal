@@ -263,7 +263,7 @@ class _FormsScreenState extends State<FormsScreen> {
 
   Future<void> _uploadPdf() async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
@@ -271,11 +271,11 @@ class _FormsScreenState extends State<FormsScreen> {
       if (result != null) {
         XFile pickedFile;
         if (kIsWeb) {
-          final bytes = await result.files.single.readAsBytes();
-          pickedFile = XFile.fromData(bytes, name: result.files.single.name);
+          final bytes = await result.readAsBytes();
+          pickedFile = XFile.fromData(bytes, name: result.name);
         } else {
-          if (result.files.single.path == null) return;
-          pickedFile = XFile(result.files.single.path!);
+          if (result.path == null) return;
+          pickedFile = XFile(result.path!);
           final size = await File(pickedFile.path).length();
           if (size > 50 * 1024 * 1024) {
             _showError("File too large (> 50MB)");
@@ -284,7 +284,7 @@ class _FormsScreenState extends State<FormsScreen> {
         }
 
         if (!mounted) return;
-        final baseName = result.files.single.name.replaceAll('.pdf', '');
+        final baseName = result.name.replaceAll('.pdf', '');
         final nameController = TextEditingController(
           text: _controller.getUniqueName(baseName),
         );

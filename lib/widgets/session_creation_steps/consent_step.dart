@@ -95,9 +95,17 @@ class ConsentStep extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        '${(file.size / 1024).toStringAsFixed(1)} KB',
-                        style: context.fonts.grey12w400,
+                      FutureBuilder<int>(
+                        future: file.length(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text(
+                              '${(snapshot.data! / 1024).toStringAsFixed(1)} KB',
+                              style: context.fonts.grey12w400,
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ],
                   ),

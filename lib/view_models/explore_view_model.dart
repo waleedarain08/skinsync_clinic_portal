@@ -108,15 +108,11 @@ class ExploreViewModel extends BaseViewModel<ExploreState> {
   }
 
   Future<void> pickAndUploadVideo() async {
-    final FilePickerResult? result = await FilePicker.pickFiles(
+    final PlatformFile? file = await FilePicker.pickFile(
       type: FileType.video,
-      allowMultiple: false,
-      withData: true,
     );
 
-    if (result == null || result.files.isEmpty) return;
-
-    final file = result.files.first;
+    if (file == null) return;
 
     return await runSafely(showLoading: true, () async {
       final String? url = await _mediaService.uploadMedia(

@@ -42,7 +42,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       state = state.copyWith(page: 1);
     }
 
-    return await runSafely(showLoading: showEasyLoading, () async {
+    await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(loading: !showEasyLoading);
 
       final response = await _repository.getPatients(
@@ -120,7 +120,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       state = state.copyWith(treatmentPage: 1);
     }
 
-    return await runSafely(showLoading: showEasyLoading, () async {
+    await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(treatmentLoading: !showEasyLoading);
 
       final response = await _repository.getPatientTreatmentRequests(
@@ -147,8 +147,10 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     });
   }
 
+  @override
   @mustCallSuper
   void onError(String message) {
+    super.onError(message);
     state.copyWith(loading: false);
     EasyLoading.dismiss();
   }
