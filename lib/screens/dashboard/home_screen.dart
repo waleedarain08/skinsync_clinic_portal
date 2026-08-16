@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../utils/theme.dart';
 
 import '../../widgets/gradient_scaffold.dart';
-import '../../utils/assets.dart';
-import '../../widgets/ai_row_widget.dart';
 import '../../widgets/analytics_grid_widget.dart';
-import '../../widgets/appointments_list_widget.dart';
-import '../../widgets/recent_clients_widget.dart';
+import '../../widgets/treatment_list_widget.dart';
 import '../../widgets/recent_treatment_row_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../services/locator.dart';
@@ -129,13 +125,15 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          "Upcoming Appointments",
+                          "Treatments",
                           style: context.fonts.black18w600,
                         ),
                       ),
                       context.horizontalSpace(20),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
@@ -159,46 +157,17 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   context.verticalSpace(24),
-                  const AppointmentsListWidget(),
+                  const TreatmentListWidget(),
                 ],
               ),
             ),
             context.verticalSpace(32),
 
-            // Recent Clients Section
-            const RecentClientsWidget(),
-            context.verticalSpace(32),
+          
+       
 
             // AI Recommendations Section (cohesive soft lavender thematic coloring)
-            BorderdContainerWidget(
-              backgroundColor: const Color(0xFFFAF5FF),
-              borderColor: CustomColors.purple.withValues(alpha: 0.15),
-              padding: context.appEdgeInsets(all: 24),
-              borderRadius: context.r(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        SvgAssets.aiStar,
-                        width: context.w(19),
-                        height: context.w(19),
-                      ),
-                      context.horizontalSpace(8),
-                      Text(
-                        "AI Recommendations",
-                        style: context.fonts.purple16w700,
-                      ),
-                    ],
-                  ),
-                  context.verticalSpace(24),
-                  AiRowWidget(stats: treatmentStats),
-                ],
-              ),
-            ),
-            context.verticalSpace(32),
-
+            
             // Recent Treatments Section (styled with identical border and shadow structures)
             BorderdContainerWidget(
               padding: context.appEdgeInsets(all: 24),
@@ -211,7 +180,7 @@ class HomeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Recent Treatments",
+                        "Today Treatments Rquest",
                         style: context.fonts.black18w600,
                       ),
                       TextButton(
@@ -239,7 +208,7 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   context.verticalSpace(24),
-                  const RecentTreatmentRowWidget(),
+                  const TreatmentRequestRowWidget(),
                 ],
               ),
             ),

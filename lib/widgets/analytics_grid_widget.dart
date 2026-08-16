@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../utils/responsive.dart';
-import '../utils/theme.dart';
 import 'mini_stat_card.dart';
 
 class AnalyticsGridWidget extends StatelessWidget {
@@ -9,50 +8,32 @@ class AnalyticsGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       children: [
-        const AdaptiveLayoutRowColumn(
+         AdaptiveLayoutRowColumn(
           expandedWidget: true,
           children: [
             MiniStatCard(
               icon: Icons.calendar_today_outlined,
               color: Color(0xFF7DD3D3),
               value: 0,
-              title: "Completed Appointments",
+              title: "Total Treatments",
             ),
             MiniStatCard(
               icon: Icons.schedule_outlined,
               color: Color(0xFFE89FD5),
               value: 0,
-              title: "Pending Appointments",
+              title: "Total Providers",
             ),
             MiniStatCard(
               icon: Icons.cancel_outlined,
               color: Color(0xFFFF9B9B),
               value: 0,
-              title: "Cancelled Appointments",
+              title: "Total Treatment Request",
             ),
           ],
         ),
-        SizedBox(height: context.h(20)),
-        const AdaptiveLayoutRowColumn(
-          expandedWidget: true,
-          children: [
-            MiniStatCard(
-              icon: Icons.medical_services_outlined,
-              color: Color(0xFF7DD3D3),
-              value: 0,
-              title: "Total Treatments",
-            ),
-            MiniStatCard(
-              icon: Icons.star_outline,
-              color: Color(0xFFFFB366),
-              value: 0,
-              title: "Ratings",
-            ),
-          ],
-        ),
-      ],
+     ],
     );
   }
 }

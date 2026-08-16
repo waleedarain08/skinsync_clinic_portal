@@ -109,6 +109,8 @@ class CustomFonts {
   static TextStyle get black40w700 => TextStyle(fontSize: 40.sp, fontWeight: FontWeight.w700, color: CustomColors.black, fontFamily: _fontFamily);
   static TextStyle get black36w900 => TextStyle(fontSize: 36.sp, fontWeight: FontWeight.w900, color: CustomColors.black, fontFamily: _fontFamily);
   static TextStyle get black32w700 => TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w700, color: CustomColors.black, fontFamily: _fontFamily);
+  static TextStyle get black22w600 => TextStyle(fontSize:22.sp, fontWeight: FontWeight.w600, color: CustomColors.black, fontFamily: _fontFamily);
+
   static TextStyle get black30w600 => TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w600, color: CustomColors.black, fontFamily: _fontFamily);
   static TextStyle get black26w700 => TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w700, color: CustomColors.black, fontFamily: _fontFamily);
   static TextStyle get black20w600 => TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: CustomColors.black, fontFamily: _fontFamily);
