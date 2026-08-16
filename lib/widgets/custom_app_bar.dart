@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../main.dart';
 import '../models/user_model.dart';
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
@@ -47,16 +48,20 @@ class _CustomAppBarState extends State<CustomAppBar> {
         children: [
           if (!context.isLandscape) _MenuButton(context: context),
           const Spacer(),
+           if(!isDeploymentMode)
+
           const _TopBarAction(
             icon: Icons.notifications_none_rounded,
             tooltip: 'Notifications',
             hasBadge: true,
-          ),
+          ), if(!isDeploymentMode)
           context.horizontalSpace(20),
+           if(!isDeploymentMode)
           const _TopBarAction(
             icon: Icons.help_outline_rounded,
             tooltip: 'Documentation',
           ),
+           if(!isDeploymentMode)
           context.horizontalSpace(20),
           const VerticalDivider(width: 1, indent: 20, endIndent: 20),
           context.horizontalSpace(20),

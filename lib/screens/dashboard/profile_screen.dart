@@ -103,8 +103,10 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+             if(!isDeploymentMode)
             SizedBox(height: context.h(20)),
             // preference
+             if(!isDeploymentMode)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: context.w(16)),
               child: _buildSettingsSection(
