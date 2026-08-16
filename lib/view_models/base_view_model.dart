@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -14,7 +15,7 @@ abstract class BaseViewModel<S> extends Notifier<S> {
   }) async {
     try {
       if (showLoading) {
-        EasyLoading.show();
+        await EasyLoading.show();
       }
 
       return await action.call();
@@ -24,7 +25,7 @@ abstract class BaseViewModel<S> extends Notifier<S> {
       return null;
     } finally {
       if (showLoading) {
-        EasyLoading.dismiss();
+        unawaited(EasyLoading.dismiss());
       }
     }
   }

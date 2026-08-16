@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../main.dart';
 import '../../models/responses/administration_staff_response.dart';
 import '../../view_models/administration_staff_view_model.dart';
 import '../../widgets/app_loader.dart';
@@ -42,6 +43,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+           if(!isDeploymentMode)
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: context.w(28),
@@ -51,10 +53,12 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               children: [
                 _mainTabItem("Providers", 0),
                 SizedBox(width: context.w(32)),
+               
                 _mainTabItem("Administration Staff", 1),
               ],
             ),
           ),
+           if(!isDeploymentMode)
           const Divider(color: CustomColors.border, height: 1),
           Expanded(
             child: _selectedMainTab == 0

@@ -52,6 +52,12 @@ List<_SidebarEntry> _sidebarEntries() {
       label: 'Patient Management',
       routeName: PatientManagementScreen.routeName,
     ),
+     const _SidebarEntry(
+        icon: Icons.vaccines_outlined,
+        label: 'Treatments',
+        routeName: TreatmentScreen.routeName,
+        sectionLabel: 'OPERATIONS',
+      ),
     if (!isDeploymentMode) ...[
       const _SidebarEntry(
         icon: Iconsax.calendar,
@@ -59,12 +65,7 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: AppointmentScreen.routeName,
         sectionLabel: 'CLINICAL',
       ),
-      const _SidebarEntry(
-        icon: Icons.vaccines_outlined,
-        label: 'Treatments',
-        routeName: TreatmentScreen.routeName,
-        sectionLabel: 'OPERATIONS',
-      ),
+     
       const _SidebarEntry(
         icon: Icons.inventory,
         label: 'Inventory',

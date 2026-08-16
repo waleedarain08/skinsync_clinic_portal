@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
+import '../../main.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../models/treatment_model.dart';
@@ -138,6 +139,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             ),
           ],
         ),
+        if(!isDeploymentMode)
         CustomPrimaryButton(
           onTap: () {
             context.push('/clinic-add-treatment');
@@ -533,6 +535,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           //     );
           //   },
           // ),
+          if(!isDeploymentMode)
           IconButton(
             tooltip: 'Delete',
             icon: const Icon(
