@@ -114,7 +114,10 @@ class RouteGenerator {
               GoRoute(
                 name: PatientManagementDetailScreen.path,
                 path: PatientManagementDetailScreen.path,
-                builder: (_, _) => const PatientManagementDetailScreen(),
+                builder: (_, state) {
+                  final patientId = state.extra as int?;
+                  return PatientManagementDetailScreen(patientId: patientId);
+                },
               ),
             ],
           ),

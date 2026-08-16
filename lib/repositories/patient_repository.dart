@@ -16,5 +16,6 @@ abstract class PatientRepository {
   Future<PatientTreatmentRequestResponse> getPatientTreatmentRequests({
     required int page,
     required int limit,
+    int? patientId,
   });
 }

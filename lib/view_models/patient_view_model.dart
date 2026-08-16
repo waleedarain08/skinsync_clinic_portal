@@ -109,12 +109,13 @@ class PatientViewModel extends BaseViewModel<PatientState> {
   void setTreatmentPageNumber(int page) {
     state = state.copyWith(treatmentPage: page);
 
-    getPatientTreatmentRequests();
+    getPatientTreatmentRequests(patientId: state.patientDetail?.id);
   }
 
   Future<void> getPatientTreatmentRequests({
     bool initialCall = false,
     bool showEasyLoading = false,
+    int? patientId,
   }) async {
     if (initialCall) {
       state = state.copyWith(treatmentPage: 1);
@@ -126,6 +127,7 @@ class PatientViewModel extends BaseViewModel<PatientState> {
       final response = await _repository.getPatientTreatmentRequests(
         page: state.treatmentPage,
         limit: state.treatmentPageSize,
+        patientId: patientId,
       );
 
       if (response.success) {
