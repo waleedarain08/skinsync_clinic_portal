@@ -4,6 +4,8 @@ class PatientListResponse extends BaseResponse<List<PatientData>> {
   final int page;
   final int limit;
   final int totalPages;
+  final int totalRequest;
+  final int totalPatients;
   final int totalResults;
 
   PatientListResponse({
@@ -14,6 +16,8 @@ class PatientListResponse extends BaseResponse<List<PatientData>> {
     required this.limit,
     required this.totalPages,
     required this.totalResults,
+   required this.totalRequest,
+   required this.totalPatients
   });
 
   factory PatientListResponse.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,8 @@ class PatientListResponse extends BaseResponse<List<PatientData>> {
       limit: json['limit'] ?? 10,
       totalPages: json['total_pages'] ?? 0,
       totalResults: json['total_results'] ?? 0,
+      totalRequest:json['total_request'] ?? 0,
+      totalPatients:json['total_patients'] ?? 0,
     );
   }
 }

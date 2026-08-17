@@ -115,27 +115,19 @@ class _PatientManagementContent extends ConsumerWidget {
   }
 
   Widget _buildQuickInsights(BuildContext context, PatientState state) {
-    final totalPatients = state.totalResults ?? 0;
-
     return Row(
       children: [
         MiniStatCard(
           title: 'Total Patients',
-          value: totalPatients,
+          value: state.totalPatients ?? 0,
           icon: Icons.people_alt_outlined,
           color: CustomColors.purple,
         ),
         context.horizontalSpace(16),
+
         MiniStatCard(
-          title: 'Active Patients',
-          value: totalPatients,
-          icon: Icons.check_circle_outline_rounded,
-          color: CustomColors.green,
-        ),
-        context.horizontalSpace(16),
-        MiniStatCard(
-          title: 'Patient Profiles',
-          value: state.patients.length,
+          title: 'Total Request',
+          value: state.totalRequest ?? 0,
           icon: Icons.face_retouching_natural_rounded,
           color: CustomColors.blue,
         ),

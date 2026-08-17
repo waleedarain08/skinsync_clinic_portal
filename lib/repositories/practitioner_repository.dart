@@ -22,8 +22,9 @@ abstract class PractitionerRepository {
     required StatusRequest request,
   });
 
-  Future<void> updatePractitionerTreatment({
+  Future<void> updatePractitioner({
     required UpdatePractitionerRequest request,
+    required int practitionerID
   });
 
   Future<FetchPractitionerByEmailResponse> fetchPractitionerByEmail({

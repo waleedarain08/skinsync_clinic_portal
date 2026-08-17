@@ -231,43 +231,25 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
-  Future<void> updatePractitionerTreatment({
-    required String email,
-    required int clinicUserId,
-    required String name,
-    required String specialization,
-    required String phone,
-    String? image,
+  Future<void> updatePractitioner({
+    required ClinicAccess clinicAccess,
+    required AvailabilityInfo availabilityInfo,
+    required FinancialInfo financialInfo,
+    required String role,
+     required int practitionerID
   }) async {
     return await runSafely(() async {
-      if (state.treatments.isEmpty) {
-        throw Exception('Add treatments first!');
-      }
-      if (state.availability.isEmpty) {
-        throw Exception('Add at least one slot!');
-      }
 
-      state = state.copyWith(loading: true);
-      String? imageUrl;
-      final request = UpdatePractitionerRequest(
-        clinicUserId: clinicUserId,
-        name: name,
-        specialization: specialization,
-        phone: phone,
-        cc: state.cc,
-        country: state.countryCode,
-        availability: state.availability,
-        image: imageUrl,
-        treatments: state.treatments.map((t) {
-          return UpdateTreatmentRequest(
-            treatmentId: t.id!,
-            treatmentsSubSecId: t.sideAreas?.map((s) => s.id!).toList() ?? [],
-          );
-        }).toList(),
-      );
-
-      await locator<PractitionerService>().updatePractitionerTreatment(
-        request: request,
+      await locator<PractitionerService>().updatePractitioner(
+        request: UpdatePractitionerRequest(
+       
+         
+          role: role,
+          clinicAccess: clinicAccess,
+          availabilityInfo: availabilityInfo,
+          financialInfo: financialInfo,
+        ),
+        practitionerID: practitionerID
       );
 
       state = state.copyWith(loading: false, success: true);

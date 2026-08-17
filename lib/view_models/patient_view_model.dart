@@ -57,6 +57,8 @@ class PatientViewModel extends BaseViewModel<PatientState> {
           patients: response.data ?? [],
           totalPage: response.totalPages,
           totalResults: response.totalResults,
+          totalPatients: response.totalPatients,
+          totalRequest: response.totalRequest,
           page: response.page,
         );
       } else {
@@ -166,6 +168,8 @@ class PatientState {
   final int pageSize;
   final int? totalPage;
   final int? totalResults;
+  final int? totalRequest;
+  final int? totalPatients;
   final List<PatientData> patients;
   final bool detailLoading;
   final PatientDetailData? patientDetail;
@@ -182,6 +186,8 @@ class PatientState {
     this.pageSize = 10,
     this.totalPage,
     this.totalResults,
+    this.totalPatients,
+    this.totalRequest,
     this.patients = const [],
     this.detailLoading = false,
     this.patientDetail,
@@ -209,6 +215,8 @@ class PatientState {
     int? treatmentTotalPage,
     int? treatmentTotalResults,
     List<PatientTreatmentRequestData>? treatmentRequests,
+    int? totalRequest,
+   int? totalPatients
   }) {
     return PatientState(
       loading: loading ?? this.loading,
@@ -228,6 +236,8 @@ class PatientState {
       treatmentTotalResults:
           treatmentTotalResults ?? this.treatmentTotalResults,
       treatmentRequests: treatmentRequests ?? this.treatmentRequests,
+      totalPatients: totalPatients ?? this.totalPatients,
+      totalRequest: totalRequest?? this.totalRequest
     );
   }
 }

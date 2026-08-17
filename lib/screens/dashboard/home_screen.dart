@@ -12,50 +12,9 @@ import '../../services/storage_service.dart';
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
 
-  HomeScreen({super.key});
+ const HomeScreen({super.key});
 
-  final List<Map<String, dynamic>> treatmentStats = [
-    {
-      'revenue': '\$28k+',
-      'percentage': '88%',
-      'percentageChange': '+6%',
-      'mainLabel': 'Sales Improve',
-      'treatmentName': 'Botox Treatment',
-      'originalPrice': '\$240',
-      'discountedPrice': '\$220',
-      'description':
-          'Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development to fill empty.',
-      'buttonText': 'Update Pricing',
-      'progress': 0.88,
-    },
-    {
-      'revenue': '\$32k+',
-      'percentage': '92%',
-      'percentageChange': '+8%',
-      'mainLabel': 'Revenue Growth',
-      'treatmentName': 'Laser Treatment',
-      'originalPrice': '\$350',
-      'discountedPrice': '\$310',
-      'description':
-          'Advanced laser technology for skin rejuvenation and treatment. Experience professional care with visible results and satisfaction.',
-      'buttonText': 'Update Pricing',
-      'progress': 0.92,
-    },
-    {
-      'revenue': '\$25k+',
-      'percentage': '85%',
-      'percentageChange': '+5%',
-      'mainLabel': 'Customer Satisfaction',
-      'treatmentName': 'Facial Treatment',
-      'originalPrice': '\$180',
-      'discountedPrice': '\$160',
-      'description':
-          'Rejuvenating facial treatments designed to refresh and revitalize your skin with premium products and expert techniques.',
-      'buttonText': 'Update Pricing',
-      'progress': 0.85,
-    },
-  ];
-
+ 
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(

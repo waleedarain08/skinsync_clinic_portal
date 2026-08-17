@@ -94,7 +94,7 @@ class RouteGenerator {
           GoRoute(
             name: HomeScreen.routeName,
             path: HomeScreen.routeName,
-            builder: (_, _) => HomeScreen(),
+            builder: (_, _) =>const HomeScreen(),
           ),
            GoRoute(
             name: ExploreScreen.routeName,

@@ -94,13 +94,15 @@ class PractitionerService extends PractitionerRepository {
   }
 
   @override
-  Future<void> updatePractitionerTreatment({
+  Future<void> updatePractitioner({
     required UpdatePractitionerRequest request,
+    required int practitionerID
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.updateDoctorTreatment,
+      endPoint: Endpoint.practitionersID,
       requestType: RequestType.patch,
       requestBody: request,
+      pathParams: {'id':practitionerID.toString()}
     );
 
     if (response['is_success'] != true) {
