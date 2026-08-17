@@ -1,18 +1,16 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/theme.dart';
-
-import '../utils/responsive.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
-import 'business_info_screen.dart';
 
 class CreateStaffScreen extends StatefulWidget {
   static const String routeName = '/create-staff';
@@ -65,7 +63,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
       context: context,
       backgroundColor: CustomColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(context.r(16))),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.r(16)),
+        ),
       ),
       builder: (context) => SafeArea(
         child: Padding(
@@ -73,10 +73,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Select Image',
-                style: context.fonts.black18w600,
-              ),
+              Text('Select Image', style: context.fonts.black18w600),
               SizedBox(height: context.h(20)),
               ListTile(
                 leading: Container(
@@ -114,10 +111,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     size: context.r(24),
                   ),
                 ),
-                title: Text(
-                  'Take a Photo',
-                  style: context.fonts.black14w500,
-                ),
+                title: Text('Take a Photo', style: context.fonts.black14w500),
                 onTap: () {
                   Navigator.pop(context);
                   _pickFromCamera();
@@ -140,7 +134,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                   ),
                   title: Text(
                     'Remove Photo',
-                    style: context.fonts.black14w500.copyWith(color: CustomColors.red),
+                    style: context.fonts.black14w500.copyWith(
+                      color: CustomColors.red,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);
@@ -201,7 +197,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             vertical: context.h(20),
-            horizontal: context.isLandscape ? context.w(250) : context.w(20),
+            horizontal: context.screenWidth > 1000
+                ? context.w(250)
+                : context.w(20),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,10 +339,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Profile Picture',
-              style: context.fonts.black14w600,
-            ),
+            Text('Profile Picture', style: context.fonts.black14w600),
             SizedBox(height: context.h(4)),
             Text(
               'Upload your profile picture',
@@ -373,17 +368,16 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
             isExpanded: true,
             hint: Text(
               hintText,
-              style: context.fonts.grey14w400.copyWith(color: CustomColors.grey),
+              style: context.fonts.grey14w400.copyWith(
+                color: CustomColors.grey,
+              ),
             ),
             value: value,
             items: items
                 .map(
                   (item) => DropdownMenuItem<String>(
                     value: item,
-                    child: Text(
-                      item,
-                      style: context.fonts.black14w400,
-                    ),
+                    child: Text(item, style: context.fonts.black14w400),
                   ),
                 )
                 .toList(),
@@ -466,4 +460,48 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
       ],
     );
   }
+}
+
+class DottedCircleBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double dashLength;
+  final double gapLength;
+
+  DottedCircleBorderPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.dashLength,
+    required this.gapLength,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+
+    final circumference = 2 * pi * radius;
+    final dashCount = (circumference / (dashLength + gapLength)).floor();
+
+    for (int i = 0; i < dashCount; i++) {
+      final startAngle = (i * (dashLength + gapLength)) / radius;
+      final sweepAngle = dashLength / radius;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

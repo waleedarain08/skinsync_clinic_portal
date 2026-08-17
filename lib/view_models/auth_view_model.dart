@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
+import '../models/responses/clinic_model.dart';
 import '../models/user_model.dart';
 import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
@@ -147,6 +148,23 @@ class AuthViewModel extends BaseViewModel<AuthState> {
           clearPasswordFields();
 
           return true;
+        }) ??
+        false;
+  }
+
+  Future<bool> updateClinicProfile({required Clinic updateReq}) async {
+    return await runSafely<bool?>(showLoading: true, () async {
+          final response = await _authRepository.updateClinicProfile(
+            req: updateReq,
+          );
+          if (response.success && response.data != null) {
+            state = state.copyWith(
+              user: state.user?.copyWith(clinic: response.data),
+            );
+            EasyLoading.showSuccess(response.message);
+            return true;
+          }
+          return false;
         }) ??
         false;
   }

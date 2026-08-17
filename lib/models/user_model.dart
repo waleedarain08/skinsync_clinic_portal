@@ -37,6 +37,27 @@ class UserModel {
       'name': name,
       'role': role,
       'status': status,
+      'clinic': clinic?.toJson(),
     };
+  }
+
+  UserModel copyWith({
+    int? id,
+    int? clinicId,
+    String? email,
+    String? name,
+    String? role,
+    String? status,
+    Clinic? clinic,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      clinicId: clinicId ?? this.clinicId,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      clinic: clinic ?? this.clinic,
+    );
   }
 }

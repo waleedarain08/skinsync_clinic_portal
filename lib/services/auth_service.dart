@@ -6,6 +6,7 @@ import '../models/requests/login_request_model.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/clinic_model.dart';
 import '../models/responses/login_response_model.dart';
 import '../models/responses/verify_otp_response.dart';
 import '../repositories/auth_repository.dart';
@@ -110,23 +111,6 @@ class AuthService implements AuthRepository {
 
     return response.data!;
   }
-  // @override
-  // Future<BaseApiResponseModel> forgetPassword({
-  //   required ForgetPasswordRequest req,
-  // }) async {
-  //   final response = await locator<ApiBaseService>().post(
-  //     Endpoint.forgetPassword,
-  //     body: req.toJson(),
-  //   );
-  //   final model = BaseApiResponseModel<dynamic>.fromJson(
-  //     response,
-  //     (json) => json,
-  //   );
-  //   if (!model.isSuccess) {
-  //     throw Exception(model.message);
-  //   }
-  //   return model;
-  // }
 
   @override
   Future<BaseResponse> resetPassword({
@@ -161,6 +145,28 @@ class AuthService implements AuthRepository {
     final response = VerifyOtpResponseModel.fromJson(jsonResponse);
 
     if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+
+    return response;
+  }
+
+  @override
+  Future<BaseResponse<Clinic>> updateClinicProfile({
+    required Clinic req,
+  }) async {
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.updateClinicProfile,
+      requestType: RequestType.patch,
+      requestBody: req,
+    );
+
+    final response = BaseResponse<Clinic>.fromJson(
+      jsonResponse,
+      (json) => Clinic.fromJson(json as Map<String, dynamic>),
+    );
+
+    if (!response.success) {
       throw BadRequestException(response.message);
     }
 

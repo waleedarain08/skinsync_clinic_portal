@@ -71,15 +71,16 @@ enum Endpoint {
   adminAreas('admin/treatments/{treatmentId}/areas'),
   explorerReels('clinic/reels'),
   updateReel('clinic/reels/{id}'),
- 
+
   explorerCommunity('clinic/community-posts'),
   updatePost('clinic/community-posts/{id}'),
- 
+
   postCategories('clinic/community-post/categories'),
   patients('clinic/patients'),
   patientDetail('clinic/patients/{id}'),
   patientTreatmentRequest('clinic/patient-treatment-request'),
-  getMe("clinic/me");
+  getMe("clinic/me"),
+  updateClinicProfile('clinic/profile');
 
   final String path;
   const Endpoint(this.path);
@@ -90,7 +91,6 @@ enum Endpoint {
       updatedPath = updatedPath.replaceAll('{$key}', value);
     });
     return updatedPath;
-
   }
 }
 
@@ -144,10 +144,7 @@ enum CreateTreatmentSteps {
   const CreateTreatmentSteps(this.name);
 }
 
-enum Status {
-  active,
-  inactive,
-}
+enum Status { active, inactive }
 
 enum AppointmentStatus {
   allStatus,
