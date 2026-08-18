@@ -397,7 +397,7 @@ class _SimulationTreatmentRequestCardState
               ),
               SimulationTreatmentAreaChip(
                 icon: treatment.icon,
-                imageUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400",
+                imageUrl: treatment.image,
                 label: treatment.treatmentName,
                 isTreatment: true,
                 onTap: () => widget.onTreatmentTap?.call(treatment.treatmentId),
@@ -421,7 +421,7 @@ class _SimulationTreatmentRequestCardState
 
                     return SimulationTreatmentAreaChip(
                       icon: area.icon,
-                      imageUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400",
+                      imageUrl: area.image,
                       label: area.areaName,
                       isTreatment: false,
                       materialCount: materialCount,

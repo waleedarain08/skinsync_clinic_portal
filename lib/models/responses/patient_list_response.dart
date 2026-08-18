@@ -47,6 +47,7 @@ class PatientData {
   final String? email;
   final String? image;
   final String? phoneNumber;
+  final int? requestCount;
 
   PatientData({
     this.id,
@@ -54,6 +55,7 @@ class PatientData {
     this.email,
     this.image,
     this.phoneNumber,
+    this.requestCount,
   });
 
   factory PatientData.fromJson(Map<String, dynamic> json) {
@@ -63,6 +65,7 @@ class PatientData {
       email: json['email'],
       image: json['image'],
       phoneNumber: json['phone_number'],
+      requestCount: json['request_counts'] ?? 0
     );
   }
 }

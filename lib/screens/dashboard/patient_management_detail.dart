@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import '../../models/responses/patient_detail_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
+import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/patient_treatment_request.widget.dart';
 
 import 'patient_management.dart';
+import 'treatment_detail_screen.dart';
 
 class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   static const String path = 'details';
@@ -167,10 +169,13 @@ class _PatientManagementDetailScreenState
                 final request = state.treatmentRequests[index];
                 return SimulationTreatmentRequestCard(
                   request: request,
-                  onTreatmentTap: (treatmentId) {
-                    // TODO: navigate to the web treatment detail
-                    // screen/route with treatmentId, same as the
-                    // app's TreatmentDetailScreen navigation.
+                  onTreatmentTap: (treatmentId) async {
+                   await ref
+                      .read(treatmentViewModelProvider.notifier)
+                      .fetchTreatmentDetail(treatmentId);
+                  if (mounted) {
+                    await context.push(TreatmentDetailScreen.routeName);
+                  }
                   },
                 );
               },
