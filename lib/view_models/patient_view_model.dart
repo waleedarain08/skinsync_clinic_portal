@@ -124,7 +124,12 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     }
 
     await runSafely(showLoading: showEasyLoading, () async {
-      state = state.copyWith(treatmentLoading: !showEasyLoading);
+      state = state.copyWith(
+        treatmentLoading: !showEasyLoading,
+        treatmentRequests: [],
+        pageSize: 10,
+        page: 1,
+      );
 
       final response = await _repository.getPatientTreatmentRequests(
         page: state.treatmentPage,
@@ -214,7 +219,7 @@ class PatientState {
     int? treatmentTotalResults,
     List<PatientTreatmentRequestData>? treatmentRequests,
     int? totalRequest,
-   int? totalPatients
+    int? totalPatients,
   }) {
     return PatientState(
       loading: loading ?? this.loading,
@@ -235,7 +240,7 @@ class PatientState {
           treatmentTotalResults ?? this.treatmentTotalResults,
       treatmentRequests: treatmentRequests ?? this.treatmentRequests,
       totalPatients: totalPatients ?? this.totalPatients,
-      totalRequest: totalRequest?? this.totalRequest
+      totalRequest: totalRequest ?? this.totalRequest,
     );
   }
 }
