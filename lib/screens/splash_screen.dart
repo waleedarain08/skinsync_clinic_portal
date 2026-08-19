@@ -45,7 +45,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
           if (!mounted) return;
 
-          if (value) {
+          if (value ?? false) {
             context.goNamed(HomeScreen.routeName);
           } else {
             context.goNamed(SignInScreen.routeName);
