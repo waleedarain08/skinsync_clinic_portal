@@ -13,12 +13,12 @@ import '../../widgets/gradient_scaffold.dart';
 import '../business_info_screen.dart';
 import '../change_password_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   static const String routeName = '/profile';
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),
@@ -53,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                     title: "Business Information",
                     subtitle: "Update clinic details and contact info",
                     onTap: () async{
-                      await ref.read(authViewModelProvider.notifier).getClinicDetail();
+                        await ref.read(authViewModelProvider.notifier).getClinicDetail();
                       context.push(BusinessInformationScreen.routeName);
                     },
                   ),
