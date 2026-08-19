@@ -9,7 +9,7 @@ import 'firebase_options.dart';
 import 'services/locator.dart';
 
 
-bool isDeploymentMode = true;
+bool isDeploymentMode = false;
 
 
 Future<void> main() async {

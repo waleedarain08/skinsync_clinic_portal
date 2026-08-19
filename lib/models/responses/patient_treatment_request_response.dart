@@ -102,17 +102,26 @@ class PatientTreatmentRequestData {
 class PatientTreatmentData {
   final int treatmentId;
   final String treatmentName;
+   final String? description;
+  final String? image;
+  final String? icon;
   final List<PatientTreatmentAreaData> areas;
 
   PatientTreatmentData({
     required this.treatmentId,
     required this.treatmentName,
+     this. description,
+  this.image,
+  this.icon,
     required this.areas,
   });
 
   factory PatientTreatmentData.fromJson(Map<String, dynamic> json) {
     return PatientTreatmentData(
       treatmentId: json['treatment_id'] ?? 0,
+       description: json["treatment_desc"],
+        image: json["treatment_image"],
+        icon: json["treatment_icon"],
       treatmentName: json['treatment_name'] ?? '',
       areas:
           (json['areas'] as List<dynamic>?)
@@ -130,11 +139,15 @@ class PatientTreatmentData {
 class PatientTreatmentAreaData {
   final int areaId;
   final String areaName;
+    final String? image;
+  final String? icon;
   final List<PatientTreatmentMaterialData> materials;
 
   PatientTreatmentAreaData({
     required this.areaId,
     required this.areaName,
+     this.image,
+    this.icon,
     required this.materials,
   });
 
@@ -142,6 +155,8 @@ class PatientTreatmentAreaData {
     return PatientTreatmentAreaData(
       areaId: json['area_id'] ?? 0,
       areaName: json['area_name'] ?? '',
+        image: json["area_image"],
+        icon: json["area_icon"],
       materials:
           (json['materials'] as List<dynamic>?)
               ?.map(

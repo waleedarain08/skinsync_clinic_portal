@@ -115,27 +115,19 @@ class _PatientManagementContent extends ConsumerWidget {
   }
 
   Widget _buildQuickInsights(BuildContext context, PatientState state) {
-    final totalPatients = state.totalResults ?? 0;
-
     return Row(
       children: [
         MiniStatCard(
           title: 'Total Patients',
-          value: totalPatients,
+          value: state.totalPatients ?? 0,
           icon: Icons.people_alt_outlined,
           color: CustomColors.purple,
         ),
         context.horizontalSpace(16),
+
         MiniStatCard(
-          title: 'Active Patients',
-          value: totalPatients,
-          icon: Icons.check_circle_outline_rounded,
-          color: CustomColors.green,
-        ),
-        context.horizontalSpace(16),
-        MiniStatCard(
-          title: 'Patient Profiles',
-          value: state.patients.length,
+          title: 'Total Request',
+          value: state.totalRequest ?? 0,
           icon: Icons.face_retouching_natural_rounded,
           color: CustomColors.blue,
         ),
@@ -200,9 +192,10 @@ class _PatientManagementContent extends ConsumerWidget {
         child: Table(
           columnWidths: const {
             0: FlexColumnWidth(3.5),
-            1: FlexColumnWidth(3),
+            1: FlexColumnWidth(3.5),
             2: FlexColumnWidth(2.5),
-            3: FlexColumnWidth(3),
+            3: FlexColumnWidth(2),
+            4: FlexColumnWidth(2),
           },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
@@ -215,6 +208,7 @@ class _PatientManagementContent extends ConsumerWidget {
                 _tableHeaderCell(context, 'PATIENT NAME'),
                 _tableHeaderCell(context, 'EMAIL'),
                 _tableHeaderCell(context, 'PHONE NUMBER'),
+                _tableHeaderCell(context, 'TOTAL REQUEST'),
                 _tableHeaderCell(context, 'ACTIONS'),
               ],
             ),
@@ -239,6 +233,11 @@ class _PatientManagementContent extends ConsumerWidget {
                     context,
                     patient.phoneNumber ?? 'N/A',
                     style: context.fonts.grey14w400,
+                  ),
+                  _tableTextCell(
+                    context,
+                    '${patient.requestCount ?? 0}',
+                    style: context.fonts.grey14w600,
                   ),
 
                   _actionsCell(context, patient),
@@ -341,29 +340,6 @@ class _PatientManagementContent extends ConsumerWidget {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(
-                    onTap: () async {
-                      if (patient.id == null) return;
-
-                      final success = await ref
-                          .read(patientProvider.notifier)
-                          .getPatientDetail(patientId: patient.id!);
-
-                      if (success && context.mounted) {
-                        context.push(
-                          PatientManagementDetailScreen.routeName,
-                          extra: patient.id,
-                        );
-                      }
-                    },
-                    child: Text(
-                      'Requests',
-                      style: context.fonts.purple14w600.copyWith(
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  context.horizontalSpace(12),
                   IconButton(
                     tooltip: 'View Patient Details',
                     padding: EdgeInsets.zero,
@@ -389,24 +365,6 @@ class _PatientManagementContent extends ConsumerWidget {
                     },
                   ),
                 ],
-              );
-            },
-          ),
-          context.horizontalSpace(12),
-          IconButton(
-            tooltip: 'Edit Profile',
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: CustomColors.purple,
-              size: 20,
-            ),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Edit profile for ${patient.patientName}'),
-                ),
               );
             },
           ),

@@ -1,56 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-import '../models/treatment_model.dart';
+import '../main.dart';
+import '../models/responses/login_response_model.dart';
 import '../utils/color_constant.dart';
 import '../utils/custom_fonts.dart';
 import 'app_network_image.dart';
 
-import '../main.dart';
-
-
 class TreatmentContainer extends StatelessWidget {
   final double? imageHeight;
   final double? width;
-  final TreatmentModel? treatments;
-
-  // Custom Adaptive Fields for Selection Screen Reusability
-  final String? customTitle;
-  final String? customSubtitle;
-  final String? customImageUrl;
-  final String? customIcon;
-  final VoidCallback? customOnTap;
-  final Widget? backgroundWidget;
-  final Widget? topRightWidget;
+  final DashboardTreatmentModel? treatment;
 
   const TreatmentContainer({
     super.key,
-    this.treatments,
+    this.treatment,
     this.imageHeight,
     this.width,
-    this.customTitle,
-    this.customSubtitle,
-    this.customImageUrl,
-    this.customIcon,
-    this.customOnTap,
-    this.backgroundWidget,
-    this.topRightWidget,
   });
 
   Widget? _buildLeftIcon(BuildContext context, String? iconKey) {
-    // 1. If it's a network image URL, render it cleanly via AppNetworkImage
+    if (iconKey == null || iconKey.isEmpty) {
+      return null;
+    }
+
     return Container(
       margin: EdgeInsets.only(bottom: context.h(4)),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(context.r(10)),
-        border: Border.all(color: Colors.white, width: 1.5),
+        border: Border.all(
+          color: Colors.white,
+          width: 1.5,
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+          ),
         ],
       ),
       child: AppNetworkImage(
-        imageUrl: iconKey ?? '',
+        imageUrl: iconKey,
         width: context.w(38),
         height: context.w(38),
         fit: BoxFit.cover,
@@ -62,309 +52,254 @@ class TreatmentContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final isTreatmentData = treatments is TreatmentModel;
-        final treatmentData = isTreatmentData
-            ? treatments as TreatmentModel
-            : null;
+    final titleText = treatment?.name ?? '';
 
-        final titleText = customTitle ?? treatments?.name ?? "";
-        final subtitleText =
-            customSubtitle ??
-            treatmentData?.shortDescription ??
-            treatments?.description ??
-            "";
-        final bgImage =
-          
-            treatmentData?.image ??'';
-          
-        final iconKey = customIcon ?? treatments?.icon;
-        final iconWidget = iconKey != null ? _buildLeftIcon(context, iconKey) : null;
-        final globalSku = treatmentData?.globalSku ?? "";
-       
+    final subtitleText = treatment?.shortDescription ?? '';
 
-        return GestureDetector(
-          onTap:
-              customOnTap ??
-              () {
-                // if (treatments == null) return;
-                // ref.read(checkoutViewModel.notifier).clearSelectedTreatments();
-                // ref
-                //     .read(checkoutViewModel.notifier)
-                //     .addSelectedTreatment(treatments!);
-                // if (treatments!.isArea == true) {
-                //   ref
-                //       .read(treatmentViewModel.notifier)
-                //       .onTapTreatment(
-                //         treatmentModel: treatments!,
-                //         isCallPredictAPI: false,
-                //       );
-                // }
-                // if (useInAiSimulator) {
-                //   // showMScanFaceDialog(context);
-                //    Navigator.of(
-                //     context,
-                //   ).pushNamed(FacePoseCaptureScreen.routeName);
-                // } else {
-                //   Navigator.pushNamed(
-                //     context,
-                //     TreatmentAreaScreen.routeName,
-                //     arguments: {
-                //       'title': treatments!.name ?? 'Focus Areas',
-                //       'treatmentId': treatments!.id,
-                //     },
-                //   );
-                // }
-              },
-          child: Container(
-            height: imageHeight ?? context.h(300),
-            width:  context.w(400),
-            margin: EdgeInsets.only(bottom: context.h(16)),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.r(20)),
-              boxShadow: [
-                BoxShadow(
-                  color: CustomColors.purpleColor.withValues(alpha: 0.12),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                  spreadRadius: 1,
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    final bgImage = treatment?.image ?? '';
+
+    final iconKey = treatment?.icon;
+
+    final iconWidget = _buildLeftIcon(
+      context,
+      iconKey,
+    );
+
+    final globalSku = treatment?.sku ?? '';
+
+    return GestureDetector(
+      onTap: () {
+        // Handle treatment tap here.
+        //
+        // Example:
+        //
+        // if (treatment == null) return;
+        //
+        // Navigator.pushNamed(
+        //   context,
+        //   TreatmentDetailScreen.routeName,
+        //   arguments: treatment,
+        // );
+      },
+      child: Container(
+        height: imageHeight ?? context.h(300),
+        width: width ?? context.w(400),
+        margin: EdgeInsets.only(
+          bottom: context.h(16),
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            context.r(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: CustomColors.purpleColor.withValues(
+                alpha: 0.12,
+              ),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+              spreadRadius: 1,
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(context.r(20)),
-              child: Stack(
-                children: [
-                  // 1. Full-Cover Image Background via AppNetworkImage or custom widget
-                  Positioned.fill(
-                    child: backgroundWidget ??
-                        AppNetworkImage(
-                          imageUrl: bgImage,
-                          fit: BoxFit.cover,
-                          placeholderColor: Colors
-                              .transparent, // Keeps overlay visual hierarchy clean
-                        ),
-                  ),
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: 0.05,
+              ),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(
+            context.r(20),
+          ),
+          child: Stack(
+            children: [
+              // Background Image
+              Positioned.fill(
+                child: AppNetworkImage(
+                  imageUrl: bgImage,
+                  fit: BoxFit.cover,
+                  placeholderColor: Colors.transparent,
+                ),
+              ),
 
-                  // 2. Translucent Premium White Mask Overlay
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.white.withValues(alpha: 0.20),
-                              Colors.white,
-                            ],
-                          ),
+              // White Gradient Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.white.withValues(
+                          alpha: 0.20,
                         ),
-                      ),
+                        Colors.white,
+                      ],
                     ),
+                  ),
+                ),
+              ),
 
-                  // 3. MedSpa Elegant Glow Layer on Left
-                  /*
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: context.w(220),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            CustomColors.purpleColor.withValues(alpha: 0.15),
-                            CustomColors.lightBlueColor.withValues(alpha: 0.05),
+              // Content
+              Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    context.w(22),
+                    context.h(12),
+                    context.w(22),
+                    context.h(16),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                          mainAxisAlignment:
+                              MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              titleText,
+                              style: CustomFonts.black22w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            if (subtitleText.isNotEmpty) ...[
+                              SizedBox(
+                                height: context.h(6),
+                              ),
+                              Text(
+                                subtitleText,
+                                style: CustomFonts.grey12w400,
+                                maxLines: 2,
+                                overflow:
+                                    TextOverflow.ellipsis,
+                              ),
+                            ],
+
+                            if (globalSku.isNotEmpty) ...[
+                              SizedBox(
+                                height: context.h(6),
+                              ),
+                              Text(
+                                "SKU: $globalSku",
+                                style:
+                                    CustomFonts.grey12w400.copyWith(
+                                  fontSize: context.sp(10),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600,
+                                ),
+                                maxLines: 1,
+                                overflow:
+                                    TextOverflow.ellipsis,
+                              ),
+                            ],
                           ],
                         ),
                       ),
-                    ),
-                  ),
-*/
 
-                  // 4. Elegant Content Layer (Title, Description, and Chevron aligned to bottom)
-                  Positioned.fill(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(context.w(22), context.h(12), context.w(22), context.h(16)),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  titleText,
-                                  style: CustomFonts.black22w600,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (subtitleText.isNotEmpty) ...[
-                                  SizedBox(height: context.h(6)),
-                                  Text(
-                                    subtitleText,
-                                    style: CustomFonts.grey12w400,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                                if (globalSku.isNotEmpty) ...[
-                                  SizedBox(height: context.h(6)),
-                                  Text(
-                                    "SKU: $globalSku",
-                                    style: CustomFonts.grey12w400.copyWith(
-                                      fontSize: context.sp(10),
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: context.w(10)),
-
-                          // Translucent Circular Action Arrow
-                          Container(
-                            padding: EdgeInsets.all(context.w(10)),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.black12,
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.chevron_right_rounded,
-                              color: Colors.black87,
-                              size: context.sp(22),
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        width: context.w(10),
                       ),
-                    ),
-                  ),
 
-                  // 5. Left-hand Icon on Top Left
-                  if (iconWidget != null)
-                    Positioned(top: context.h(12), left: context.w(12), child: iconWidget),
-
-                  // Custom Top Right Widget (e.g. Pose Label)
-                  if (topRightWidget != null)
-                    Positioned(top: context.h(12), right: context.w(12), child: topRightWidget!),
-
-                  // AI Compatible Badge
-                  // if (useInAiSimulator)
-                  //   Positioned(
-                  //     top: context.h(12),
-                  //     right: (treatments != null && !isDeploymentMode)
-                  //         ? context.w(44)
-                  //         : context.w(12),
-                  //     child: Container(
-                  //       padding: EdgeInsets.symmetric(
-                  //         horizontal: context.w(10),
-                  //         vertical: context.h(5),
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         color: CustomColors.purpleColor.withValues(
-                  //           alpha: 0.9,
-                  //         ),
-                  //         borderRadius: BorderRadius.circular(context.r(12)),
-                  //         boxShadow: [
-                  //           BoxShadow(
-                  //             color: CustomColors.purpleColor.withValues(
-                  //               alpha: 0.3,
-                  //             ),
-                  //             blurRadius: 6,
-                  //             offset: const Offset(0, 2),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           Icon(
-                  //             Icons.auto_awesome,
-                  //             color: Colors.white,
-                  //             size: context.sp(10),
-                  //           ),
-                  //           SizedBox(width: context.w(4)),
-                  //           Text(
-                  //             "AI Compatible",
-                  //             style: TextStyle(
-                  //               color: Colors.white,
-                  //               fontSize: context.sp(9),
-                  //               fontWeight: FontWeight.bold,
-                  //               fontFamily: 'Degular',
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-
-                  // 6. Info Button on Top Right (if not in deployment mode and real treatment is present)
-                  if (treatments != null)
-                    Visibility(
-                      visible: !isDeploymentMode,
-                      child: Positioned(
-                        top: context.h(12),
-                        right: context.w(12),
-                        child: GestureDetector(
-                          onTap: () {
-                            // Navigator.pushNamed(
-                            //   context,
-                            //   TreatmentDetailScreen.routeName,
-                            //   arguments: treatments,
-                            // );
-                          },
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            padding: EdgeInsets.all(context.w(6)),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.4),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.info_outline,
-                              color: Colors.white,
-                              size: context.sp(16),
-                            ),
+                      // Arrow
+                      Container(
+                        padding: EdgeInsets.all(
+                          context.w(10),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(
+                            alpha: 0.05,
                           ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.black12,
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: 0.02,
+                              ),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.chevron_right_rounded,
+                          color: Colors.black87,
+                          size: context.sp(22),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Treatment Icon
+              if (iconWidget != null)
+                Positioned(
+                  top: context.h(12),
+                  left: context.w(12),
+                  child: iconWidget,
+                ),
+
+              // Info Button
+              if (treatment != null)
+                Visibility(
+                  visible: !isDeploymentMode,
+                  child: Positioned(
+                    top: context.h(12),
+                    right: context.w(12),
+                    child: GestureDetector(
+                      onTap: () {
+                        // Handle info button tap.
+                        //
+                        // Example:
+                        //
+                        // Navigator.pushNamed(
+                        //   context,
+                        //   TreatmentDetailScreen.routeName,
+                        //   arguments: treatment,
+                        // );
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        padding: EdgeInsets.all(
+                          context.w(6),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(
+                            alpha: 0.4,
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.info_outline,
+                          color: Colors.white,
+                          size: context.sp(16),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ),
+                  ),
+                ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

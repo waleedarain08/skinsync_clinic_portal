@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+
 abstract class BaseViewModel<S> extends Notifier<S> {
   @override
   S build();
@@ -17,22 +18,23 @@ abstract class BaseViewModel<S> extends Notifier<S> {
       if (showLoading) {
         await EasyLoading.show();
       }
+      final response = await action.call();
+            await EasyLoading.dismiss();
+      return response ;
 
-      return await action.call();
+       
     } catch (e, s) {
       log('BASE: $e', stackTrace: s);
       onError(e.toString().replaceAll('Exception:', ''));
       return null;
-    } finally {
-      if (showLoading) {
-        unawaited(EasyLoading.dismiss());
-      }
     }
   }
 
   @mustCallSuper
   void onError(String message) {
-    EasyLoading.showError(message);
+   
+    EasyLoading.showError( message);
+    
   }
 
   @mustCallSuper
