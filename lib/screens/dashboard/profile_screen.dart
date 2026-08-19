@@ -13,12 +13,33 @@ import '../../widgets/gradient_scaffold.dart';
 import '../business_info_screen.dart';
 import '../change_password_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   static const String routeName = '/profile';
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initialize();
+    });
+  }
+
+  Future<void> _initialize() async {
+    final state = ref.read(authViewModelProvider);
+    if (state.user == null) {
+      ref.read(authViewModelProvider.notifier).callGetMe();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GradientScaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(context.w(20)),

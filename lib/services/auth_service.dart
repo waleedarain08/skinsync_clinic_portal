@@ -100,16 +100,13 @@ class AuthService implements AuthRepository {
       endPoint: Endpoint.getMe,
       requestType: RequestType.get,
     );
-    final response = BaseResponse<LoginResponseModel>.fromJson(
-      jsonResponse,
-      (json) => LoginResponseModel.fromJson(json as Map<String, dynamic>),
-    );
+    final response = LoginResponseModel.fromJson(jsonResponse);
 
     if (!response.success) {
       throw BadRequestException(response.message);
     }
 
-    return response.data!;
+    return response;
   }
 
   @override

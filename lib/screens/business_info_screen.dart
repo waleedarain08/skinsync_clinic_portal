@@ -183,14 +183,12 @@ class _BusinessInformationScreenState
         name: _clinicNameController.text.trim(),
         phone: _clinicPhoneController.text.trim(),
         address: _clinicAddressController.text.trim(),
-        logo: _selectedLogo?.path,
         latitude: double.tryParse(_latController.text),
         longitude: double.tryParse(_longController.text),
         consultationFee: num.tryParse(_consultationFeeController.text),
         initialDeposit: num.tryParse(_initialDepositController.text),
         description: _descriptionController.text.trim(),
         website: _websiteController.text.trim(),
-        banner: _selectedBanner?.path,
         cc:
             ref.read(authViewModelProvider).country?.dialCode ??
             currentClinic?.cc,
@@ -202,9 +200,16 @@ class _BusinessInformationScreenState
 
       final success = await ref
           .read(authViewModelProvider.notifier)
-          .updateClinicProfile(updateReq: updatedClinic);
-      if (success && mounted) {
-        // Handle logic after success if needed
+          .updateClinicProfile(
+            updateReq: updatedClinic,
+            logo: _selectedLogo,
+            banner: _selectedBanner,
+          );
+
+      if (success ?? false) {
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     }
   }

@@ -4,6 +4,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/clinic_model.dart';
@@ -13,6 +14,7 @@ import '../models/requests/forget_password_request.dart';
 import '../models/requests/login_request_model.dart';
 import '../repositories/auth_repository.dart';
 import '../services/locator.dart';
+import '../services/media_service.dart';
 import '../services/storage_service.dart';
 import 'base_view_model.dart';
 
@@ -160,19 +162,37 @@ class AuthViewModel extends BaseViewModel<AuthState> {
         false;
   }
 
-  Future<bool> updateClinicProfile({required Clinic updateReq}) async {
+  Future<bool?> updateClinicProfile({
+    required Clinic updateReq,
+    XFile? logo,
+    XFile? banner,
+  }) async {
     return await runSafely<bool?>(showLoading: true, () async {
-          final response = await _authRepository.updateClinicProfile(
-            req: updateReq,
-          );
-          if (response.success && response.data != null) {
-            state = state.copyWith(clinicDetail: response.data);
-            EasyLoading.showSuccess(response.message);
-            return true;
-          }
-          return false;
-        }) ??
-        false;
+      String? logoUrl;
+      String? bannerUrl;
+      if (logo != null) {
+        logoUrl = await locator<MediaService>().uploadImage(
+          'clinics/${updateReq.id}/logo',
+          logo,
+        );
+      }
+      if (banner != null) {
+        bannerUrl = await locator<MediaService>().uploadImage(
+          'clinics/${updateReq.id}/banner',
+          banner,
+        );
+      }
+      final response = await _authRepository.updateClinicProfile(
+        req: updateReq.copyWith(logo: logoUrl, banner: bannerUrl),
+      );
+      if (response.success && response.data != null) {
+        state = state.copyWith(clinicDetail: response.data);
+        await callGetMe();
+        EasyLoading.showSuccess(response.message);
+        return true;
+      }
+      return false;
+    });
   }
 
   void disposeControllers() {
