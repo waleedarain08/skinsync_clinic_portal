@@ -7,6 +7,7 @@ class UserModel {
   String? name;
   String? role;
   String? status;
+  String? logo;
   Clinic? clinic;
 
   UserModel({
@@ -16,6 +17,7 @@ class UserModel {
     this.name,
     this.role,
     this.status,
+    this.logo,
     this.clinic,
   });
 
@@ -26,7 +28,8 @@ class UserModel {
     name = json['name'];
     role = json['role'];
     status = json['status'];
-    clinic = json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
+    logo = json['logo'];
+    // clinic = json['clinic'] != null ? Clinic.fromJson(json['clinic']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -37,7 +40,7 @@ class UserModel {
       'name': name,
       'role': role,
       'status': status,
-      'clinic': clinic?.toJson(),
+      // 'clinic': clinic?.toJson(),
     };
   }
 

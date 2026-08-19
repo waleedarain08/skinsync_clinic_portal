@@ -56,13 +56,14 @@ class _BusinessInformationScreenState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(authViewModelProvider.notifier).getClinicDetail();
       _initializeData();
     });
   }
 
   void _initializeData() {
-    final clinic = ref.read(authViewModelProvider).user?.clinic;
+    final clinic = ref.read(authViewModelProvider).clinicDetail;
     if (clinic != null) {
       _clinicNameController.text = clinic.name ?? '';
       _clinicEmailController.text = clinic.email ?? '';
@@ -75,19 +76,23 @@ class _BusinessInformationScreenState
       _consultationFeeController.text =
           clinic.consultationFee?.toString() ?? '';
       _initialDepositController.text = clinic.initialDeposit?.toString() ?? '';
+      _ownerNameController.text = clinic.ownerName ?? '';
+      _ownerEmailController.text = clinic.ownerEmail ?? '';
 
       if (clinic.availability != null && clinic.availability!.isNotEmpty) {
         _availabilityEntries.clear();
         for (var availability in clinic.availability!) {
           final entry = AvailabilityEntry();
-          if (availability.openTime != null) {
+          if (availability.openTime != null &&
+              availability.openTime!.contains(':')) {
             final parts = availability.openTime!.split(':');
             entry.openTime = TimeOfDay(
               hour: int.parse(parts[0]),
               minute: int.parse(parts[1]),
             );
           }
-          if (availability.closeTime != null) {
+          if (availability.closeTime != null &&
+              availability.closeTime!.contains(':')) {
             final parts = availability.closeTime!.split(':');
             entry.closeTime = TimeOfDay(
               hour: int.parse(parts[0]),
@@ -98,11 +103,15 @@ class _BusinessInformationScreenState
           _availabilityEntries.add(entry);
         }
       } else {
-        _availabilityEntries.add(AvailabilityEntry());
+        if (_availabilityEntries.isEmpty) {
+          _availabilityEntries.add(AvailabilityEntry());
+        }
       }
       setState(() {});
     } else {
-      _availabilityEntries.add(AvailabilityEntry());
+      if (_availabilityEntries.isEmpty) {
+        _availabilityEntries.add(AvailabilityEntry());
+      }
     }
   }
 
@@ -153,7 +162,7 @@ class _BusinessInformationScreenState
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      final currentClinic = ref.read(authViewModelProvider).user?.clinic;
+      final currentClinic = ref.read(authViewModelProvider).clinicDetail;
 
       final List<AvailabilityModel> availability = _availabilityEntries.map((
         e,
@@ -243,7 +252,7 @@ class _BusinessInformationScreenState
                               controller: _clinicEmailController,
                               hintText: 'clinic@example.com',
                               validator: Validators.email,
-                              readOnly: true, // Usually email is not editable
+                              readOnly: true,
                             ),
                           ),
                         ],
@@ -391,7 +400,7 @@ class _BusinessInformationScreenState
                             width: 240.w,
                             height: 56.h,
                             child: isLoading
-                                ? const AppLoader(size: 40)
+                                ? const Center(child: AppLoader(size: 40))
                                 : CustomPrimaryButton(
                                     onTap: _submit,
                                     label: 'Save Changes',
@@ -413,7 +422,7 @@ class _BusinessInformationScreenState
   }
 
   Widget _buildBannerAndLogoSection() {
-    final clinic = ref.watch(authViewModelProvider).user?.clinic;
+    final clinic = ref.watch(authViewModelProvider).clinicDetail;
     return Container(
       width: double.infinity,
       height: 250.h,

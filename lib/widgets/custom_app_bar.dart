@@ -41,28 +41,28 @@ class _CustomAppBarState extends State<CustomAppBar> {
       height: AppSpacing.topBarHeight(context),
       decoration: const BoxDecoration(
         gradient: CustomColors.purpleWhiteStateBlueLightGradient,
-        border: Border(bottom: BorderSide(color: CustomColors.border, width: 1)),
+        border: Border(
+          bottom: BorderSide(color: CustomColors.border, width: 1),
+        ),
       ),
       padding: context.appEdgeInsets(horizontal: 24),
       child: Row(
         children: [
           if (!context.isLandscape) _MenuButton(context: context),
           const Spacer(),
-           if(!isDeploymentMode)
-
-          const _TopBarAction(
-            icon: Icons.notifications_none_rounded,
-            tooltip: 'Notifications',
-            hasBadge: true,
-          ), if(!isDeploymentMode)
-          context.horizontalSpace(20),
-           if(!isDeploymentMode)
-          const _TopBarAction(
-            icon: Icons.help_outline_rounded,
-            tooltip: 'Documentation',
-          ),
-           if(!isDeploymentMode)
-          context.horizontalSpace(20),
+          if (!isDeploymentMode)
+            const _TopBarAction(
+              icon: Icons.notifications_none_rounded,
+              tooltip: 'Notifications',
+              hasBadge: true,
+            ),
+          if (!isDeploymentMode) context.horizontalSpace(20),
+          if (!isDeploymentMode)
+            const _TopBarAction(
+              icon: Icons.help_outline_rounded,
+              tooltip: 'Documentation',
+            ),
+          if (!isDeploymentMode) context.horizontalSpace(20),
           const VerticalDivider(width: 1, indent: 20, endIndent: 20),
           context.horizontalSpace(20),
           _UserProfile(context: context, user: user),
@@ -82,12 +82,16 @@ class _MenuButton extends StatelessWidget {
       padding: context.appEdgeInsets(right: 12),
       child: IconButton(
         onPressed: () => Scaffold.of(context).openDrawer(),
-        icon: Icon(Icons.menu_rounded,
-            color: CustomColors.black, size: context.sp(26)),
+        icon: Icon(
+          Icons.menu_rounded,
+          color: CustomColors.black,
+          size: context.sp(26),
+        ),
         style: IconButton.styleFrom(
           backgroundColor: CustomColors.whiteGrey,
           shape: RoundedRectangleBorder(
-              borderRadius: context.appBorderRadius(all: 8)),
+            borderRadius: context.appBorderRadius(all: 8),
+          ),
         ),
       ),
     );
@@ -127,8 +131,9 @@ class _TopBarActionState extends State<_TopBarAction> {
               icon: Icon(widget.icon, size: context.sp(24)),
               color: _hovered ? CustomColors.purple : CustomColors.grey,
               style: IconButton.styleFrom(
-                backgroundColor:
-                    _hovered ? CustomColors.palePurple : Colors.transparent,
+                backgroundColor: _hovered
+                    ? CustomColors.palePurple
+                    : Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: context.appBorderRadius(all: 8),
                 ),
@@ -162,7 +167,7 @@ class _UserProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String clinicName = user?.clinic?.name ?? "Clinic Portal";
+    final String clinicName = user?.name ?? "Clinic Portal";
     final String userRole = user?.role ?? "User";
     final String userName = user?.name ?? "Guest";
     final String userEmail = user?.email ?? "";
@@ -206,17 +211,24 @@ class _UserProfile extends StatelessWidget {
                         logoUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Icon(
-                            Icons.person_rounded,
-                            size: context.sp(22),
-                            color: CustomColors.white),
+                          Icons.person_rounded,
+                          size: context.sp(22),
+                          color: CustomColors.white,
+                        ),
                       ),
                     )
-                  : Icon(Icons.person_rounded,
-                      size: context.sp(22), color: CustomColors.white),
+                  : Icon(
+                      Icons.person_rounded,
+                      size: context.sp(22),
+                      color: CustomColors.white,
+                    ),
             ),
             context.horizontalSpace(4),
-            Icon(Icons.keyboard_arrow_down_rounded,
-                size: context.sp(16), color: CustomColors.lightGrey),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: context.sp(16),
+              color: CustomColors.lightGrey,
+            ),
           ],
         ),
       ),
@@ -236,8 +248,11 @@ class _UserProfile extends StatelessWidget {
           onTap: () {},
           child: Row(
             children: [
-              Icon(Icons.person_outline_rounded,
-                  size: context.sp(18), color: CustomColors.grey),
+              Icon(
+                Icons.person_outline_rounded,
+                size: context.sp(18),
+                color: CustomColors.grey,
+              ),
               context.horizontalSpace(16),
               const Text('Account Profile'),
             ],
@@ -252,12 +267,19 @@ class _UserProfile extends StatelessWidget {
           },
           child: Row(
             children: [
-              Icon(Icons.logout_rounded,
-                  color: CustomColors.red, size: context.sp(18)),
+              Icon(
+                Icons.logout_rounded,
+                color: CustomColors.red,
+                size: context.sp(18),
+              ),
               context.horizontalSpace(16),
-              const Text('Logout',
-                  style:
-                      TextStyle(color: CustomColors.red, fontWeight: FontWeight.w600)),
+              const Text(
+                'Logout',
+                style: TextStyle(
+                  color: CustomColors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),

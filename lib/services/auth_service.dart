@@ -172,4 +172,23 @@ class AuthService implements AuthRepository {
 
     return response;
   }
+
+  @override
+  Future<Clinic> getClinicDetail() async {
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.clinicDetail,
+      requestType: RequestType.get,
+    );
+
+    final response = BaseResponse<Clinic>.fromJson(
+      jsonResponse,
+      (json) => Clinic.fromJson(json as Map<String, dynamic>),
+    );
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+
+    return response.data!;
+  }
 }

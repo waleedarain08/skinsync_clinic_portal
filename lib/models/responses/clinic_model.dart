@@ -11,6 +11,8 @@ class Clinic extends BaseRequest {
   String? cc;
   String? country;
   String? banner;
+  String? ownerName;
+  String? ownerEmail;
   num? consultationFee;
   num? initialDeposit;
   String? description;
@@ -30,6 +32,8 @@ class Clinic extends BaseRequest {
     this.cc,
     this.country,
     this.banner,
+    this.ownerName,
+    this.ownerEmail,
     this.consultationFee,
     this.initialDeposit,
     this.description,
@@ -50,6 +54,8 @@ class Clinic extends BaseRequest {
     cc = json['cc'];
     country = json['country'];
     banner = json['banner'];
+    ownerName = json['owner_name'];
+    ownerEmail = json['owner_email'];
     consultationFee = json['consultation_fee'];
     initialDeposit = json['initial_deposit'];
     description = json['description'];

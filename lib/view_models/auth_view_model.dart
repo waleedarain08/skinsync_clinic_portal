@@ -152,15 +152,22 @@ class AuthViewModel extends BaseViewModel<AuthState> {
         false;
   }
 
+  Future<bool> getClinicDetail() async {
+    return await runSafely<bool?>(() async {
+          final clinic = await _authRepository.getClinicDetail();
+          state = state.copyWith(clinicDetail: clinic);
+          return true;
+        }) ??
+        false;
+  }
+
   Future<bool> updateClinicProfile({required Clinic updateReq}) async {
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.updateClinicProfile(
             req: updateReq,
           );
           if (response.success && response.data != null) {
-            state = state.copyWith(
-              user: state.user?.copyWith(clinic: response.data),
-            );
+            state = state.copyWith(clinicDetail: response.data);
             EasyLoading.showSuccess(response.message);
             return true;
           }
@@ -192,6 +199,8 @@ class AuthState {
   final bool loading;
   final bool isAuthenticated;
   final UserModel? user;
+  final Clinic? clinicDetail;
+
   final String? error;
   final bool passwordChanged;
   final bool obscureCurrent;
@@ -207,6 +216,7 @@ class AuthState {
     this.isAuthenticated = false,
     this.error,
     this.user,
+    this.clinicDetail,
     this.passwordChanged = false,
     this.obscureCurrent = true,
     this.obscureNew = true,
@@ -222,6 +232,7 @@ class AuthState {
     bool? isAuthenticated,
     String? error,
     UserModel? user,
+    Clinic? clinicDetail,
     String? resetToken,
     bool? passwordChanged,
     bool? obscureCurrent,
@@ -235,6 +246,7 @@ class AuthState {
       loading: loading ?? this.loading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       user: user ?? this.user,
+      clinicDetail: clinicDetail ?? this.clinicDetail,
       error: error,
       passwordChanged: passwordChanged ?? this.passwordChanged,
       obscureCurrent: obscureCurrent ?? this.obscureCurrent,
