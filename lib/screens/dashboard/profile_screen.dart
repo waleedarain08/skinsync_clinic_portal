@@ -56,7 +56,7 @@ class ProfileScreen extends ConsumerWidget {
                       await ref
                           .read(authViewModelProvider.notifier)
                           .getClinicDetail();
-                      context.push(BusinessInformationScreen.routeName);
+                      context.pushNamed(BusinessInformationScreen.routeName);
                     },
                   ),
                   if (!isDeploymentMode)
