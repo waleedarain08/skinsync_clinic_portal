@@ -57,7 +57,7 @@ class _BusinessInformationScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(authViewModelProvider.notifier).getClinicDetail();
+      // await ref.read(authViewModelProvider.notifier).getClinicDetail();
       _initializeData();
     });
   }
