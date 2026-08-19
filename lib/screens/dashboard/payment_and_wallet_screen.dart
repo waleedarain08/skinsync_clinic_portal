@@ -306,24 +306,20 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
         context.verticalSpace(16),
         Row(
           children: [
-            const Expanded(
-              child: MiniStatCard(
-                icon: Icons.payments_outlined,
-                color: Color(0xFF7DD3D3),
-                value: 45200,
-                prefix: '\$ ',
-                title: 'Total Earnings',
-              ),
+            const MiniStatCard(
+              icon: Icons.payments_outlined,
+              color: Color(0xFF7DD3D3),
+              value: 45200,
+              prefix: '\$ ',
+              title: 'Total Earnings',
             ),
             context.horizontalSpace(16),
-            const Expanded(
-              child: MiniStatCard(
-                icon: Icons.account_balance_wallet_outlined,
-                color: Color(0xFFE89FD5),
-                value: 12450,
-                prefix: '\$ ',
-                title: 'Available Balance',
-              ),
+            const MiniStatCard(
+              icon: Icons.account_balance_wallet_outlined,
+              color: Color(0xFFE89FD5),
+              value: 12450,
+              prefix: '\$ ',
+              title: 'Available Balance',
             ),
           ],
         ),

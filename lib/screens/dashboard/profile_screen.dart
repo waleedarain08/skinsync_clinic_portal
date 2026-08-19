@@ -13,7 +13,6 @@ import '../../widgets/gradient_scaffold.dart';
 import '../business_info_screen.dart';
 import '../change_password_screen.dart';
 
-
 class ProfileScreen extends StatelessWidget {
   static const String routeName = '/profile';
   const ProfileScreen({super.key});
@@ -32,10 +31,7 @@ class ProfileScreen extends StatelessWidget {
                 horizontal: context.w(20),
                 vertical: context.h(16),
               ),
-              child: Text(
-                "Profile",
-                style: context.fonts.black24w700,
-              ),
+              child: Text("Profile", style: context.fonts.black24w700),
             ),
             const Divider(color: CustomColors.border, height: 1),
             SizedBox(height: context.h(20)),
@@ -57,25 +53,23 @@ class ProfileScreen extends StatelessWidget {
                     title: "Business Information",
                     subtitle: "Update clinic details and contact info",
                     onTap: () {
-                      context.push(BusinessInformationScreen.routeName);
+                      context.goNamed(BusinessInformationScreen.routeName);
                     },
                   ),
-                  if(!isDeploymentMode)
-                  _SettingItemData(
-                    icon: Icons.calendar_month_outlined,
-                    title: "Dynamic Pricing",
-                    subtitle: "Configure dynamic pricing for off-peak hours",
-                    onTap: () {
-                      context.pushNamed(DynamicPricing.routeName);
-                    },
-                  ),
-                
+                  if (!isDeploymentMode)
+                    _SettingItemData(
+                      icon: Icons.calendar_month_outlined,
+                      title: "Dynamic Pricing",
+                      subtitle: "Configure dynamic pricing for off-peak hours",
+                      onTap: () {
+                        context.goNamed(DynamicPricing.routeName);
+                      },
+                    ),
                 ],
               ),
             ),
             SizedBox(height: context.h(20)),
-          
-      
+
             // password security
             Padding(
               padding: EdgeInsets.symmetric(horizontal: context.w(16)),
@@ -83,47 +77,46 @@ class ProfileScreen extends StatelessWidget {
                 context: context,
                 title: "Security",
                 items: [
-                  if(!isDeploymentMode)
-                  _SettingItemData(
-                    icon: Icons.shield_outlined,
-                    title: "Two-Factor Authentication",
-                    subtitle: "Update password and security settings",
-                    onTap: () {
-                      context.push(ChangePasswordScreen.routeName);
-                    },
-                  ),
+                  if (!isDeploymentMode)
+                    _SettingItemData(
+                      icon: Icons.shield_outlined,
+                      title: "Two-Factor Authentication",
+                      subtitle: "Update password and security settings",
+                      onTap: () {
+                        context.goNamed(ChangePasswordScreen.routeName);
+                      },
+                    ),
                   _SettingItemData(
                     icon: Icons.lock_open,
                     title: "Password & Security",
                     subtitle: "Add extra security to your account",
                     onTap: () {
-                      context.push(ChangePasswordScreen.routeName);
+                      context.goNamed(ChangePasswordScreen.routeName);
                     },
                   ),
                 ],
               ),
             ),
-             if(!isDeploymentMode)
-            SizedBox(height: context.h(20)),
+            if (!isDeploymentMode) SizedBox(height: context.h(20)),
             // preference
-             if(!isDeploymentMode)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildSettingsSection(
-                context: context,
-                title: "Preferences",
-                items: [
-                  _SettingItemData(
-                    icon: Icons.notifications_outlined,
-                    title: "Notifications",
-                    subtitle: "Manage notification settings",
-                    onTap: () {
-                      context.push(NotificationScreen.routeName);
-                    },
-                  ),
-                ],
+            if (!isDeploymentMode)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+                child: _buildSettingsSection(
+                  context: context,
+                  title: "Preferences",
+                  items: [
+                    _SettingItemData(
+                      icon: Icons.notifications_outlined,
+                      title: "Notifications",
+                      subtitle: "Manage notification settings",
+                      onTap: () {
+                        context.push(NotificationScreen.routeName);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
             SizedBox(height: context.h(20)),
             // help
             Padding(
@@ -137,7 +130,7 @@ class ProfileScreen extends StatelessWidget {
                     title: "About",
                     subtitle: "Terms, conditions, and privacy policy",
                     onTap: () {
-                      context.push(AboutScreen.routeName);
+                      context.goNamed(AboutScreen.routeName);
                     },
                   ),
                 ],
@@ -174,7 +167,10 @@ class ProfileScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: CustomColors.softGrey,
-                  border: Border.all(color: CustomColors.white, width: context.w(3)),
+                  border: Border.all(
+                    color: CustomColors.white,
+                    width: context.w(3),
+                  ),
                 ),
                 child: ClipOval(
                   child: Image.network(
@@ -191,7 +187,9 @@ class ProfileScreen extends StatelessWidget {
               SizedBox(height: context.h(12)),
               Text(
                 name ?? "N/A",
-                style: context.fonts.black18w600.copyWith(color: Colors.black87),
+                style: context.fonts.black18w600.copyWith(
+                  color: Colors.black87,
+                ),
               ),
               SizedBox(height: context.h(4)),
               Text(
@@ -230,10 +228,7 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: context.fonts.black16w600,
-          ),
+          Text(title, style: context.fonts.black16w600),
           SizedBox(height: context.h(14)),
           ...items.map(
             (item) => Padding(
@@ -279,14 +274,18 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: context.fonts.black14w600.copyWith(color: Colors.black87),
+                  style: context.fonts.black14w600.copyWith(
+                    color: Colors.black87,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: context.h(2)),
                 Text(
                   subtitle,
-                  style: context.fonts.grey12w400.copyWith(color: Colors.grey.shade600),
+                  style: context.fonts.grey12w400.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

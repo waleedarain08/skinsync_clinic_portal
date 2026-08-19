@@ -67,13 +67,12 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     confirmPasswordController.clear();
   }
 
-  Future<bool> callGetMe() async {
+  Future<bool?> callGetMe() async {
     return await runSafely<bool?>(() async {
-          final response = await _authRepository.getMe();
-          state = state.copyWith(user: response.data!.clinicUser);
-          return true;
-        }) ??
-        false;
+      final response = await _authRepository.getMe();
+      state = state.copyWith(user: response.data!.clinicUser);
+      return true;
+    });
   }
 
   Future<bool> login({required LoginRequestModel loginReq}) async {
