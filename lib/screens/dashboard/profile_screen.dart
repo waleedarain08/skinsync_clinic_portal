@@ -52,7 +52,8 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.business_outlined,
                     title: "Business Information",
                     subtitle: "Update clinic details and contact info",
-                    onTap: () {
+                    onTap: () async{
+                      await ref.read(authViewModelProvider.notifier).getClinicDetail();
                       context.push(BusinessInformationScreen.routeName);
                     },
                   ),
