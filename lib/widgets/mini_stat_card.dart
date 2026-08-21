@@ -42,51 +42,49 @@ class MiniStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isInt = value is int || value == value.toInt();
-    return Expanded(
-      child: BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: context.appEdgeInsets(all: 10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: context.borderRadius(all: 8),
-              ),
-              child: Icon(icon, color: color, size: context.sp(20)),
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: context.appEdgeInsets(all: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: context.borderRadius(all: 8),
             ),
-            context.horizontalSpace(14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 1, end: value.toDouble()),
-                    duration: const Duration(milliseconds: 2000),
-                    curve: Curves.linearToEaseOut,
-                    builder: (context, animatedValue, child) {
-                      return Text(
-                        '${prefix ?? ''}${_formatNumber(animatedValue, isInt)}${suffix ?? ''}',
-                        style: context.fonts.black18w600,
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    },
-                  ),
-                  context.verticalSpace(2),
-                  Text(
-                    title,
-                    style: context.fonts.grey11w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+            child: Icon(icon, color: color, size: context.sp(20)),
+          ),
+          context.horizontalSpace(14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 1, end: value.toDouble()),
+                  duration: const Duration(milliseconds: 2000),
+                  curve: Curves.linearToEaseOut,
+                  builder: (context, animatedValue, child) {
+                    return Text(
+                      '${prefix ?? ''}${_formatNumber(animatedValue, isInt)}${suffix ?? ''}',
+                      style: context.fonts.black18w600,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
+                ),
+                context.verticalSpace(2),
+                Text(
+                  title,
+                  style: context.fonts.grey11w400,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            if (growth != null) ...[
-              context.horizontalSpace(8),
-              AppBadge(label: growth!, variant: AppBadgeVariant.success),
-            ],
+          ),
+          if (growth != null) ...[
+            context.horizontalSpace(8),
+            AppBadge(label: growth!, variant: AppBadgeVariant.success),
           ],
-        ),
+        ],
       ),
     );
   }

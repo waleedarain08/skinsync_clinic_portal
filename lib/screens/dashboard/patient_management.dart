@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/responses/patient_list_response.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
 import '../../widgets/borderd_container_widget.dart';
@@ -86,36 +87,63 @@ class _PatientManagementContent extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Patient Database', style: context.fonts.black26w700),
-            context.verticalSpace(6),
-            Text(
-              'Manage clinic active patient directory, medical histories, and active treatment journeys.',
-              style: context.fonts.grey13w500,
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Patient Database', style: context.fonts.black26w700),
+              context.verticalSpace(6),
+              Text(
+                'Manage clinic active patient directory, medical histories, and active treatment journeys.',
+                style: context.fonts.grey13w500,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-
-        // CustomPrimaryButton(
-        //   onTap: () {
-        //     ScaffoldMessenger.of(context).showSnackBar(
-        //       const SnackBar(
-        //         content: Text('Add Patient Form initialization...'),
-        //       ),
-        //     );
-        //   },
-        //   icon: Icons.add_rounded,
-        //   label: 'Add New Patient',
-        //   width: context.w(180),
-        // ),
       ],
     );
   }
+  // Widget _buildHeader(BuildContext context) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     children: [
+  //       Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text('Patient Database', style: context.fonts.black26w700),
+  //           context.verticalSpace(6),
+  //           Text(
+  //             'Manage clinic active patient directory, medical histories, and active treatment journeys.',
+  //             style: context.fonts.grey13w500,
+  //             maxLines: 2,
+  //           ),
+  //         ],
+  //       ),
+  //
+  //       // CustomPrimaryButton(
+  //       //   onTap: () {
+  //       //     ScaffoldMessenger.of(context).showSnackBar(
+  //       //       const SnackBar(
+  //       //         content: Text('Add Patient Form initialization...'),
+  //       //       ),
+  //       //     );
+  //       //   },
+  //       //   icon: Icons.add_rounded,
+  //       //   label: 'Add New Patient',
+  //       //   width: context.w(180),
+  //       // ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildQuickInsights(BuildContext context, PatientState state) {
-    return Row(
+    return AdaptiveLayoutRowColumn(
+      expandedWidget: true,
+      crossAlignment: .start,
+      widthBetween: 16,
+      heightBetween: 16,
       children: [
         MiniStatCard(
           title: 'Total Patients',
@@ -123,8 +151,8 @@ class _PatientManagementContent extends ConsumerWidget {
           icon: Icons.people_alt_outlined,
           color: CustomColors.purple,
         ),
-        context.horizontalSpace(16),
 
+        // context.horizontalSpace(16),
         MiniStatCard(
           title: 'Total Request',
           value: state.totalRequest ?? 0,

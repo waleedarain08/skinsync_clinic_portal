@@ -5,12 +5,12 @@ import '../app_init.dart';
 
 abstract class Responsive {
   static T when<T>(
-      BuildContext context, {
-        required T defaultValue,
-        ValueGetter<T>? mobile,
-        ValueGetter<T>? tablet,
-        ValueGetter<T>? desktop,
-      }) {
+    BuildContext context, {
+    required T defaultValue,
+    ValueGetter<T>? mobile,
+    ValueGetter<T>? tablet,
+    ValueGetter<T>? desktop,
+  }) {
     // Accessing context.w(0) to register as a listener of ScreenUtil metrics if needed,
     // though MediaQuery.sizeOf(context) already registers as a listener of size changes.
     final width = MediaQuery.sizeOf(context).width;
@@ -47,7 +47,9 @@ abstract class Responsive {
 extension ResponsiveExtension on BuildContext {
   bool get isMobile => MediaQuery.sizeOf(this).width < 480;
 
-  bool get isTablet => MediaQuery.sizeOf(this).width >= 481 && MediaQuery.sizeOf(this).width <= 1024;
+  bool get isTablet =>
+      MediaQuery.sizeOf(this).width >= 481 &&
+      MediaQuery.sizeOf(this).width <= 1024;
 
   bool get isDesktop => MediaQuery.sizeOf(this).width > 1024;
 
@@ -64,6 +66,8 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
   final double? widthBetween;
   final double? heightBetween;
   final MainAxisSize? size;
+  final CrossAxisAlignment? crossAlignment;
+
   final bool? expandedWidget;
 
   const AdaptiveLayoutRowColumn({
@@ -73,6 +77,7 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
     this.size,
     this.widthBetween,
     this.heightBetween,
+    this.crossAlignment,
     this.expandedWidget,
   });
 
@@ -91,6 +96,8 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
       return Row(
         mainAxisAlignment: alignment ?? MainAxisAlignment.start,
         mainAxisSize: size ?? MainAxisSize.max,
+        crossAxisAlignment: crossAlignment ?? CrossAxisAlignment.start,
+
         children: rowChildren,
       );
     }
@@ -102,6 +109,8 @@ class AdaptiveLayoutRowColumn extends StatelessWidget {
     return Column(
       mainAxisAlignment: alignment ?? MainAxisAlignment.start,
       mainAxisSize: size ?? MainAxisSize.max,
+      crossAxisAlignment: crossAlignment ?? CrossAxisAlignment.stretch,
+
       children: columnChildren,
     );
   }

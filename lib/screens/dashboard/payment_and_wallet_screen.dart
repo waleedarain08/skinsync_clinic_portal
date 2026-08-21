@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../utils/assets.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -304,17 +305,21 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
       children: [
         Text('Earnings Overview', style: context.fonts.black18w600),
         context.verticalSpace(16),
-        Row(
+        const AdaptiveLayoutRowColumn(
+          expandedWidget: true,
+          crossAlignment: .start,
+          widthBetween: 16,
+          heightBetween: 16,
           children: [
-            const MiniStatCard(
+            MiniStatCard(
               icon: Icons.payments_outlined,
               color: Color(0xFF7DD3D3),
               value: 45200,
               prefix: '\$ ',
               title: 'Total Earnings',
             ),
-            context.horizontalSpace(16),
-            const MiniStatCard(
+            // context.horizontalSpace(16),
+            MiniStatCard(
               icon: Icons.account_balance_wallet_outlined,
               color: Color(0xFFE89FD5),
               value: 12450,
