@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../models/requests/register_practitioner_request.dart';
 import '../models/responses/fetch_practitioner_by_email_response.dart';
 import '../models/responses/register_practitioner_response.dart';
+import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
@@ -35,7 +36,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   String? _fetchEmailError;
 
   // Section 1: Basic Info
-   final _imageNotifier = ValueNotifier<String?>(null);
+  final _imageNotifier = ValueNotifier<String?>(null);
   // String? _selectedTitle;
   final _nameController = TextEditingController();
   //  String? _selectedGender;
@@ -100,44 +101,41 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   }
 
   void _populateExistingData(Practitioner practitioner) {
-     _nameController.text = practitioner.basicInfo?.name ?? '';
-     _specializationController.text =
+    _nameController.text = practitioner.basicInfo?.name ?? '';
+    _specializationController.text =
         practitioner.basicInfo?.specialization ?? '';
-   _emailController.text = practitioner.contactInfo?.email ?? '';
-   _phoneController.text = practitioner.contactInfo?.phone ?? '';
+    _emailController.text = practitioner.contactInfo?.email ?? '';
+    _phoneController.text = practitioner.contactInfo?.phone ?? '';
     _imageNotifier.value = practitioner.basicInfo?.image;
 
-     ref
+    ref
         .read(practitionerProvider.notifier)
         .changeRole(practitioner.basicInfo?.role);
-   
- _consultationFeeController.text =
-      practitioner.financialInfo?.consultationFee.toString() ?? '';
 
-  _treatmentCommissionController.text =
-      practitioner.financialInfo?.treatmentCommission.toString() ?? '';
-final clinicAccess = practitioner.clinicAccess;
-  _commissionType =
-      practitioner.financialInfo?.commissionType ?? 'fixed';
-       if (clinicAccess != null) {
-    _canPerformConsultation =
-        clinicAccess.canPerformConsultation;
+    _consultationFeeController.text =
+        practitioner.financialInfo?.consultationFee.toString() ?? '';
 
-    _canPerformTreatment =
-        clinicAccess.canPerformTreatment ;
+    _treatmentCommissionController.text =
+        practitioner.financialInfo?.treatmentCommission.toString() ?? '';
+    final clinicAccess = practitioner.clinicAccess;
+    _commissionType = practitioner.financialInfo?.commissionType ?? 'fixed';
+    if (clinicAccess != null) {
+      _canPerformConsultation = clinicAccess.canPerformConsultation;
 
-    _isVirtualEnabled =
-        clinicAccess.isVirtualEnabled ;
+      _canPerformTreatment = clinicAccess.canPerformTreatment;
 
-    _acceptsWalkIn =
-        clinicAccess.acceptsWalkIn;
+      _isVirtualEnabled = clinicAccess.isVirtualEnabled;
 
-    _selectedBookingMethods
-      ..clear()
-      ..addAll(clinicAccess.allowedBookingMethods);
-  }
-   _globalSlotDurationController.text =practitioner.availabilityInfo?.slotDurationMinutes.toString() ?? '0';
-   _globalBufferTimeController.text = practitioner.availabilityInfo?.bufferTimeMinutes.toString() ?? '0';
+      _acceptsWalkIn = clinicAccess.acceptsWalkIn;
+
+      _selectedBookingMethods
+        ..clear()
+        ..addAll(clinicAccess.allowedBookingMethods);
+    }
+    _globalSlotDurationController.text =
+        practitioner.availabilityInfo?.slotDurationMinutes.toString() ?? '0';
+    _globalBufferTimeController.text =
+        practitioner.availabilityInfo?.bufferTimeMinutes.toString() ?? '0';
     ref
         .read(practitionerProvider.notifier)
         .setInitialAvailability(practitioner.availabilityInfo?.availability);
@@ -176,8 +174,6 @@ final clinicAccess = practitioner.clinicAccess;
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     ref.listen(practitionerProvider, _listener);
@@ -210,7 +206,6 @@ final clinicAccess = practitioner.clinicAccess;
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  
                       _buildDoctorEmailSection(isEditing),
                       SizedBox(height: context.h(24)),
                       _buildClinicAccessSection(),
@@ -237,61 +232,70 @@ final clinicAccess = practitioner.clinicAccess;
       child: BorderdContainerWidget(
         padding: context.appEdgeInsets(all: 16),
         backgroundColor: CustomColors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return AdaptiveLayoutRowColumn(
+              expandedWidget: false,
+              alignment: MainAxisAlignment.spaceBetween,
+              crossAlignment: .center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: CustomColors.purple.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person_add_alt_1_outlined,
-                    color: CustomColors.purple,
-                  ),
-                ),
-                context.horizontalSpace(12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(
-                      isEditing
-                          ? 'Update Provider Profile'
-                          : 'Provider Onboarding',
-                      style: context.fonts.black16w600,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: CustomColors.purple.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_add_alt_1_outlined,
+                        color: CustomColors.purple,
+                      ),
                     ),
-                    Text(
-                      'Configure Provider identity, licensing, and clinical availability.',
-                      style: context.fonts.grey12w400,
+                    context.horizontalSpace(12),
+                    SizedBox(
+                      width: constraints.maxWidth * 0.55,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isEditing
+                                ? 'Update Provider Profile'
+                                : 'Provider Onboarding',
+                            style: context.fonts.black16w600,
+                          ),
+                          Text(
+                            'Configure Provider identity, licensing, & clinical availability.',
+                            style: context.fonts.grey12w400,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomOutlinedButton(
+                      onTap: () => context.pop(),
+                      label: 'Cancel',
+                      width: context.w(100),
+                      height: context.h(40),
+                    ),
+                    context.horizontalSpace(12),
+                    CustomPrimaryButton(
+                      onTap: _submitForm,
+                      label: isEditing ? 'Update Provider' : 'Save Provider',
+                      width: context.w(180),
+                      height: context.h(40),
+                      icon: isEditing
+                          ? Icons.save_as_outlined
+                          : Icons.check_circle_outline,
                     ),
                   ],
                 ),
               ],
-            ),
-            Row(
-              children: [
-                CustomOutlinedButton(
-                  onTap: () => context.pop(),
-                  label: 'Cancel',
-                  width: context.w(100),
-                  height: context.h(40),
-                ),
-                context.horizontalSpace(12),
-                CustomPrimaryButton(
-                  onTap: _submitForm,
-                  label: isEditing ? 'Update Provider' : 'Save Provider',
-                  width: context.w(180),
-                  height: context.h(40),
-                  icon: isEditing
-                      ? Icons.save_as_outlined
-                      : Icons.check_circle_outline,
-                ),
-              ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -308,8 +312,9 @@ final clinicAccess = practitioner.clinicAccess;
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          AdaptiveLayoutRowColumn(
+            expandedWidget: false,
+            alignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title, style: context.fonts.black18w600),
               trailing ?? const SizedBox.shrink(),
@@ -321,7 +326,6 @@ final clinicAccess = practitioner.clinicAccess;
       ),
     );
   }
-
 
   Widget _buildDoctorEmailSection(bool isEditing) {
     return _buildSection(
@@ -355,7 +359,9 @@ final clinicAccess = practitioner.clinicAccess;
                   setState(() => _fetchEmailError = error);
                 } else {
                   setState(() => _fetchEmailError = null);
-                  ref.read(practitionerProvider.notifier).fetchPractitionerByEmail(email);
+                  ref
+                      .read(practitionerProvider.notifier)
+                      .fetchPractitionerByEmail(email);
                 }
               },
               label: 'Fetch Details',
@@ -390,16 +396,21 @@ final clinicAccess = practitioner.clinicAccess;
           context.verticalSpace(24),
           const Divider(color: CustomColors.border),
           context.verticalSpace(16),
-          Text('Registered Provider Found', style: context.fonts.black16w600.copyWith(color: CustomColors.green)),
+          Text(
+            'Registered Provider Found',
+            style: context.fonts.black16w600.copyWith(
+              color: CustomColors.green,
+            ),
+          ),
           context.verticalSpace(16),
           _buildPractitionerSummaryCard(p),
         ],
       );
-    } else  if (widget.practitioner != null) {
-    return const SizedBox.shrink();
-  }
-
-    else if (_emailController.text.isNotEmpty && !state.loading && state.fetchedPractitioner == null ) {
+    } else if (widget.practitioner != null) {
+      return const SizedBox.shrink();
+    } else if (_emailController.text.isNotEmpty &&
+        !state.loading &&
+        state.fetchedPractitioner == null) {
       // Show invitation message only if we've tried to fetch
       return _buildSearchInfoMessage(
         'This doctor is not yet registered with SkinSync. Please provide their details below to send an invitation.',
@@ -410,7 +421,11 @@ final clinicAccess = practitioner.clinicAccess;
     return const SizedBox.shrink();
   }
 
-  Widget _buildSearchInfoMessage(String message, {required Color color, required IconData icon}) {
+  Widget _buildSearchInfoMessage(
+    String message, {
+    required Color color,
+    required IconData icon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -428,12 +443,7 @@ final clinicAccess = practitioner.clinicAccess;
             children: [
               Icon(icon, color: color),
               context.horizontalSpace(12),
-              Expanded(
-                child: Text(
-                  message,
-                  style: context.fonts.black14w400,
-                ),
-              ),
+              Expanded(child: Text(message, style: context.fonts.black14w400)),
             ],
           ),
         ),
@@ -459,17 +469,35 @@ final clinicAccess = practitioner.clinicAccess;
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(p.basicInfo?.name ?? 'N/A', style: context.fonts.black18w600),
-                    Text(p.basicInfo?.specialization ?? 'N/A', style: context.fonts.grey14w400),
+                    Text(
+                      p.basicInfo?.name ?? 'N/A',
+                      style: context.fonts.black18w600,
+                    ),
+                    Text(
+                      p.basicInfo?.specialization ?? 'N/A',
+                      style: context.fonts.grey14w400,
+                    ),
                   ],
                 ),
               ),
             ],
           ),
           const Divider(height: 32, color: CustomColors.border),
-          _summaryRow(Icons.email_outlined, 'Email', p.contactInfo?.email ?? 'N/A'),
-          _summaryRow(Icons.phone_outlined, 'Phone', '${p.contactInfo?.cc ?? ""} ${p.contactInfo?.phone ?? "N/A"}'),
-          _summaryRow(Icons.badge_outlined, 'License', p.licenseInfo?.licenseNumber ?? 'N/A'),
+          _summaryRow(
+            Icons.email_outlined,
+            'Email',
+            p.contactInfo?.email ?? 'N/A',
+          ),
+          _summaryRow(
+            Icons.phone_outlined,
+            'Phone',
+            '${p.contactInfo?.cc ?? ""} ${p.contactInfo?.phone ?? "N/A"}',
+          ),
+          _summaryRow(
+            Icons.badge_outlined,
+            'License',
+            p.licenseInfo?.licenseNumber ?? 'N/A',
+          ),
         ],
       ),
     );
@@ -653,10 +681,10 @@ final clinicAccess = practitioner.clinicAccess;
         ),
         Text('Global Scheduling Rules', style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(16)),
-        
+
         Row(
           children: [
-             Expanded(
+            Expanded(
               child: BuildTextField(
                 controller: _globalSlotDurationController,
                 label: 'Next Slot After (Min)',
@@ -940,11 +968,11 @@ final clinicAccess = practitioner.clinicAccess;
     );
 
     if (widget.practitioner != null) {
-     ref
+      ref
           .read(practitionerProvider.notifier)
           .updatePractitioner(
             role: state.role ?? '',
-           practitionerID: widget.practitioner!.id!,
+            practitionerID: widget.practitioner!.id!,
             // basicInfo: basicInfo,
             // contactInfo: contactInfo,
             // licenseInfo: licenseInfo,
@@ -958,7 +986,7 @@ final clinicAccess = practitioner.clinicAccess;
           .registerPractitioner(
             role: state.role ?? '',
             email: _emailController.text.trim(),
-            
+
             // basicInfo: basicInfo,
             // contactInfo: contactInfo,
             // licenseInfo: licenseInfo,

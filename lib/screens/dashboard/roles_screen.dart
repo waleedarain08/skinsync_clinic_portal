@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/responses/get_roles_response.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/role_view_model.dart';
 import '../../widgets/app_loader.dart';
@@ -45,8 +46,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: context.h(20)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            AdaptiveLayoutRowColumn(
+              expandedWidget: false,
+              alignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Roles Management", style: context.fonts.black20w600),
                 CustomPrimaryButton(

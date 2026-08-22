@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/responses/clinic_model.dart';
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
 import '../view_models/auth_view_model.dart';
@@ -386,8 +387,9 @@ class _BusinessInformationScreenState
                   SizedBox(height: 32.h),
                   _buildAvailabilitySection(),
                   SizedBox(height: 48.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  AdaptiveLayoutRowColumn(
+                    expandedWidget: false,
+                    alignment: MainAxisAlignment.end,
                     children: [
                       CustomOutlinedButton(
                         onTap: () => Navigator.pop(context),
@@ -566,8 +568,8 @@ class _BusinessInformationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          AdaptiveLayoutRowColumn(
+            expandedWidget: false,
             children: [
               Text('Clinic Availability', style: context.fonts.black20w600),
               CustomPrimaryButton(

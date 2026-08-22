@@ -22,7 +22,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -107,7 +106,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       title: "Two-Factor Authentication",
                       subtitle: "Update password and security settings",
                       onTap: () {
-                        context.push(ChangePasswordScreen.routeName);
+                        context.pushNamed(ChangePasswordScreen.routeName);
                       },
                     ),
                   _SettingItemData(
@@ -115,7 +114,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     title: "Password & Security",
                     subtitle: "Add extra security to your account",
                     onTap: () {
-                      context.push(ChangePasswordScreen.routeName);
+                      context.pushNamed(ChangePasswordScreen.routeName);
                     },
                   ),
                 ],
@@ -135,7 +134,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       title: "Notifications",
                       subtitle: "Manage notification settings",
                       onTap: () {
-                        context.push(NotificationScreen.routeName);
+                        context.pushNamed(NotificationScreen.routeName);
                       },
                     ),
                   ],
@@ -154,7 +153,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     title: "About",
                     subtitle: "Terms, conditions, and privacy policy",
                     onTap: () {
-                      context.push(AboutScreen.routeName);
+                      context.pushNamed(AboutScreen.routeName);
                     },
                   ),
                 ],

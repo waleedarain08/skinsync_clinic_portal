@@ -154,7 +154,6 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
                         ),
                       ),
                       context.horizontalSpace(8),
-                     
 
                       // Container(
                       //   padding: const EdgeInsets.symmetric(
@@ -207,8 +206,8 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                 _buildStatusToggle(context, ref, entry),
-                   context.horizontalSpace(12),
+                _buildStatusToggle(context, ref, entry),
+                context.horizontalSpace(12),
                 CustomOutlinedButton(
                   width: context.w(110),
                   height: context.h(32),
@@ -282,7 +281,6 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
                 ),
               ),
               context.horizontalSpace(8),
-              
 
               // Container(
               //   padding: const EdgeInsets.symmetric(

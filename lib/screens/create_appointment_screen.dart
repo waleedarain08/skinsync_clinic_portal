@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../models/patient_model.dart';
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -16,10 +17,12 @@ class CreateAppointmentScreen extends ConsumerStatefulWidget {
   static const String routeName = '/create-appointment';
 
   @override
-  ConsumerState<CreateAppointmentScreen> createState() => _CreateAppointmentScreenState();
+  ConsumerState<CreateAppointmentScreen> createState() =>
+      _CreateAppointmentScreenState();
 }
 
-class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScreen> {
+class _CreateAppointmentScreenState
+    extends ConsumerState<CreateAppointmentScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -71,8 +74,9 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
         color: Colors.white,
         border: Border(bottom: BorderSide(color: CustomColors.border)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: AdaptiveLayoutRowColumn(
+        expandedWidget: false,
+        alignment: MainAxisAlignment.center,
         children: List.generate(steps.length, (index) {
           final isCompleted = index < currentStep;
           final isActive = index == currentStep;
@@ -84,14 +88,18 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
                 steps[index],
                 style: isActive
                     ? context.fonts.purple14w600
-                    : (isCompleted ? context.fonts.black14w400 : context.fonts.grey14w400),
+                    : (isCompleted
+                          ? context.fonts.black14w400
+                          : context.fonts.grey14w400),
               ),
               if (index < steps.length - 1)
                 Container(
                   width: context.w(40),
                   height: 1,
                   margin: context.appEdgeInsets(horizontal: 16),
-                  color: isCompleted ? CustomColors.purple : CustomColors.border,
+                  color: isCompleted
+                      ? CustomColors.purple
+                      : CustomColors.border,
                 ),
             ],
           );
@@ -106,9 +114,13 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
       height: context.w(28),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isCompleted ? CustomColors.green : (isActive ? CustomColors.purple : Colors.white),
+        color: isCompleted
+            ? CustomColors.green
+            : (isActive ? CustomColors.purple : Colors.white),
         border: Border.all(
-          color: isActive || isCompleted ? Colors.transparent : CustomColors.border,
+          color: isActive || isCompleted
+              ? Colors.transparent
+              : CustomColors.border,
         ),
       ),
       child: Center(
@@ -116,29 +128,41 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
             ? const Icon(Icons.check, color: Colors.white, size: 16)
             : Text(
                 '$step',
-                style: isActive ? context.fonts.white12w700 : context.fonts.grey12w700,
+                style: isActive
+                    ? context.fonts.white12w700
+                    : context.fonts.grey12w700,
               ),
       ),
     );
   }
 
-  Widget _buildCurrentStep(AppointmentCreationState state, AppointmentCreationViewModel viewModel) {
+  Widget _buildCurrentStep(
+    AppointmentCreationState state,
+    AppointmentCreationViewModel viewModel,
+  ) {
     switch (state.currentStep) {
       case 0:
         return _buildPatientStep(state, viewModel);
       default:
         return Center(
-          child: Text('Step ${state.currentStep + 1} coming soon...', style: context.fonts.grey14w400),
+          child: Text(
+            'Step ${state.currentStep + 1} coming soon...',
+            style: context.fonts.grey14w400,
+          ),
         );
     }
   }
 
-  Widget _buildPatientStep(AppointmentCreationState state, AppointmentCreationViewModel viewModel) {
+  Widget _buildPatientStep(
+    AppointmentCreationState state,
+    AppointmentCreationViewModel viewModel,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        AdaptiveLayoutRowColumn(
+          expandedWidget: false,
+          alignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Patient Information', style: context.fonts.black20w600),
             CustomPrimaryButton(
@@ -164,10 +188,16 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
                 decoration: AppDecorations.input(
                   context,
                   hint: 'Search by email or phone number...',
-                  prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: CustomColors.grey,
+                  ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, color: CustomColors.grey),
+                          icon: const Icon(
+                            Icons.clear,
+                            color: CustomColors.grey,
+                          ),
                           onPressed: () {
                             _searchController.clear();
                             viewModel.searchPatients('');
@@ -192,7 +222,11 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
     );
   }
 
-  Widget _buildPatientCard(PatientModel patient, bool isSelected, AppointmentCreationViewModel viewModel) {
+  Widget _buildPatientCard(
+    PatientModel patient,
+    bool isSelected,
+    AppointmentCreationViewModel viewModel,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -202,7 +236,9 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
           padding: context.appEdgeInsets(all: 16),
           borderColor: isSelected ? CustomColors.purple : CustomColors.border,
           borderWidth: isSelected ? 2 : 1,
-          backgroundColor: isSelected ? CustomColors.purple.withValues(alpha: 0.02) : Colors.white,
+          backgroundColor: isSelected
+              ? CustomColors.purple.withValues(alpha: 0.02)
+              : Colors.white,
           child: Row(
             children: [
               CircleAvatar(
@@ -222,11 +258,19 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
                     context.verticalSpace(4),
                     Row(
                       children: [
-                        const Icon(Icons.email_outlined, size: 14, color: CustomColors.grey),
+                        const Icon(
+                          Icons.email_outlined,
+                          size: 14,
+                          color: CustomColors.grey,
+                        ),
                         context.horizontalSpace(4),
                         Text(patient.email, style: context.fonts.grey12w400),
                         context.horizontalSpace(16),
-                        const Icon(Icons.phone_outlined, size: 14, color: CustomColors.grey),
+                        const Icon(
+                          Icons.phone_outlined,
+                          size: 14,
+                          color: CustomColors.grey,
+                        ),
                         context.horizontalSpace(4),
                         Text(patient.phone, style: context.fonts.grey12w400),
                       ],
@@ -243,7 +287,10 @@ class _CreateAppointmentScreenState extends ConsumerState<CreateAppointmentScree
     );
   }
 
-  Widget _buildBottomNavigation(AppointmentCreationState state, AppointmentCreationViewModel viewModel) {
+  Widget _buildBottomNavigation(
+    AppointmentCreationState state,
+    AppointmentCreationViewModel viewModel,
+  ) {
     return Container(
       padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
       decoration: const BoxDecoration(

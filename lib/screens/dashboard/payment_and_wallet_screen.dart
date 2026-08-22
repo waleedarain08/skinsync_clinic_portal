@@ -215,8 +215,9 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             context.verticalSpace(20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            AdaptiveLayoutRowColumn(
+              expandedWidget: false,
+              alignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Payment and Wallet', style: context.fonts.black20w600),
                 ElevatedButton.icon(

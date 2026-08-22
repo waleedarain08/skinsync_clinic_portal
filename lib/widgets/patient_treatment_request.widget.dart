@@ -103,9 +103,7 @@ class _SimulationTreatmentRequestCardState
           decoration: BoxDecoration(
             color: isSelected ? CustomColors.purple : Colors.transparent,
             borderRadius: BorderRadius.circular(context.r(100)),
-            border: isSelected
-                ? null
-                : Border.all(color: CustomColors.border),
+            border: isSelected ? null : Border.all(color: CustomColors.border),
           ),
           child: Text(
             title,
@@ -151,7 +149,14 @@ class _SimulationTreatmentRequestCardState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Before & After Photos', style: context.fonts.black14w600),
+            Expanded(
+              child: Text(
+                'Before & After Photos',
+                style: context.fonts.black14w600,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             Container(
               padding: context.appEdgeInsets(horizontal: 12, vertical: 2),
               decoration: BoxDecoration(
@@ -173,7 +178,8 @@ class _SimulationTreatmentRequestCardState
                       activeTrackColor: CustomColors.purple,
                       activeThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey.shade300,
-                      onChanged: (val) => setState(() => _isComparisonMode = val),
+                      onChanged: (val) =>
+                          setState(() => _isComparisonMode = val),
                     ),
                   ),
                 ],
@@ -214,8 +220,16 @@ class _SimulationTreatmentRequestCardState
                             value: _sliderValues[key]!,
                             onValueChanged: (value) =>
                                 setState(() => _sliderValues[key] = value),
-                            before: _buildComparisonImageOnly(context, before, 'Before'),
-                            after: _buildComparisonImageOnly(context, after, 'After'),
+                            before: _buildComparisonImageOnly(
+                              context,
+                              before,
+                              'Before',
+                            ),
+                            after: _buildComparisonImageOnly(
+                              context,
+                              after,
+                              'After',
+                            ),
                             trackColor: Colors.white,
                             trackWidth: context.w(2),
                             thumbDecoration: const BoxDecoration(
@@ -230,12 +244,18 @@ class _SimulationTreatmentRequestCardState
                           Positioned(
                             top: context.h(12),
                             left: context.w(12),
-                            child: _buildBadge("BEFORE", Colors.black.withValues(alpha: 0.6)),
+                            child: _buildBadge(
+                              "BEFORE",
+                              Colors.black.withValues(alpha: 0.6),
+                            ),
                           ),
                           Positioned(
                             top: context.h(12),
                             right: context.w(12),
-                            child: _buildBadge("AFTER", Colors.black.withValues(alpha: 0.6)),
+                            child: _buildBadge(
+                              "AFTER",
+                              Colors.black.withValues(alpha: 0.6),
+                            ),
                           ),
                         ],
                       ),
@@ -252,9 +272,21 @@ class _SimulationTreatmentRequestCardState
                       width: context.w(300),
                       child: Row(
                         children: [
-                          Expanded(child: _buildComparisonImage(context, before, 'Before')),
+                          Expanded(
+                            child: _buildComparisonImage(
+                              context,
+                              before,
+                              'Before',
+                            ),
+                          ),
                           context.horizontalSpace(8),
-                          Expanded(child: _buildComparisonImage(context, after, 'After')),
+                          Expanded(
+                            child: _buildComparisonImage(
+                              context,
+                              after,
+                              'After',
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -273,26 +305,32 @@ class _SimulationTreatmentRequestCardState
     );
   }
 
-  Widget _buildComparisonImageOnly(BuildContext context, String? url, String label) {
+  Widget _buildComparisonImageOnly(
+    BuildContext context,
+    String? url,
+    String label,
+  ) {
     return url != null
         ? (url.startsWith('http')
-            ? CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
-              )
-            : Image.asset(
-                url,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 24),
-              ))
+              ? CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.broken_image, size: 24),
+                )
+              : Image.asset(
+                  url,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 24),
+                ))
         : Center(child: Text(label, style: context.fonts.grey12w400));
   }
 
@@ -313,7 +351,11 @@ class _SimulationTreatmentRequestCardState
     );
   }
 
-  Widget _buildComparisonImage(BuildContext context, String? url, String label) {
+  Widget _buildComparisonImage(
+    BuildContext context,
+    String? url,
+    String label,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -329,20 +371,21 @@ class _SimulationTreatmentRequestCardState
             borderRadius: BorderRadius.circular(context.r(12)),
             child: url != null
                 ? (url.startsWith('http')
-                    ? CachedNetworkImage(
-                        imageUrl: url,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.broken_image, size: 24),
-                      )
-                    : Image.asset(
-                        url,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 24),
-                      ))
+                      ? CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.broken_image, size: 24),
+                        )
+                      : Image.asset(
+                          url,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 24),
+                        ))
                 : Center(child: Text(label, style: context.fonts.grey12w400)),
           ),
         ),
@@ -405,10 +448,15 @@ class _SimulationTreatmentRequestCardState
               if (treatment.areas.isNotEmpty) ...[
                 SizedBox(height: context.h(16)),
                 Padding(
-                  padding: EdgeInsets.only(left: context.w(4), bottom: context.h(10)),
+                  padding: EdgeInsets.only(
+                    left: context.w(4),
+                    bottom: context.h(10),
+                  ),
                   child: Text(
                     "Selected Areas",
-                    style: context.fonts.black14w600.copyWith(color: CustomColors.grey),
+                    style: context.fonts.black14w600.copyWith(
+                      color: CustomColors.grey,
+                    ),
                   ),
                 ),
                 Wrap(

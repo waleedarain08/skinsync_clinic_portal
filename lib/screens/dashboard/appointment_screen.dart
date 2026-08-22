@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/responses/filters_response.dart';
+import '../../utils/responsive.dart';
 import '../../utils/string_utils.dart';
 import '../../view_models/practitioner_view_model.dart';
 import '../../widgets/custom_primary_button.dart';
@@ -138,116 +139,102 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
               ),
               SizedBox(height: context.h(15)),
               BorderdContainerWidget(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: AdaptiveLayoutRowColumn(
+                  expandedWidget: true,
+                  crossAlignment: .end,
+                  widthBetween: 16,
+                  heightBetween: 16,
                   children: [
-                    Expanded(
-                      flex: 5,
-                      child: CupertinoSearchTextField(
-                        controller: ref
+                    CupertinoSearchTextField(
+                      controller: ref
+                          .read(appointmentProvider.notifier)
+                          .searchController,
+                      onChanged: (_) {
+                        ref
                             .read(appointmentProvider.notifier)
-                            .searchController,
-                        onChanged: (_) {
-                          ref
+                            .getAppointments(
+                              initialCall: true,
+                              showEasyLoading: true,
+                            );
+                      },
+                      style: context.fonts.black14w400,
+                      placeholderStyle: context.fonts.grey14w400,
+                      backgroundColor: CustomColors.softGrey,
+                      borderRadius: BorderRadius.circular(context.r(10)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.w(12),
+                        vertical: context.h(10),
+                      ),
+                    ),
+                    // SizedBox(width: context.w(10)),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final appointmentState = ref.watch(appointmentProvider);
+                        final filters = appointmentState.appointmentTypes ?? [];
+
+                        return SelectOrCreateDropdown<String>(
+                          label: 'Appointment',
+                          hint: 'All Appointments',
+                          value: appointmentState.filter?.name,
+                          showAddIcon: false,
+                          items: filters.map((e) => e.name ?? '').toList(),
+                          itemLabel: (filter) => filter,
+                          onChanged: (value) {
+                            final selected = filters.firstWhere(
+                              (f) => f.name == value,
+                              orElse: () => Filters(),
+                            );
+                            ref
+                                .read(appointmentProvider.notifier)
+                                .setFilter(value == null ? null : selected);
+                          },
+                          onOpen: () => ref
                               .read(appointmentProvider.notifier)
-                              .getAppointments(
-                                initialCall: true,
-                                showEasyLoading: true,
-                              );
-                        },
-                        style: context.fonts.black14w400,
-                        placeholderStyle: context.fonts.grey14w400,
-                        backgroundColor: CustomColors.softGrey,
-                        borderRadius: BorderRadius.circular(context.r(10)),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.w(12),
-                          vertical: context.h(10),
-                        ),
-                      ),
+                              .getAppointmentsTypes(),
+                          onCreate: () {},
+                        );
+                      },
                     ),
-                    SizedBox(width: context.w(10)),
-                    Expanded(
-                      flex: 3,
-                      child: Consumer(
-                        builder: (context, ref, _) {
-                          final appointmentState = ref.watch(
-                            appointmentProvider,
-                          );
-                          final filters =
-                              appointmentState.appointmentTypes ?? [];
+                    // SizedBox(width: context.w(10)),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final appointmentState = ref.watch(appointmentProvider);
+                        final statuses =
+                            appointmentState.appointmentStatus ?? [];
 
-                          return SelectOrCreateDropdown<String>(
-                            label: 'Appointment',
-                            hint: 'All Appointments',
-                            value: appointmentState.filter?.name,
-                            showAddIcon: false,
-                            items: filters.map((e) => e.name ?? '').toList(),
-                            itemLabel: (filter) => filter,
-                            onChanged: (value) {
-                              final selected = filters.firstWhere(
-                                (f) => f.name == value,
-                                orElse: () => Filters(),
-                              );
-                              ref
-                                  .read(appointmentProvider.notifier)
-                                  .setFilter(value == null ? null : selected);
-                            },
-                            onOpen: () => ref
+                        return SelectOrCreateDropdown<String>(
+                          label: 'Status',
+                          hint: 'All Status',
+                          value: appointmentState.status?.name,
+                          showAddIcon: false,
+                          items: statuses
+                              .map((e) => e.name?.capitalize ?? '')
+                              .toList(),
+                          itemLabel: (status) => status,
+                          onChanged: (value) {
+                            final selected = value == null
+                                ? null
+                                : statuses
+                                      .where((s) => s.name == value)
+                                      .firstOrNull;
+                            ref
                                 .read(appointmentProvider.notifier)
-                                .getAppointmentsTypes(),
-                            onCreate: () {},
-                          );
-                        },
-                      ),
+                                .setStatus(selected);
+                          },
+                          onOpen: () => ref
+                              .read(appointmentProvider.notifier)
+                              .getAppointmentsStatus(),
+                          onCreate: () {},
+                        );
+                      },
                     ),
-                    SizedBox(width: context.w(10)),
-                    Expanded(
-                      flex: 2,
-                      child: Consumer(
-                        builder: (context, ref, _) {
-                          final appointmentState = ref.watch(
-                            appointmentProvider,
-                          );
-                          final statuses =
-                              appointmentState.appointmentStatus ?? [];
-
-                          return SelectOrCreateDropdown<String>(
-                            label: 'Status',
-                            hint: 'All Status',
-                            value: appointmentState.status?.name,
-                            showAddIcon: false,
-                            items: statuses
-                                .map((e) => e.name?.capitalize ?? '')
-                                .toList(),
-                            itemLabel: (status) => status,
-                            onChanged: (value) {
-                              final selected = value == null
-                                  ? null
-                                  : statuses
-                                        .where((s) => s.name == value)
-                                        .firstOrNull;
-                              ref
-                                  .read(appointmentProvider.notifier)
-                                  .setStatus(selected);
-                            },
-                            onOpen: () => ref
-                                .read(appointmentProvider.notifier)
-                                .getAppointmentsStatus(),
-                            onCreate: () {},
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(width: context.w(10)),
-                    Expanded(
-                      flex: 2,
-                      child: CustomPrimaryButton(
-                        onTap: () =>
-                            context.push(CreateAppointmentScreen.routeName),
-                        icon: Icons.add,
-                        label: "New Appointment",
-                        height: context.h(42),
-                      ),
+                    // SizedBox(width: context.w(10)),
+                    CustomPrimaryButton(
+                      onTap: () =>
+                          context.push(CreateAppointmentScreen.routeName),
+                      icon: Icons.add,
+                      label: "New Appointment",
+                      height: context.h(42),
                     ),
                   ],
                 ),
@@ -383,7 +370,8 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
           CircleAvatar(
             radius: 18.r,
             backgroundColor: CustomColors.palePurple,
-            backgroundImage: a.patientImage != null && a.patientImage!.isNotEmpty
+            backgroundImage:
+                a.patientImage != null && a.patientImage!.isNotEmpty
                 ? NetworkImage(a.patientImage!)
                 : null,
             child: a.patientImage == null || a.patientImage!.isEmpty
@@ -480,7 +468,9 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
         constraints: const BoxConstraints(),
         onPressed: () async {
           if (a.id == null) return;
-          await ref.read(appointmentProvider.notifier).getAppointmentsDetail(id: a.id!);
+          await ref
+              .read(appointmentProvider.notifier)
+              .getAppointmentsDetail(id: a.id!);
           if (context.mounted) {
             context.push(AppointmentDetailScreen.routeName);
           }

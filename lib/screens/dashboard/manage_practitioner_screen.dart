@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/requests/status_request.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/practitioner_view_model.dart';
 import '../../models/responses/practitioner_list_response.dart';
@@ -83,14 +84,12 @@ class _ManagePractitionerScreenState
       return content;
     }
 
-    return GradientScaffold(
-      body: content,
-    );
+    return GradientScaffold(body: content);
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return AdaptiveLayoutRowColumn(
+      alignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,9 +118,7 @@ class _ManagePractitionerScreenState
   Widget _buildQuickInsights(PractitionerState state) {
     final totalPractitioners = state.doctors.length;
     final activeInjectors = state.doctors
-        .where(
-          (d) => d.specialization.toLowerCase().contains('injector'),
-        )
+        .where((d) => d.specialization.toLowerCase().contains('injector'))
         .length;
     final activeMDs = state.doctors
         .where(
@@ -135,7 +132,11 @@ class _ManagePractitionerScreenState
       (sum, d) => sum + d.treatmentCount,
     );
 
-    return Row(
+    return AdaptiveLayoutRowColumn(
+      expandedWidget: true,
+      crossAlignment: .start,
+      widthBetween: 16,
+      heightBetween: 16,
       children: [
         _buildStatCard(
           'Total Providers',
@@ -143,21 +144,21 @@ class _ManagePractitionerScreenState
           Icons.people_alt_outlined,
           CustomColors.purple,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Active Injectors',
           '$activeInjectors',
           Icons.vaccines_outlined,
           CustomColors.green,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Active Doctors (MD)',
           '$activeMDs',
           Icons.masks_outlined,
           CustomColors.blue,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Services Configured',
           '$assignedTreatments',
@@ -174,40 +175,38 @@ class _ManagePractitionerScreenState
     IconData icon,
     Color color,
   ) {
-    return Expanded(
-      child: BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: context.appEdgeInsets(all: 10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: context.appBorderRadius(all: 8),
-              ),
-              child: Icon(icon, color: color, size: context.sp(20)),
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: context.appEdgeInsets(all: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: context.appBorderRadius(all: 8),
             ),
-            context.horizontalSpace(14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: context.fonts.black18w600,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  context.verticalSpace(2),
-                  Text(
-                    title,
-                    style: context.fonts.grey11w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+            child: Icon(icon, color: color, size: context.sp(20)),
+          ),
+          context.horizontalSpace(14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: context.fonts.black18w600,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                context.verticalSpace(2),
+                Text(
+                  title,
+                  style: context.fonts.grey11w400,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -252,7 +251,10 @@ class _ManagePractitionerScreenState
     );
   }
 
-  Widget _buildDoctorsTable(List<PractitionerListItem> doctors, bool isLoading) {
+  Widget _buildDoctorsTable(
+    List<PractitionerListItem> doctors,
+    bool isLoading,
+  ) {
     if (isLoading) {
       return const Center(child: AppLoader());
     }
@@ -512,8 +514,8 @@ class _ManagePractitionerScreenState
               textAlign: TextAlign.center,
             ),
             context.verticalSpace(24),
-            Row(
-              mainAxisSize: MainAxisSize.min,
+            AdaptiveLayoutRowColumn(
+              size: MainAxisSize.min,
               children: [
                 CustomOutlinedButton(
                   onTap: () {
