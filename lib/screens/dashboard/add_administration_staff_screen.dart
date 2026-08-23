@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../widgets/build_textfield.dart';
@@ -27,7 +28,12 @@ class _AddAdministrationStaffScreenState
   final _phoneController = TextEditingController();
   String? _selectedRole;
 
-  final List<String> _roles = ['Receptionist', 'Manager', 'Accountant', 'Admin'];
+  final List<String> _roles = [
+    'Receptionist',
+    'Manager',
+    'Accountant',
+    'Admin',
+  ];
 
   @override
   void dispose() {
@@ -81,8 +87,9 @@ class _AddAdministrationStaffScreenState
       child: BorderdContainerWidget(
         padding: context.appEdgeInsets(all: 16),
         backgroundColor: CustomColors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: AdaptiveLayoutRowColumn(
+          expandedWidget: false,
+          alignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
@@ -101,13 +108,13 @@ class _AddAdministrationStaffScreenState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text('Staff Onboarding', style: context.fonts.black16w600),
                     Text(
-                      'Staff Onboarding',
-                      style: context.fonts.black16w600,
-                    ),
-                    Text(
-                      'Configure staff identity and administrative roles.',
+                      'Configure staff identity & administrative roles.',
                       style: context.fonts.grey12w400,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
                     ),
                   ],
                 ),
@@ -201,10 +208,8 @@ class _AddAdministrationStaffScreenState
             value: _selectedRole,
             items: _roles
                 .map(
-                  (role) => DropdownMenuItem<String>(
-                    value: role,
-                    child: Text(role),
-                  ),
+                  (role) =>
+                      DropdownMenuItem<String>(value: role, child: Text(role)),
                 )
                 .toList(),
             onChanged: (val) => setState(() => _selectedRole = val),
@@ -225,9 +230,9 @@ class _AddAdministrationStaffScreenState
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a role')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a role')));
       return;
     }
 

@@ -4,6 +4,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/clinic_model.dart';
@@ -13,6 +14,7 @@ import '../models/requests/forget_password_request.dart';
 import '../models/requests/login_request_model.dart';
 import '../repositories/auth_repository.dart';
 import '../services/locator.dart';
+import '../services/media_service.dart';
 import '../services/storage_service.dart';
 import 'base_view_model.dart';
 
@@ -67,13 +69,12 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     confirmPasswordController.clear();
   }
 
-  Future<bool> callGetMe() async {
+  Future<bool?> callGetMe() async {
     return await runSafely<bool?>(() async {
-          final response = await _authRepository.getMe();
-          state = state.copyWith(user: response.data!.clinicUser);
-          return true;
-        }) ??
-        false;
+      final response = await _authRepository.getMe();
+      state = state.copyWith(user: response.data!.clinicUser);
+      return true;
+    });
   }
 
   Future<bool> login({required LoginRequestModel loginReq}) async {
@@ -152,21 +153,46 @@ class AuthViewModel extends BaseViewModel<AuthState> {
         false;
   }
 
-  Future<bool> updateClinicProfile({required Clinic updateReq}) async {
-    return await runSafely<bool?>(showLoading: true, () async {
-          final response = await _authRepository.updateClinicProfile(
-            req: updateReq,
-          );
-          if (response.success && response.data != null) {
-            state = state.copyWith(
-              user: state.user?.copyWith(clinic: response.data),
-            );
-            EasyLoading.showSuccess(response.message);
-            return true;
-          }
-          return false;
+  Future<bool> getClinicDetail() async {
+    return await runSafely<bool?>(() async {
+          final clinic = await _authRepository.getClinicDetail();
+          state = state.copyWith(clinicDetail: clinic);
+          return true;
         }) ??
         false;
+  }
+
+  Future<bool?> updateClinicProfile({
+    required Clinic updateReq,
+    XFile? logo,
+    XFile? banner,
+  }) async {
+    return await runSafely<bool?>(showLoading: true, () async {
+      String? logoUrl;
+      String? bannerUrl;
+      if (logo != null) {
+        logoUrl = await locator<MediaService>().uploadImage(
+          'clinics/${updateReq.id}/logo',
+          logo,
+        );
+      }
+      if (banner != null) {
+        bannerUrl = await locator<MediaService>().uploadImage(
+          'clinics/${updateReq.id}/banner',
+          banner,
+        );
+      }
+      final response = await _authRepository.updateClinicProfile(
+        req: updateReq.copyWith(logo: logoUrl, banner: bannerUrl),
+      );
+      if (response.success && response.data != null) {
+        state = state.copyWith(clinicDetail: response.data);
+        await callGetMe();
+        EasyLoading.showSuccess(response.message);
+        return true;
+      }
+      return false;
+    });
   }
 
   void disposeControllers() {
@@ -192,6 +218,8 @@ class AuthState {
   final bool loading;
   final bool isAuthenticated;
   final UserModel? user;
+  final Clinic? clinicDetail;
+
   final String? error;
   final bool passwordChanged;
   final bool obscureCurrent;
@@ -207,6 +235,7 @@ class AuthState {
     this.isAuthenticated = false,
     this.error,
     this.user,
+    this.clinicDetail,
     this.passwordChanged = false,
     this.obscureCurrent = true,
     this.obscureNew = true,
@@ -222,6 +251,7 @@ class AuthState {
     bool? isAuthenticated,
     String? error,
     UserModel? user,
+    Clinic? clinicDetail,
     String? resetToken,
     bool? passwordChanged,
     bool? obscureCurrent,
@@ -235,6 +265,7 @@ class AuthState {
       loading: loading ?? this.loading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       user: user ?? this.user,
+      clinicDetail: clinicDetail ?? this.clinicDetail,
       error: error,
       passwordChanged: passwordChanged ?? this.passwordChanged,
       obscureCurrent: obscureCurrent ?? this.obscureCurrent,

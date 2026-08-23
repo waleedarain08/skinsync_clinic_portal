@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/product_model.dart';
 import '../../models/responses/manufacturers_list_response.dart';
 import '../../utils/enums.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/product_view_model.dart';
 import '../../widgets/app_network_image.dart';
@@ -123,16 +124,20 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Global Product Catalog', style: context.fonts.black32w700),
-            context.verticalSpace(8),
-            Text(
-              'Manage platform-wide product definitions and template specifications for clinics.',
-              style: context.fonts.grey14w400,
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Global Product Catalog', style: context.fonts.black32w700),
+              context.verticalSpace(8),
+              Text(
+                'Manage platform-wide product definitions and template specifications for clinics.',
+                style: context.fonts.grey14w400,
+                // maxLines: 4,
+                // overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
         CustomPrimaryButton(
           onTap: () {
@@ -159,7 +164,11 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
         .where((p) => p.productPurpose == 'device')
         .length;
 
-    return Row(
+    return AdaptiveLayoutRowColumn(
+      expandedWidget: true,
+      crossAlignment: .start,
+      widthBetween: 16,
+      heightBetween: 16,
       children: [
         MiniStatCard(
           title: 'Total Master SKUs',
@@ -167,21 +176,21 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           icon: Icons.inventory_2_outlined,
           color: CustomColors.purple,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         MiniStatCard(
           title: 'Published Brands',
           value: totalBrands,
           icon: Icons.workspace_premium_outlined,
           color: CustomColors.amber,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         MiniStatCard(
           title: 'Lot Tracking Enabled',
           value: lotTrackingEnabled,
           icon: Icons.pin_outlined,
           color: CustomColors.green,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         MiniStatCard(
           title: 'Device Catalog',
           value: devicesCount,
@@ -240,23 +249,23 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     final state = ref.watch(productViewModelProvider);
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: AdaptiveLayoutRowColumn(
+        expandedWidget: true,
+        crossAlignment: .end,
+        widthBetween: 16,
+        heightBetween: 16,
         children: [
-          Expanded(
-            flex: 2,
-            child: AppSearchField(
-              controller: _searchController,
-              hintText:
-                  'Search master catalog by product name, SKU or brand manufacturer...',
-              onChanged: (val) {
-                ref
-                    .read(productViewModelProvider.notifier)
-                    .fetchProducts(search: val, page: 1, limit: state.pageSize);
-              },
-            ),
+          AppSearchField(
+            controller: _searchController,
+            hintText:
+                'Search master catalog by product name, SKU or brand manufacturer...',
+            onChanged: (val) {
+              ref
+                  .read(productViewModelProvider.notifier)
+                  .fetchProducts(search: val, page: 1, limit: state.pageSize);
+            },
           ),
-          context.horizontalSpace(16),
+          // context.horizontalSpace(16),
           CustomOutlinedButton(
             onTap: () {
               setState(() async {
@@ -287,76 +296,72 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
             textColor: CustomColors.purple,
             color: Colors.white,
           ),
-          context.horizontalSpace(16),
-          Expanded(
-            child: Consumer(
-              builder: (context, ref, _) {
-                final usageType =
-                    ref.watch(productViewModelProvider).usageType ?? [];
+          // context.horizontalSpace(16),
+          Consumer(
+            builder: (context, ref, _) {
+              final usageType =
+                  ref.watch(productViewModelProvider).usageType ?? [];
 
-                return SelectOrCreateDropdown<String>(
-                  label: 'Usage Type',
-                  hint: 'Select Usage Type',
-                  value: _selectedPurpose,
-                  showAddIcon: false,
-                  items: usageType.map((e) => e.name).toList(),
+              return SelectOrCreateDropdown<String>(
+                label: 'Usage Type',
+                hint: 'Select Usage Type',
+                value: _selectedPurpose,
+                showAddIcon: false,
+                items: usageType.map((e) => e.name).toList(),
 
-                  itemLabel: (usageType) => usageType,
+                itemLabel: (usageType) => usageType,
 
-                  onChanged: (val) {
-                    setState(() {
-                      _selectedPurpose = val;
-                    });
-                    ref
-                        .read(productViewModelProvider.notifier)
-                        .fetchProducts(
-                          search: state.searchKeyword,
-                          selectedPurpose: _selectedPurpose,
-                        );
-                  },
-                  onOpen: () => ref
+                onChanged: (val) {
+                  setState(() {
+                    _selectedPurpose = val;
+                  });
+                  ref
                       .read(productViewModelProvider.notifier)
-                      .fetchUsageType(),
-                  onCreate: () => _showCreateMasterItemDialog(
-                    context,
-                    ref,
-                    'UsageType',
-                    (name) => setState(() => _selectedPurpose = name),
-                  ),
-                );
-              },
-            ),
-          ),
-          context.horizontalSpace(12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                Text("Product Status", style: context.fonts.black14w600),
-                SizedBox(height: 8.h),
-                CustomDropdown<ProductStatus>(
-                  fillColor: Colors.white,
-                  borderColor: CustomColors.border,
-                  height: 50.h,
-                  hint: 'Select a status',
-                  value: _selectedStatus,
-                  items: ProductStatus.values,
-                  builder: (status) => Text(status.label),
-                  onChanged: (val) {
-                    setState(() {
-                      _selectedStatus = val ?? ProductStatus.all;
-                    });
-
-                    ref
-                        .read(productViewModelProvider.notifier)
-                        .fetchProducts(
-                          search: state.searchKeyword,
-                          status: _selectedStatus,
-                        );
-                  },
+                      .fetchProducts(
+                        search: state.searchKeyword,
+                        selectedPurpose: _selectedPurpose,
+                      );
+                },
+                onOpen: () => ref
+                    .read(productViewModelProvider.notifier)
+                    .fetchUsageType(),
+                onCreate: () => _showCreateMasterItemDialog(
+                  context,
+                  ref,
+                  'UsageType',
+                  (name) => setState(() => _selectedPurpose = name),
                 ),
-              ],
-            ),
+              );
+            },
+          ),
+          // context.horizontalSpace(12),
+          Column(
+            crossAxisAlignment: .start,
+            children: [
+              Text("Product Status", style: context.fonts.black14w600),
+              SizedBox(height: 8.h),
+              CustomDropdown<ProductStatus>(
+                fillColor: Colors.white,
+                borderColor: CustomColors.border,
+                height: 50.h,
+                hint: 'Select a status',
+                value: _selectedStatus,
+                items: ProductStatus.values,
+                builder: (status) => Text(status.label),
+                onChanged: (val) {
+                  setState(() {
+                    _selectedStatus = val ?? ProductStatus.all;
+                  });
+
+                  ref
+                      .read(productViewModelProvider.notifier)
+                      .fetchProducts(
+                        search: state.searchKeyword,
+                        status: _selectedStatus,
+                      );
+                },
+              ),
+            ],
           ),
         ],
       ),

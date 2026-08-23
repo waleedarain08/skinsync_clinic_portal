@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 
 import '../../widgets/gradient_scaffold.dart';
@@ -12,9 +13,8 @@ import '../../services/storage_service.dart';
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
 
- const HomeScreen({super.key});
+  const HomeScreen({super.key});
 
- 
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
@@ -61,10 +61,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Analytics",
-                    style: context.fonts.black18w600,
-                  ),
+                  Text("Analytics", style: context.fonts.black18w600),
                   context.verticalSpace(24),
                   const AnalyticsGridWidget(),
                 ],
@@ -90,9 +87,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       context.horizontalSpace(20),
                       TextButton(
-                        onPressed: () {
-
-                        },
+                        onPressed: () {},
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
@@ -100,10 +95,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Text(
-                              "View All",
-                              style: context.fonts.purple14w600,
-                            ),
+                            Text("View All", style: context.fonts.purple14w600),
                             context.horizontalSpace(6),
                             const Icon(
                               Icons.arrow_forward_ios_rounded,
@@ -122,11 +114,8 @@ class HomeScreen extends StatelessWidget {
             ),
             context.verticalSpace(32),
 
-          
-       
-
             // AI Recommendations Section (cohesive soft lavender thematic coloring)
-            
+
             // Recent Treatments Section (styled with identical border and shadow structures)
             BorderdContainerWidget(
               padding: context.appEdgeInsets(all: 24),
@@ -135,8 +124,8 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         "Today Treatments Rquest",
@@ -151,10 +140,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Text(
-                              "View All",
-                              style: context.fonts.purple14w600,
-                            ),
+                            Text("View All", style: context.fonts.purple14w600),
                             context.horizontalSpace(6),
                             const Icon(
                               Icons.arrow_forward_ios_rounded,

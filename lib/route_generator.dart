@@ -94,9 +94,9 @@ class RouteGenerator {
           GoRoute(
             name: HomeScreen.routeName,
             path: HomeScreen.routeName,
-            builder: (_, _) =>const HomeScreen(),
+            builder: (_, _) => const HomeScreen(),
           ),
-           GoRoute(
+          GoRoute(
             name: ExploreScreen.routeName,
             path: ExploreScreen.routeName,
             builder: (_, _) => const ExploreScreen(),
@@ -121,7 +121,7 @@ class RouteGenerator {
               ),
             ],
           ),
-           GoRoute(
+          GoRoute(
             name: ProductDetailScreen.routeName,
             path: ProductDetailScreen.routeName,
             builder: (_, _) => const ProductDetailScreen(),
@@ -196,6 +196,28 @@ class RouteGenerator {
             name: ProfileScreen.routeName,
             path: ProfileScreen.routeName,
             builder: (_, _) => const ProfileScreen(),
+            routes: [
+              GoRoute(
+                name: BusinessInformationScreen.routeName,
+                path: BusinessInformationScreen.routeName,
+                builder: (_, _) => const BusinessInformationScreen(),
+              ),
+              GoRoute(
+                path: DynamicPricing.routeName,
+                name: DynamicPricing.routeName,
+                builder: (_, _) => const DynamicPricing(),
+              ),
+              GoRoute(
+                name: ChangePasswordScreen.routeName,
+                path: ChangePasswordScreen.routeName,
+                builder: (_, _) => const ChangePasswordScreen(),
+              ),
+              GoRoute(
+                name: AboutScreen.routeName,
+                path: AboutScreen.routeName,
+                builder: (_, _) => const AboutScreen(),
+              ),
+            ],
           ),
           GoRoute(
             name: TreatmentScreen.routeName,
@@ -212,11 +234,11 @@ class RouteGenerator {
             path: CreateAppointmentScreen.routeName,
             builder: (_, _) => const CreateAppointmentScreen(),
           ),
-            GoRoute(
+          GoRoute(
             name: TreatmentDetailScreen.routeName,
             path: TreatmentDetailScreen.routeName,
             builder: (_, state) {
-            //  final treatment = state.extra as model_treatment.TreatmentModel;
+              //  final treatment = state.extra as model_treatment.TreatmentModel;
               return const TreatmentDetailScreen();
             },
           ),
@@ -254,21 +276,6 @@ class RouteGenerator {
         builder: (_, _) => const CreateTreatmentScreen(),
       ),
       GoRoute(
-        name: BusinessInformationScreen.routeName,
-        path: BusinessInformationScreen.routeName,
-        builder: (_, _) => const BusinessInformationScreen(),
-      ),
-      GoRoute(
-        name: ChangePasswordScreen.routeName,
-        path: ChangePasswordScreen.routeName,
-        builder: (_, _) => const ChangePasswordScreen(),
-      ),
-      GoRoute(
-        name: AboutScreen.routeName,
-        path: AboutScreen.routeName,
-        builder: (_, _) => const AboutScreen(),
-      ),
-      GoRoute(
         name: NotificationScreen.routeName,
         path: NotificationScreen.routeName,
         builder: (_, _) => const NotificationScreen(),
@@ -282,12 +289,6 @@ class RouteGenerator {
         name: UpdateTreatmentScreen.routeName,
         path: UpdateTreatmentScreen.routeName,
         builder: (_, _) => const UpdateTreatmentScreen(),
-      ),
-
-      GoRoute(
-        path: DynamicPricing.routeName,
-        name: DynamicPricing.routeName,
-        builder: (_, _) => const DynamicPricing(),
       ),
     ],
   );

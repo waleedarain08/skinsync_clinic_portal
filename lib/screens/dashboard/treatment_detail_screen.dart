@@ -463,8 +463,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: areaSessions.length,
-                          separatorBuilder: (_, _) =>
-                              context.verticalSpace(12),
+                          separatorBuilder: (_, _) => context.verticalSpace(12),
                           itemBuilder: (context, idx) {
                             return TreatmentSessionExpansionTile(
                               session: areaSessions[idx],

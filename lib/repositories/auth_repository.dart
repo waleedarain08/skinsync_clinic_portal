@@ -24,4 +24,6 @@ abstract class AuthRepository {
   Future<LoginResponseModel> getMe();
 
   Future<BaseResponse<Clinic>> updateClinicProfile({required Clinic req});
+
+  Future<Clinic> getClinicDetail();
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/responses/clinic_model.dart';
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
 import '../view_models/auth_view_model.dart';
@@ -56,13 +57,14 @@ class _BusinessInformationScreenState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // await ref.read(authViewModelProvider.notifier).getClinicDetail();
       _initializeData();
     });
   }
 
   void _initializeData() {
-    final clinic = ref.read(authViewModelProvider).user?.clinic;
+    final clinic = ref.read(authViewModelProvider).clinicDetail;
     if (clinic != null) {
       _clinicNameController.text = clinic.name ?? '';
       _clinicEmailController.text = clinic.email ?? '';
@@ -75,19 +77,23 @@ class _BusinessInformationScreenState
       _consultationFeeController.text =
           clinic.consultationFee?.toString() ?? '';
       _initialDepositController.text = clinic.initialDeposit?.toString() ?? '';
+      _ownerNameController.text = clinic.ownerName ?? '';
+      _ownerEmailController.text = clinic.ownerEmail ?? '';
 
       if (clinic.availability != null && clinic.availability!.isNotEmpty) {
         _availabilityEntries.clear();
         for (var availability in clinic.availability!) {
           final entry = AvailabilityEntry();
-          if (availability.openTime != null) {
+          if (availability.openTime != null &&
+              availability.openTime!.contains(':')) {
             final parts = availability.openTime!.split(':');
             entry.openTime = TimeOfDay(
               hour: int.parse(parts[0]),
               minute: int.parse(parts[1]),
             );
           }
-          if (availability.closeTime != null) {
+          if (availability.closeTime != null &&
+              availability.closeTime!.contains(':')) {
             final parts = availability.closeTime!.split(':');
             entry.closeTime = TimeOfDay(
               hour: int.parse(parts[0]),
@@ -98,11 +104,15 @@ class _BusinessInformationScreenState
           _availabilityEntries.add(entry);
         }
       } else {
-        _availabilityEntries.add(AvailabilityEntry());
+        if (_availabilityEntries.isEmpty) {
+          _availabilityEntries.add(AvailabilityEntry());
+        }
       }
       setState(() {});
     } else {
-      _availabilityEntries.add(AvailabilityEntry());
+      if (_availabilityEntries.isEmpty) {
+        _availabilityEntries.add(AvailabilityEntry());
+      }
     }
   }
 
@@ -153,7 +163,7 @@ class _BusinessInformationScreenState
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      final currentClinic = ref.read(authViewModelProvider).user?.clinic;
+      final currentClinic = ref.read(authViewModelProvider).clinicDetail;
 
       final List<AvailabilityModel> availability = _availabilityEntries.map((
         e,
@@ -174,14 +184,12 @@ class _BusinessInformationScreenState
         name: _clinicNameController.text.trim(),
         phone: _clinicPhoneController.text.trim(),
         address: _clinicAddressController.text.trim(),
-        logo: _selectedLogo?.path,
         latitude: double.tryParse(_latController.text),
         longitude: double.tryParse(_longController.text),
         consultationFee: num.tryParse(_consultationFeeController.text),
         initialDeposit: num.tryParse(_initialDepositController.text),
         description: _descriptionController.text.trim(),
         website: _websiteController.text.trim(),
-        banner: _selectedBanner?.path,
         cc:
             ref.read(authViewModelProvider).country?.dialCode ??
             currentClinic?.cc,
@@ -193,9 +201,16 @@ class _BusinessInformationScreenState
 
       final success = await ref
           .read(authViewModelProvider.notifier)
-          .updateClinicProfile(updateReq: updatedClinic);
-      if (success && mounted) {
-        // Handle logic after success if needed
+          .updateClinicProfile(
+            updateReq: updatedClinic,
+            logo: _selectedLogo,
+            banner: _selectedBanner,
+          );
+
+      if (success ?? false) {
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     }
   }
@@ -243,7 +258,7 @@ class _BusinessInformationScreenState
                               controller: _clinicEmailController,
                               hintText: 'clinic@example.com',
                               validator: Validators.email,
-                              readOnly: true, // Usually email is not editable
+                              readOnly: true,
                             ),
                           ),
                         ],
@@ -352,6 +367,7 @@ class _BusinessInformationScreenState
                               controller: _ownerNameController,
                               hintText: 'e.g. Dr. Jane Smith',
                               validator: Validators.empty,
+                              readOnly: true,
                             ),
                           ),
                           SizedBox(width: 24.w),
@@ -361,6 +377,7 @@ class _BusinessInformationScreenState
                               controller: _ownerEmailController,
                               hintText: 'owner@example.com',
                               validator: Validators.email,
+                              readOnly: true,
                             ),
                           ),
                         ],
@@ -370,8 +387,9 @@ class _BusinessInformationScreenState
                   SizedBox(height: 32.h),
                   _buildAvailabilitySection(),
                   SizedBox(height: 48.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  AdaptiveLayoutRowColumn(
+                    expandedWidget: false,
+                    alignment: MainAxisAlignment.end,
                     children: [
                       CustomOutlinedButton(
                         onTap: () => Navigator.pop(context),
@@ -391,7 +409,7 @@ class _BusinessInformationScreenState
                             width: 240.w,
                             height: 56.h,
                             child: isLoading
-                                ? const AppLoader(size: 40)
+                                ? const Center(child: AppLoader(size: 40))
                                 : CustomPrimaryButton(
                                     onTap: _submit,
                                     label: 'Save Changes',
@@ -413,7 +431,7 @@ class _BusinessInformationScreenState
   }
 
   Widget _buildBannerAndLogoSection() {
-    final clinic = ref.watch(authViewModelProvider).user?.clinic;
+    final clinic = ref.watch(authViewModelProvider).clinicDetail;
     return Container(
       width: double.infinity,
       height: 250.h,
@@ -550,8 +568,8 @@ class _BusinessInformationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          AdaptiveLayoutRowColumn(
+            expandedWidget: false,
             children: [
               Text('Clinic Availability', style: context.fonts.black20w600),
               CustomPrimaryButton(

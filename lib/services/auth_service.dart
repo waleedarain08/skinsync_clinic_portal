@@ -100,16 +100,13 @@ class AuthService implements AuthRepository {
       endPoint: Endpoint.getMe,
       requestType: RequestType.get,
     );
-    final response = BaseResponse<LoginResponseModel>.fromJson(
-      jsonResponse,
-      (json) => LoginResponseModel.fromJson(json as Map<String, dynamic>),
-    );
+    final response = LoginResponseModel.fromJson(jsonResponse);
 
     if (!response.success) {
       throw BadRequestException(response.message);
     }
 
-    return response.data!;
+    return response;
   }
 
   @override
@@ -171,5 +168,24 @@ class AuthService implements AuthRepository {
     }
 
     return response;
+  }
+
+  @override
+  Future<Clinic> getClinicDetail() async {
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.clinicDetail,
+      requestType: RequestType.get,
+    );
+
+    final response = BaseResponse<Clinic>.fromJson(
+      jsonResponse,
+      (json) => Clinic.fromJson(json as Map<String, dynamic>),
+    );
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+
+    return response.data!;
   }
 }

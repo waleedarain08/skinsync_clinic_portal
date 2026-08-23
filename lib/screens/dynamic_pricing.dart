@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
-import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
@@ -95,9 +94,9 @@ class _DynamicPricingState extends State<DynamicPricing> {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      appBar: const CustomAppBar(showLogo: true),
       body: Center(
-        child: SizedBox(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: context.w(24)),
           width: context.screenWidth * 0.8,
           child: Column(
             children: [
@@ -186,9 +185,12 @@ class _DynamicPricingState extends State<DynamicPricing> {
                                     width: context.w(50),
                                     height: context.w(50),
                                     decoration: BoxDecoration(
-                                      color: CustomColors.blue
-                                          .withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(context.r(14)),
+                                      color: CustomColors.blue.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                        context.r(14),
+                                      ),
                                     ),
                                     child: SvgPicture.asset(
                                       SvgAssets.discount,
@@ -257,7 +259,10 @@ class _DynamicPricingState extends State<DynamicPricing> {
         Expanded(
           child: Container(
             margin: EdgeInsets.only(bottom: context.h(10)),
-            padding: EdgeInsets.symmetric(horizontal: context.w(24), vertical: context.h(12)),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(24),
+              vertical: context.h(12),
+            ),
             decoration: BoxDecoration(
               color: CustomColors.white,
               borderRadius: BorderRadius.circular(context.r(16)),
@@ -371,7 +376,11 @@ class _DynamicPricingState extends State<DynamicPricing> {
     bool isImportant = false,
   }) {
     return Padding(
-      padding: EdgeInsets.only(left: context.w(12), right: context.w(12), top: context.h(5)),
+      padding: EdgeInsets.only(
+        left: context.w(12),
+        right: context.w(12),
+        top: context.h(5),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

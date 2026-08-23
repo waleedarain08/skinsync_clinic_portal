@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-
 import '../../main.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../models/treatment_model.dart';
@@ -13,7 +13,6 @@ import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/number_paginator.dart';
 import '../../widgets/app_network_image.dart';
-// import '../../widgets/dialog_box/edit_treatment_dailogbox.dart';
 import 'treatment_detail_screen.dart';
 
 class TreatmentScreen extends ConsumerStatefulWidget {
@@ -34,7 +33,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+      ref
+          .read(treatmentViewModelProvider.notifier)
+          .getTreatments(isRefresh: true);
     });
   }
 
@@ -47,7 +48,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(treatmentViewModelProvider.notifier).getTreatments();
     }
   }
@@ -61,7 +63,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
       body: RefreshIndicator(
         color: CustomColors.purple,
         onRefresh: () async {
-          await ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+          await ref
+              .read(treatmentViewModelProvider.notifier)
+              .getTreatments(isRefresh: true);
         },
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -80,7 +84,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
                   child: Center(
-                    child: CircularProgressIndicator(color: CustomColors.purple),
+                    child: CircularProgressIndicator(
+                      color: CustomColors.purple,
+                    ),
                   ),
                 )
               else if (state.error != null && state.treatments.isEmpty)
@@ -89,7 +95,11 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   child: Center(
                     child: Column(
                       children: [
-                        const Icon(Icons.error_outline, color: CustomColors.red, size: 48),
+                        const Icon(
+                          Icons.error_outline,
+                          color: CustomColors.red,
+                          size: 48,
+                        ),
                         context.verticalSpace(16),
                         Text(
                           state.error!,
@@ -111,7 +121,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Center(
-                      child: CircularProgressIndicator(color: CustomColors.purple),
+                      child: CircularProgressIndicator(
+                        color: CustomColors.purple,
+                      ),
                     ),
                   ),
                 context.verticalSpace(24),
@@ -128,37 +140,50 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Treatment Library', style: context.fonts.black26w700),
-            context.verticalSpace(6),
-            Text(
-              'Manage clinic medical aesthetic procedures, pricing structures, and anatomical areas.',
-              style: context.fonts.grey13w500,
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Treatment Library', style: context.fonts.black26w700),
+              context.verticalSpace(6),
+              Text(
+                'Manage clinic medical aesthetic procedures, pricing structures, and anatomical areas.',
+                style: context.fonts.grey13w500,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-        if(!isDeploymentMode)
-        CustomPrimaryButton(
-          onTap: () {
-            context.push('/clinic-add-treatment');
-          },
-          icon: Icons.add_rounded,
-          label: 'Add Treatment',
-          width: context.w(180),
-        ),
+        if (!isDeploymentMode)
+          CustomPrimaryButton(
+            onTap: () {
+              context.push('/clinic-add-treatment');
+            },
+            icon: Icons.add_rounded,
+            label: 'Add Treatment',
+            width: context.w(180),
+          ),
       ],
     );
   }
 
   Widget _buildQuickInsights(TreatmentState state) {
     final totalTreatments = state.treatments.length;
-    final activeTreatments = state.treatments.length; // In-memory are all active
-    final totalSubAreas = state.treatments.fold<int>(0, (sum, t) => sum + (t.sideAreas?.length ?? 0));
-    final anatomicalCount = state.treatments.where((t) => t.isArea == true).length;
+    final activeTreatments = state.treatments.length;
+    final totalSubAreas = state.treatments.fold<int>(
+      0,
+      (sum, t) => sum + (t.sideAreas?.length ?? 0),
+    );
+    final anatomicalCount = state.treatments
+        .where((t) => t.isArea == true)
+        .length;
 
-    return Row(
+    return AdaptiveLayoutRowColumn(
+      expandedWidget: true,
+      crossAlignment: .start,
+      widthBetween: 16,
+      heightBetween: 16,
       children: [
         _buildStatCard(
           'Total Treatments',
@@ -166,21 +191,21 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           Icons.layers_outlined,
           CustomColors.purple,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Active Treatments',
           '$activeTreatments',
           Icons.check_circle_outline_rounded,
           CustomColors.green,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Total Sub-Areas',
           '$totalSubAreas',
           Icons.location_on_outlined,
           CustomColors.blue,
         ),
-        context.horizontalSpace(16),
+        // context.horizontalSpace(16),
         _buildStatCard(
           'Anatomical Types',
           '$anatomicalCount',
@@ -197,40 +222,39 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
     IconData icon,
     Color color,
   ) {
-    return Expanded(
-      child: BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 16),
-        child: Row(
-          children: [
-            Container(
-              padding: context.appEdgeInsets(all: 10),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: context.appBorderRadius(all: 8),
-              ),
-              child: Icon(icon, color: color, size: context.sp(20)),
+    return BorderdContainerWidget(
+      // width: context.isPortrait ? double.infinity : context.w(220),
+      padding: context.appEdgeInsets(all: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: context.appEdgeInsets(all: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: context.appBorderRadius(all: 8),
             ),
-            context.horizontalSpace(14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: context.fonts.black18w600,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  context.verticalSpace(2),
-                  Text(
-                    title,
-                    style: context.fonts.grey11w400,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+            child: Icon(icon, color: color, size: context.sp(20)),
+          ),
+          context.horizontalSpace(14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: context.fonts.black18w600,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                context.verticalSpace(2),
+                Text(
+                  title,
+                  style: context.fonts.grey11w400,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -248,7 +272,10 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               decoration: AppDecorations.input(
                 context,
                 hint: "Search treatments by keyword or name...",
-                prefixIcon: const Icon(Icons.search_rounded, color: CustomColors.grey),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: CustomColors.grey,
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, color: CustomColors.grey),
@@ -403,12 +430,21 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             child: ClipRRect(
               borderRadius: context.appBorderRadius(all: 8),
               child: (treatment.image != null && treatment.image!.isNotEmpty)
-                  ? AppNetworkImage(imageUrl: treatment.image!, fit: BoxFit.cover)
+                  ? AppNetworkImage(
+                      imageUrl: treatment.image!,
+                      fit: BoxFit.cover,
+                    )
                   : (treatment.icon != null && treatment.icon!.isNotEmpty)
-                      ? AppNetworkImage(imageUrl: treatment.icon!, fit: BoxFit.cover)
-                      : const Center(
-                          child: Icon(Icons.vaccines_outlined, color: CustomColors.purple),
-                        ),
+                  ? AppNetworkImage(
+                      imageUrl: treatment.icon!,
+                      fit: BoxFit.cover,
+                    )
+                  : const Center(
+                      child: Icon(
+                        Icons.vaccines_outlined,
+                        color: CustomColors.purple,
+                      ),
+                    ),
             ),
           ),
           context.horizontalSpace(16),
@@ -423,7 +459,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 context.verticalSpace(2),
-                if (treatment.globalSku != null && treatment.globalSku!.isNotEmpty)
+                if (treatment.globalSku != null &&
+                    treatment.globalSku!.isNotEmpty)
                   Text(
                     'SKU: ${treatment.globalSku}',
                     style: context.fonts.grey11w400,
@@ -432,7 +469,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   )
                 else
                   Text(
-                    treatment.isArea == true ? 'Anatomical Structure' : 'Standard Procedure',
+                    treatment.isArea == true
+                        ? 'Anatomical Structure'
+                        : 'Standard Procedure',
                     style: context.fonts.purple12w700,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -505,7 +544,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               size: 20,
             ),
             onPressed: () async {
-                if (t.id != null) {
+              if (t.id != null) {
                 try {
                   await ref
                       .read(treatmentViewModelProvider.notifier)
@@ -517,7 +556,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   // Error handled gracefully by runSafely wrapper
                 }
               }
-             // context.push(TreatmentDetailScreen.routeName, );
+              // context.push(TreatmentDetailScreen.routeName, );
             },
           ),
           // IconButton(
@@ -535,18 +574,18 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           //     );
           //   },
           // ),
-          if(!isDeploymentMode)
-          IconButton(
-            tooltip: 'Delete',
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: CustomColors.red,
-              size: 20,
+          if (!isDeploymentMode)
+            IconButton(
+              tooltip: 'Delete',
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: CustomColors.red,
+                size: 20,
+              ),
+              onPressed: () {
+                viewModel.deleteTreatment(treatmentId: t.id!);
+              },
             ),
-            onPressed: () {
-              viewModel.deleteTreatment(treatmentId: t.id!);
-            },
-          ),
         ],
       ),
     );
@@ -626,7 +665,9 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           totalPages: state.totalPages,
           currentPage: (state.page - 2).clamp(0, state.totalPages - 1),
           onPageChanged: (pageIndex) {
-            ref.read(treatmentViewModelProvider.notifier).setPage(pageIndex + 1);
+            ref
+                .read(treatmentViewModelProvider.notifier)
+                .setPage(pageIndex + 1);
           },
         ),
       ],
