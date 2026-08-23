@@ -5,17 +5,17 @@ import '../base_request.dart';
 class ConsentFormSelectionRequest extends BaseRequest {
   final int stepNumber;
   final PreTreatmentConsentForm? preTreatmentConsentForm;
-  final bool isCatDefualt;
+ 
 
   ConsentFormSelectionRequest({
     required this.stepNumber,
     this.preTreatmentConsentForm,
-    required this.isCatDefualt,
+  
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
-    'is_cat_default' : isCatDefualt,
     'keys': [CreateTreatmentSteps.patientConsent.name],
     'pre_treatment_consent_form': preTreatmentConsentForm?.toJson(),
   };

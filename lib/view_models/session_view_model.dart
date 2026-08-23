@@ -1423,7 +1423,6 @@ Body           : ${request.toJson()}
       final request = AllowedProviderRolesRequest(
         stepNumber: stepNumber,
         allowedRoles: state.selectedRoles,
-        isCatDefualt: true  // ← matches state field from UI 
       );
 
       log('''
@@ -1559,7 +1558,7 @@ Body           : ${request.toJson()}
         request: PhaseNotificationsRequest(
           stepNumber: stepNumber,
           preNoti: PreNoti(
-            isCatDefault: preIsCatDefault,
+           
             preNotifications: preIsCatDefault
                 ? []
                 : state.preNotificationEntries.map((entry) {
@@ -1573,7 +1572,7 @@ Body           : ${request.toJson()}
                   }).toList(),
           ),
           postNoti: PostNoti(
-            isCatDefault: postIsCatDefault,
+           
             postNotifications: postIsCatDefault
                 ? []
                 : state.postNotificationEntries.map((entry) {
@@ -2600,7 +2599,7 @@ class ProductUsageEntry {
     required this.productName,
     required this.unit,
     this.usageType = 'Required',
-    this.deductionTiming = 'On_Completion',
+    this.deductionTiming = 'On Completion',
     this.allowSubstitution = false,
     TextEditingController? minQuantityController,
     TextEditingController? maxQuantityController,

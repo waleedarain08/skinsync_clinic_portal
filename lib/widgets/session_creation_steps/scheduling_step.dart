@@ -59,44 +59,45 @@ class SchedulingStep extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: context.appBorderRadius(all: 12),
-            border: Border.all(color: CustomColors.border),
-          ),
-          child: Padding(
-            padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Use Fixed Duration',
-                        style: context.fonts.black14w600,
-                      ),
-                      context.verticalSpace(4),
-                      Text(
-                        'Specify a flat fixed duration instead of dynamically calculating from product usage.',
-                        style: context.fonts.grey12w400,
-                      ),
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: true,
-                  //state.isFixedDuration,
-                  onChanged: (_){},
-                  activeThumbColor: CustomColors.purple,
-                ),
-              ],
-            ),
-          ),
-        ),
-        context.verticalSpace(32),
+        // DecoratedBox(
+        //   decoration: BoxDecoration(
+        //     color: Colors.white,
+        //     borderRadius: context.appBorderRadius(all: 12),
+        //     border: Border.all(color: CustomColors.border),
+        //   ),
+        //   child: Padding(
+        //     padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+        //     child: Row(
+        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //       children: [
+        //         Expanded(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               Text(
+        //                 'Use Fixed Duration',
+        //                 style: context.fonts.black14w600,
+        //               ),
+        //               context.verticalSpace(4),
+        //               Text(
+        //                 'Specify a flat fixed duration instead of dynamically calculating from product usage.',
+        //                 style: context.fonts.grey12w400,
+        //               ),
+        //             ],
+        //           ),
+        //         ),
+        //         Switch(
+        //           value: true,
+        //           //state.isFixedDuration,
+        //           onChanged: (_){},
+        //           activeThumbColor: CustomColors.purple,
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+       
+      //  context.verticalSpace(32),
      //   if (   state.isFixedDuration) ...[
              if ( true) ...[
           _sectionTitle(context, 'Fixed Duration'),
@@ -105,6 +106,7 @@ class SchedulingStep extends ConsumerWidget {
             children: [
               Expanded(
                 child: BuildTextField(
+                  enabled: state.allowClinicOverride ,
                   label: 'Fixed Duration (Minutes)',
                   controller: viewModel.fixedDurationController,
                   hintText: 'e.g. 45',
@@ -335,16 +337,16 @@ class SchedulingStep extends ConsumerWidget {
         context.verticalSpace(24),
         Row(
           children: [
-            SizedBox(
-              width: context.w(24),
-              height: context.w(24),
-              child: Checkbox(
-                value: state.allowClinicOverride,
-                onChanged: viewModel.toggleAllowClinicOverride,
-                activeColor: CustomColors.purple,
-              ),
-            ),
-            context.horizontalSpace(12),
+            // SizedBox(
+            //   width: context.w(24),
+            //   height: context.w(24),
+            //   child: Checkbox(
+            //     value: state.allowClinicOverride,
+            //     onChanged: viewModel.toggleAllowClinicOverride,
+            //     activeColor: CustomColors.purple,
+            //   ),
+            // ),
+            // context.horizontalSpace(12),
             Text(
               'Allow Clinic Duration Override',
               style: context.fonts.black14w600,
