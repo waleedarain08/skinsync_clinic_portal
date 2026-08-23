@@ -1,6 +1,8 @@
-import '../../../utils/enums.dart';
 
-class TreatmentScheduleRequest {
+import '../../../utils/enums.dart';
+import '../base_request.dart';
+
+class TreatmentScheduleRequest extends BaseRequest  {
   final int stepNumber;
   final int? baseDuration;
   final int? prepTime;
@@ -15,6 +17,7 @@ class TreatmentScheduleRequest {
   final int? calculatedTotalDuration;
   final int? fixedDuration;
   final bool? isFixedDuration;
+  final List<String>? allowedRoles;
 
   TreatmentScheduleRequest({
     required this.stepNumber,
@@ -31,8 +34,10 @@ class TreatmentScheduleRequest {
     this.calculatedTotalDuration,
     this.fixedDuration,
     this.isFixedDuration,
+    this.allowedRoles,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.scheduling.name],
@@ -50,6 +55,9 @@ class TreatmentScheduleRequest {
     'maximum_days_in_advance': maximumDaysInAdvance,
     'calculated_total_duration': calculatedTotalDuration,
     'fixed_duration': fixedDuration,
+    'allowed_roles': allowedRoles == null
+        ? []
+        : List<dynamic>.from(allowedRoles!.map((x) => x)),
     //'is_fixed_duration': isFixedDuration,
   };
 }

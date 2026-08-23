@@ -1,11 +1,14 @@
-import '../../../utils/enums.dart';
 
-class StepPricingRequest {
+import '../../../utils/enums.dart';
+import '../base_request.dart';
+
+class StepPricingRequest extends BaseRequest  {
   final int stepNumber;
   final int? basePrice;
   final List<UnitPriceOverride>? unitPriceOverrides;
   final bool? isFixedPrice;
   final int? fixedPrice;
+  final List<String>? allowedRoles;
 
   StepPricingRequest({
     required this.stepNumber,
@@ -13,8 +16,10 @@ class StepPricingRequest {
     this.unitPriceOverrides,
     this.isFixedPrice,
     this.fixedPrice,
+    this.allowedRoles,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.pricing.name],
@@ -24,6 +29,9 @@ class StepPricingRequest {
         : List<dynamic>.from(unitPriceOverrides!.map((x) => x.toJson())),
     'is_fixed_price': isFixedPrice,
     'fixed_price': fixedPrice,
+    'allowed_roles': allowedRoles == null
+        ? []
+        : List<dynamic>.from(allowedRoles!.map((x) => x)),
   };
 }
 

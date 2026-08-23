@@ -1,4 +1,6 @@
-class SessionStatusRequest {
+import 'base_request.dart';
+
+class SessionStatusRequest extends BaseRequest {
   final int? sessionId;
   final String? status;
 

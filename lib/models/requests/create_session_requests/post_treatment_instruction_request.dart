@@ -1,6 +1,8 @@
-import '../../../utils/enums.dart';
 
-class PostTreatmentInstructionsRequest {
+import '../../../utils/enums.dart';
+import '../base_request.dart';
+
+class PostTreatmentInstructionsRequest extends BaseRequest  {
   final int stepNumber;
   final String? postTreatmentInstructions;
   final List<PostTreatmentAttachment>? postTreatmentAttachments;
@@ -11,6 +13,7 @@ class PostTreatmentInstructionsRequest {
     this.postTreatmentAttachments,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.postTreatmentInstructions.name],

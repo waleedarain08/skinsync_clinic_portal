@@ -61,7 +61,7 @@ class MediaService {
     };
   }
 
-  Future<String?> uploadFile(String path, PlatformFile file) async {
+   Future<String?> uploadFile(String path, XFile file) async {
     final storagePath = '$path/${file.name}';
     final ref = _storage
         .ref(isDeploymentMode ? 'production/' : 'staging/')
@@ -76,9 +76,6 @@ class MediaService {
     if (bytes.isNotEmpty) {
       final task = ref.putData(bytes, metadata);
       await task.whenComplete(() {});
-    } else if (file.path != null) {
-      final task = ref.putFile(File(file.path!), metadata);
-      await task.whenComplete(() {});
     } else {
       throw Exception('File data not available');
     }
@@ -88,7 +85,6 @@ class MediaService {
     log('Uploaded file URL: $url');
     return url;
   }
-
   Future<String?> uploadMedia({
     required String path,
     required dynamic file, // XFile | PlatformFile

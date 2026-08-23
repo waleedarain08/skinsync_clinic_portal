@@ -1,7 +1,8 @@
 
 import '../../../utils/enums.dart';
+import '../base_request.dart';
 
-class DownTimeLevelRequest {
+class DownTimeLevelRequest extends BaseRequest {
    final int stepNumber;
   final String? downtimeLevel;
   final int? downtimeDays;

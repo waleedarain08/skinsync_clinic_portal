@@ -1,6 +1,8 @@
-import '../../../utils/enums.dart';
 
-class PreTreatmentInstructionsRequest {
+import '../../../utils/enums.dart';
+import '../base_request.dart';
+
+class PreTreatmentInstructionsRequest extends BaseRequest  {
   final int stepNumber;
   final String? preTreatmentInstructions;
   final List<PreTreatmentAttachment>? preTreatmentAttachments;
@@ -11,6 +13,7 @@ class PreTreatmentInstructionsRequest {
     this.preTreatmentAttachments,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.preTreatmentInstructions.name],

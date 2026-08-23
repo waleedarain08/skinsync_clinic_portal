@@ -1,3 +1,4 @@
+
 import '../../../utils/enums.dart';
 import '../base_request.dart';
 
@@ -8,6 +9,7 @@ class ProductUsagesRequest extends BaseRequest {
   final double? maximumUnits;
   final List<ProductUsage>? billableMaterials;
   final List<int>? otherMaterials;
+  final List<String>? allowedRoles;
 
   ProductUsagesRequest({
     required this.stepNumber,
@@ -16,6 +18,7 @@ class ProductUsagesRequest extends BaseRequest {
     this.maximumUnits,
     this.billableMaterials,
     this.otherMaterials,
+    this.allowedRoles,
   });
 
   @override
@@ -31,6 +34,9 @@ class ProductUsagesRequest extends BaseRequest {
     'other_materials': otherMaterials == null
         ? []
         : List<dynamic>.from(otherMaterials!.map((x) => x)),
+    'allowed_roles': allowedRoles == null
+        ? []
+        : List<dynamic>.from(allowedRoles!.map((x) => x)),
   };
 }
 

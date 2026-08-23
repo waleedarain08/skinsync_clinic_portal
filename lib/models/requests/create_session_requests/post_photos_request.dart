@@ -1,25 +1,28 @@
-import '../../../utils/enums.dart';
 
-class PhotoMilestone {
+import '../../../utils/enums.dart';
+import '../base_request.dart';
+
+class PhotoMilestone extends BaseRequest  {
   final int numberOfDays;
   final int requiredPhotos;
 
-  const PhotoMilestone({
+   PhotoMilestone({
     required this.numberOfDays,
     required this.requiredPhotos,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {'number_of_days': numberOfDays, 'required_photos': requiredPhotos};
   }
 }
 
-class PostPhotosRequest {
+class PostPhotosRequest extends BaseRequest  {
   final int stepNumber;
   final bool requirePostTreatmentPhotos;
   final List<PhotoMilestone> photoMilestone;
 
-  const PostPhotosRequest({
+   PostPhotosRequest({
     required this.stepNumber,
     required this.requirePostTreatmentPhotos,
     required this.photoMilestone,

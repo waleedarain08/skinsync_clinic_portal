@@ -1,12 +1,14 @@
 
 import '../../../utils/enums.dart';
+import '../base_request.dart';
 
-class FollowUpRequest {
+class FollowUpRequest extends BaseRequest {
    final int stepNumber;
   final List<FollowUp> followUps;
 
   FollowUpRequest({ required this.stepNumber,required this.followUps});
 
+  @override
   Map<String, dynamic> toJson() => {
         'step_number': stepNumber,
         'keys': [CreateTreatmentSteps.followUpSetup.name],

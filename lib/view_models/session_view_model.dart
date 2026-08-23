@@ -1,14 +1,29 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../exceptions/app_exception.dart';
 import '../models/common_models.dart';
 import '../models/notification_entry.dart';
+import '../models/requests/create_session_requests/allowed_provider_role_request.dart';
+import '../models/requests/create_session_requests/constent_form_selection_request.dart';
+import '../models/requests/create_session_requests/down_time_level_request.dart';
+import '../models/requests/create_session_requests/final_finish_request.dart';
+import '../models/requests/create_session_requests/follow_up_request.dart';
+import '../models/requests/create_session_requests/phase_notifications_request.dart';
+import '../models/requests/create_session_requests/post_photos_request.dart';
+import '../models/requests/create_session_requests/post_treatment_instruction_request.dart';
+import '../models/requests/create_session_requests/pre_treatment_instruction_request.dart';
+import '../models/requests/create_session_requests/product_usage_request.dart';
+import '../models/requests/create_session_requests/protocol_request.dart';
+import '../models/requests/create_session_requests/step_pricing_request.dart';
+import '../models/requests/create_session_requests/treatment_schedule_request.dart';
 import '../models/responses/session_detail_response.dart';
 import '../models/responses/session_model.dart';
 import '../models/responses/treatment_products_response.dart';
@@ -17,6 +32,7 @@ import '../models/treatment_model.dart';
 import '../repositories/session_repository.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
+import '../services/session_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../utils/list_utils.dart';
 import 'base_view_model.dart';
@@ -1202,37 +1218,37 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     );
   }
 
-  // Future<bool?> callProductUsage({required int stepNumber}) async {
-  //   final minUnits = double.tryParse(minUnitsController.text) ?? 0.0;
-  //   final maxUnits = double.tryParse(maxUnitsController.text) ?? 0.0;
+  Future<bool?> callProductUsage({required int stepNumber}) async {
+    final minUnits = double.tryParse(minUnitsController.text) ?? 0.0;
+    final maxUnits = double.tryParse(maxUnitsController.text) ?? 0.0;
 
-  //   final request = ProductUsagesRequest(
-  //     stepNumber: stepNumber,
-  //     selectedUnitTypeId: state.selectedUnitTypeId,
-  //     minimumUnits: minUnits,
-  //     maximumUnits: maxUnits,
-  //     billableMaterials: state.productUsageEntries.map((e) {
-  //       return ProductUsage(
-  //         productId: e.productId,
-  //         deductionTiming: e.deductionTiming,
-  //         allowSubstitution: e.allowSubstitution,
-  //         notes: e.notesController.text,
-  //       );
-  //     }).toList(),
-  //     otherMaterials: state.otherMaterialsUsageEntries
-  //         .map((e) => e.productId)
-  //         .toList(),
-  //     allowedRoles: state.materialsRoles,
-  //   );
+    final request = ProductUsagesRequest(
+      stepNumber: stepNumber,
+      selectedUnitTypeId: state.selectedUnitTypeId,
+      minimumUnits: minUnits,
+      maximumUnits: maxUnits,
+      billableMaterials: state.productUsageEntries.map((e) {
+        return ProductUsage(
+          productId: e.productId,
+          deductionTiming: e.deductionTiming,
+          allowSubstitution: e.allowSubstitution,
+          notes: e.notesController.text,
+        );
+      }).toList(),
+      otherMaterials: state.otherMaterialsUsageEntries
+          .map((e) => e.productId)
+          .toList(),
+      allowedRoles: state.materialsRoles,
+    );
 
-  //   return await runSafely<bool>(() async {
-  //     await _sessionRepository.productUsage(
-  //       request: request,
-  //       id: state.sessionId!,
-  //     );
-  //     return true;
-  //   });
-  // }
+    return await runSafely<bool>(() async {
+      await locator<SessionServices>().productUsage(
+        request: request,
+        id: state.sessionId!,
+      );
+      return true;
+    });
+  }
 
   double getProductMinQuantity(ProductUsageEntry entry) {
     return double.tryParse(entry.minQuantityController.text) ?? 0.0;
@@ -1258,444 +1274,459 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   // Original callProtocol Implementation
-  //  Future<bool?> callProtocol({
-  //   required int stepNumber,
-  //   required Uint8List bytes,
-  // }) async {
-  //   final mediaService = MediaService();
-  //   const String pdfName = 'clinicForm.pdf';
+   Future<bool?> callProtocol({
+    required int stepNumber,
+    required Uint8List bytes,
+  }) async {
+    final mediaService = MediaService();
+    const String pdfName = 'clinicForm.pdf';
 
-  //   return await runSafely(
-  //     onLoadingChange: (loading) => state = state.copyWith(loading: loading),
-  //     () async {
-  //       ClinicalProtocolPdf? clinicalProtocolPdf;
+    return await runSafely(
+     
+      () async {
+        ClinicalProtocolPdf? clinicalProtocolPdf;
 
-  //       if (bytes.isNotEmpty) {
-  //         final uploadedFile = await mediaService.uploadFile(
-  //           'treatment/pdf',
-  //           PlatformFile(name: pdfName, size: bytes.length, bytes: bytes),
-  //         );
+        if (bytes.isNotEmpty) {
+          final uploadedFile = await mediaService.uploadFile(
+            'treatment/pdf',
+             XFile.fromData(bytes, name: pdfName, length: bytes.length),
+      
+          );
 
-  //         if (uploadedFile == null) {
-  //           throw const UnknownException('Failed to upload');
-  //         }
+          if (uploadedFile == null) {
+            throw const UnknownException(message: 'Failed to upload');
+          }
 
-  //         clinicalProtocolPdf = ClinicalProtocolPdf(
-  //           name: pdfName,
-  //           url: uploadedFile,
-  //         );
-  //       }
+          clinicalProtocolPdf = ClinicalProtocolPdf(
+            name: pdfName,
+            url: uploadedFile,
+          );
+        }
 
-  //       final response = await _sessionRepository.protocol(
-  //         request: ProtocolRequest(
-  //           stepNumber: stepNumber,
-  //           clinicalProtocolPdf: clinicalProtocolPdf,
-  //         ),
-  //         id: state.sessionId!,
-  //       );
+        final response = await locator<SessionServices>().protocol(
+          request: ProtocolRequest(
+            stepNumber: stepNumber,
+            clinicalProtocolPdf: clinicalProtocolPdf,
+          ),
+          id: state.sessionId!,
+        );
 
-  //       return response.isSuccess;
-  //     },
-  //   );
-  // }
-  //   Future<bool?> callStepPricing({required int stepNumber}) async {
-  //     final request = StepPricingRequest(
-  //       stepNumber: stepNumber,
-  //       basePrice: state.isFixedPrice
-  //           ? null
-  //           : int.tryParse(basePriceController.text.trim()),
-  //       unitPriceOverrides: state.isFixedPrice
-  //           ? []
-  //           : state.productUsageEntries.map((entry) {
-  //               final maxQty =
-  //                   (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
-  //                       .ceil();
-  //               entry.syncUnitPriceControllers(maxQty);
+        return response.success;
+      },
+    );
+  }
+    Future<bool?> callStepPricing({required int stepNumber}) async {
+      final request = StepPricingRequest(
+        stepNumber: stepNumber,
+        basePrice: state.isFixedPrice
+            ? null
+            : int.tryParse(basePriceController.text.trim()),
+        unitPriceOverrides: state.isFixedPrice
+            ? []
+            : state.productUsageEntries.map((entry) {
+                final maxQty =
+                    (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
+                        .ceil();
+                entry.syncUnitPriceControllers(maxQty);
 
-  //               final List<int> prices = [];
-  //               if (entry.useDifferentPricingPerUnit) {
-  //                 for (final c in entry.unitPriceControllers) {
-  //                   prices.add(int.tryParse(c.text.trim()) ?? 0);
-  //                 }
-  //               } else {
-  //                 final singlePrice =
-  //                     int.tryParse(
-  //                       entry.unitPriceControllers.isEmpty
-  //                           ? '0'
-  //                           : entry.unitPriceControllers[0].text.trim(),
-  //                     ) ??
-  //                     0;
-  //                 prices.addAll(List.filled(maxQty, singlePrice));
-  //               }
+                final List<int> prices = [];
+                if (entry.useDifferentPricingPerUnit) {
+                  for (final c in entry.unitPriceControllers) {
+                    prices.add(int.tryParse(c.text.trim()) ?? 0);
+                  }
+                } else {
+                  final singlePrice =
+                      int.tryParse(
+                        entry.unitPriceControllers.isEmpty
+                            ? '0'
+                            : entry.unitPriceControllers[0].text.trim(),
+                      ) ??
+                      0;
+                  prices.addAll(List.filled(maxQty, singlePrice));
+                }
 
-  //               return UnitPriceOverride(
-  //                 productId: entry.productId,
-  //                 pricePerUnit: prices,
-  //               );
-  //             }).toList(),
-  //       isFixedPrice: state.isFixedPrice,
-  //       fixedPrice: state.isFixedPrice
-  //           ? int.tryParse(fixedPriceController.text.trim())
-  //           : null,
-  //       allowedRoles: state.pricingRoles,
-  //     );
-  //     log('''
-  // =========== PRODUCT USAGE REQUEST ===========
+                return UnitPriceOverride(
+                  productId: entry.productId,
+                  pricePerUnit: prices,
+                );
+              }).toList(),
+        isFixedPrice: state.isFixedPrice,
+        fixedPrice: state.isFixedPrice
+            ? int.tryParse(fixedPriceController.text.trim())
+            : null,
+        allowedRoles: state.pricingRoles,
+      );
+      log('''
+  =========== PRODUCT USAGE REQUEST ===========
 
-  // Step No    : $stepNumber
-  // Body       : ${request.toJson()}
-  // ============================================
-  // ''');
+  Step No    : $stepNumber
+  Body       : ${request.toJson()}
+  ============================================
+  ''');
 
-  //     return await runSafely<bool>(() async {
-  //       await _sessionRepository.stepPricing(
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+      return await runSafely<bool>(() async {
+        await locator<SessionServices>().stepPricing(
+          request: request,
+          id: state.sessionId!,
+        );
 
-  //       log('Step Pricing Created : ${state.sessionId!}');
+        log('Step Pricing Created : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
 
-  //   Future<bool?> callDownTimeLevels({required int stepNumber}) async {
-  //     // Resolve the actual days from the selected level + category presets
-  //     final presets = ref
-  //         .read(treatmentViewModelProvider)
-  //         .selectedCategoryDetail
-  //         ?.downtimePresets;
-  //     final level = state.downtimeLevel;
+  Future<bool?> callDownTimeLevels({required int stepNumber}) async {
+  final level = state.downtimeLevel;
 
-  //     final int? downtimeDays = switch (level) {
-  //       'None' => presets?.none ?? 0,
-  //       'Low' => presets?.low ?? 2,
-  //       'Moderate' => presets?.moderate ?? 5,
-  //       'High' => presets?.high ?? 10,
-  //       _ => null,
-  //     };
+  final int? downtimeDays = switch (level) {
+    'None' => 0,
+    'Low' => 2,
+    'Moderate' => 5,
+    'High' => 10,
+    _ => null,
+  };
 
-  //     final request = DownTimeLevelRequest(
-  //       stepNumber: stepNumber,
-  //       downtimeLevel: level,
-  //       downtimeDays: downtimeDays,
-  //     );
+  if (level == null || downtimeDays == null) {
+    log('Downtime level is not selected');
+    return false;
+  }
 
-  //     log('''
-  // =========== DOWNTIME LEVEL REQUEST ===========
-  // Draft ID      : ${state.sessionId}
-  // Downtime Level: $level
-  // Downtime Days : $downtimeDays
-  // Body          : ${request.toJson()}
-  // =============================================
-  // ''');
+  final request = DownTimeLevelRequest(
+    stepNumber: stepNumber,
+    downtimeLevel: level.toLowerCase(),
+    downtimeDays: downtimeDays,
+  );
 
-  //     return await runSafely<bool>(() async {
-  //       await _sessionRepository.downTimeLevels(
-  //         // ← correct endpoint
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+  log('''
+=========== DOWNTIME LEVEL REQUEST ===========
+Draft ID       : ${state.sessionId}
+Step Number    : $stepNumber
+Downtime Level : ${level.toLowerCase()}
+Downtime Days  : $downtimeDays
+Body           : ${request.toJson()}
+==============================================
+''');
 
-  //       log('Step Downtime Saved : ${state.sessionId!}');
+  return await runSafely<bool>(() async {
+    await locator<SessionServices>().downTimeLevels(
+      request: request,
+      id: state.sessionId!,
+    );
 
-  //       return true;
-  //     });
-  //   }
+    log('Step Downtime Saved: ${state.sessionId!}');
 
-  //   Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
-  //     final request = AllowedProviderRolesRequest(
-  //       stepNumber: stepNumber,
-  //       allowedRoles: state.selectedRoles, // ← matches state field from UI
-  //     );
+    return true;
+  });
+}
+    Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
+      final request = AllowedProviderRolesRequest(
+        stepNumber: stepNumber,
+        allowedRoles: state.selectedRoles,
+        isCatDefualt: true  // ← matches state field from UI 
+      );
 
-  //     log('''
-  // =========== ALLOWED PROVIDER ROLES REQUEST ===========
-  // Draft ID             : ${state.sessionId}
-  // Allowed Roles        : ${state.selectedRoles.join(', ')}
-  // Body                 : ${request.toJson()}
-  // ======================================================
-  // ''');
+      log('''
+  =========== ALLOWED PROVIDER ROLES REQUEST ===========
+  Draft ID             : ${state.sessionId}
+  Allowed Roles        : ${state.selectedRoles.join(', ')}
+  Body                 : ${request.toJson()}
+  ======================================================
+  ''');
 
-  //     return await runSafely<bool>(() async {
-  //       await _sessionRepository.allowedProviderRoles(
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+      return await runSafely<bool>(() async {
+        await locator<SessionServices>().allowedProviderRoles(
+          request: request,
+          id: state.sessionId!,
+        );
 
-  //       log('Step Allowed Provider Roles Saved : ${state.sessionId!}');
+        log('Step Allowed Provider Roles Saved : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
 
-  //   Future<bool?> callPreTreatmentInstructions({required int stepNumber}) async {
-  //     return await runSafely<bool>(() async {
-  //       final attachments = state.existingPreAttachments
-  //           .map(
-  //             (a) =>
-  //                 PreTreatmentAttachment(name: a.name, url: a.url, type: a.type),
-  //           )
-  //           .toList();
+    Future<bool?> callPreTreatmentInstructions({required int stepNumber}) async {
+      return await runSafely<bool>(() async {
+        final attachments = state.existingPreAttachments
+            .map(
+              (a) =>
+                  PreTreatmentAttachment(name: a.name, url: a.url, type: a.type),
+            )
+            .toList();
 
-  //       final request = PreTreatmentInstructionsRequest(
-  //         stepNumber: stepNumber,
-  //         preTreatmentInstructions:
-  //             preTreatmentInstructionsController.text.trim().isEmpty
-  //             ? null
-  //             : preTreatmentInstructionsController.text.trim(),
-  //         preTreatmentAttachments: attachments.isEmpty ? null : attachments,
-  //       );
-  //       log('''
-  // =========== PRE-TREATMENT INSTRUCTIONS REQUEST ===========
-  // Draft ID   : ${state.sessionId!}
-  // Body       : ${request.toJson()}
-  // ============================================
-  // ''');
+        final request = PreTreatmentInstructionsRequest(
+          stepNumber: stepNumber,
+          preTreatmentInstructions:
+              preTreatmentInstructionsController.text.trim().isEmpty
+              ? null
+              : preTreatmentInstructionsController.text.trim(),
+          preTreatmentAttachments: attachments.isEmpty ? null : attachments,
+        );
+        log('''
+  =========== PRE-TREATMENT INSTRUCTIONS REQUEST ===========
+  Draft ID   : ${state.sessionId!}
+  Body       : ${request.toJson()}
+  ============================================
+  ''');
 
-  //       await _sessionRepository.preTreatmentInstructions(
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+        await locator<SessionServices>().preTreatmentInstructions(
+          request: request,
+          id: state.sessionId!,
+        );
 
-  //       log('Pre-Treatment Instructions Created : ${state.sessionId!}');
+        log('Pre-Treatment Instructions Created : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
 
-  //   Future<bool?> callPostTreatmentInstructions({required int stepNumber}) async {
-  //     return await runSafely<bool>(() async {
-  //       final attachments = state.existingPostAttachments
-  //           .map(
-  //             (a) =>
-  //                 PostTreatmentAttachment(name: a.name, url: a.url, type: a.type),
-  //           )
-  //           .toList();
+    Future<bool?> callPostTreatmentInstructions({required int stepNumber}) async {
+      return await runSafely<bool>(() async {
+        final attachments = state.existingPostAttachments
+            .map(
+              (a) =>
+                  PostTreatmentAttachment(name: a.name, url: a.url, type: a.type),
+            )
+            .toList();
 
-  //       final request = PostTreatmentInstructionsRequest(
-  //         stepNumber: stepNumber,
-  //         postTreatmentInstructions:
-  //             postTreatmentInstructionsController.text.trim().isEmpty
-  //             ? null
-  //             : postTreatmentInstructionsController.text.trim(),
-  //         postTreatmentAttachments: attachments.isEmpty ? null : attachments,
-  //       );
-  //       log('''
-  // =========== POST-TREATMENT INSTRUCTIONS REQUEST ===========
-  // Draft ID   : ${state.sessionId!}
-  // Body       : ${request.toJson()}
-  // ============================================
-  // ''');
+        final request = PostTreatmentInstructionsRequest(
+          stepNumber: stepNumber,
+          postTreatmentInstructions:
+              postTreatmentInstructionsController.text.trim().isEmpty
+              ? null
+              : postTreatmentInstructionsController.text.trim(),
+          postTreatmentAttachments: attachments.isEmpty ? null : attachments,
+        );
+        log('''
+  =========== POST-TREATMENT INSTRUCTIONS REQUEST ===========
+  Draft ID   : ${state.sessionId!}
+  Body       : ${request.toJson()}
+  ============================================
+  ''');
 
-  //       await _sessionRepository.postTreatmentInstructions(
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+        await locator<SessionServices>().postTreatmentInstructions(
+          request: request,
+          id: state.sessionId!,
+        );
 
-  //       log('Post-Treatment Instructions Created : ${state.sessionId!}');
+        log('Post-Treatment Instructions Created : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
 
-  // Future<bool?> callPostTreatmentPhotos({required int stepNumber}) async {
-  //   return await runSafely(() async {
-  //     if (state.sessionId == null) {
-  //       throw const UnknownException('Session not found!');
-  //     }
-  //     int totalCount = 0;
-  //     final List<PhotoMilestone> configs = [];
+  Future<bool?> callPostTreatmentPhotos({required int stepNumber}) async {
+    return await runSafely(() async {
+      if (state.sessionId == null) {
+        throw const UnknownException(message:  'Session not found!');
+      }
+      int totalCount = 0;
+      final List<PhotoMilestone> configs = [];
 
-  //     for (final config in state.postTreatmentPhotoConfigs) {
-  //       final days = int.tryParse(config.daysController.text) ?? 0;
-  //       final count = int.tryParse(config.countController.text) ?? 0;
-  //       totalCount += count;
-  //       configs.add(PhotoMilestone(numberOfDays: days, requiredPhotos: count));
-  //     }
+      for (final config in state.postTreatmentPhotoConfigs) {
+        final days = int.tryParse(config.daysController.text) ?? 0;
+        final count = int.tryParse(config.countController.text) ?? 0;
+        totalCount += count;
+        configs.add(PhotoMilestone(numberOfDays: days, requiredPhotos: count));
+      }
 
-  //     await _sessionRepository.postTreatmentPhotos(
-  //       id: state.sessionId!,
-  //       requirePostPhotos: state.requirePostTreatmentPhotos,
-  //       count: totalCount,
-  //       configs: configs,
-  //       stepNumber: stepNumber,
-  //     );
+      await locator<SessionServices>().postTreatmentPhotos(
+        id: state.sessionId!,
+        requirePostPhotos: state.requirePostTreatmentPhotos,
+        count: totalCount,
+        configs: configs,
+        stepNumber: stepNumber,
+      );
 
-  //     state = state.copyWith(requiredPostTreatmentPhotoCount: totalCount);
-  //     return true;
-  //   });
-  // }
+      state = state.copyWith(requiredPostTreatmentPhotoCount: totalCount);
+      return true;
+    });
+  }
 
-  // Future<bool?> callPhaseNotifications({required int stepNumber}) async {
-  //   return await runSafely(() async {
-  //     final sessionId = state.sessionId;
-  //     if (sessionId == null) {
-  //       throw const UnknownException('Session not found!');
-  //     }
-  //     await _sessionRepository.phaseNotifications(
-  //       id: sessionId,
-  //       request: PhaseNotificationsRequest(
-  //         stepNumber: stepNumber,
-  //         preNotifications: state.preNotificationEntries.map((entry) {
-  //           return NotificationRequest(
-  //             message: entry.messageController.text,
-  //             timing: int.tryParse(entry.timingValueController.text),
-  //             timingUnit: entry.timingUnit,
-  //             title: entry.titleController.text,
-  //             type: entry.type,
-  //           );
-  //         }).toList(),
-  //         postNotifications: state.postNotificationEntries.map((entry) {
-  //           return NotificationRequest(
-  //             message: entry.messageController.text,
-  //             timing: int.tryParse(entry.timingValueController.text),
-  //             timingUnit: entry.timingUnit,
-  //             title: entry.titleController.text,
-  //             type: entry.type,
-  //           );
-  //         }).toList(),
-  //       ),
-  //     );
-  //     return true;
-  //   });
-  // }
+   Future<bool?> callPhaseNotifications({required int stepNumber}) async {
+    return await runSafely(() async {
+      final sessionId = state.sessionId;
+      if (sessionId == null) {
+        throw const UnknownException(message:  'Session not found!');
+      }
 
-  // Future<bool?> createSchedule({required int stepNumber}) async {
-  //   return await runSafely<bool>(() async {
-  //     await _sessionRepository.createSchedule(
-  //       TreatmentScheduleRequest(
-  //         stepNumber: stepNumber,
-  //         baseDuration: state.isFixedDuration
-  //             ? null
-  //             : (int.tryParse(treatmentDurationController.text) ?? 0),
-  //         productDurations: state.isFixedDuration
-  //             ? []
-  //             : state.productUsageEntries
-  //                   .map(
-  //                     (e) => ProductDuration(
-  //                       productId: e.productId,
-  //                       perUnitDuration: double.tryParse(
-  //                         e.perUnitDurationController.text,
-  //                       ),
-  //                     ),
-  //                   )
-  //                   .toList(),
-  //         prepTime: state.isFixedDuration
-  //             ? null
-  //             : (int.tryParse(prepTimeController.text) ?? 0),
-  //         cleanupTime: state.isFixedDuration
-  //             ? null
-  //             : (int.tryParse(cleanupTimeController.text) ?? 0),
-  //         allowClinicOverride: state.allowClinicOverride,
-  //         allowProviderOverride: state.allowProviderOverride,
-  //         onlineBookable: state.onlineBookable,
-  //         manualApprovalRequired: state.manualApprovalRequired,
-  //         minimumBookingNotice: int.tryParse(
-  //           minimumBookingNoticeController.text,
-  //         ),
-  //         maximumDaysInAdvance: int.tryParse(
-  //           maximumDaysInAdvanceController.text,
-  //         ),
-  //         calculatedTotalDuration: state.isFixedDuration
-  //             ? null
-  //             : calculateTotalDuration(),
-  //         fixedDuration: state.isFixedDuration
-  //             ? (int.tryParse(fixedDurationController.text) ?? 0)
-  //             : null,
-  //         isFixedDuration: state.isFixedDuration,
-  //         allowedRoles: state.schedulingRoles,
-  //       ),
-  //       state.sessionId!,
-  //     );
-  //     log('Treatment Area Created : ${state.sessionId!}');
+      final bool preIsCatDefault = state.preNotificationSource == 'category';
+      final bool postIsCatDefault = state.postNotificationSource == 'category';
 
-  //     return true;
-  //   });
-  // }
+      await locator<SessionServices>().phaseNotifications(
+        id: sessionId,
+        request: PhaseNotificationsRequest(
+          stepNumber: stepNumber,
+          preNoti: PreNoti(
+            isCatDefault: preIsCatDefault,
+            preNotifications: preIsCatDefault
+                ? []
+                : state.preNotificationEntries.map((entry) {
+                    return PhaseNotification(
+                      title: entry.titleController.text,
+                      message: entry.messageController.text,
+                      timing: int.tryParse(entry.timingValueController.text),
+                      timingUnit: entry.timingUnit,
+                      type: entry.type,
+                    );
+                  }).toList(),
+          ),
+          postNoti: PostNoti(
+            isCatDefault: postIsCatDefault,
+            postNotifications: postIsCatDefault
+                ? []
+                : state.postNotificationEntries.map((entry) {
+                    return PhaseNotification(
+                      title: entry.titleController.text,
+                      message: entry.messageController.text,
+                      timing: int.tryParse(entry.timingValueController.text),
+                      timingUnit: entry.timingUnit,
+                      type: entry.type,
+                    );
+                  }).toList(),
+          ),
+        ),
+      );
+      return true;
+    });
+  }
 
-  //   Future<bool?> callConsentFormSelection({required int stepNumber}) async {
-  //     final request = ConsentFormSelectionRequest(
-  //       stepNumber: stepNumber,
-  //       preTreatmentConsentForm: state.preTreatmentConsentForm != null
-  //           ? PreTreatmentConsentForm(
-  //               name: state.preTreatmentConsentForm!.name,
-  //               url: state.consentFormUrl,
-  //             )
-  //           : null,
-  //     );
+  Future<bool?> createSchedule({required int stepNumber}) async {
+    return await runSafely<bool>(() async {
+      await locator<SessionServices>().createSchedule(
+        TreatmentScheduleRequest(
+          stepNumber: stepNumber,
+          baseDuration: state.isFixedDuration
+              ? null
+              : (int.tryParse(treatmentDurationController.text) ?? 0),
+          productDurations: state.isFixedDuration
+              ? []
+              : state.productUsageEntries
+                    .map(
+                      (e) => ProductDuration(
+                        productId: e.productId,
+                        perUnitDuration: double.tryParse(
+                          e.perUnitDurationController.text,
+                        ),
+                      ),
+                    )
+                    .toList(),
+          prepTime: state.isFixedDuration
+              ? null
+              : (int.tryParse(prepTimeController.text) ?? 0),
+          cleanupTime: state.isFixedDuration
+              ? null
+              : (int.tryParse(cleanupTimeController.text) ?? 0),
+          allowClinicOverride: state.allowClinicOverride,
+          allowProviderOverride: state.allowProviderOverride,
+          onlineBookable: state.onlineBookable,
+          manualApprovalRequired: state.manualApprovalRequired,
+          minimumBookingNotice: int.tryParse(
+            minimumBookingNoticeController.text,
+          ),
+          maximumDaysInAdvance: int.tryParse(
+            maximumDaysInAdvanceController.text,
+          ),
+          calculatedTotalDuration: state.isFixedDuration
+              ? null
+              : calculateTotalDuration(),
+          fixedDuration: state.isFixedDuration
+              ? (int.tryParse(fixedDurationController.text) ?? 0)
+              : null,
+          isFixedDuration: state.isFixedDuration,
+          allowedRoles: state.schedulingRoles,
+        ),
+        state.sessionId!,
+      );
+      log('Treatment Area Created : ${state.sessionId!}');
 
-  //     log('''
-  // =========== CONSENT FORM SELECTION REQUEST ===========
-  // Session ID           : ${state.sessionId!}
-  // Consent Type         : ${state.consentType}
-  // Consent Form         : ${state.preTreatmentConsentForm?.name}
-  // Body                 : ${request.toJson()}
-  // ======================================================
-  // ''');
+      return true;
+    });
+  }
 
-  //     return await runSafely<bool>(() async {
-  //       await _sessionRepository.consentFormSelection(
-  //         // ← correct endpoint
-  //         request: request,
-  //         id: state.sessionId!,
-  //       );
+    Future<bool?> callConsentFormSelection({required int stepNumber}) async {
+      final request = ConsentFormSelectionRequest(
+        stepNumber: stepNumber,
+        preTreatmentConsentForm: state.preTreatmentConsentForm != null
+            ? PreTreatmentConsentForm(
+                name: state.preTreatmentConsentForm!.name,
+                url: state.consentFormUrl,
+              )
+            : null,
+      );
 
-  //       log('Step Consent Form Selection Saved : ${state.sessionId!}');
+      log('''
+  =========== CONSENT FORM SELECTION REQUEST ===========
+  Session ID           : ${state.sessionId!}
+  Consent Type         : ${state.consentType}
+  Consent Form         : ${state.preTreatmentConsentForm?.name}
+  Body                 : ${request.toJson()}
+  ======================================================
+  ''');
 
-  //       return true;
-  //     });
-  //   }
+      return await runSafely<bool>(() async {
+        await locator<SessionServices>().consentFormSelection(
+          // ← correct endpoint
+          request: request,
+          id: state.sessionId!,
+        );
 
-  //   Future<bool?> callFollowUpConfig({required int stepNumber}) async {
-  //     return await runSafely(() async {
-  //       final sessionId = state.sessionId;
-  //       if (sessionId == null) {
-  //         throw const UnknownException('Session not found!');
-  //       }
-  //       await _sessionRepository.followUpConfig(
-  //         id: sessionId,
-  //         request: FollowUpRequest(
-  //           stepNumber: stepNumber,
-  //           followUps: state.sessions
-  //               .expand((session) => session.followUps)
-  //               .map(
-  //                 (followUp) => FollowUp(
-  //                   type: followUp.type,
-  //                   durationValue: num.parse(
-  //                     followUp.durationValueController.text,
-  //                   ),
-  //                   durationUnit: followUp.durationUnit,
-  //                   intervalValue: num.parse(
-  //                     followUp.intervalValueController.text,
-  //                   ),
-  //                   intervalUnit: followUp.intervalUnit,
-  //                   isImageRequired: followUp.isImageRequired,
-  //                   notes: followUp.notesController.text,
-  //                 ),
-  //               )
-  //               .toList(),
-  //         ),
-  //       );
+        log('Step Consent Form Selection Saved : ${state.sessionId!}');
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
 
-  //   Future<bool?> callFinalFinish() async {
-  //     return await runSafely(() async {
-  //       final sessionId = state.sessionId;
-  //       if (sessionId == null) {
-  //         throw const UnknownException('Session not found!');
-  //       }
-  //       await _sessionRepository.finalFinish(
-  //         id: sessionId,
-  //         request: FinalFinishRequest(status: 'Active', isCompleted: true),
-  //       );
+    Future<bool?> callFollowUpConfig({required int stepNumber}) async {
+      return await runSafely(() async {
+        final sessionId = state.sessionId;
+        if (sessionId == null) {
+          throw const UnknownException(message: 'Session not found!');
+        }
+        await locator<SessionServices>().followUpConfig(
+          id: sessionId,
+          request: FollowUpRequest(
+            stepNumber: stepNumber,
+            followUps: state.sessions
+                .expand((session) => session.followUps)
+                .map(
+                  (followUp) => FollowUp(
+                    type: followUp.type,
+                    durationValue: num.parse(
+                      followUp.durationValueController.text,
+                    ),
+                    durationUnit: followUp.durationUnit,
+                    intervalValue: num.parse(
+                      followUp.intervalValueController.text,
+                    ),
+                    intervalUnit: followUp.intervalUnit,
+                    isImageRequired: followUp.isImageRequired,
+                    notes: followUp.notesController.text,
+                  ),
+                )
+                .toList(),
+          ),
+        );
 
-  //       return true;
-  //     });
-  //   }
+        return true;
+      });
+    }
+
+    Future<bool?> callFinalFinish() async {
+      return await runSafely(() async {
+        final sessionId = state.sessionId;
+        if (sessionId == null) {
+          throw const UnknownException(message: 'Session not found!');
+        }
+        await locator<SessionServices>().finalFinish(
+          id: sessionId,
+          request: FinalFinishRequest(status: 'Active', isCompleted: true),
+        );
+
+        return true;
+      });
+    }
 
   void toggleProtocolSelection(
     String protocolId, {
