@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'notification_service.dart';
 
 import '../repositories/auth_repository.dart';
 import '../repositories/explore_repository.dart';
@@ -64,5 +65,11 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton(() => RoleService());
   locator.registerLazySingleton(() => AppointmentService());
   locator.registerLazySingleton(() => AreaServices());
+
+  // Notification service (initializes FirebaseMessaging + local notifications)
+  final notificationService = NotificationService();
+  await notificationService.init();
+  locator.registerSingleton(notificationService);
+
   locator.registerSingleton(apiBaseHelper);
 }
