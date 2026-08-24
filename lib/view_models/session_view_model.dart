@@ -213,7 +213,6 @@ class SessionState {
     String? sessionSource,
     bool? isFollowUpRequired,
     int? sessionId,
-
     List<String>? materialsRoles,
     String? materialsRolesSource,
     List<String>? schedulingRoles,

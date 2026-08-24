@@ -28,11 +28,11 @@ class PhaseNotificationsRequest extends BaseRequest {
 }
 
 class PostNoti {
-    final bool? isCatDefault;
+   
     final List<PhaseNotification>? postNotifications;
 
     PostNoti({
-        this.isCatDefault,
+     
         this.postNotifications,
     });
 
@@ -41,12 +41,12 @@ class PostNoti {
     String toRawJson() => json.encode(toJson());
 
     factory PostNoti.fromJson(Map<String, dynamic> json) => PostNoti(
-        isCatDefault: json['is_cat_default'],
+       
         postNotifications: json['post_notifications'] == null ? [] : List<PhaseNotification>.from(json['post_notifications']!.map((x) => PhaseNotification.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
-        'is_cat_default': isCatDefault,
+       
         'post_notifications': postNotifications == null ? [] : List<dynamic>.from(postNotifications!.map((x) => x.toJson())),
     };
 }
