@@ -41,30 +41,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     return GradientScaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.w(20)),
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: context.w(20),
-                vertical: context.h(16),
-              ),
-              child: Text("Profile", style: context.fonts.black24w700),
+            Text("Profile", style: context.fonts.level1Heading),
+            context.verticalSpace(6),
+            Text(
+              "Manage your clinic profile, security settings, and preferences.",
+              style: context.fonts.grey13w500,
             ),
+            context.verticalSpace(32),
             const Divider(color: CustomColors.border, height: 1),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(32),
             // Profile Info
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildProfileInfoContainer(context),
-            ),
-            SizedBox(height: context.h(20)),
+            _buildProfileInfoContainer(context),
+            context.verticalSpace(32),
             // Clinic Settings
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildSettingsSection(
+              _buildSettingsSection(
                 context: context,
                 title: "Clinic Settings",
                 items: [
@@ -90,13 +85,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                 ],
               ),
-            ),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(32),
 
             // password security
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildSettingsSection(
+            _buildSettingsSection(
                 context: context,
                 title: "Security",
                 items: [
@@ -119,13 +111,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ],
               ),
-            ),
-            if (!isDeploymentMode) SizedBox(height: context.h(20)),
+            if (!isDeploymentMode) context.verticalSpace(32),
             // preference
             if (!isDeploymentMode)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-                child: _buildSettingsSection(
+              _buildSettingsSection(
                   context: context,
                   title: "Preferences",
                   items: [
@@ -139,12 +128,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                   ],
                 ),
-              ),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(32),
             // help
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              child: _buildSettingsSection(
+            _buildSettingsSection(
                 context: context,
                 title: "Help & Support",
                 items: [
@@ -158,8 +144,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: context.h(30)),
+            context.verticalSpace(48),
           ],
         ),
       ),

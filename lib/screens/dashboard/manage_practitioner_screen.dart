@@ -94,7 +94,7 @@ class _ManagePractitionerScreenState
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Provider Library', style: context.fonts.black26w700),
+            Text('Provider Library', style: context.fonts.level1Heading),
             context.verticalSpace(6),
             Text(
               'Manage clinic doctors, injectors, assigned treatments, and weekly clinical schedules.',

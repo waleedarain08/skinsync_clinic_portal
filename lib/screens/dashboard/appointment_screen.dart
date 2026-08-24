@@ -45,20 +45,15 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
     final appointmentState = ref.watch(appointmentProvider);
 
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.w(20),
-          vertical: context.h(16),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: context.h(20)),
-              Row(
-                children: [
-                  Text('Appointments', style: CustomFonts.black20w600),
-                  SizedBox(width: context.w(36)),
+      body: SingleChildScrollView(
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Appointments', style: context.fonts.level1Heading),
+                SizedBox(width: context.w(36)),
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, _) {

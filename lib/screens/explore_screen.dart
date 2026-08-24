@@ -60,7 +60,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen>
   Widget build(BuildContext context) {
     return GradientScaffold(
       body: Padding(
-        padding: context.appEdgeInsets(horizontal: 24, vertical: 32),
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

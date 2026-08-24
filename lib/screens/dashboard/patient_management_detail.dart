@@ -89,7 +89,7 @@ class _PatientManagementDetailScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.patientName, style: context.fonts.black26w700),
+                Text(p.patientName, style: context.fonts.level2Heading),
                 context.verticalSpace(4),
                 Container(
                   padding: context.appEdgeInsets(horizontal: 12, vertical: 4),
@@ -117,7 +117,7 @@ class _PatientManagementDetailScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Contact Information', style: context.fonts.black18w600),
+          Text('Contact Information', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.email_outlined, 'Email Address', p.email),
           if(p.phoneNumber != '')
@@ -140,7 +140,7 @@ class _PatientManagementDetailScreenState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Treatment Requests', style: context.fonts.black18w600),
+              Text('Treatment Requests', style: context.fonts.subHeading),
               if (state.treatmentLoading)
                 const SizedBox(
                   width: 16,

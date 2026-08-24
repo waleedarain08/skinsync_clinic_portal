@@ -163,10 +163,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 detail.patientDisplayName ?? 'N/A',
-                                style: context.fonts.black18w600.copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: context.fonts.level2Heading,
                               ),
                             ),
                             Consumer(
@@ -305,7 +302,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Description & Details', style: context.fonts.black16w700),
+              Text('Description & Details', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(14),
@@ -344,7 +341,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Assigned Category Path', style: context.fonts.black16w700),
+              Text('Assigned Category Path', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(16),
@@ -390,7 +387,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                   context.horizontalSpace(10),
                   Text(
                     'Anatomical Areas & Clinical Sessions',
-                    style: context.fonts.black16w700,
+                    style: context.fonts.subHeading,
                   ),
                 ],
               ),
@@ -587,7 +584,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Audit Information', style: context.fonts.black16w700),
+              Text('Audit Information', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(16),

@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Good Morning, $name',
-                            style: context.fonts.black32w700,
+                            style: context.fonts.level1Heading,
                           ),
                           context.verticalSpace(6),
                           Text(

@@ -144,8 +144,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Treatment Library', style: context.fonts.black26w700),
-              context.verticalSpace(6),
+            Text('Treatment Library', style: context.fonts.level1Heading),
+            context.verticalSpace(6),
               Text(
                 'Manage clinic medical aesthetic procedures, pricing structures, and anatomical areas.',
                 style: context.fonts.grey13w500,

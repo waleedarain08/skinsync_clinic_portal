@@ -77,7 +77,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   '${basic?.title ?? ""} ${basic?.name ?? "N/A"}',
-                  style: context.fonts.black26w700,
+                  style: context.fonts.level2Heading,
                 ),
                 context.verticalSpace(4),
                 Container(
@@ -133,7 +133,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Contact Information', style: context.fonts.black18w600),
+          Text('Contact Information', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.email_outlined, 'Email Address', contact?.email ?? 'N/A'),
           _infoRow(context, Icons.phone_outlined, 'Phone Number', '${contact?.cc ?? ""} ${contact?.phone ?? "N/A"}'),
@@ -159,7 +159,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Professional Details', style: context.fonts.black18w600),
+          Text('Professional Details', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.work_history_outlined, 'Experience', '${basic?.yearsOfExperience ?? 0} Years'),
           _infoRow(context, Icons.badge_outlined, 'License Number', license?.licenseNumber ?? 'N/A'),
@@ -195,7 +195,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Clinical Availability', style: context.fonts.black18w600),
+          Text('Clinical Availability', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           ...p.availabilityInfo!.availability.map((avail) {
             return Padding(
@@ -242,7 +242,7 @@ class PractitionerDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Financial Configuration', style: context.fonts.black18w600),
+          Text('Financial Configuration', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.payments_outlined, 'Consultation Fee', '\$${fin?.consultationFee ?? 0}'),
           _infoRow(

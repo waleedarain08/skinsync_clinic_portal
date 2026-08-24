@@ -14,31 +14,30 @@ class PaymentHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      body: Padding(
-        padding: EdgeInsets.all(context.w(20)),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      context.pop();
-                    },
-                    child: Icon(Icons.arrow_back, size: context.r(24)),
-                  ),
-                  SizedBox(width: context.w(10)),
-                  Text("Transaction History", style: context.fonts.black20w600),
-                ],
-              ),
-              SizedBox(height: context.h(18)),
-              const Divider(color: CustomColors.border),
-              SizedBox(height: context.h(17)),
-              searchAndFilter(context),
-              SizedBox(height: context.h(20)),
-              Text("Transactions", style: context.fonts.black20w600),
-              SizedBox(height: context.h(20)),
+      body: SingleChildScrollView(
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    context.pop();
+                  },
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: context.r(20)),
+                ),
+                SizedBox(width: context.w(16)),
+                Text("Transaction History", style: context.fonts.level2Heading),
+              ],
+            ),
+            context.verticalSpace(32),
+            const Divider(color: CustomColors.border),
+            context.verticalSpace(32),
+            searchAndFilter(context),
+            context.verticalSpace(32),
+            Text("Recent Transactions", style: context.fonts.subHeading),
+            context.verticalSpace(24),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

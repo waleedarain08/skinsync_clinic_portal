@@ -94,18 +94,18 @@ class _ClinicAiPlansScreenState extends ConsumerState<ClinicAiPlansScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: context.appEdgeInsets(all: 24),
+      padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "Subscription Plans",
-            style: context.fonts.black26w700,
+            style: context.fonts.level1Heading,
           ),
-          context.verticalSpace(8),
+          context.verticalSpace(6),
           Text(
             "Upgrade your clinic with AI capabilities and advanced management tools.",
-            style: context.fonts.grey14w400,
+            style: context.fonts.grey13w500,
           ),
           context.verticalSpace(32),
           Wrap(
