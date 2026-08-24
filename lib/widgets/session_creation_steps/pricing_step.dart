@@ -68,8 +68,7 @@ class PricingStep extends ConsumerWidget {
                   ),
                 ),
                 Switch(
-                  value: true,
-                  // state.isFixedPrice,
+                  value: state.isFixedPrice,
                   onChanged: viewModel.toggleIsFixedPrice,
                   activeThumbColor: CustomColors.purple,
                 ),
@@ -78,8 +77,7 @@ class PricingStep extends ConsumerWidget {
           ),
         ),
         context.verticalSpace(32),
-        //if (state.isFixedPrice) ...[
-        if (true) ...[
+        if (state.isFixedPrice) ...[
           _sectionTitle(context, 'Fixed Pricing'),
           context.verticalSpace(24),
           BuildTextField(

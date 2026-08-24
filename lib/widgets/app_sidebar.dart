@@ -5,6 +5,7 @@ import 'package:sidebarx/sidebarx.dart';
 
 import '../main.dart';
 import '../screens/dashboard/appointment_screen.dart';
+import '../screens/dashboard/clinic_ai_plans_screen.dart';
 import '../screens/dashboard/forms_screen.dart';
 import '../screens/dashboard/home_screen.dart';
 import '../screens/dashboard/inventory_screen.dart';
@@ -86,6 +87,11 @@ List<_SidebarEntry> _sidebarEntries() {
         label: 'Payments & Wallets',
         routeName: PaymentAndWalletScreen.routeName,
         sectionLabel: 'FINANCIALS',
+      ),
+      const _SidebarEntry(
+        icon: Iconsax.mask,
+        label: 'Subscription',
+        routeName: ClinicAiPlansScreen.routeName,
       ),
     ],
     const _SidebarEntry(
