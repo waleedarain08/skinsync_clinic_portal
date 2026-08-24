@@ -549,6 +549,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   await ref
                       .read(treatmentViewModelProvider.notifier)
                       .fetchTreatmentDetail(t.id!);
+                      
                   if (mounted) {
                     await context.push(TreatmentDetailScreen.routeName);
                   }

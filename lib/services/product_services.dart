@@ -10,6 +10,7 @@ import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_deduction_timing_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
@@ -59,6 +60,18 @@ class ProductServices implements ProductRepository {
     final response = BaseResponse.fromJson(jsonResponse, (json) => json);
 
     if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
+ @override
+  Future<ProductDeductionTimingListResponse> fetchDeductionTimings() async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint:Endpoint.deductionTimings);
+    final response = ProductDeductionTimingListResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
       throw BadRequestException(response.message);
     }
     return response;

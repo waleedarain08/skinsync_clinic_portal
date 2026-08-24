@@ -13,6 +13,7 @@ import '../models/requests/product_lot_request.dart';
 import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_deduction_timing_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
@@ -55,6 +56,7 @@ class ProductState {
   final List<CatalogItem> catalog;
   final List<ClinicProduct> clinicProducts;
   final bool inventoryAdded;
+  final List<DeductionTimingModel>? deductionTimings;
 
   // Admin Paginated Products
   final List<AdminProduct> adminProducts;
@@ -122,6 +124,7 @@ class ProductState {
     this.lotItemTotalPages = 1,
     this.loadingLotItems = false,
     this.activeLotId,
+    this.deductionTimings,
   });
 
   ProductState copyWith({
@@ -163,6 +166,7 @@ class ProductState {
     int? lotItemTotalPages,
     bool? loadingLotItems,
     int? activeLotId,
+     List<DeductionTimingModel>? deductionTimings,
   }) {
     return ProductState(
       loading: loading ?? this.loading,
@@ -208,6 +212,8 @@ class ProductState {
       lotItemTotalPages: lotItemTotalPages ?? this.lotItemTotalPages,
       loadingLotItems: loadingLotItems ?? this.loadingLotItems,
       activeLotId: activeLotId ?? this.activeLotId,
+      deductionTimings: deductionTimings ?? this.deductionTimings,
+
     );
   }
 }
@@ -298,6 +304,24 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     });
     return result ?? false;
   }
+
+    Future<void> fetchDeductionTimings() async {
+    await runSafely(
+      () async {
+        try {
+          final response = await _productRepository.fetchDeductionTimings();
+          state = state.copyWith(
+            deductionTimings: response.data,
+            errorMessage: null,
+          );
+        } catch (e) {
+          state = state.copyWith(errorMessage: e.toString());
+          rethrow;
+        }
+      },
+    );
+  }
+
 
   Future<bool> addProductToClinic({required AddProductRequest request}) async {
     final result = await runSafely(showLoading: true, () async {

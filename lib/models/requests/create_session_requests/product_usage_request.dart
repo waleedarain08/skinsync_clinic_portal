@@ -4,18 +4,14 @@ import '../base_request.dart';
 
 class ProductUsagesRequest extends BaseRequest {
   final int stepNumber;
-  final int? selectedUnitTypeId;
-  final double? minimumUnits;
-  final double? maximumUnits;
+ 
   final List<ProductUsage>? billableMaterials;
   final List<int>? otherMaterials;
   final List<String>? allowedRoles;
 
   ProductUsagesRequest({
     required this.stepNumber,
-    this.selectedUnitTypeId,
-    this.minimumUnits,
-    this.maximumUnits,
+   
     this.billableMaterials,
     this.otherMaterials,
     this.allowedRoles,
@@ -25,9 +21,7 @@ class ProductUsagesRequest extends BaseRequest {
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.inventoryProducts.name],
-    'selected_unit_type_id': selectedUnitTypeId,
-    'minimum_units': minimumUnits,
-    'maximum_units': maximumUnits,
+   
     'billable_materials': billableMaterials == null
         ? []
         : List<dynamic>.from(billableMaterials!.map((x) => x.toJson())),

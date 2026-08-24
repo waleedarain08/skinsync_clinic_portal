@@ -101,6 +101,10 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
           );
           if (response.isSuccess && response.data != null) {
             state = state.copyWith(selectedTreatmentDetail: response.data);
+            if(response.data?.id != null){
+             setTreatment(response.data!.id!);
+            }
+           
             return true;
           }
           return false;

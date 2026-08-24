@@ -7,6 +7,7 @@ import '../models/responses/admin_product_list_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/lot_items_list_response.dart';
 import '../models/responses/product_batch_list_response.dart';
+import '../models/responses/product_deduction_timing_list_response.dart';
 import '../models/responses/product_lots_response.dart';
 import '../models/responses/brands_list_response.dart';
 import '../models/responses/catalog_response.dart';
@@ -75,5 +76,6 @@ abstract class ProductRepository {
   Future<List<ClinicProduct>> getClinicProducts();
   Future<ClinicProduct> addInventoryItem(AddInventoryRequest request);
   Future<BaseResponse> addProductToClinic({required AddProductRequest request,});
+   Future<ProductDeductionTimingListResponse> fetchDeductionTimings();
   // Future<BaseApiResponseModel> updateProductStatus({required int productId, required String status});
 }

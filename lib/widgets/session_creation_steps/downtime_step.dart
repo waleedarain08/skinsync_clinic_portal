@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../utils/theme.dart';
 import '../../view_models/session_view_model.dart';
+import '../../view_models/treatment_view_model.dart';
 
-class DowntimeStep extends ConsumerWidget {
+class DowntimeStep extends ConsumerStatefulWidget {
   const DowntimeStep({super.key});
 
+  @override
+  ConsumerState<DowntimeStep> createState() => _DowntimeStepState();
+}
+
+class _DowntimeStepState extends ConsumerState<DowntimeStep> {
   Widget _sectionTitle(BuildContext context, String title, {double? fontSize}) {
     return Text(
       title,
@@ -13,6 +19,13 @@ class DowntimeStep extends ConsumerWidget {
         fontSize: fontSize != null ? context.sp(fontSize) : null,
       ),
     );
+  }
+
+  // Generic description built purely from the days value returned by the API.
+  // No per-level hardcoding.
+  String _describeDowntime(int days) {
+    if (days == 0) return 'No booking restrictions.';
+    return 'Patient cannot book other services for $days day${days == 1 ? '' : 's'}.';
   }
 
   Widget _downtimeOption(
@@ -85,14 +98,23 @@ class DowntimeStep extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    final treatmentId =
+        ref.read(treatmentViewModelProvider).selectedTreatmentId;
+    if (treatmentId != null) {
+      ref
+          .read(sessionViewModelProvider.notifier)
+          .fetchDownTimeLevelByTreatment(id: treatmentId);
+    }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-    
-    const lowDays = 2;
-    const moderateDays = 5;
-    const highDays = 10;
-    const noneDays = 0;
+
+    final downtimeLevels = state.downTimeLevelList ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,41 +127,30 @@ class DowntimeStep extends ConsumerWidget {
         ),
         context.verticalSpace(32),
 
-        _downtimeOption(
-          context,
-          'None',
-          '$noneDays Days',
-          'No booking restrictions.',
-          state.downtimeLevel == 'None',
-          () => viewModel.setDowntimeLevel('None'),
-        ),
-        context.verticalSpace(16),
-        _downtimeOption(
-          context,
-          'Low',
-          '$lowDays Days',
-          'Short recovery window.',
-          state.downtimeLevel == 'Low',
-          () => viewModel.setDowntimeLevel('Low'),
-        ),
-        context.verticalSpace(16),
-        _downtimeOption(
-          context,
-          'Moderate',
-          '$moderateDays Days',
-          'Standard clinical recovery.',
-          state.downtimeLevel == 'Moderate',
-          () => viewModel.setDowntimeLevel('Moderate'),
-        ),
-        context.verticalSpace(16),
-        _downtimeOption(
-          context,
-          'High',
-          '$highDays Days',
-          'Extended recovery required.',
-          state.downtimeLevel == 'High',
-          () => viewModel.setDowntimeLevel('High'),
-        ),
+        if (downtimeLevels.isEmpty)
+          Text(
+            'No downtime levels available for this treatment.',
+            style: context.fonts.grey14w400,
+          )
+        else
+          for (int i = 0; i < downtimeLevels.length; i++) ...[
+            if (i != 0) context.verticalSpace(16),
+            Builder(
+              builder: (context) {
+                final item = downtimeLevels[i];
+                final level = item.level ?? '';
+                final days = item.days ?? 0;
+                return _downtimeOption(
+                  context,
+                  level,
+                  '$days Days',
+                  _describeDowntime(days),
+                  state.downtimeLevel == level,
+                  () => viewModel.setDowntimeLevel(level),
+                );
+              },
+            ),
+          ],
       ],
     );
   }

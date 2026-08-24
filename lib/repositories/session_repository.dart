@@ -3,7 +3,6 @@
 import '../models/requests/create_session_requests/allowed_provider_role_request.dart';
 import '../models/requests/create_session_requests/constent_form_selection_request.dart';
 import '../models/requests/create_session_requests/down_time_level_request.dart';
-import '../models/requests/create_session_requests/final_finish_request.dart';
 import '../models/requests/create_session_requests/follow_up_request.dart';
 import '../models/requests/create_session_requests/phase_notifications_request.dart';
 import '../models/requests/create_session_requests/post_photos_request.dart';
@@ -15,6 +14,7 @@ import '../models/requests/create_session_requests/step_pricing_request.dart';
 import '../models/requests/create_session_requests/treatment_schedule_request.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/down_time_level_response.dart';
 import '../models/responses/session_detail_response.dart';
 import '../models/responses/treatment_products_response.dart';
 
@@ -89,10 +89,7 @@ abstract class SessionRepository {
     required ConsentFormSelectionRequest request,
     required int id,
   });
-  Future<BaseResponse> finalFinish({
-    required FinalFinishRequest request,
-    required int id,
-  });
+  
  Future<TreatmentProductsResponse> getProductsByTreatment(
     // List<int> categoryIds,
   );
@@ -105,6 +102,10 @@ abstract class SessionRepository {
 Future<BaseResponse> changeSessionStatus({
     required SessionStatusRequest request,
   });
+
+    Future<DownTimeLevelResponse> getDownTimeLevelByTreatment(
+   {required int id,}
+  );
 }
 
 

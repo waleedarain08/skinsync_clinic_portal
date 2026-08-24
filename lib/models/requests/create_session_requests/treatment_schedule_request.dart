@@ -1,14 +1,12 @@
-
 import '../../../utils/enums.dart';
 import '../base_request.dart';
 
-class TreatmentScheduleRequest extends BaseRequest  {
+class TreatmentScheduleRequest extends BaseRequest {
   final int stepNumber;
   final int? baseDuration;
   final int? prepTime;
   final int? cleanupTime;
   final List<ProductDuration>? productDurations;
-  final bool? allowClinicOverride;
   final bool? allowProviderOverride;
   final bool? onlineBookable;
   final bool? manualApprovalRequired;
@@ -25,7 +23,7 @@ class TreatmentScheduleRequest extends BaseRequest  {
     this.prepTime,
     this.cleanupTime,
     this.productDurations,
-    this.allowClinicOverride,
+
     this.allowProviderOverride,
     this.onlineBookable,
     this.manualApprovalRequired,
@@ -47,7 +45,7 @@ class TreatmentScheduleRequest extends BaseRequest  {
     'product_durations': productDurations == null
         ? []
         : List<dynamic>.from(productDurations!.map((x) => x.toJson())),
-    'allow_clinic_override': allowClinicOverride,
+
     'allow_provider_override': allowProviderOverride,
     'online_bookable': onlineBookable,
     'manual_approval_required': manualApprovalRequired,

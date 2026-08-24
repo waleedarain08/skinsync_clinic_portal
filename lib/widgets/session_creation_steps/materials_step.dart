@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-
 import '../../models/responses/treatment_products_response.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../utils/theme.dart';
@@ -26,6 +25,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(productViewModelProvider.notifier).fetchDeductionTimings();
       await ref
           .read(sessionViewModelProvider.notifier)
           .fetchProductsByTreatmentCategory();
@@ -357,19 +357,28 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
           ),
           if (!isOtherMaterial) ...[
             context.verticalSpace(20),
-            CustomDropdown<String>(
-              // label: 'Deduction Timing',
-              hint: 'Select Timing',
-              value: entry.deductionTiming,
-              items: const ['On Completion', 'Manual', 'Post_Confirmation',"before_treatment"],
-              builder: (val) => Text(
-                val.replaceAll('_', ' '),
-                style: CustomFonts.black14w400,
-              ),
-              onChanged: (val) => viewModel.updateProductUsageEntry(
-                index,
-                deductionTiming: val,
-              ),
+            Consumer(
+              builder: (context, ref, _) {
+                final deductionTimings = ref
+                    .watch(productViewModelProvider)
+                    .deductionTimings;
+
+                return CustomDropdown<String>(
+                  hint: 'Select Timing',
+                  value: entry.deductionTiming,
+                  items: deductionTimings
+                      ?.map((timing) => timing.name)
+                      .toList(),
+                  builder: (val) => Text(
+                    val.replaceAll('_', ' '),
+                    style: CustomFonts.black14w400,
+                  ),
+                  onChanged: (val) => viewModel.updateProductUsageEntry(
+                    index,
+                    deductionTiming: val,
+                  ),
+                );
+              },
             ),
             context.verticalSpace(20),
             Row(
@@ -446,18 +455,11 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                   children: [
                     Text('Unit Type', style: context.fonts.grey12w400),
                     context.verticalSpace(4),
-                    Text(
-                      unitTypeName,
-                      style: context.fonts.black16w600,
-                    ),
+                    Text(unitTypeName, style: context.fonts.black16w600),
                   ],
                 ),
               ),
-              Container(
-                width: 1,
-                height: 40,
-                color: CustomColors.border,
-              ),
+              Container(width: 1, height: 40, color: CustomColors.border),
               Expanded(
                 child: Padding(
                   padding: context.appEdgeInsets(horizontal: 16),
@@ -474,11 +476,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                   ),
                 ),
               ),
-              Container(
-                width: 1,
-                height: 40,
-                color: CustomColors.border,
-              ),
+              Container(width: 1, height: 40, color: CustomColors.border),
               Expanded(
                 child: Padding(
                   padding: context.appEdgeInsets(left: 16),
@@ -530,7 +528,8 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                     ),
                     context.verticalSpace(12),
                     TextButton(
-                      onPressed:() =>  ref.read(productViewModelProvider.notifier).getData(),
+                      onPressed: () =>
+                          ref.read(productViewModelProvider.notifier).getData(),
                       child: const Text('Retry'),
                     ),
                   ],

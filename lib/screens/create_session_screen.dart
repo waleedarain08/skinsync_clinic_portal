@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +8,12 @@ import 'package:go_router/go_router.dart';
 import '../utils/theme.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../view_models/session_view_model.dart';
+import '../view_models/treatment_data_view_model.dart';
+import '../view_models/treatment_view_model.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/protocol_preview_widget.dart';
 import '../widgets/session_creation_steps/treatment_creation_steps.dart';
 
 class CreateSessionScreen extends ConsumerStatefulWidget {
@@ -74,8 +78,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
               flex: 3,
               child: Column(
                 children: [
-                  if (!isDesktop && !isTablet)
-                    _buildMobileProgress(context),
+                  if (!isDesktop && !isTablet) _buildMobileProgress(context),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: context.appEdgeInsets(
@@ -103,16 +106,10 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                                   ),
                                   boxShadow: AppShadows.card(context),
                                 ),
-                                child: _buildCurrentStepContent(
-                                  context,
-                                  ref,
-                                ),
+                                child: _buildCurrentStepContent(context, ref),
                               ),
                               context.verticalSpace(48),
-                              _buildActionButtons(
-                                context,
-                                sessionViewModel,
-                              ),
+                              _buildActionButtons(context, sessionViewModel),
                             ],
                           ),
                         ),
@@ -128,10 +125,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
     );
   }
 
-  Widget _buildLeftSidebar(
-    BuildContext context,
-    SessionViewModel viewModel,
-  ) {
+  Widget _buildLeftSidebar(BuildContext context, SessionViewModel viewModel) {
     final sessionState = ref.watch(sessionViewModelProvider);
     final steps = [
       'Inventory Products',
@@ -334,7 +328,9 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
       return const SizedBox.shrink();
     }
 
-    final bool isOverridden = sessionViewModel.isStepOverridden(sessionState.sessionStep);
+    final bool isOverridden = sessionViewModel.isStepOverridden(
+      sessionState.sessionStep,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,7 +366,9 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
             isOverridden
                 ? CustomPrimaryButton(
                     onTap: () {
-                      sessionViewModel.revertAdminPreset(sessionState.sessionStep);
+                      sessionViewModel.revertAdminPreset(
+                        sessionState.sessionStep,
+                      );
                       setState(() {});
                     },
                     icon: Icons.undo_rounded,
@@ -427,10 +425,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
     );
   }
 
-  Widget _buildCurrentStepContent(
-    BuildContext context,
-    WidgetRef ref,
-  ) {
+  Widget _buildCurrentStepContent(BuildContext context, WidgetRef ref) {
     final sessionState = ref.watch(sessionViewModelProvider);
     switch (sessionState.sessionStep) {
       case 1:
@@ -462,10 +457,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
     }
   }
 
-  Widget _buildActionButtons(
-    BuildContext context,
-    SessionViewModel viewModel,
-  ) {
+  Widget _buildActionButtons(BuildContext context, SessionViewModel viewModel) {
     final sessionState = ref.watch(sessionViewModelProvider);
     final bool isLastStep = sessionState.sessionStep == 12;
     return Row(
@@ -496,12 +488,161 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
           child: CustomPrimaryButton(
             onTap: () async {
               log('CURRENT STEP: ${sessionState.sessionStep}');
-              if (isLastStep) {
-                context.pop();
-              } else {
+              bool success = false;
+
+              if (sessionState.sessionStep == 1) {
+                // Inventory Products
+                // if (!_validateProductQuantities(context, state)) return;
+                final result = await viewModel.callProductUsage(
+                  stepNumber: sessionState.sessionStep,
+                );
+
+                success = (result == true);
+                
+              } else if (sessionState.sessionStep == 2) {
+                // Scheduling
+                // if (!_validateScheduling(context, viewModel)) return;
+                final result = await viewModel.createSchedule(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 3) {
+                // Pricing Setup
+                final result = await viewModel.callStepPricing(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 4) {
+                // Protocols
+                final bool hasProtocolContent =
+                    sessionState.selectedProtocolIds.isNotEmpty ||
+                    sessionState.standaloneNotes.isNotEmpty;
+
+                Uint8List? bytes;
+                if (hasProtocolContent) {
+                  bytes = await ProtocolFormPreview.getPdfBytes(
+                    state: ref.watch(treatmentViewModelProvider),
+                    sessionState: sessionState,
+                    dataState: ref.watch(treatmentDataViewModelProvider),
+                  );
+                }
+
+                final result = await viewModel.callProtocol(
+                  stepNumber: sessionState.sessionStep,
+                  bytes: bytes ?? Uint8List(0),
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 5) {
+                // Pre-Treatment Instructions
+                final result = await viewModel.callPreTreatmentInstructions(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 6) {
+                // Post-Treatment Instructions
+                final result = await viewModel.callPostTreatmentInstructions(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 7) {
+                // Post Treatment Photos
+                //  if (!_validatePostPhotos(context, state)) return;
+                final result = await viewModel.callPostTreatmentPhotos(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 8) {
+                // Phase Notifications
+                //  if (!_validatePhaseNotifications(context, state)) return;
+                final result = await viewModel.callPhaseNotifications(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 9) {
+                // Downtime Level
+                final result = await viewModel.callDownTimeLevels(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 10) {
+                // Allowed Provider Roles
+                final result = await viewModel.callAllowedProviderRoles(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 11) {
+                // Follow-Up Setup
+                //  if (!_validateFollowUps(context, sessionState)) return;
+                final result = await viewModel.callFollowUpConfig(
+                  stepNumber: sessionState.sessionStep,
+                );
+                success = (result == true);
+              } else if (sessionState.sessionStep == 12) {
+                // Patient Consent (Last Step!)
+                await viewModel
+                    .callConsentFormSelection(
+                      stepNumber: sessionState.sessionStep,
+                    )
+                    .then((value) async {
+                      if (value == true) {
+                        final durationText =
+                            '${viewModel.treatmentDurationController.text} mins (Prep: ${viewModel.prepTimeController.text}m, Clean: ${viewModel.cleanupTimeController.text}m)';
+                        final priceText = sessionState.isFixedPrice
+                            ? '\$${viewModel.fixedPriceController.text} (Fixed)'
+                            : '\$${viewModel.basePriceController.text}';
+
+                        final protocols = sessionState.selectedProtocolIds
+                            .toList();
+                        final preInstructions =
+                            viewModel.preTreatmentInstructionsController.text;
+                        final postInstructions =
+                            viewModel.postTreatmentInstructionsController.text;
+
+                        final preNotifs = sessionState.preNotificationEntries
+                            .map(
+                              (n) =>
+                                  '${n.timingValueController.text} ${n.timingUnit} before: ${n.titleController.text}',
+                            )
+                            .toList();
+                        final postNotifs = sessionState.postNotificationEntries
+                            .map(
+                              (n) =>
+                                  '${n.timingValueController.text} ${n.timingUnit} after: ${n.titleController.text}',
+                            )
+                            .toList();
+
+                        viewModel.markActiveSessionAsDetailed(
+                          durationText: durationText,
+                          priceText: priceText,
+                          protocols: protocols,
+                          preInstructions: preInstructions,
+                          postInstructions: postInstructions,
+                          requirePhotosSnapshot:
+                              sessionState.requirePostTreatmentPhotos,
+                          photosCountSnapshot:
+                              sessionState.requiredPostTreatmentPhotoCount,
+                          preNotifs: preNotifs,
+                          postNotifs: postNotifs,
+                          downtimeLevel: sessionState.downtimeLevel ?? '',
+                          selectedRoles: sessionState.selectedRoles,
+                          consentSnapshot:
+                              sessionState.preTreatmentConsentForm?.name ??
+                              sessionState.existingConsentForm?.name ??
+                              'Custom Consent',
+                          productUsageEntries: sessionState.productUsageEntries,
+                        );
+                        if (context.mounted) {
+                          context.pop();
+                        }
+                      }
+                    });
+              }
+
+              if (success && sessionState.sessionStep < 12) {
                 viewModel.setSessionStep(sessionState.sessionStep + 1);
               }
             },
+
             label: isLastStep ? 'Save Session Details' : 'Next Step',
           ),
         ),
@@ -546,10 +687,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                     ),
                     context.horizontalSpace(12),
                     Expanded(
-                      child: Text(
-                        title,
-                        style: context.fonts.black18w600,
-                      ),
+                      child: Text(title, style: context.fonts.black18w600),
                     ),
                   ],
                 ),
@@ -574,10 +712,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '• ',
-                              style: context.fonts.purple14w700,
-                            ),
+                            Text('• ', style: context.fonts.purple14w700),
                             Expanded(
                               child: Text(
                                 detail,
@@ -604,7 +739,9 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                     context.horizontalSpace(12),
                     CustomPrimaryButton(
                       onTap: () {
-                        ref.read(sessionViewModelProvider.notifier).applyAdminPreset(step);
+                        ref
+                            .read(sessionViewModelProvider.notifier)
+                            .applyAdminPreset(step);
                         Navigator.pop(context);
                         setState(() {});
                       },

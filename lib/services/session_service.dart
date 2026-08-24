@@ -1,7 +1,6 @@
 import '../models/requests/create_session_requests/allowed_provider_role_request.dart';
 import '../models/requests/create_session_requests/constent_form_selection_request.dart';
 import '../models/requests/create_session_requests/down_time_level_request.dart';
-import '../models/requests/create_session_requests/final_finish_request.dart';
 import '../models/requests/create_session_requests/follow_up_request.dart';
 import '../models/requests/create_session_requests/phase_notifications_request.dart';
 import '../models/requests/create_session_requests/post_photos_request.dart';
@@ -13,6 +12,7 @@ import '../models/requests/create_session_requests/step_pricing_request.dart';
 import '../models/requests/create_session_requests/treatment_schedule_request.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/down_time_level_response.dart';
 import '../models/responses/session_detail_response.dart';
 import '../models/responses/treatment_products_response.dart';
 import '../repositories/session_repository.dart';
@@ -80,6 +80,24 @@ class SessionServices implements SessionRepository {
     }
     return response;
   }
+
+ @override
+  Future<DownTimeLevelResponse> getDownTimeLevelByTreatment(
+  {required int id,}
+  ) async {
+   // final String idsParam = categoryIds.join(',');
+    final jsonResponse = await _api.httpRequest(
+      requestType: .get,endPoint: 
+      Endpoint.downTimeLevel,
+     pathParams: {'id': id.toString()},
+    );
+    final response = DownTimeLevelResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
 
   @override
   Future<BaseResponse> stepPricing({
@@ -286,24 +304,6 @@ class SessionServices implements SessionRepository {
     return response;
   }
 
-  @override
-  Future<BaseResponse> finalFinish({
-    required int id,
-    required FinalFinishRequest request,
-  }) async {
-    final jsonResponse = await _api.httpRequest(
-      requestType: .patch,
-      endPoint: Endpoint.sessionUpdate,
-      requestBody: request,
-      queryParams: {'session_id': id.toString()},
-    );
-    final response = BaseResponse.fromJson(jsonResponse, (json) => json);
-
-    if (!response.success) {
-      throw BadRequestException(response.message);
-    }
-    return response;
-  }
 
   @override
   Future<SessionDetailResponse> getSessionDetail({required int id}) async {

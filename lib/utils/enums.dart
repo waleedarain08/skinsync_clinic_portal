@@ -27,7 +27,6 @@ enum Endpoint {
   practitionersID('clinic/practitioners/{id}'),
   practitionerStatus('clinic/practitioners/{id}/status'),
   fetchPractitionerByEmail('clinic/practitioners/fetch'),
-
   getAdminTreatments('clinic/treatments/admin'),
   getTreatmentTemplates('clinic/treatments/admin'),
   getAdminTreatmentsSideAreas('clinic/side-areas/treatment/{treatmentId}'),
@@ -45,7 +44,7 @@ enum Endpoint {
   getAppointment('clinic/new-appointments'),
   appointmentId('clinic/new-appointments/{id}'),
   treatmentDetail('clinic/treatments/{id}'),
-  sessionUpdate('sessionUpdate'),
+  sessionUpdate('clinic/sessions/update'),
   sessionDetail('clinic/sessions/{id}'),
   deleteSession('admin/sessions/{id}'),
   sessionStatus('admin/sessions/status'),
@@ -71,16 +70,16 @@ enum Endpoint {
   adminAreas('admin/treatments/{treatmentId}/areas'),
   explorerReels('clinic/reels'),
   updateReel('clinic/reels/{id}'),
- 
   explorerCommunity('clinic/community-posts'),
   updatePost('clinic/community-posts/{id}'),
- 
   postCategories('clinic/community-post/categories'),
   patients('clinic/patients'),
   patientDetail('clinic/patients/{id}'),
   patientTreatmentRequest('clinic/patient-treatment-request'),
   getMe("clinic/me"),
   updateClinicProfile('clinic/profile'),
+  deductionTimings('clinic/deduction-timings'),
+  downTimeLevel('clinic/treatments/{id}/downtime-presets'),
   clinicDetail('clinic/detail');
 
   final String path;
@@ -92,7 +91,6 @@ enum Endpoint {
       updatedPath = updatedPath.replaceAll('{$key}', value);
     });
     return updatedPath;
-
   }
 }
 
@@ -146,10 +144,7 @@ enum CreateTreatmentSteps {
   const CreateTreatmentSteps(this.name);
 }
 
-enum Status {
-  active,
-  inactive,
-}
+enum Status { active, inactive }
 
 enum AppointmentStatus {
   allStatus,

@@ -14,7 +14,6 @@ import '../models/notification_entry.dart';
 import '../models/requests/create_session_requests/allowed_provider_role_request.dart';
 import '../models/requests/create_session_requests/constent_form_selection_request.dart';
 import '../models/requests/create_session_requests/down_time_level_request.dart';
-import '../models/requests/create_session_requests/final_finish_request.dart';
 import '../models/requests/create_session_requests/follow_up_request.dart';
 import '../models/requests/create_session_requests/phase_notifications_request.dart';
 import '../models/requests/create_session_requests/post_photos_request.dart';
@@ -24,6 +23,7 @@ import '../models/requests/create_session_requests/product_usage_request.dart';
 import '../models/requests/create_session_requests/protocol_request.dart';
 import '../models/requests/create_session_requests/step_pricing_request.dart';
 import '../models/requests/create_session_requests/treatment_schedule_request.dart';
+import '../models/responses/down_time_level_response.dart';
 import '../models/responses/session_detail_response.dart';
 import '../models/responses/session_model.dart';
 import '../models/responses/treatment_products_response.dart';
@@ -32,7 +32,6 @@ import '../models/treatment_model.dart';
 import '../repositories/session_repository.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
-import '../services/session_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../utils/list_utils.dart';
 import 'base_view_model.dart';
@@ -84,7 +83,8 @@ class SessionState {
   final List<PostTreatmentPhotoConfig> postTreatmentPhotoConfigs;
 
   // Downtime
-  final String downtimeLevel;
+  final String? downtimeLevel;
+  final List<DownTimeLevel> downTimeLevelList;
 
   // Roles
   final List<String> selectedRoles;
@@ -144,7 +144,8 @@ class SessionState {
     this.consentFormUrl = '',
     this.existingPreAttachments = const [],
     this.existingPostAttachments = const [],
-    this.downtimeLevel = 'No_Downtime',
+    this.downtimeLevel ,
+    this.downTimeLevelList = const [],
     this.selectedRoles = const [],
     this.providerRolesSource = 'Category_Default',
     this.allowClinicOverride = false,
@@ -219,6 +220,7 @@ class SessionState {
     String? schedulingRolesSource,
     List<String>? pricingRoles,
     String? pricingRolesSource,
+    List<DownTimeLevel>? downTimeLevelList,
   }) {
     return SessionState(
       // loading: loading ?? this.loading,
@@ -286,6 +288,7 @@ class SessionState {
       pricingRoles: pricingRoles ?? this.pricingRoles,
       selectedUnitTypeId: selectedUnitTypeId ?? this.selectedUnitTypeId,
       selectedUnitTypeName: selectedUnitTypeName ?? this.selectedUnitTypeName,
+      downTimeLevelList: downTimeLevelList ?? this.downTimeLevelList,
     );
   }
 }
@@ -1030,7 +1033,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
         sessionId: activeEntry.sessionId,
         sessionNumber: activeEntry.sessionNumber,
         title: activeEntry.title,
-        status: 'Completed',
+        status: 'Active',
         totalFollowUpsController: activeEntry.totalFollowUpsController,
         followUps: List.from(activeEntry.followUps),
         isDetailedEntered: true,
@@ -1218,14 +1221,9 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   Future<bool?> callProductUsage({required int stepNumber}) async {
-    final minUnits = double.tryParse(minUnitsController.text) ?? 0.0;
-    final maxUnits = double.tryParse(maxUnitsController.text) ?? 0.0;
-
     final request = ProductUsagesRequest(
       stepNumber: stepNumber,
-      selectedUnitTypeId: state.selectedUnitTypeId,
-      minimumUnits: minUnits,
-      maximumUnits: maxUnits,
+
       billableMaterials: state.productUsageEntries.map((e) {
         return ProductUsage(
           productId: e.productId,
@@ -1241,7 +1239,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     );
 
     return await runSafely<bool>(() async {
-      await locator<SessionServices>().productUsage(
+      await locator<SessionRepository>().productUsage(
         request: request,
         id: state.sessionId!,
       );
@@ -1273,89 +1271,96 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   }
 
   // Original callProtocol Implementation
-   Future<bool?> callProtocol({
+  Future<bool?> callProtocol({
     required int stepNumber,
     required Uint8List bytes,
   }) async {
     final mediaService = MediaService();
     const String pdfName = 'clinicForm.pdf';
 
-    return await runSafely(
-     
-      () async {
-        ClinicalProtocolPdf? clinicalProtocolPdf;
+    return await runSafely(() async {
+      ClinicalProtocolPdf? clinicalProtocolPdf;
 
-        if (bytes.isNotEmpty) {
-          final uploadedFile = await mediaService.uploadFile(
-            'treatment/pdf',
-             XFile.fromData(bytes, name: pdfName, length: bytes.length),
-      
-          );
-
-          if (uploadedFile == null) {
-            throw const UnknownException(message: 'Failed to upload');
-          }
-
-          clinicalProtocolPdf = ClinicalProtocolPdf(
-            name: pdfName,
-            url: uploadedFile,
-          );
-        }
-
-        final response = await locator<SessionServices>().protocol(
-          request: ProtocolRequest(
-            stepNumber: stepNumber,
-            clinicalProtocolPdf: clinicalProtocolPdf,
-          ),
-          id: state.sessionId!,
+      if (bytes.isNotEmpty) {
+        final uploadedFile = await mediaService.uploadFile(
+          'treatment/pdf',
+          XFile.fromData(bytes, name: pdfName, length: bytes.length),
         );
 
-        return response.success;
-      },
-    );
-  }
-    Future<bool?> callStepPricing({required int stepNumber}) async {
-      final request = StepPricingRequest(
-        stepNumber: stepNumber,
-        basePrice: state.isFixedPrice
-            ? null
-            : int.tryParse(basePriceController.text.trim()),
-        unitPriceOverrides: state.isFixedPrice
-            ? []
-            : state.productUsageEntries.map((entry) {
-                final maxQty =
-                    (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
-                        .ceil();
-                entry.syncUnitPriceControllers(maxQty);
+        if (uploadedFile == null) {
+          throw const UnknownException(message: 'Failed to upload');
+        }
 
-                final List<int> prices = [];
-                if (entry.useDifferentPricingPerUnit) {
-                  for (final c in entry.unitPriceControllers) {
-                    prices.add(int.tryParse(c.text.trim()) ?? 0);
-                  }
-                } else {
-                  final singlePrice =
-                      int.tryParse(
-                        entry.unitPriceControllers.isEmpty
-                            ? '0'
-                            : entry.unitPriceControllers[0].text.trim(),
-                      ) ??
-                      0;
-                  prices.addAll(List.filled(maxQty, singlePrice));
-                }
+        clinicalProtocolPdf = ClinicalProtocolPdf(
+          name: pdfName,
+          url: uploadedFile,
+        );
+      }
 
-                return UnitPriceOverride(
-                  productId: entry.productId,
-                  pricePerUnit: prices,
-                );
-              }).toList(),
-        isFixedPrice: state.isFixedPrice,
-        fixedPrice: state.isFixedPrice
-            ? int.tryParse(fixedPriceController.text.trim())
-            : null,
-        allowedRoles: state.pricingRoles,
+      final response = await locator<SessionRepository>().protocol(
+        request: ProtocolRequest(
+          stepNumber: stepNumber,
+          clinicalProtocolPdf: clinicalProtocolPdf,
+        ),
+        id: state.sessionId!,
       );
-      log('''
+
+      return response.success;
+    });
+  }
+
+  Future<void> fetchDownTimeLevelByTreatment({required int id}) async {
+    await runSafely(showLoading: true, () async {
+      final response = await locator<SessionRepository>()
+          .getDownTimeLevelByTreatment(id: id);
+      if (response.isSuccess) {
+        state = state.copyWith(downTimeLevelList: response.data ?? []);
+      }
+    });
+  }
+
+  Future<bool?> callStepPricing({required int stepNumber}) async {
+    final request = StepPricingRequest(
+      stepNumber: stepNumber,
+      basePrice: state.isFixedPrice
+          ? null
+          : int.tryParse(basePriceController.text.trim()),
+      unitPriceOverrides: state.isFixedPrice
+          ? []
+          : state.productUsageEntries.map((entry) {
+              final maxQty =
+                  (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
+                      .ceil();
+              entry.syncUnitPriceControllers(maxQty);
+
+              final List<int> prices = [];
+              if (entry.useDifferentPricingPerUnit) {
+                for (final c in entry.unitPriceControllers) {
+                  prices.add(int.tryParse(c.text.trim()) ?? 0);
+                }
+              } else {
+                final singlePrice =
+                    int.tryParse(
+                      entry.unitPriceControllers.isEmpty
+                          ? '0'
+                          : entry.unitPriceControllers[0].text.trim(),
+                    ) ??
+                    0;
+                prices.addAll(List.filled(maxQty, singlePrice));
+              }
+
+              return UnitPriceOverride(
+                productId: entry.productId,
+                pricePerUnit: prices,
+              );
+            }).toList(),
+      isFixedPrice: state.isFixedPrice,
+      fixedPrice: state.isFixedPrice
+          ? int.tryParse(fixedPriceController.text.trim())
+          : null,
+      allowedRoles: state.pricingRoles,
+    );
+    log('''
   =========== PRODUCT USAGE REQUEST ===========
 
   Step No    : $stepNumber
@@ -1363,31 +1368,34 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   ============================================
   ''');
 
-      return await runSafely<bool>(() async {
-        await locator<SessionServices>().stepPricing(
-          request: request,
-          id: state.sessionId!,
-        );
+    return await runSafely<bool>(() async {
+      await locator<SessionRepository>().stepPricing(
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Step Pricing Created : ${state.sessionId!}');
+      log('Step Pricing Created : ${state.sessionId!}');
 
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
-  Future<bool?> callDownTimeLevels({required int stepNumber}) async {
+ Future<bool?> callDownTimeLevels({required int stepNumber}) async {
   final level = state.downtimeLevel;
 
-  final int? downtimeDays = switch (level) {
-    'None' => 0,
-    'Low' => 2,
-    'Moderate' => 5,
-    'High' => 10,
-    _ => null,
-  };
-
-  if (level == null || downtimeDays == null) {
+  if (level == null) {
     log('Downtime level is not selected');
+    return false;
+  }
+
+  final selected = state.downTimeLevelList
+      ?.where((e) => e.level == level)
+      .firstOrNull;
+
+  final downtimeDays = selected?.days;
+
+  if (downtimeDays == null) {
+    log('Downtime days not found for selected level: $level');
     return false;
   }
 
@@ -1408,7 +1416,7 @@ Body           : ${request.toJson()}
 ''');
 
   return await runSafely<bool>(() async {
-    await locator<SessionServices>().downTimeLevels(
+    await locator<SessionRepository>().downTimeLevels(
       request: request,
       id: state.sessionId!,
     );
@@ -1418,13 +1426,13 @@ Body           : ${request.toJson()}
     return true;
   });
 }
-    Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
-      final request = AllowedProviderRolesRequest(
-        stepNumber: stepNumber,
-        allowedRoles: state.selectedRoles,
-      );
+  Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
+    final request = AllowedProviderRolesRequest(
+      stepNumber: stepNumber,
+      allowedRoles: state.selectedRoles,
+    );
 
-      log('''
+    log('''
   =========== ALLOWED PROVIDER ROLES REQUEST ===========
   Draft ID             : ${state.sessionId}
   Allowed Roles        : ${state.selectedRoles.join(', ')}
@@ -1432,92 +1440,92 @@ Body           : ${request.toJson()}
   ======================================================
   ''');
 
-      return await runSafely<bool>(() async {
-        await locator<SessionServices>().allowedProviderRoles(
-          request: request,
-          id: state.sessionId!,
-        );
+    return await runSafely<bool>(() async {
+      await locator<SessionRepository>().allowedProviderRoles(
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Step Allowed Provider Roles Saved : ${state.sessionId!}');
+      log('Step Allowed Provider Roles Saved : ${state.sessionId!}');
 
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
-    Future<bool?> callPreTreatmentInstructions({required int stepNumber}) async {
-      return await runSafely<bool>(() async {
-        final attachments = state.existingPreAttachments
-            .map(
-              (a) =>
-                  PreTreatmentAttachment(name: a.name, url: a.url, type: a.type),
-            )
-            .toList();
+  Future<bool?> callPreTreatmentInstructions({required int stepNumber}) async {
+    return await runSafely<bool>(() async {
+      final attachments = state.existingPreAttachments
+          .map(
+            (a) =>
+                PreTreatmentAttachment(name: a.name, url: a.url, type: a.type),
+          )
+          .toList();
 
-        final request = PreTreatmentInstructionsRequest(
-          stepNumber: stepNumber,
-          preTreatmentInstructions:
-              preTreatmentInstructionsController.text.trim().isEmpty
-              ? null
-              : preTreatmentInstructionsController.text.trim(),
-          preTreatmentAttachments: attachments.isEmpty ? null : attachments,
-        );
-        log('''
+      final request = PreTreatmentInstructionsRequest(
+        stepNumber: stepNumber,
+        preTreatmentInstructions:
+            preTreatmentInstructionsController.text.trim().isEmpty
+            ? null
+            : preTreatmentInstructionsController.text.trim(),
+        preTreatmentAttachments: attachments.isEmpty ? null : attachments,
+      );
+      log('''
   =========== PRE-TREATMENT INSTRUCTIONS REQUEST ===========
   Draft ID   : ${state.sessionId!}
   Body       : ${request.toJson()}
   ============================================
   ''');
 
-        await locator<SessionServices>().preTreatmentInstructions(
-          request: request,
-          id: state.sessionId!,
-        );
+      await locator<SessionRepository>().preTreatmentInstructions(
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Pre-Treatment Instructions Created : ${state.sessionId!}');
+      log('Pre-Treatment Instructions Created : ${state.sessionId!}');
 
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
-    Future<bool?> callPostTreatmentInstructions({required int stepNumber}) async {
-      return await runSafely<bool>(() async {
-        final attachments = state.existingPostAttachments
-            .map(
-              (a) =>
-                  PostTreatmentAttachment(name: a.name, url: a.url, type: a.type),
-            )
-            .toList();
+  Future<bool?> callPostTreatmentInstructions({required int stepNumber}) async {
+    return await runSafely<bool>(() async {
+      final attachments = state.existingPostAttachments
+          .map(
+            (a) =>
+                PostTreatmentAttachment(name: a.name, url: a.url, type: a.type),
+          )
+          .toList();
 
-        final request = PostTreatmentInstructionsRequest(
-          stepNumber: stepNumber,
-          postTreatmentInstructions:
-              postTreatmentInstructionsController.text.trim().isEmpty
-              ? null
-              : postTreatmentInstructionsController.text.trim(),
-          postTreatmentAttachments: attachments.isEmpty ? null : attachments,
-        );
-        log('''
+      final request = PostTreatmentInstructionsRequest(
+        stepNumber: stepNumber,
+        postTreatmentInstructions:
+            postTreatmentInstructionsController.text.trim().isEmpty
+            ? null
+            : postTreatmentInstructionsController.text.trim(),
+        postTreatmentAttachments: attachments.isEmpty ? null : attachments,
+      );
+      log('''
   =========== POST-TREATMENT INSTRUCTIONS REQUEST ===========
   Draft ID   : ${state.sessionId!}
   Body       : ${request.toJson()}
   ============================================
   ''');
 
-        await locator<SessionServices>().postTreatmentInstructions(
-          request: request,
-          id: state.sessionId!,
-        );
+      await locator<SessionRepository>().postTreatmentInstructions(
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Post-Treatment Instructions Created : ${state.sessionId!}');
+      log('Post-Treatment Instructions Created : ${state.sessionId!}');
 
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
   Future<bool?> callPostTreatmentPhotos({required int stepNumber}) async {
     return await runSafely(() async {
       if (state.sessionId == null) {
-        throw const UnknownException(message:  'Session not found!');
+        throw const UnknownException(message: 'Session not found!');
       }
       int totalCount = 0;
       final List<PhotoMilestone> configs = [];
@@ -1529,7 +1537,7 @@ Body           : ${request.toJson()}
         configs.add(PhotoMilestone(numberOfDays: days, requiredPhotos: count));
       }
 
-      await locator<SessionServices>().postTreatmentPhotos(
+      await locator<SessionRepository>().postTreatmentPhotos(
         id: state.sessionId!,
         requirePostPhotos: state.requirePostTreatmentPhotos,
         count: totalCount,
@@ -1542,22 +1550,21 @@ Body           : ${request.toJson()}
     });
   }
 
-   Future<bool?> callPhaseNotifications({required int stepNumber}) async {
+  Future<bool?> callPhaseNotifications({required int stepNumber}) async {
     return await runSafely(() async {
       final sessionId = state.sessionId;
       if (sessionId == null) {
-        throw const UnknownException(message:  'Session not found!');
+        throw const UnknownException(message: 'Session not found!');
       }
 
       final bool preIsCatDefault = state.preNotificationSource == 'category';
       final bool postIsCatDefault = state.postNotificationSource == 'category';
 
-      await locator<SessionServices>().phaseNotifications(
+      await locator<SessionRepository>().phaseNotifications(
         id: sessionId,
         request: PhaseNotificationsRequest(
           stepNumber: stepNumber,
           preNoti: PreNoti(
-           
             preNotifications: preIsCatDefault
                 ? []
                 : state.preNotificationEntries.map((entry) {
@@ -1571,7 +1578,6 @@ Body           : ${request.toJson()}
                   }).toList(),
           ),
           postNoti: PostNoti(
-           
             postNotifications: postIsCatDefault
                 ? []
                 : state.postNotificationEntries.map((entry) {
@@ -1592,7 +1598,7 @@ Body           : ${request.toJson()}
 
   Future<bool?> createSchedule({required int stepNumber}) async {
     return await runSafely<bool>(() async {
-      await locator<SessionServices>().createSchedule(
+      await locator<SessionRepository>().createSchedule(
         TreatmentScheduleRequest(
           stepNumber: stepNumber,
           baseDuration: state.isFixedDuration
@@ -1616,7 +1622,6 @@ Body           : ${request.toJson()}
           cleanupTime: state.isFixedDuration
               ? null
               : (int.tryParse(cleanupTimeController.text) ?? 0),
-          allowClinicOverride: state.allowClinicOverride,
           allowProviderOverride: state.allowProviderOverride,
           onlineBookable: state.onlineBookable,
           manualApprovalRequired: state.manualApprovalRequired,
@@ -1643,18 +1648,18 @@ Body           : ${request.toJson()}
     });
   }
 
-    Future<bool?> callConsentFormSelection({required int stepNumber}) async {
-      final request = ConsentFormSelectionRequest(
-        stepNumber: stepNumber,
-        preTreatmentConsentForm: state.preTreatmentConsentForm != null
-            ? PreTreatmentConsentForm(
-                name: state.preTreatmentConsentForm!.name,
-                url: state.consentFormUrl,
-              )
-            : null,
-      );
+  Future<bool?> callConsentFormSelection({required int stepNumber}) async {
+    final request = ConsentFormSelectionRequest(
+      stepNumber: stepNumber,
+      preTreatmentConsentForm: state.preTreatmentConsentForm != null
+          ? PreTreatmentConsentForm(
+              name: state.preTreatmentConsentForm!.name,
+              url: state.consentFormUrl,
+            )
+          : null,
+    );
 
-      log('''
+    log('''
   =========== CONSENT FORM SELECTION REQUEST ===========
   Session ID           : ${state.sessionId!}
   Consent Type         : ${state.consentType}
@@ -1663,68 +1668,53 @@ Body           : ${request.toJson()}
   ======================================================
   ''');
 
-      return await runSafely<bool>(() async {
-        await locator<SessionServices>().consentFormSelection(
-          // ← correct endpoint
-          request: request,
-          id: state.sessionId!,
-        );
+    return await runSafely<bool>(() async {
+      await locator<SessionRepository>().consentFormSelection(
+        // ← correct endpoint
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Step Consent Form Selection Saved : ${state.sessionId!}');
+      log('Step Consent Form Selection Saved : ${state.sessionId!}');
 
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
-    Future<bool?> callFollowUpConfig({required int stepNumber}) async {
-      return await runSafely(() async {
-        final sessionId = state.sessionId;
-        if (sessionId == null) {
-          throw const UnknownException(message: 'Session not found!');
-        }
-        await locator<SessionServices>().followUpConfig(
-          id: sessionId,
-          request: FollowUpRequest(
-            stepNumber: stepNumber,
-            followUps: state.sessions
-                .expand((session) => session.followUps)
-                .map(
-                  (followUp) => FollowUp(
-                    type: followUp.type,
-                    durationValue: num.parse(
-                      followUp.durationValueController.text,
-                    ),
-                    durationUnit: followUp.durationUnit,
-                    intervalValue: num.parse(
-                      followUp.intervalValueController.text,
-                    ),
-                    intervalUnit: followUp.intervalUnit,
-                    isImageRequired: followUp.isImageRequired,
-                    notes: followUp.notesController.text,
+  Future<bool?> callFollowUpConfig({required int stepNumber}) async {
+    return await runSafely(() async {
+      final sessionId = state.sessionId;
+      if (sessionId == null) {
+        throw const UnknownException(message: 'Session not found!');
+      }
+      await locator<SessionRepository>().followUpConfig(
+        id: sessionId,
+        request: FollowUpRequest(
+          stepNumber: stepNumber,
+          followUps: state.sessions
+              .expand((session) => session.followUps)
+              .map(
+                (followUp) => FollowUp(
+                  type: followUp.type,
+                  durationValue: num.parse(
+                    followUp.durationValueController.text,
                   ),
-                )
-                .toList(),
-          ),
-        );
+                  durationUnit: followUp.durationUnit,
+                  intervalValue: num.parse(
+                    followUp.intervalValueController.text,
+                  ),
+                  intervalUnit: followUp.intervalUnit,
+                  isImageRequired: followUp.isImageRequired,
+                  notes: followUp.notesController.text,
+                ),
+              )
+              .toList(),
+        ),
+      );
 
-        return true;
-      });
-    }
-
-    Future<bool?> callFinalFinish() async {
-      return await runSafely(() async {
-        final sessionId = state.sessionId;
-        if (sessionId == null) {
-          throw const UnknownException(message: 'Session not found!');
-        }
-        await locator<SessionServices>().finalFinish(
-          id: sessionId,
-          request: FinalFinishRequest(status: 'Active', isCompleted: true),
-        );
-
-        return true;
-      });
-    }
+      return true;
+    });
+  }
 
   void toggleProtocolSelection(
     String protocolId, {
