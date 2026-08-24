@@ -122,6 +122,7 @@ class _ClinicAiPlansScreenState extends ConsumerState<ClinicAiPlansScreen> {
                     });
                   },
                   child: BorderdContainerWidget(
+                    height: context.isDesktop ? context.h(540) : null,
                     padding: context.appEdgeInsets(all: 24),
                     backgroundColor: isSelected
                         ? CustomColors.purple.withValues(alpha: 0.05)
@@ -177,6 +178,7 @@ class _ClinicAiPlansScreenState extends ConsumerState<ClinicAiPlansScreen> {
                           ...plan.benefits!
                               .where((b) => b.enabled)
                               .map((b) => _buildDetailRow(context, b.title ?? '')),
+                        const Spacer(),
                         context.verticalSpace(24),
                         SizedBox(
                           width: double.infinity,
