@@ -91,7 +91,7 @@ class _PatientManagementContent extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Patient Database', style: context.fonts.black26w700),
+              Text('Patient Database', style: context.fonts.level1Heading),
               context.verticalSpace(6),
               Text(
                 'Manage clinic active patient directory, medical histories, and active treatment journeys.',

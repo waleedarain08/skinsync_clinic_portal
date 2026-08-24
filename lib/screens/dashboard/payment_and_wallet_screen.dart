@@ -210,16 +210,25 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
   Widget build(BuildContext context) {
     return GradientScaffold(
       body: SingleChildScrollView(
-        padding: context.appEdgeInsets(horizontal: 20, vertical: 20),
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            context.verticalSpace(20),
             AdaptiveLayoutRowColumn(
               expandedWidget: false,
               alignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Payment and Wallet', style: context.fonts.black20w600),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Payment and Wallet', style: context.fonts.level1Heading),
+                    context.verticalSpace(6),
+                    Text(
+                      "Manage your clinic's finances, payouts, and payment methods.",
+                      style: context.fonts.grey13w500,
+                    ),
+                  ],
+                ),
                 ElevatedButton.icon(
                   onPressed: _showAddBankDialog,
                   icon: const Icon(Icons.add, size: 18),
@@ -230,9 +239,9 @@ class _PaymentAndWalletScreenState extends State<PaymentAndWalletScreen> {
                 ),
               ],
             ),
-            context.verticalSpace(14),
+            context.verticalSpace(32),
             const Divider(color: CustomColors.border),
-            context.verticalSpace(20),
+            context.verticalSpace(32),
             walletInfo(context),
             context.verticalSpace(20),
             bankAccountsSection(context),

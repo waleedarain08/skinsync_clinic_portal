@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/responses/treatment_detail_response.dart';
+import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_network_image.dart';
@@ -162,10 +163,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 detail.patientDisplayName ?? 'N/A',
-                                style: context.fonts.black18w600.copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: context.fonts.level2Heading,
                               ),
                             ),
                             Consumer(
@@ -304,7 +302,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Description & Details', style: context.fonts.black16w700),
+              Text('Description & Details', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(14),
@@ -343,7 +341,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Assigned Category Path', style: context.fonts.black16w700),
+              Text('Assigned Category Path', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(16),
@@ -375,19 +373,25 @@ class TreatmentDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          AdaptiveLayoutRowColumn(
+            expandedWidget: false,
+            alignment: .spaceBetween,
             children: [
-              const Icon(
-                Icons.location_on_outlined,
-                color: CustomColors.purple,
-                size: 20,
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    color: CustomColors.purple,
+                    size: 20,
+                  ),
+                  context.horizontalSpace(10),
+                  Text(
+                    'Anatomical Areas & Clinical Sessions',
+                    style: context.fonts.subHeading,
+                  ),
+                ],
               ),
-              context.horizontalSpace(10),
-              Text(
-                'Anatomical Areas & Clinical Sessions',
-                style: context.fonts.black16w700,
-              ),
-              const Spacer(),
+              // const Spacer(),
               GestureDetector(
                 onTap: () async {
                   await showDialog(
@@ -580,7 +584,7 @@ class TreatmentDetailScreen extends ConsumerWidget {
                 size: 20,
               ),
               context.horizontalSpace(10),
-              Text('Audit Information', style: context.fonts.black16w700),
+              Text('Audit Information', style: context.fonts.subHeading),
             ],
           ),
           context.verticalSpace(16),

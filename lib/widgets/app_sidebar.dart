@@ -5,6 +5,7 @@ import 'package:sidebarx/sidebarx.dart';
 
 import '../main.dart';
 import '../screens/dashboard/appointment_screen.dart';
+import '../screens/dashboard/clinic_ai_plans_screen.dart';
 import '../screens/dashboard/forms_screen.dart';
 import '../screens/dashboard/home_screen.dart';
 import '../screens/dashboard/inventory_screen.dart';
@@ -58,6 +59,13 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: TreatmentScreen.routeName,
         sectionLabel: 'OPERATIONS',
       ),
+    const _SidebarEntry(
+      icon: Iconsax.mask,
+      label: 'Subscription',
+      routeName: ClinicAiPlansScreen.routeName,
+      sectionLabel: 'FINANCIALS',
+
+    ),
     if (!isDeploymentMode) ...[
       const _SidebarEntry(
         icon: Iconsax.calendar,
@@ -87,6 +95,7 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: PaymentAndWalletScreen.routeName,
         sectionLabel: 'FINANCIALS',
       ),
+
     ],
     const _SidebarEntry(
       icon: Iconsax.user_octagon,

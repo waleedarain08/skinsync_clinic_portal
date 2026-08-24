@@ -128,7 +128,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Administration Staff', style: context.fonts.black26w700),
+            Text('Administration Staff', style: context.fonts.level1Heading),
             context.verticalSpace(6),
             Text(
               'Manage clinic receptionists, managers, and administrative support.',

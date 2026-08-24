@@ -109,7 +109,7 @@ class AppointmentDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Appointment #${appointment.appointmentKey ?? ""}',
-                  style: context.fonts.black26w700,
+                  style: context.fonts.level2Heading,
                 ),
                 context.verticalSpace(4),
                 Container(
@@ -182,7 +182,7 @@ class AppointmentDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: context.fonts.black18w600),
+          Text(title, style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           ...children,
         ],

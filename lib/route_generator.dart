@@ -19,6 +19,7 @@ import 'screens/dashboard/add_administration_staff_screen.dart';
 import 'screens/dashboard/administration_staff_detail_screen.dart';
 import 'screens/dashboard/appointment_detail_screen.dart';
 import 'screens/dashboard/appointment_screen.dart';
+import 'screens/dashboard/clinic_ai_plans_screen.dart';
 import 'screens/dashboard/dashboard.dart';
 import 'screens/dashboard/forms_screen.dart';
 import 'screens/dashboard/home_screen.dart';
@@ -105,6 +106,11 @@ class RouteGenerator {
             name: PatientAiManagementScreen.routeName,
             path: PatientAiManagementScreen.routeName,
             builder: (_, _) => const PatientAiManagementScreen(),
+          ),
+          GoRoute(
+            name: ClinicAiPlansScreen.routeName,
+            path: ClinicAiPlansScreen.routeName,
+            builder: (_, _) => const ClinicAiPlansScreen(),
           ),
           GoRoute(
             name: PatientManagementScreen.routeName,

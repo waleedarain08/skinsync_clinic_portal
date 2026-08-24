@@ -37,20 +37,26 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.w(20),
-          vertical: context.h(16),
-        ),
+      body: SingleChildScrollView(
+        padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: context.h(20)),
             AdaptiveLayoutRowColumn(
               expandedWidget: false,
               alignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Roles Management", style: context.fonts.black20w600),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Roles Management", style: context.fonts.level1Heading),
+                    context.verticalSpace(6),
+                    Text(
+                      "Manage and configure clinic staff access permissions.",
+                      style: context.fonts.grey13w500,
+                    ),
+                  ],
+                ),
                 CustomPrimaryButton(
                   onTap: _showAddRoleDialog,
                   label: 'Add Custom Role',
@@ -59,64 +65,64 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                 ),
               ],
             ),
-            SizedBox(height: context.h(14)),
+            context.verticalSpace(32),
             const Divider(color: CustomColors.border),
-            SizedBox(height: context.h(20)),
+            context.verticalSpace(32),
             Consumer(
               builder: (context, ref, _) {
                 final state = ref.watch(roleProvider);
                 if (state.loading) {
                   return const Center(child: AppLoader());
                 }
-                return Expanded(
-                  child: ListView.separated(
-                    itemCount: state.roles.length,
-                    separatorBuilder: (context, index) =>
-                        SizedBox(height: context.h(16)),
-                    itemBuilder: (context, index) {
-                      final selectedRole = state.roles[index];
-                      return Card(
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(context.r(12)),
-                          side: const BorderSide(color: CustomColors.border),
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: state.roles.length,
+                  separatorBuilder: (context, index) =>
+                      SizedBox(height: context.h(16)),
+                  itemBuilder: (context, index) {
+                    final selectedRole = state.roles[index];
+                    return Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(context.r(12)),
+                        side: const BorderSide(color: CustomColors.border),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: ExpansionTile(
+                        onExpansionChanged: (value) {
+                          final vm = ref.read(roleProvider.notifier);
+                          if (!value) {
+                            vm.clear();
+                          }
+                        },
+                        backgroundColor: CustomColors.white,
+                        collapsedBackgroundColor: CustomColors.white,
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide.none,
                         ),
-                        clipBehavior: Clip.antiAlias,
-                        child: ExpansionTile(
-                          onExpansionChanged: (value) {
-                            final vm = ref.read(roleProvider.notifier);
-                            if (!value) {
-                              vm.clear();
-                            }
-                          },
-                          backgroundColor: CustomColors.white,
-                          collapsedBackgroundColor: CustomColors.white,
-                          shape: const RoundedRectangleBorder(
-                            side: BorderSide.none,
+                        leading: CircleAvatar(
+                          backgroundColor: CustomColors.blue.withValues(
+                            alpha: 0.1,
                           ),
-                          leading: CircleAvatar(
-                            backgroundColor: CustomColors.blue.withValues(
-                              alpha: 0.1,
-                            ),
-                            child: Icon(
-                              Icons.person_outline,
-                              color: CustomColors.blue,
-                              size: context.sp(20),
-                            ),
+                          child: Icon(
+                            Icons.person_outline,
+                            color: CustomColors.blue,
+                            size: context.sp(20),
                           ),
-                          title: Text(
-                            selectedRole.roleName?.toUpperCase() ?? "N/A",
-                            style: context.fonts.black18w600,
-                          ),
-                          subtitle: Text(
-                            "Configure permissions for this role",
-                            style: context.fonts.grey14w400,
-                          ),
-                          children: [_buildRolePermissions(selectedRole)],
                         ),
-                      );
-                    },
-                  ),
+                        title: Text(
+                          selectedRole.roleName?.toUpperCase() ?? "N/A",
+                          style: context.fonts.black18w600,
+                        ),
+                        subtitle: Text(
+                          "Configure permissions for this role",
+                          style: context.fonts.grey14w400,
+                        ),
+                        children: [_buildRolePermissions(selectedRole)],
+                      ),
+                    );
+                  },
                 );
               },
             ),
