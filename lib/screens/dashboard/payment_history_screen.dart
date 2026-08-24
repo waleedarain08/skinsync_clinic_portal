@@ -52,8 +52,7 @@ class PaymentHistoryScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget searchAndFilter(BuildContext context) {

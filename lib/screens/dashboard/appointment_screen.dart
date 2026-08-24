@@ -255,8 +255,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildFooter() {
