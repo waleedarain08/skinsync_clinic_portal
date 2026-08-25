@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import '../models/requests/add_treatment_req_model.dart';
+import '../models/requests/session_status_request.dart';
+import '../models/requests/status_request.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/treatment_detail_response.dart';
@@ -109,7 +111,7 @@ class TreatmentServices implements TreatmentRepository {
   }
 
   @override
-  Future<TreatmentModel> addTreatment(AddTreatmentReqModel req) async {
+  Future<BaseResponse> addTreatment(AddTreatmentReqModel req) async {
     final jsonResponse = await _api.httpRequest(
       endPoint: Endpoint.addClinicTreatment,
       requestType: RequestType.post,
@@ -123,7 +125,25 @@ class TreatmentServices implements TreatmentRepository {
     if (!response.success) {
       throw BadRequestException(response.message);
     }
-    return response.data!;
+    return response;
+  }
+
+    @override
+  Future<BaseResponse> updateTreatmentStatus({
+    required int treatmentId,
+    required StatusRequest status,
+  }) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: .patch,endPoint: 
+      Endpoint.treatmentsStatus,
+      requestBody:  status,
+      queryParams: {'treatment_id': treatmentId.toString()},
+    );
+    final response = BaseResponse.fromJson(jsonResponse,(json) => json);
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
   }
 
   @override
@@ -162,6 +182,9 @@ class TreatmentServices implements TreatmentRepository {
     return response.success;
   }
 
+
+
+
   @override
   Future<TreatmentTemplateListResponse> getTreatmentTemplates({
     required int page,
@@ -189,4 +212,23 @@ class TreatmentServices implements TreatmentRepository {
     }
     return response;
   }
+
+
+    @override
+Future<BaseResponse> changeSessionStatus({
+    required SessionStatusRequest request,
+  }) async{
+    final jsonResponse = await _api.httpRequest(
+      requestType: .patch,endPoint: 
+      Endpoint.sessionStatus,
+      requestBody: request
+    );
+    final response = BaseResponse.fromJson(jsonResponse,(json) => json);
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+
 }

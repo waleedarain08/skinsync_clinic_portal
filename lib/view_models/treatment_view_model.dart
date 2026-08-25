@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/requests/session_status_request.dart';
+import '../models/requests/status_request.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/treatment_detail_response.dart';
 import '../models/treatment_model.dart';
@@ -9,9 +12,10 @@ import '../repositories/treatment_repository.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
 
-final treatmentViewModelProvider = NotifierProvider<TreamententViewModel, TreatmentState>(
-  () => TreamententViewModel._(),
-);
+final treatmentViewModelProvider =
+    NotifierProvider<TreamententViewModel, TreatmentState>(
+      () => TreamententViewModel._(),
+    );
 
 class TreamententViewModel extends BaseViewModel<TreatmentState> {
   TreamententViewModel._();
@@ -45,30 +49,33 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     );
 
     try {
-       final repository = locator<TreatmentRepository>();
-       final ClinicTreatmentListResponse response = await repository.getClinicTreatments(
-         page: targetPage,
-         limit: state.limit,
-         search: state.search,
-         status: state.status,
-       );
+      final repository = locator<TreatmentRepository>();
+      final ClinicTreatmentListResponse response = await repository
+          .getClinicTreatments(
+            page: targetPage,
+            limit: state.limit,
+            search: state.search,
+            status: state.status,
+          );
 
-       final List<TreatmentModel> newTreatments = response.data ?? [];
-       final int totalPages = response.totalPages ?? 1;
+      final List<TreatmentModel> newTreatments = response.data ?? [];
+      final int totalPages = response.totalPages ?? 1;
 
-       state = state.copyWith(
-         treatments: isRefresh ? newTreatments : [...state.treatments, ...newTreatments],
-         loading: false,
-         page: targetPage + 1,
-         totalPages: totalPages,
-         hasMore: targetPage < totalPages && newTreatments.isNotEmpty,
-       );
+      state = state.copyWith(
+        treatments: isRefresh
+            ? newTreatments
+            : [...state.treatments, ...newTreatments],
+        loading: false,
+        page: targetPage + 1,
+        totalPages: totalPages,
+        hasMore: targetPage < totalPages && newTreatments.isNotEmpty,
+      );
     } catch (e) {
-       state = state.copyWith(
-         loading: false,
-         error: e.toString().replaceAll('Exception:', '').trim(),
-         hasMore: false,
-       );
+      state = state.copyWith(
+        loading: false,
+        error: e.toString().replaceAll('Exception:', '').trim(),
+        hasMore: false,
+      );
     }
   }
 
@@ -89,31 +96,29 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
 
   Future<List<AdminTreatment>> getAdminTreatments(String? search) async {
     final repository = locator<TreatmentRepository>();
-    final response = await repository.getAdminTreatments(page: 1, search: search);
-    return  response;
+    final response = await repository.getAdminTreatments(
+      page: 1,
+      search: search,
+    );
+    return response;
   }
 
-    Future<bool> fetchTreatmentDetail(int id, {bool loading = true}) async {
-        final repository = locator<TreatmentRepository>();
+  Future<bool> fetchTreatmentDetail(int id, {bool loading = true}) async {
+    final repository = locator<TreatmentRepository>();
     return await runSafely<bool>(showLoading: loading, () async {
-          final response = await repository.getTreatmentDetail(
-            id: id,
-          );
+          final response = await repository.getTreatmentDetail(id: id);
           if (response.isSuccess && response.data != null) {
             state = state.copyWith(selectedTreatmentDetail: response.data);
-            if(response.data?.id != null){
-             setTreatment(response.data!.id!);
+            if (response.data?.id != null) {
+              setTreatment(response.data!.id!);
             }
-           
+
             return true;
           }
           return false;
         }) ??
         false;
   }
-
-
-  
 
   Future<List<SideAreaModel>> getTreatmentsSideAreas({
     required int treatmentId,
@@ -129,15 +134,34 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
   Future<bool> addClinicTreatment({
     required AddTreatmentReqModel treatment,
   }) async {
-    state = state.copyWith(loading: true);
-    try {
-      await locator<TreatmentRepository>().addTreatment(treatment);
-      await getTreatments(isRefresh: true);
+    return await runSafely<bool>(() async {
+          final response = await locator<TreatmentRepository>().addTreatment(
+            treatment,
+          );
+          if (response.success) {
+            await getTreatments();
+
+            return true;
+          }
+          return false;
+        }) ??
+        false;
+  }
+
+  Future<bool?> changeTreatmentStatus(int treatmentId, String status) async {
+    return await runSafely<bool>(() async {
+      final response = await locator<TreatmentRepository>()
+          .updateTreatmentStatus(
+            treatmentId: treatmentId,
+            status: StatusRequest(status: status),
+          );
+      if (response.success) {
+        await fetchTreatmentDetail(treatmentId, loading: false);
+      }
+
+      await EasyLoading.showSuccess('Treatment status updated successfully');
       return true;
-    } catch (e) {
-      state = state.copyWith(loading: false);
-      return false;
-    }
+    });
   }
 
   Future<bool> editClinicTreatment({
@@ -171,12 +195,29 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
   }
 
   void setPage(int page) {
-    state = state.copyWith(
-      page: page,
-      hasMore: true,
-    );
+    state = state.copyWith(page: page, hasMore: true);
     getTreatments(isRefresh: true);
   }
+ Future<bool?> changeSessionStatus({
+    required SessionStatusRequest request,
+  }) async {
+    return await runSafely<bool>(() async {
+      final response = await locator<TreatmentRepository>().changeSessionStatus(
+        request: request,
+      );
+      if (response.success) {
+        final treatmentId = state.selectedTreatmentDetail?.id;
+        if (treatmentId != null) {
+          await fetchTreatmentDetail(treatmentId, loading: false);
+        }
+       
+      }
+
+      return true;
+    });
+  }
+
+
 }
 
 class TreatmentState {
@@ -203,7 +244,7 @@ class TreatmentState {
     this.totalPages = 1,
     this.hasMore = true,
     this.error,
-    this.selectedTreatmentDetail
+    this.selectedTreatmentDetail,
   });
 
   TreatmentState copyWith({
@@ -230,7 +271,8 @@ class TreatmentState {
       totalPages: totalPages ?? this.totalPages,
       hasMore: hasMore ?? this.hasMore,
       error: error,
-      selectedTreatmentDetail: selectedTreatmentDetail?? this.selectedTreatmentDetail
+      selectedTreatmentDetail:
+          selectedTreatmentDetail ?? this.selectedTreatmentDetail,
     );
   }
 }

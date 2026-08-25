@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../models/requests/session_status_request.dart';
 import '../models/responses/session_model.dart';
 import '../screens/create_session_screen.dart';
 import '../utils/theme.dart';
 import '../view_models/session_view_model.dart';
+import '../view_models/treatment_view_model.dart';
 import 'custom_outlined_button.dart';
 import 'status_toggle_switch.dart';
 
@@ -91,13 +93,13 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     String newStatus,
   ) {
     if (entry.sessionId != null) {
-      // ref
-      //     .read(sessionViewModelProvider.notifier)
-      //     .changeSessionStatus(request: SessionStatusRequest(
-      //       sessionId:   entry.sessionId!,
-      //       status:  newStatus
-      //     )
-      //      );
+      ref
+          .read(treatmentViewModelProvider.notifier)
+          .changeSessionStatus(request: SessionStatusRequest(
+            sessionId:   entry.sessionId!,
+            status:  newStatus
+          )
+           );
     }
   }
 

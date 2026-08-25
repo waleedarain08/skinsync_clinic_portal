@@ -174,15 +174,15 @@ class TreatmentDetailScreen extends ConsumerWidget {
                                   status: status,
                                   onChanged: (newStatus) {
                                     if (detail.id != null) {
-                                      // ref
-                                      //     .read(
-                                      //       treatmentViewModelProvider.notifier,
-                                      //     )
-                                      //     .changeTreatmentStatus(
-                                      //       detail.id!,
-                                      //       newStatus,
-                                      //       callDetail: true
-                                      //     );
+                                      ref
+                                          .read(
+                                            treatmentViewModelProvider.notifier,
+                                          )
+                                          .changeTreatmentStatus(
+                                            detail.id!,
+                                            newStatus,
+                                            
+                                          );
                                     }
                                   },
                                 );

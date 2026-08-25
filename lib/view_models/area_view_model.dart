@@ -10,7 +10,7 @@ import '../services/locator.dart';
 import 'base_view_model.dart';
 import 'treatment_view_model.dart';
 
-final areaViewModelProvider = NotifierProvider.autoDispose<AreaViewModel, AreaState>(
+final areaViewModelProvider = NotifierProvider<AreaViewModel, AreaState>(
   () => AreaViewModel._(),
 );
 

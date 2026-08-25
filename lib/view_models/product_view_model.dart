@@ -259,7 +259,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
     required String batchNumber,
     required String manufactureDate,
   }) async {
-    final result = await runSafely(showLoading: true, () async {
+    final result = await runSafely( () async {
       final request = ProductBatchRequest(
         productId: productId,
         batchNumber: batchNumber,
@@ -330,6 +330,7 @@ class ProductViewModel extends BaseViewModel<ProductState> {
       );
       if (response.success) {
         await fetchAdminProducts(page: 1, search: '');
+        await fetchProducts(page: 1);
       }
       return true;
     });

@@ -1,5 +1,8 @@
 import '../models/requests/add_treatment_req_model.dart';
+import '../models/requests/session_status_request.dart';
+import '../models/requests/status_request.dart';
 import '../models/responses/admin_treatment_response.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/treatment_detail_response.dart';
 import '../models/responses/treatment_template_list_response.dart';
 import '../models/responses/clinic_treatment_list_response.dart';
@@ -20,9 +23,14 @@ abstract class TreatmentRepository {
   }
   );
   Future<List<SideAreaModel>> getTreatmentsSideArea(int treatmentId);
-  Future<TreatmentModel> addTreatment(AddTreatmentReqModel req);
+  Future<BaseResponse> addTreatment(AddTreatmentReqModel req);
   Future<TreatmentModel> editTreatment(AddTreatmentReqModel req);
   Future<bool> deleteTreatment(int treatmentId);
+  Future<BaseResponse> updateTreatmentStatus({
+    required int treatmentId,
+    required StatusRequest status,
+  });
+
   Future<TreatmentTemplateListResponse> getTreatmentTemplates({
     required int page,
     int limit = 10,
@@ -30,4 +38,7 @@ abstract class TreatmentRepository {
   });
 
    Future<TreatmentDetailResponse> getTreatmentDetail({required int id});
+    Future<BaseResponse> changeSessionStatus({
+    required SessionStatusRequest request,
+  });
 }

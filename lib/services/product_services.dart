@@ -365,7 +365,7 @@ class ProductServices implements ProductRepository {
     required int limit,
     String search = '',
   }) async {
-    try {
+  
       final jsonResponse = await _api.httpRequest(
         requestType: RequestType.get,
         endPoint: Endpoint.adminProductList,
@@ -380,33 +380,7 @@ class ProductServices implements ProductRepository {
         throw BadRequestException(response.message);
       }
       return response;
-    } catch (e) {
-      // Sliced mock paginated list
-      final list = AdminDummyProducts.getDummyProductsForPage(page, limit);
-      final filteredList = search.isEmpty
-          ? list
-          : list
-                .where(
-                  (p) =>
-                      p.name.toLowerCase().contains(search.toLowerCase()) ||
-                      (p.brand ?? '').toLowerCase().contains(
-                        search.toLowerCase(),
-                      ) ||
-                      (p.id.toString()).contains(
-                        search.toLowerCase(),
-                      ),
-                )
-                .toList();
-
-      return AdminProductListResponse(
-        success: true,
-        message: 'Loaded paginated dummy admin products',
-        page: page,
-        limit: limit,
-        totalPages: 3, // 20 items / 8 per page = 3 pages
-        data: filteredList,
-      );
-    }
+    
   }
 
   @override

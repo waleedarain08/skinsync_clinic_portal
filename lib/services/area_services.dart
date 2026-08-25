@@ -12,7 +12,7 @@ class AreaServices implements AreaRepository {
   Future<List<AreaModel>> getAreas({required int treatmentId}) async {
     final jsonResponse = await locator<ApiBaseService>().httpRequest(
       requestType: RequestType.get,
-      endPoint: Endpoint.areasAvailable,
+      endPoint: Endpoint.getAdminTreatmentsSideAreas,
         pathParams: {'treatmentId' : treatmentId.toString()}
     );
     final response = AreaListResponse.fromJson(jsonResponse);

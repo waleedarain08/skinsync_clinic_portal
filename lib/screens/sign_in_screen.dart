@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 
-import '../models/requests/login_request_model.dart';
 import '../utils/assets.dart';
 import '../utils/enums.dart';
 import '../utils/theme.dart';
@@ -518,10 +517,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final success = await ref
         .read(authViewModelProvider.notifier)
         .login(
-          loginReq: LoginRequestModel(
+         
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
-          ),
+          
         );
     if (success && mounted) {
       context.goNamed(HomeScreen.routeName);
