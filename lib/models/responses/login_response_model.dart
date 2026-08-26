@@ -28,6 +28,7 @@ class AuthData {
   final int? accessExpiresAt;
   final int? refreshExpiresAt;
   final UserModel? clinicUser;
+  final bool isCompleted;
   final DashboardModel? dashboard;
 
   AuthData({
@@ -36,6 +37,7 @@ class AuthData {
     this.accessExpiresAt,
     this.refreshExpiresAt,
     this.clinicUser,
+    this.isCompleted = false,
     this.dashboard,
   });
 
@@ -44,6 +46,7 @@ class AuthData {
         refreshToken: json["refresh_token"],
         accessExpiresAt: json["access_expires_at"],
         refreshExpiresAt: json["refresh_expires_at"],
+        isCompleted: json['is_completed'],
         clinicUser: json["clinic_user"] == null
             ? null
             : UserModel.fromJson(json["clinic_user"]),
@@ -58,6 +61,7 @@ class AuthData {
         "access_expires_at": accessExpiresAt,
         "refresh_expires_at": refreshExpiresAt,
         "clinic_user": clinicUser?.toJson(),
+        "is_completed":isCompleted,
         "dashboard": dashboard?.toJson(),
       };
 }
