@@ -99,8 +99,11 @@ void _showIncompleteProfileDialog(BuildContext context) {
                             borderRadius: BorderRadius.circular(context.r(8)),
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(context);
+                            await ref
+                          .read(authViewModelProvider.notifier)
+                          .getClinicDetail();
                           context.pushNamed(BusinessInformationScreen.routeName); 
                          
                         },
@@ -230,7 +233,7 @@ void _showIncompleteProfileDialog(BuildContext context) {
                     alignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Today Treatments Rquest",
+                        "Today Treatments Request",
                         style: context.fonts.black18w600,
                       ),
                       TextButton(

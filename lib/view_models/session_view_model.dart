@@ -1383,10 +1383,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
  Future<bool?> callDownTimeLevels({required int stepNumber}) async {
   final level = state.downtimeLevel;
 
-  if (level == null) {
-    log('Downtime level is not selected');
-    return false;
-  }
+  
 
   final selected = state.downTimeLevelList
       ?.where((e) => e.level == level)
@@ -1394,26 +1391,15 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
   final downtimeDays = selected?.days;
 
-  if (downtimeDays == null) {
-    log('Downtime days not found for selected level: $level');
-    return false;
-  }
+ 
 
   final request = DownTimeLevelRequest(
     stepNumber: stepNumber,
-    downtimeLevel: level.toLowerCase(),
+    downtimeLevel: (level ?? '' ).toLowerCase(),
     downtimeDays: downtimeDays,
   );
 
-  log('''
-=========== DOWNTIME LEVEL REQUEST ===========
-Draft ID       : ${state.sessionId}
-Step Number    : $stepNumber
-Downtime Level : ${level.toLowerCase()}
-Downtime Days  : $downtimeDays
-Body           : ${request.toJson()}
-==============================================
-''');
+
 
   return await runSafely<bool>(() async {
     await locator<SessionRepository>().downTimeLevels(
@@ -1426,6 +1412,7 @@ Body           : ${request.toJson()}
     return true;
   });
 }
+
   Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
     final request = AllowedProviderRolesRequest(
       stepNumber: stepNumber,

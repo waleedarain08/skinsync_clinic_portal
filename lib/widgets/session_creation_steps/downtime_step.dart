@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../screens/dashboard/appointment_treatment_detail_screen.dart';
 import '../../utils/theme.dart';
 import '../../view_models/session_view_model.dart';
 import '../../view_models/treatment_view_model.dart';
@@ -138,7 +139,7 @@ class _DowntimeStepState extends ConsumerState<DowntimeStep> {
             Builder(
               builder: (context) {
                 final item = downtimeLevels[i];
-                final level = item.level ?? '';
+                final level = item.level?.capitalize ?? '';
                 final days = item.days ?? 0;
                 return _downtimeOption(
                   context,
