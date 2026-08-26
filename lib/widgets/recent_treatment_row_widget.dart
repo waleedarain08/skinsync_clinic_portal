@@ -10,8 +10,26 @@ class TreatmentRequestRowWidget extends ConsumerWidget {
   const TreatmentRequestRowWidget({super.key});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    final treatmentList = ref.watch(authViewModelProvider).dashboard?.todayTreatmentRequest ?? [];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final treatmentList =
+        ref.watch(authViewModelProvider).dashboard?.todayTreatmentRequest ??
+            [];
+
+    // 1. Return centered empty state directly without AdaptiveLayoutList constraints
+    if (treatmentList.isEmpty) {
+      return Center(
+        child: _buildHorizontalEmptyState(
+          context: context,
+          height: context.h(101),
+          width: context.w(400), // Adjusted width so it doesn't stretch too wide
+          icon: Icons.medical_services_outlined,
+          title: 'No Treatment Requests',
+          subtitle: 'There are no treatment requests for today.',
+        ),
+      );
+    }
+
+    // 2. Render list view only when items are available
     return AdaptiveLayoutList(
       isScrollVertical: false,
       horizontalHeight: context.r(150),
@@ -24,6 +42,105 @@ class TreatmentRequestRowWidget extends ConsumerWidget {
             data: treatmentList[index],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildHorizontalEmptyState({
+    required BuildContext context,
+    required double height,
+    required double width,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    const myLocalGradient = LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        CustomColors.lightPurple,
+        CustomColors.purpleColor,
+      ],
+    );
+
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(context.r(24)),
+        gradient: myLocalGradient,
+        border: Border.all(
+          color: CustomColors.lightPurple.withValues(alpha: 0.4),
+          width: 1.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(context.r(22)),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                color: Colors.white.withValues(alpha: 0.85),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(16),
+                vertical: context.h(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min, // Prevents row stretching
+                children: [
+                  Container(
+                    height: context.w(48),
+                    width: context.w(48),
+                    decoration: BoxDecoration(
+                      color: CustomColors.purpleColor.withValues(
+                        alpha: 0.12,
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: CustomColors.purpleColor.withValues(
+                          alpha: 0.15,
+                        ),
+                        width: context.w(1),
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        icon,
+                        color: CustomColors.purpleColor,
+                        size: context.sp(22),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.w(14)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          style: CustomFonts.black14w700,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: context.h(4)),
+                        Text(
+                          subtitle,
+                          style: CustomFonts.grey13w500,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

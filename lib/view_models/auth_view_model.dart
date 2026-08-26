@@ -77,7 +77,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
       final response = await _authRepository.getMe();
       state = state.copyWith
       (
-        user: response.data!.clinicUser,dashboard:response.data?.dashboard);
+        user: response.data!.clinicUser,dashboard:response.data?.dashboard,isCompletedProfile: response.data?.isCompleted );
       return true;
     });
   }
@@ -91,7 +91,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     );
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.login(req: request);
-          state = state.copyWith(user: response.clinicUser,dashboard:response.dashboard);
+          state = state.copyWith(user: response.clinicUser,dashboard:response.dashboard,isCompletedProfile: response.isCompleted );
           return true;
         }) ??
         false;
@@ -242,6 +242,7 @@ class AuthState {
   final UserModel? user;
   final Clinic? clinicDetail;
   final DashboardModel? dashboard;
+  final bool isCompletedProfile;
   final String? error;
   final bool passwordChanged;
   final bool obscureCurrent;
@@ -259,6 +260,7 @@ class AuthState {
     this.user,
     this.clinicDetail,
     this.dashboard,
+    this.isCompletedProfile = false,
     this.passwordChanged = false,
     this.obscureCurrent = true,
     this.obscureNew = true,
@@ -275,6 +277,7 @@ class AuthState {
     String? error,
     UserModel? user,
     DashboardModel? dashboard,
+    bool? isCompletedProfile,
     Clinic? clinicDetail,
     String? resetToken,
     bool? passwordChanged,
@@ -291,6 +294,7 @@ class AuthState {
       user: user ?? this.user,
       clinicDetail: clinicDetail ?? this.clinicDetail,
       error: error,
+      isCompletedProfile:isCompletedProfile ?? this.isCompletedProfile,
       passwordChanged: passwordChanged ?? this.passwordChanged,
       obscureCurrent: obscureCurrent ?? this.obscureCurrent,
       obscureNew: obscureNew ?? this.obscureNew,

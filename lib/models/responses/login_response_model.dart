@@ -46,7 +46,7 @@ class AuthData {
         refreshToken: json["refresh_token"],
         accessExpiresAt: json["access_expires_at"],
         refreshExpiresAt: json["refresh_expires_at"],
-        isCompleted: json['is_completed'],
+        isCompleted: json['is_completed'] ?? false,
         clinicUser: json["clinic_user"] == null
             ? null
             : UserModel.fromJson(json["clinic_user"]),
