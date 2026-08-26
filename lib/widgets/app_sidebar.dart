@@ -59,13 +59,7 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: TreatmentScreen.routeName,
         sectionLabel: 'OPERATIONS',
       ),
-    const _SidebarEntry(
-      icon: Iconsax.mask,
-      label: 'Subscription',
-      routeName: ClinicAiPlansScreen.routeName,
-      sectionLabel: 'FINANCIALS',
 
-    ),
     if (!isDeploymentMode) ...[
       const _SidebarEntry(
         icon: Iconsax.calendar,
@@ -73,7 +67,13 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: AppointmentScreen.routeName,
         sectionLabel: 'CLINICAL',
       ),
-     
+      const _SidebarEntry(
+        icon: Iconsax.mask,
+        label: 'Subscription',
+        routeName: ClinicAiPlansScreen.routeName,
+        sectionLabel: 'FINANCIALS',
+
+      ),
       const _SidebarEntry(
         icon: Icons.inventory,
         label: 'Inventory',

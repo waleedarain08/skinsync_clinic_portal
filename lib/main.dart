@@ -9,7 +9,7 @@ import 'firebase_options.dart';
 import 'services/locator.dart';
 
 
-bool isDeploymentMode = false;
+bool isDeploymentMode = true;
 
 
 Future<void> main() async {
@@ -20,6 +20,7 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await initializeServices();
   Stripe.publishableKey = 'pk_test_51RZrW32UDQ1Rzrd8uNB07ptQPHxECWTfB4ZZF6ZCgiFyfWBpBGdQhSSlD7J3u79aMSzQCAeVgI30pnA8iyNekaA500go9X7wD7';
+
 
   runApp(const ProviderScope(child: AppInit()));
 }
