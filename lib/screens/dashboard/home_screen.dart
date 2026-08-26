@@ -140,7 +140,7 @@ void _showIncompleteProfileDialog(BuildContext context) {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Good Morning, $name',
+                            'Welcome, $name',
                             style: context.fonts.level1Heading,
                           ),
                           context.verticalSpace(6),
