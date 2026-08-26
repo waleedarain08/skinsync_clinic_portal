@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/clinic_model.dart';
+import '../models/responses/login_response_model.dart';
 import '../models/user_model.dart';
 import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
@@ -74,7 +75,9 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   Future<bool?> callGetMe() async {
     return await runSafely<bool?>(() async {
       final response = await _authRepository.getMe();
-      state = state.copyWith(user: response.data!.clinicUser);
+      state = state.copyWith
+      (
+        user: response.data!.clinicUser,dashboard:response.data?.dashboard);
       return true;
     });
   }
@@ -88,7 +91,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     );
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.login(req: request);
-          state = state.copyWith(user: response.clinicUser);
+          state = state.copyWith(user: response.clinicUser,dashboard:response.dashboard);
           return true;
         }) ??
         false;
@@ -238,7 +241,7 @@ class AuthState {
   final bool isAuthenticated;
   final UserModel? user;
   final Clinic? clinicDetail;
-
+  final DashboardModel? dashboard;
   final String? error;
   final bool passwordChanged;
   final bool obscureCurrent;
@@ -255,6 +258,7 @@ class AuthState {
     this.error,
     this.user,
     this.clinicDetail,
+    this.dashboard,
     this.passwordChanged = false,
     this.obscureCurrent = true,
     this.obscureNew = true,
@@ -270,6 +274,7 @@ class AuthState {
     bool? isAuthenticated,
     String? error,
     UserModel? user,
+    DashboardModel? dashboard,
     Clinic? clinicDetail,
     String? resetToken,
     bool? passwordChanged,
@@ -294,6 +299,7 @@ class AuthState {
       signature: signature ?? this.signature,
       navigateDailogIndex: navigateDailogIndex ?? this.navigateDailogIndex,
       country: country ?? this.country,
+      dashboard:dashboard ?? this.dashboard
     );
   }
 }

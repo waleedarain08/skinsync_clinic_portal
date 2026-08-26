@@ -4,11 +4,11 @@ import '../../utils/theme.dart';
 
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/analytics_grid_widget.dart';
-import '../../widgets/treatment_list_widget.dart';
-import '../../widgets/recent_treatment_row_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../services/locator.dart';
 import '../../services/storage_service.dart';
+import '../../widgets/recent_treatment_row_widget.dart';
+import '../../widgets/treatment_list_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
@@ -70,93 +70,93 @@ class HomeScreen extends StatelessWidget {
             context.verticalSpace(32),
 
             // Upcoming Appointments Section (styled with identical border and shadow structures)
-            // BorderdContainerWidget(
-            //   padding: context.appEdgeInsets(all: 24),
-            //   borderRadius: context.r(12),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Row(
-            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //         children: [
-            //           Flexible(
-            //             child: Text(
-            //               "Treatments",
-            //               style: context.fonts.black18w600,
-            //             ),
-            //           ),
-            //           context.horizontalSpace(20),
-            //           TextButton(
-            //             onPressed: () {},
-            //             style: TextButton.styleFrom(
-            //               padding: EdgeInsets.zero,
-            //               minimumSize: Size.zero,
-            //               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //             ),
-            //             child: Row(
-            //               children: [
-            //                 Text("View All", style: context.fonts.purple14w600),
-            //                 context.horizontalSpace(6),
-            //                 const Icon(
-            //                   Icons.arrow_forward_ios_rounded,
-            //                   size: 14,
-            //                   color: CustomColors.purple,
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       context.verticalSpace(24),
-            //       const TreatmentListWidget(),
-            //     ],
-            //   ),
-            // ),
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "Treatments",
+                          style: context.fonts.black18w600,
+                        ),
+                      ),
+                      context.horizontalSpace(20),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: [
+                            Text("View All", style: context.fonts.purple14w600),
+                            context.horizontalSpace(6),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: CustomColors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                  const TreatmentListWidget(),
+                ],
+              ),
+            ),
             context.verticalSpace(32),
 
             // AI Recommendations Section (cohesive soft lavender thematic coloring)
 
-            // Recent Treatments Section (styled with identical border and shadow structures)
-            // BorderdContainerWidget(
-            //   padding: context.appEdgeInsets(all: 24),
-            //   borderRadius: context.r(12),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: [
-            //       AdaptiveLayoutRowColumn(
-            //         alignment: MainAxisAlignment.spaceBetween,
-            //         children: [
-            //           Text(
-            //             "Today Treatments Rquest",
-            //             style: context.fonts.black18w600,
-            //           ),
-            //           TextButton(
-            //             onPressed: () {},
-            //             style: TextButton.styleFrom(
-            //               padding: EdgeInsets.zero,
-            //               minimumSize: Size.zero,
-            //               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            //             ),
-            //             child: Row(
-            //               children: [
-            //                 Text("View All", style: context.fonts.purple14w600),
-            //                 context.horizontalSpace(6),
-            //                 const Icon(
-            //                   Icons.arrow_forward_ios_rounded,
-            //                   size: 14,
-            //                   color: CustomColors.purple,
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       context.verticalSpace(24),
-            //       const TreatmentRequestRowWidget(),
-            //     ],
-            //   ),
-            // ),
+          //  Recent Treatments Section (styled with identical border and shadow structures)
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Today Treatments Rquest",
+                        style: context.fonts.black18w600,
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: [
+                            Text("View All", style: context.fonts.purple14w600),
+                            context.horizontalSpace(6),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: CustomColors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                  const TreatmentRequestRowWidget(),
+                ],
+              ),
+            ),
             context.verticalSpace(32),
           ],
         ),
@@ -164,32 +164,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDateFilter(BuildContext context) {
-    return Container(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: context.appBorderRadius(all: 12),
-        border: Border.all(color: CustomColors.border),
-        boxShadow: AppShadows.xs(context),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.calendar_today_rounded,
-            size: context.sp(16),
-            color: CustomColors.purple,
-          ),
-          context.horizontalSpace(12),
-          Text('Oct 2023', style: context.fonts.black14w600),
-          context.horizontalSpace(8),
-          Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: context.sp(18),
-            color: CustomColors.lightGrey,
-          ),
-        ],
-      ),
-    );
-  }
+
+
 }
