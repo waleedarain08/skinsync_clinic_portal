@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../main.dart';
 import '../models/user_model.dart';
+import '../screens/notification_screen.dart';
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
@@ -50,11 +51,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
         children: [
           if (!context.isLandscape) _MenuButton(context: context),
           const Spacer(),
-          if (!isDeploymentMode)
-            const _TopBarAction(
+         
+             _TopBarAction(
               icon: Icons.notifications_none_rounded,
               tooltip: 'Notifications',
               hasBadge: true,
+              onTap: (){
+                  context.pushNamed(NotificationScreen.routeName);
+              },
             ),
           if (!isDeploymentMode) context.horizontalSpace(20),
           if (!isDeploymentMode)
@@ -102,11 +106,13 @@ class _TopBarAction extends StatefulWidget {
   final IconData icon;
   final String tooltip;
   final bool hasBadge;
+  final VoidCallback? onTap;
 
   const _TopBarAction({
     required this.icon,
     required this.tooltip,
     this.hasBadge = false,
+    this.onTap
   });
 
   @override
@@ -127,7 +133,7 @@ class _TopBarActionState extends State<_TopBarAction> {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed:widget.onTap ?? () {},
               icon: Icon(widget.icon, size: context.sp(24)),
               color: _hovered ? CustomColors.purple : CustomColors.grey,
               style: IconButton.styleFrom(

@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
-import 'notification_service.dart';
+import '../repositories/notification_repository.dart';
+import 'firebase_notification_service.dart';
 
 import '../repositories/auth_repository.dart';
 import '../repositories/explore_repository.dart';
@@ -13,6 +14,7 @@ import 'appointment_service.dart';
 import 'area_services.dart';
 import 'auth_service.dart';
 import 'explore_service.dart';
+import 'notification_service.dart';
 import 'patient_service.dart';
 import 'practitioner_service.dart';
 import '../view_models/forms_controller.dart';
@@ -57,6 +59,9 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton<ExploreRepository>(
     () => ExploreService(),
   );
+   locator.registerLazySingleton<NotificationRepository>(
+    () => NotificationService(),
+  );
    locator.registerLazySingleton<PatientRepository>(
     () => PatientService(),
   );
@@ -67,9 +72,9 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton(() => AreaServices());
 
   // Notification service (initializes FirebaseMessaging + local notifications)
-  final notificationService = NotificationService();
-  await notificationService.init();
-  locator.registerSingleton(notificationService);
+  final firebaseNotificationService = FireBaseNotificationService();
+  await firebaseNotificationService.init();
+  locator.registerSingleton(firebaseNotificationService);
 
   locator.registerSingleton(apiBaseHelper);
 }

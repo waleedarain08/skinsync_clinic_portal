@@ -81,6 +81,7 @@ enum Endpoint {
   updateClinicProfile('clinic/profile'),
   deductionTimings('clinic/deduction-timings'),
   downTimeLevel('clinic/treatments/{id}/downtime-presets'),
+  notification('clinic/notifications'),
   clinicDetail('clinic/detail');
 
   final String path;

@@ -1,63 +1,23 @@
-import 'dart:developer';
+import '../models/responses/notification_response.dart';
+import '../repositories/notification_repository.dart';
+import '../utils/enums.dart';
+import 'api_base_helper.dart';
+import 'locator.dart';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-class NotificationService {
-  final _messaging = FirebaseMessaging.instance;
-  final _localNotifications = FlutterLocalNotificationsPlugin();
-
-  Future<void> init() async {
-    await _localNotifications.initialize(
-      settings: const InitializationSettings(web: WebInitializationSettings()),
+class NotificationService implements NotificationRepository {
+  @override
+  Future<NotificationResponse> fetchNotification({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.notification,
+      requestType: RequestType.get,
+      queryParams: {'page': page.toString(), 'limit': limit.toString()},
     );
 
-    final webPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<
-          WebFlutterLocalNotificationsPlugin
-        >();
+    final model = NotificationResponse.fromJson(response);
 
-    if (webPlugin != null &&
-        webPlugin.permissionStatus != WebNotificationPermission.granted) {
-      await webPlugin.requestNotificationsPermission();
-    }
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      await _showLocalNotification(message);
-    });
-    log('TOKEN: ${await getToken()}');
-    FirebaseMessaging.onBackgroundMessage(backgroundMessageHandler);
+    return model;
   }
-
-  Future<void> _showLocalNotification(RemoteMessage message) async {
-    final notification = message.notification;
-    final title = notification?.title ?? '';
-    final body = notification?.body ?? '';
-
-    final NotificationDetails details = NotificationDetails(
-      web: WebNotificationDetails(
-        iconUrl: Uri.parse(
-          'https://skinsyncai.com/wp-content/uploads/2026/02/logo.png',
-        ),
-      ),
-    );
-
-    await _localNotifications.show(
-      id: message.hashCode,
-      title: title,
-      body: body,
-      notificationDetails: details,
-      payload: message.data.isNotEmpty ? message.data.toString() : null,
-    );
-  }
-
-  Future<String?> getToken() => _messaging.getToken(
-    vapidKey:
-        'BCFwKQgRnLkC25FJ7FtUQXZ7qJsV4GcqV-X9wvOujRFwt7mYpT0AoMuEdejrqBUxxPlARQzys5cytkbM7dmxhfo',
-  );
-}
-
-@pragma('vm:entry-point')
-Future<void> backgroundMessageHandler(RemoteMessage message) async {
-  // Handle background messages here
 }

@@ -1,82 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../utils/theme.dart';
 import '../widgets/gradient_scaffold.dart';
-
 import '../utils/responsive.dart';
 import '../widgets/header__with_back_btn.dart';
+import '../widgets/number_paginator.dart';
+import '../models/responses/notification_response.dart';
+import '../view_models/notification_view_model.dart';
 
-class NotificationScreen extends StatefulWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
+
   static const String routeName = '/Notification';
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
-  List<NotificationModel> notifications = [
-    NotificationModel(
-      icon: Icons.calendar_today_outlined,
-      iconBgColor: const Color(0xFFE8F4FD),
-      iconColor: const Color(0xFF2196F3),
-      title: 'New Appointment Alert',
-      description:
-          'You have a new appointment booked for 3:00 PM with Sarah Johnson.',
-      dateTime: '10/29/2025, 1:00:00 PM',
-      isNew: true,
-    ),
-    NotificationModel(
-      icon: Icons.attach_money,
-      iconBgColor: const Color(0xFFE8F5E9),
-      iconColor: const Color(0xFF4CAF50),
-      title: 'Payment Received',
-      description:
-          'A payment of \$ 450 has been successfully processed for treatments.',
-      dateTime: '10/28/2025, 7:25:00 PM',
-      isNew: true,
-    ),
-    NotificationModel(
-      icon: Icons.description_outlined,
-      iconBgColor: const Color(0xFFFCE4EC),
-      iconColor: const Color(0xFFE91E63),
-      title: 'AI Report Ready',
-      description:
-          'AI analysis for patient Emily Clark\'s facial scan is now available.',
-      dateTime: '10/27/2025, 4:30:00 PM',
-      isNew: false,
-    ),
-    NotificationModel(
-      icon: Icons.notifications_outlined,
-      iconBgColor: const Color(0xFFFFF3E0),
-      iconColor: const Color(0xFFFF9800),
-      title: 'Follow-Up Reminder',
-      description:
-          'It\'s time to schedule a 2-week follow-up for patient John Smith.',
-      dateTime: '10/26/2025, 2:00:00 PM',
-      isNew: false,
-    ),
-    NotificationModel(
-      icon: Icons.access_time,
-      iconBgColor: const Color(0xFFFFFDE7),
-      iconColor: const Color(0xFFFFEB3B),
-      title: 'Low Availability Notice',
-      description:
-          'Only two slots remaining for tomorrow, consider enabling dynamic pricing to fill gaps.',
-      dateTime: '10/25/2025, 10:00:00 PM',
-      isNew: false,
-    ),
-  ];
-
-  void _markAllAsRead() {
-    setState(() {
-      for (var notification in notifications) {
-        notification.isNew = false;
-      }
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
+  @override
+  void initState() {
+    super.initState();
+   
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationViewModel.notifier).fetchReels(page: 1);
     });
+  }
+
+  void _onPageChanged(int page) {
+    // NumberPaginator is 0-indexed in the UI; the API is 1-indexed.
+    ref.read(notificationViewModel.notifier).fetchReels(page: page + 1);
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(notificationViewModel);
+
     return GradientScaffold(
       body: SafeArea(
         child: Padding(
@@ -87,49 +47,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with back button
               const BuildHeader(title: 'Notifications'),
-              SizedBox(height: context.h(16)),
-
-              // Divider
-              const Divider(height: 1, thickness: 1, color: CustomColors.border),
 
               SizedBox(height: context.h(16)),
 
-              // Mark all read button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: _markAllAsRead,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.w(12),
-                        vertical: context.h(8),
-                      ),
-                      decoration: BoxDecoration(
-                        color: CustomColors.white,
-                        borderRadius: BorderRadius.circular(context.r(10)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: context.r(20),
-                            color: Colors.black87,
-                          ),
-                          SizedBox(width: context.w(6)),
-                          Text('Mark all read', style: context.fonts.black18w600),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: CustomColors.border,
               ),
 
               SizedBox(height: context.h(16)),
 
-              // Notifications Container
+              // Notifications
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -139,17 +69,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     borderRadius: BorderRadius.circular(context.r(8)),
                     border: Border.all(color: CustomColors.border, width: 1),
                   ),
-                  child: ListView.separated(
-                    itemCount: notifications.length,
-                    separatorBuilder: (context, index) => Divider(
-                      height: context.h(24),
-                      thickness: 1,
-                      color: CustomColors.softGrey,
-                    ),
-                    itemBuilder: (context, index) {
-                      return _buildNotificationItem(notifications[index]);
-                    },
-                  ),
+                  child: _buildBody(state),
                 ),
               ),
             ],
@@ -159,86 +79,140 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  Widget _buildNotificationItem(NotificationModel notification) {
+  Widget _buildBody(NotificationState state) {
+    if (state.loading && state.notification.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.notification.isEmpty) {
+      return Center(
+        child: Text('No notifications yet', style: context.fonts.grey16w400),
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            itemCount: state.notification.length,
+            separatorBuilder: (context, index) => Divider(
+              height: context.h(24),
+              thickness: 1,
+              color: CustomColors.softGrey,
+            ),
+            itemBuilder: (context, index) {
+              return _buildNotificationItem(state.notification[index]);
+            },
+          ),
+        ),
+
+        if (state.totalPages > 1) ...[
+          SizedBox(height: context.h(16)),
+
+          const Divider(height: 1, thickness: 1, color: CustomColors.border),
+
+          SizedBox(height: context.h(16)),
+
+          NumberPaginator(
+            totalPages: state.totalPages,
+            currentPage: state.currentPage - 1, // back to 0-indexed for UI
+            onPageChanged: _onPageChanged,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildNotificationItem(NotificationData notification) {
     return Container(
-      padding: EdgeInsets.all(context.w(10)),
+      padding: EdgeInsets.all(context.w(12)),
       decoration: BoxDecoration(
-        color: CustomColors.softGrey,
+        color: CustomColors.white,
         borderRadius: BorderRadius.circular(context.r(16)),
-        border: Border.all(color: CustomColors.border, width: 1),
+        border: Border.all(color: CustomColors.purple, width: 1),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Icon
           Container(
             padding: EdgeInsets.all(context.r(10)),
             decoration: BoxDecoration(
-              color: notification.iconBgColor,
+              color: CustomColors.white,
               shape: BoxShape.circle,
+              border: Border.all(color: CustomColors.purple, width: 1),
             ),
             child: Icon(
-              notification.icon,
-              color: notification.iconColor,
+              Icons.notifications_outlined,
+              color: CustomColors.purple,
               size: context.r(20),
             ),
           ),
 
           SizedBox(width: context.w(12)),
 
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(notification.title, style: context.fonts.black16w600),
+                Text(
+                  notification.title ?? '',
+                  style: context.fonts.black16w600,
+                ),
+
                 SizedBox(height: context.h(4)),
-                Text(notification.description, style: context.fonts.grey16w400),
-                SizedBox(height: context.h(4)),
-                Text(notification.dateTime, style: context.fonts.grey16w400),
+
+                Text(notification.body ?? '', style: context.fonts.grey16w400),
               ],
             ),
           ),
 
           SizedBox(width: context.w(12)),
 
-          // New Badge
-          if (notification.isNew)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: context.w(10), vertical: context.h(4)),
-              decoration: BoxDecoration(
-                color: CustomColors.black,
-                borderRadius: BorderRadius.circular(context.r(4)),
-              ),
-              child: Text(
-                'New',
-                style: context.fonts.white10w600.copyWith(
-                  fontSize: context.sp(11),
-                  fontWeight: FontWeight.w500,
-                ),
+          if (notification.createdAt != null)
+            Text(
+              _formatRelativeTime(notification.createdAt!),
+              style: context.fonts.grey16w400.copyWith(
+                fontSize: context.sp(12),
               ),
             ),
         ],
       ),
     );
   }
-}
 
-class NotificationModel {
-  final IconData icon;
-  final Color iconBgColor;
-  final Color iconColor;
-  final String title;
-  final String description;
-  final String dateTime;
-  bool isNew;
+  String _formatRelativeTime(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
 
-  NotificationModel({
-    required this.icon,
-    required this.iconBgColor,
-    required this.iconColor,
-    required this.title,
-    required this.description,
-    required this.dateTime,
-    required this.isNew,
-  });
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    }
+
+    if (difference.inMinutes < 60) {
+      final minutes = difference.inMinutes;
+      return '$minutes ${minutes == 1 ? 'min' : 'mins'} ago';
+    }
+
+    if (difference.inHours < 24) {
+      final hours = difference.inHours;
+      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
+    }
+
+    if (difference.inDays < 7) {
+      final days = difference.inDays;
+      return '$days ${days == 1 ? 'day' : 'days'} ago';
+    }
+
+    if (difference.inDays < 30) {
+      final weeks = difference.inDays ~/ 7;
+      return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+    }
+
+    if (difference.inDays < 365) {
+      final months = difference.inDays ~/ 30;
+      return '$months ${months == 1 ? 'month' : 'months'} ago';
+    }
+
+    final years = difference.inDays ~/ 365;
+    return '$years ${years == 1 ? 'year' : 'years'} ago';
+  }
 }
