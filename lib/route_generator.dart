@@ -33,6 +33,7 @@ import 'screens/dashboard/payment_and_wallet_screen.dart';
 import 'screens/dashboard/payment_history_screen.dart';
 import 'screens/dashboard/profile_screen.dart';
 import 'screens/dashboard/roles_screen.dart';
+import 'screens/dashboard/shared_treatment_request_screen.dart';
 import 'screens/dashboard/treatment_detail_screen.dart';
 import 'screens/dashboard/treatment_screen.dart';
 import 'screens/dashboard/appointment_treatment_detail_screen.dart';
@@ -126,6 +127,23 @@ class RouteGenerator {
                 },
               ),
             ],
+          ),
+          GoRoute(
+            name: SharedTreatmentRequestScreen.routeName,
+            path: SharedTreatmentRequestScreen.routeName,
+            builder: (context, state) {
+              final patientId = int.tryParse(
+                state.uri.queryParameters['patientId'] ?? '',
+              );
+
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
+
+              return SharedTreatmentRequestScreen(
+                patientId: patientId,
+                showBackButton: showBackButton,
+              );
+            },
           ),
           GoRoute(
             name: ProductDetailScreen.routeName,

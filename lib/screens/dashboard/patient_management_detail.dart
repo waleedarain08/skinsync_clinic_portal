@@ -6,14 +6,11 @@ import 'package:go_router/go_router.dart';
 import '../../models/responses/patient_detail_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
-import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/patient_treatment_request.widget.dart';
 
 import 'patient_management.dart';
-import 'treatment_detail_screen.dart';
 
 class PatientManagementDetailScreen extends ConsumerStatefulWidget {
   static const String path = 'details';
@@ -69,8 +66,8 @@ class _PatientManagementDetailScreenState
             _buildProfileHeader(context, patient),
             context.verticalSpace(24),
             _buildInfoSection(context, patient),
-            context.verticalSpace(24),
-            _buildTreatmentRequestsSection(context, patientState),
+           // context.verticalSpace(24),
+           // _buildTreatmentRequestsSection(context, patientState),
           ],
         ),
       ),
@@ -127,96 +124,96 @@ class _PatientManagementDetailScreenState
     );
   }
 
-  Widget _buildTreatmentRequestsSection(
-    BuildContext context,
-    PatientState state,
-  ) {
-    return BorderdContainerWidget(
-      padding: context.appEdgeInsets(all: 24),
-      backgroundColor: CustomColors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Treatment Requests', style: context.fonts.subHeading),
-              if (state.treatmentLoading)
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-            ],
-          ),
-          const Divider(color: CustomColors.border, height: 32),
-          if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
-            Padding(
-              padding: context.appEdgeInsets(vertical: 20),
-              child: Center(
-                child: Text(
-                  'No treatment requests found',
-                  style: context.fonts.grey14w400,
-                ),
-              ),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: state.treatmentRequests.length,
-              itemBuilder: (context, index) {
-                final request = state.treatmentRequests[index];
-                return SimulationTreatmentRequestCard(
-                  request: request,
-                  onTreatmentTap: (treatmentId) async {
-                   await ref
-                      .read(treatmentViewModelProvider.notifier)
-                      .fetchTreatmentDetail(treatmentId);
-                  if (mounted) {
-                    await context.push(TreatmentDetailScreen.routeName);
-                  }
-                  },
-                );
-              },
-            ),
-          if (state.treatmentTotalPage != null &&
-              state.treatmentTotalPage! > 1) ...[
-            context.verticalSpace(24),
-            _buildPagination(context, state),
-          ],
-        ],
-      ),
-    );
-  }
+  // Widget _buildTreatmentRequestsSection(
+  //   BuildContext context,
+  //   PatientState state,
+  // ) {
+  //   return BorderdContainerWidget(
+  //     padding: context.appEdgeInsets(all: 24),
+  //     backgroundColor: CustomColors.white,
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             Text('Treatment Requests', style: context.fonts.subHeading),
+  //             if (state.treatmentLoading)
+  //               const SizedBox(
+  //                 width: 16,
+  //                 height: 16,
+  //                 child: CircularProgressIndicator(strokeWidth: 2),
+  //               ),
+  //           ],
+  //         ),
+  //         const Divider(color: CustomColors.border, height: 32),
+  //         if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
+  //           Padding(
+  //             padding: context.appEdgeInsets(vertical: 20),
+  //             child: Center(
+  //               child: Text(
+  //                 'No treatment requests found',
+  //                 style: context.fonts.grey14w400,
+  //               ),
+  //             ),
+  //           )
+  //         else
+  //           ListView.builder(
+  //             shrinkWrap: true,
+  //             physics: const NeverScrollableScrollPhysics(),
+  //             itemCount: state.treatmentRequests.length,
+  //             itemBuilder: (context, index) {
+  //               final request = state.treatmentRequests[index];
+  //               return SimulationTreatmentRequestCard(
+  //                 request: request,
+  //                 onTreatmentTap: (treatmentId) async {
+  //                  await ref
+  //                     .read(treatmentViewModelProvider.notifier)
+  //                     .fetchTreatmentDetail(treatmentId);
+  //                 if (mounted) {
+  //                   await context.push(TreatmentDetailScreen.routeName);
+  //                 }
+  //                 },
+  //               );
+  //             },
+  //           ),
+  //         if (state.treatmentTotalPage != null &&
+  //             state.treatmentTotalPage! > 1) ...[
+  //           context.verticalSpace(24),
+  //           _buildPagination(context, state),
+  //         ],
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildPagination(BuildContext context, PatientState state) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: state.treatmentPage > 1
-              ? () => ref
-                    .read(patientProvider.notifier)
-                    .setTreatmentPageNumber(state.treatmentPage - 1)
-              : null,
-          icon: const Icon(Icons.arrow_back_ios, size: 16),
-        ),
-        Text(
-          'Page ${state.treatmentPage} of ${state.treatmentTotalPage}',
-          style: context.fonts.black14w600,
-        ),
-        IconButton(
-          onPressed: state.treatmentPage < (state.treatmentTotalPage ?? 1)
-              ? () => ref
-                    .read(patientProvider.notifier)
-                    .setTreatmentPageNumber(state.treatmentPage + 1)
-              : null,
-          icon: const Icon(Icons.arrow_forward_ios, size: 16),
-        ),
-      ],
-    );
-  }
+  // Widget _buildPagination(BuildContext context, PatientState state) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       IconButton(
+  //         onPressed: state.treatmentPage > 1
+  //             ? () => ref
+  //                   .read(patientProvider.notifier)
+  //                   .setTreatmentPageNumber(state.treatmentPage - 1)
+  //             : null,
+  //         icon: const Icon(Icons.arrow_back_ios, size: 16),
+  //       ),
+  //       Text(
+  //         'Page ${state.treatmentPage} of ${state.treatmentTotalPage}',
+  //         style: context.fonts.black14w600,
+  //       ),
+  //       IconButton(
+  //         onPressed: state.treatmentPage < (state.treatmentTotalPage ?? 1)
+  //             ? () => ref
+  //                   .read(patientProvider.notifier)
+  //                   .setTreatmentPageNumber(state.treatmentPage + 1)
+  //             : null,
+  //         icon: const Icon(Icons.arrow_forward_ios, size: 16),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _infoRow(
     BuildContext context,

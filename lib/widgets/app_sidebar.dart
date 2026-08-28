@@ -14,6 +14,7 @@ import '../screens/dashboard/patient_management.dart';
 import '../screens/dashboard/payment_and_wallet_screen.dart';
 import '../screens/dashboard/profile_screen.dart';
 import '../screens/dashboard/roles_screen.dart';
+import '../screens/dashboard/shared_treatment_request_screen.dart';
 import '../screens/dashboard/treatment_screen.dart';
 import '../screens/explore_screen.dart';
 import '../utils/assets.dart';
@@ -53,6 +54,12 @@ List<_SidebarEntry> _sidebarEntries() {
       label: 'Patient Management',
       routeName: PatientManagementScreen.routeName,
     ),
+    const _SidebarEntry(
+      icon: Iconsax.profile_2user,
+      label: 'Shared Request',
+      routeName: SharedTreatmentRequestScreen.routeName,
+    ),
+
      const _SidebarEntry(
         icon: Icons.vaccines_outlined,
         label: 'Treatments',

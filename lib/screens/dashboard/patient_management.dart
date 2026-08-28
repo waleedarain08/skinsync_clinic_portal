@@ -12,6 +12,7 @@ import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/mini_stat_card.dart';
 import '../../widgets/number_paginator.dart';
 import 'patient_management_detail.dart';
+import 'shared_treatment_request_screen.dart';
 
 class PatientManagementScreen extends ConsumerStatefulWidget {
   static const String routeName = '/patient-management';
@@ -370,7 +371,7 @@ class _PatientManagementContent extends ConsumerWidget {
                 children: [
                   IconButton(
                     tooltip: 'View Patient Details',
-                    padding: EdgeInsets.zero,
+                    
                     constraints: const BoxConstraints(),
                     icon: const Icon(
                       Icons.visibility_outlined,
@@ -390,6 +391,24 @@ class _PatientManagementContent extends ConsumerWidget {
                           extra: patient.id,
                         );
                       }
+                    },
+                  ),
+                 
+                  IconButton(
+                    tooltip: 'View Patient Request',
+                   
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(
+                      Icons.assignment_outlined,
+                      color: CustomColors.grey,
+                      size: 20,
+                    ),
+                    onPressed: () async {
+                      context.push(
+                        '${SharedTreatmentRequestScreen.routeName}'
+                        '?patientId=${patient.id}'
+                        '&showBackButton=true',
+                      );
                     },
                   ),
                 ],
