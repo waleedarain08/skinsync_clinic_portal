@@ -26,15 +26,15 @@ class PatientManagementDetailScreen extends ConsumerStatefulWidget {
 
 class _PatientManagementDetailScreenState
     extends ConsumerState<PatientManagementDetailScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(patientProvider.notifier)
-          .getPatientTreatmentRequests(initialCall: true, patientId: widget.patientId);
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     ref
+  //         .read(patientProvider.notifier)
+  //         .getPatientTreatmentRequests(initialCall: true, patientId: widget.patientId);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
