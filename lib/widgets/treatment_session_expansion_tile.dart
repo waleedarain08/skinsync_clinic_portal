@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../utils/string_utils.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/session_model.dart';
 import '../screens/create_session_screen.dart';
@@ -95,11 +96,12 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     if (entry.sessionId != null) {
       ref
           .read(treatmentViewModelProvider.notifier)
-          .changeSessionStatus(request: SessionStatusRequest(
-            sessionId:   entry.sessionId!,
-            status:  newStatus
-          )
-           );
+          .changeSessionStatus(
+            request: SessionStatusRequest(
+              sessionId: entry.sessionId!,
+              status: newStatus,
+            ),
+          );
     }
   }
 
@@ -112,7 +114,8 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
     final bool isDetailed =
         entry.isDetailedEntered ||
         (entry.status.isNotEmpty && entry.status.toLowerCase() != 'draft');
-    final sessionTitle = entry.title ?? 'Session ${entry.sessionNumber}';
+    final sessionTitle =
+        entry.title?.capitalize ?? 'Session ${entry.sessionNumber}';
 
     if (!isDetailed) {
       return Container(

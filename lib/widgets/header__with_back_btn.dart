@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 
 class BuildHeader extends StatelessWidget {
@@ -13,10 +14,14 @@ class BuildHeader extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () => context.pop(),
-          child: Icon(Icons.arrow_back, size: context.r(24), color: CustomColors.black),
+          child: Icon(
+            Icons.arrow_back,
+            size: context.r(24),
+            color: CustomColors.black,
+          ),
         ),
         SizedBox(width: context.w(12)),
-        Text(title, style: CustomFonts.black20w600),
+        Text(title.capitalize, style: CustomFonts.black20w600),
       ],
     );
   }

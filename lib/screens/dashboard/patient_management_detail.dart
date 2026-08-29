@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/responses/patient_detail_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
@@ -66,8 +67,8 @@ class _PatientManagementDetailScreenState
             _buildProfileHeader(context, patient),
             context.verticalSpace(24),
             _buildInfoSection(context, patient),
-           // context.verticalSpace(24),
-           // _buildTreatmentRequestsSection(context, patientState),
+            // context.verticalSpace(24),
+            // _buildTreatmentRequestsSection(context, patientState),
           ],
         ),
       ),
@@ -86,7 +87,10 @@ class _PatientManagementDetailScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.patientName, style: context.fonts.level2Heading),
+                Text(
+                  p.patientName.capitalize,
+                  style: context.fonts.level2Heading,
+                ),
                 context.verticalSpace(4),
                 Container(
                   padding: context.appEdgeInsets(horizontal: 12, vertical: 4),
@@ -117,8 +121,13 @@ class _PatientManagementDetailScreenState
           Text('Contact Information', style: context.fonts.subHeading),
           const Divider(color: CustomColors.border, height: 32),
           _infoRow(context, Icons.email_outlined, 'Email Address', p.email),
-          if(p.phoneNumber != '')
-          _infoRow(context, Icons.phone_outlined, 'Phone Number', p.phoneNumber),
+          if (p.phoneNumber != '')
+            _infoRow(
+              context,
+              Icons.phone_outlined,
+              'Phone Number',
+              p.phoneNumber,
+            ),
         ],
       ),
     );

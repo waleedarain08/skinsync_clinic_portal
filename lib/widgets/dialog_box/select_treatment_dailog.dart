@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../utils/string_utils.dart';
 import '../../view_models/practitioner_view_model.dart';
 import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
@@ -76,7 +77,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                             (item) => DropdownMenuItem(
                               value: item,
                               child: Text(
-                                item.name ?? "N/A",
+                                item.name?.capitalize ?? "N/A",
                                 style: context.fonts.black14w400,
                               ),
                             ),
@@ -112,7 +113,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                 children: _sideAreas.map((area) {
                   final isSelected = _selectedAreas.contains(area);
                   return ChoiceChip(
-                    label: Text(area.name ?? "N/A"),
+                    label: Text(area.name?.capitalize ?? "N/A"),
                     selected: isSelected,
                     selectedColor: CustomColors.purple,
                     checkmarkColor: CustomColors.white,

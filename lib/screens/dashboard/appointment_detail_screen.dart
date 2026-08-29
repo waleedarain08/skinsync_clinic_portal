@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/responses/appointment_detail_response.dart';
 import '../../utils/date_time_utills.dart';
 import '../../utils/theme.dart';
@@ -22,18 +23,13 @@ class AppointmentDetailScreen extends ConsumerWidget {
     final appointment = ref.watch(appointmentProvider).appointmentDetail;
 
     if (appointment == null) {
-      return const GradientScaffold(
-        body: Center(child: AppLoader()),
-      );
+      return const GradientScaffold(body: Center(child: AppLoader()));
     }
 
     return GradientScaffold(
       appBar: AppBar(
         flexibleSpace: AppDecorations.appBarGradient,
-        title: Text(
-          'Appointment Details',
-          style: context.fonts.black18w600,
-        ),
+        title: Text('Appointment Details', style: context.fonts.black18w600),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: CustomColors.black),
@@ -50,26 +46,21 @@ class AppointmentDetailScreen extends ConsumerWidget {
             _buildSection(
               context,
               title: 'Patient Information',
-              children: [
-                _buildPatientInfo(context, appointment),
-              ],
+              children: [_buildPatientInfo(context, appointment)],
             ),
             context.verticalSpace(24),
             _buildSection(
               context,
               title: 'Appointment Schedule',
-              children: [
-                _buildScheduleInfo(context, appointment),
-              ],
+              children: [_buildScheduleInfo(context, appointment)],
             ),
-            if (appointment.treatments != null && appointment.treatments!.isNotEmpty) ...[
+            if (appointment.treatments != null &&
+                appointment.treatments!.isNotEmpty) ...[
               context.verticalSpace(24),
               _buildSection(
                 context,
                 title: 'Assigned Treatments',
-                children: [
-                  _buildTreatmentsList(context, appointment),
-                ],
+                children: [_buildTreatmentsList(context, appointment)],
               ),
             ],
             if (appointment.simulations != null) ...[
@@ -77,9 +68,7 @@ class AppointmentDetailScreen extends ConsumerWidget {
               _buildSection(
                 context,
                 title: 'Simulations',
-                children: [
-                  _buildSimulationsGrid(context, appointment),
-                ],
+                children: [_buildSimulationsGrid(context, appointment)],
               ),
             ],
           ],
@@ -88,7 +77,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildOverviewHeader(BuildContext context, AppointmentDetailData appointment) {
+  Widget _buildOverviewHeader(
+    BuildContext context,
+    AppointmentDetailData appointment,
+  ) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
       backgroundColor: CustomColors.white,
@@ -100,7 +92,11 @@ class AppointmentDetailScreen extends ConsumerWidget {
               color: CustomColors.purple.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.event_available, color: CustomColors.purple, size: 32),
+            child: const Icon(
+              Icons.event_available,
+              color: CustomColors.purple,
+              size: 32,
+            ),
           ),
           context.horizontalSpace(24),
           Expanded(
@@ -119,7 +115,8 @@ class AppointmentDetailScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(context.r(20)),
                   ),
                   child: Text(
-                    appointment.appointmentType?.title ?? 'Consultation',
+                    appointment.appointmentType?.title?.capitalize ??
+                        'Consultation',
                     style: context.fonts.purple12w700,
                   ),
                 ),
@@ -175,7 +172,11 @@ class AppointmentDetailScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildSection(BuildContext context, {required String title, required List<Widget> children}) {
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
       backgroundColor: CustomColors.white,
@@ -190,7 +191,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPatientInfo(BuildContext context, AppointmentDetailData appointment) {
+  Widget _buildPatientInfo(
+    BuildContext context,
+    AppointmentDetailData appointment,
+  ) {
     final p = appointment.patient;
     return Row(
       children: [
@@ -200,10 +204,25 @@ class AppointmentDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(p?.name ?? 'N/A', style: context.fonts.black16w600),
+              Text(
+                p?.name?.capitalize ?? 'N/A',
+                style: context.fonts.black16w600,
+              ),
               context.verticalSpace(4),
-              _infoRow(context, Icons.email_outlined, 'Email', p?.email ?? 'N/A', marginBottom: 8),
-              _infoRow(context, Icons.phone_outlined, 'Phone', p?.phoneNumber ?? 'N/A', marginBottom: 0),
+              _infoRow(
+                context,
+                Icons.email_outlined,
+                'Email',
+                p?.email ?? 'N/A',
+                marginBottom: 8,
+              ),
+              _infoRow(
+                context,
+                Icons.phone_outlined,
+                'Phone',
+                p?.phoneNumber ?? 'N/A',
+                marginBottom: 0,
+              ),
             ],
           ),
         ),
@@ -211,7 +230,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScheduleInfo(BuildContext context, AppointmentDetailData appointment) {
+  Widget _buildScheduleInfo(
+    BuildContext context,
+    AppointmentDetailData appointment,
+  ) {
     final dateStr = appointment.date != null
         ? DateTimeUtils.formatTimestampToDayDate(appointment.date!)
         : 'N/A';
@@ -225,21 +247,36 @@ class AppointmentDetailScreen extends ConsumerWidget {
     return Column(
       children: [
         _infoRow(context, Icons.calendar_today_outlined, 'Date', dateStr),
-        _infoRow(context, Icons.access_time_outlined, 'Time Slot', '$startTimeStr - $endTimeStr'),
+        _infoRow(
+          context,
+          Icons.access_time_outlined,
+          'Time Slot',
+          '$startTimeStr - $endTimeStr',
+        ),
         _infoRow(
           context,
           Icons.person_outline_rounded,
           'Assigned Provider',
-          appointment.doctor?.name != null && appointment.doctor!.name!.isNotEmpty
-              ? '${appointment.doctor?.title ?? ""} ${appointment.doctor?.name}'
+          appointment.doctor?.name != null &&
+                  appointment.doctor!.name!.isNotEmpty
+              ? '${appointment.doctor?.title?.capitalize ?? ""} ${appointment.doctor?.name?.capitalize ?? ""}'
               : 'Not Assigned',
         ),
-        _infoRow(context, Icons.payment_outlined, 'Payment Status', appointment.paymentType?.status?.toUpperCase() ?? 'N/A', marginBottom: 0),
+        _infoRow(
+          context,
+          Icons.payment_outlined,
+          'Payment Status',
+          appointment.paymentType?.status?.toUpperCase() ?? 'N/A',
+          marginBottom: 0,
+        ),
       ],
     );
   }
 
-  Widget _buildTreatmentsList(BuildContext context, AppointmentDetailData appointment) {
+  Widget _buildTreatmentsList(
+    BuildContext context,
+    AppointmentDetailData appointment,
+  ) {
     return Column(
       children: [
         ...appointment.treatments!.map((t) {
@@ -248,7 +285,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
             child: InkWell(
               onTap: () {
                 if (t.treatmentId != null) {
-                  context.push(AppointmentTreatmentDetailScreen.routeName, extra: t.treatmentId);
+                  context.push(
+                    AppointmentTreatmentDetailScreen.routeName,
+                    extra: t.treatmentId,
+                  );
                 }
               },
               borderRadius: BorderRadius.circular(context.r(8)),
@@ -265,9 +305,15 @@ class AppointmentDetailScreen extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(t.treatmentName ?? 'Treatment', style: context.fonts.black14w600),
+                        Text(
+                          t.treatmentName?.capitalize ?? 'Treatment',
+                          style: context.fonts.black14w600,
+                        ),
                         context.verticalSpace(2),
-                        Text('Area: ${t.areaName ?? "N/A"}', style: context.fonts.grey12w400),
+                        Text(
+                          'Area: ${t.areaName?.capitalize ?? "N/A"}',
+                          style: context.fonts.grey12w400,
+                        ),
                       ],
                     ),
                     Text(
@@ -295,7 +341,10 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSimulationsGrid(BuildContext context, AppointmentDetailData appointment) {
+  Widget _buildSimulationsGrid(
+    BuildContext context,
+    AppointmentDetailData appointment,
+  ) {
     final simulations = appointment.simulations!;
     final images = [
       {'label': 'Front Before', 'url': simulations.frontImageBefore},
@@ -327,7 +376,8 @@ class AppointmentDetailScreen extends ConsumerWidget {
                 child: CachedNetworkImage(
                   imageUrl: images[index]['url']!,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: CustomColors.softGrey),
+                  placeholder: (context, url) =>
+                      Container(color: CustomColors.softGrey),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
@@ -340,7 +390,13 @@ class AppointmentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _infoRow(BuildContext context, IconData icon, String label, String value, {double marginBottom = 20}) {
+  Widget _infoRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value, {
+    double marginBottom = 20,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: context.h(marginBottom)),
       child: Row(
@@ -369,7 +425,8 @@ class AppointmentDetailScreen extends ConsumerWidget {
               height: context.r(radius * 2),
               width: context.r(radius * 2),
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) => _buildDefaultAvatar(context, radius),
+              errorWidget: (context, url, error) =>
+                  _buildDefaultAvatar(context, radius),
             )
           : _buildDefaultAvatar(context, radius),
     );
@@ -379,7 +436,11 @@ class AppointmentDetailScreen extends ConsumerWidget {
     return CircleAvatar(
       radius: context.r(radius),
       backgroundColor: CustomColors.softGrey,
-      child: Icon(Icons.person, size: context.r(radius), color: CustomColors.grey),
+      child: Icon(
+        Icons.person,
+        size: context.r(radius),
+        color: CustomColors.grey,
+      ),
     );
   }
 }

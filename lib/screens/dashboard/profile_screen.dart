@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/string_utils.dart';
 import '../../main.dart';
 import '../about_screen.dart';
 import '../dynamic_pricing.dart';
@@ -59,91 +60,91 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _buildProfileInfoContainer(context),
             context.verticalSpace(32),
             // Clinic Settings
-              _buildSettingsSection(
-                context: context,
-                title: "Clinic Settings",
-                items: [
+            _buildSettingsSection(
+              context: context,
+              title: "Clinic Settings",
+              items: [
+                _SettingItemData(
+                  icon: Icons.business_outlined,
+                  title: "Business Information",
+                  subtitle: "Update clinic details and contact info",
+                  onTap: () async {
+                    await ref
+                        .read(authViewModelProvider.notifier)
+                        .getClinicDetail();
+                    context.pushNamed(BusinessInformationScreen.routeName);
+                  },
+                ),
+                if (!isDeploymentMode)
                   _SettingItemData(
-                    icon: Icons.business_outlined,
-                    title: "Business Information",
-                    subtitle: "Update clinic details and contact info",
-                    onTap: () async {
-                      await ref
-                          .read(authViewModelProvider.notifier)
-                          .getClinicDetail();
-                      context.pushNamed(BusinessInformationScreen.routeName);
+                    icon: Icons.calendar_month_outlined,
+                    title: "Dynamic Pricing",
+                    subtitle: "Configure dynamic pricing for off-peak hours",
+                    onTap: () {
+                      context.pushNamed(DynamicPricing.routeName);
                     },
                   ),
-                  if (!isDeploymentMode)
-                    _SettingItemData(
-                      icon: Icons.calendar_month_outlined,
-                      title: "Dynamic Pricing",
-                      subtitle: "Configure dynamic pricing for off-peak hours",
-                      onTap: () {
-                        context.pushNamed(DynamicPricing.routeName);
-                      },
-                    ),
-                ],
-              ),
+              ],
+            ),
             context.verticalSpace(32),
 
             // password security
             _buildSettingsSection(
-                context: context,
-                title: "Security",
-                items: [
-                  if (!isDeploymentMode)
-                    _SettingItemData(
-                      icon: Icons.shield_outlined,
-                      title: "Two-Factor Authentication",
-                      subtitle: "Update password and security settings",
-                      onTap: () {
-                        context.pushNamed(ChangePasswordScreen.routeName);
-                      },
-                    ),
+              context: context,
+              title: "Security",
+              items: [
+                if (!isDeploymentMode)
                   _SettingItemData(
-                    icon: Icons.lock_open,
-                    title: "Password & Security",
-                    subtitle: "Add extra security to your account",
+                    icon: Icons.shield_outlined,
+                    title: "Two-Factor Authentication",
+                    subtitle: "Update password and security settings",
                     onTap: () {
                       context.pushNamed(ChangePasswordScreen.routeName);
                     },
                   ),
-                ],
-              ),
+                _SettingItemData(
+                  icon: Icons.lock_open,
+                  title: "Password & Security",
+                  subtitle: "Add extra security to your account",
+                  onTap: () {
+                    context.pushNamed(ChangePasswordScreen.routeName);
+                  },
+                ),
+              ],
+            ),
             if (!isDeploymentMode) context.verticalSpace(32),
             // preference
             if (!isDeploymentMode)
               _buildSettingsSection(
-                  context: context,
-                  title: "Preferences",
-                  items: [
-                    _SettingItemData(
-                      icon: Icons.notifications_outlined,
-                      title: "Notifications",
-                      subtitle: "Manage notification settings",
-                      onTap: () {
-                        context.pushNamed(NotificationScreen.routeName);
-                      },
-                    ),
-                  ],
-                ),
-            context.verticalSpace(32),
-            // help
-            _buildSettingsSection(
                 context: context,
-                title: "Help & Support",
+                title: "Preferences",
                 items: [
                   _SettingItemData(
-                    icon: Icons.privacy_tip_outlined,
-                    title: "About",
-                    subtitle: "Terms, conditions, and privacy policy",
+                    icon: Icons.notifications_outlined,
+                    title: "Notifications",
+                    subtitle: "Manage notification settings",
                     onTap: () {
-                      context.pushNamed(AboutScreen.routeName);
+                      context.pushNamed(NotificationScreen.routeName);
                     },
                   ),
                 ],
               ),
+            context.verticalSpace(32),
+            // help
+            _buildSettingsSection(
+              context: context,
+              title: "Help & Support",
+              items: [
+                _SettingItemData(
+                  icon: Icons.privacy_tip_outlined,
+                  title: "About",
+                  subtitle: "Terms, conditions, and privacy policy",
+                  onTap: () {
+                    context.pushNamed(AboutScreen.routeName);
+                  },
+                ),
+              ],
+            ),
             context.verticalSpace(48),
           ],
         ),
@@ -194,7 +195,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               SizedBox(height: context.h(12)),
               Text(
-                name ?? "N/A",
+                name?.capitalize ?? "N/A",
                 style: context.fonts.black18w600.copyWith(
                   color: Colors.black87,
                 ),
@@ -236,7 +237,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: context.fonts.black16w600),
+          Text(title.capitalize, style: context.fonts.black16w600),
           SizedBox(height: context.h(14)),
           ...items.map(
             (item) => Padding(
@@ -281,7 +282,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  title.capitalize,
                   style: context.fonts.black14w600.copyWith(
                     color: Colors.black87,
                   ),

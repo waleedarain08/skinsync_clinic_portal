@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/responses/administration_staff_response.dart';
 import '../../utils/theme.dart';
 import '../../view_models/administration_staff_view_model.dart';
@@ -74,7 +75,7 @@ class AdministrationStaffDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(staff.name, style: context.fonts.black26w700),
+                Text(staff.name.capitalize, style: context.fonts.black26w700),
                 context.verticalSpace(4),
                 Container(
                   padding: context.appEdgeInsets(horizontal: 12, vertical: 4),
@@ -82,7 +83,10 @@ class AdministrationStaffDetailScreen extends ConsumerWidget {
                     color: CustomColors.purple.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(context.r(20)),
                   ),
-                  child: Text(staff.role, style: context.fonts.purple12w700),
+                  child: Text(
+                    staff.role.capitalize,
+                    style: context.fonts.purple12w700,
+                  ),
                 ),
                 context.verticalSpace(12),
                 Row(
@@ -147,7 +151,7 @@ class AdministrationStaffDetailScreen extends ConsumerWidget {
             context,
             Icons.business_outlined,
             'Department',
-            staff.department ?? 'N/A',
+            staff.department?.capitalize ?? 'N/A',
           ),
           _infoRow(
             context,

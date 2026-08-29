@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../utils/string_utils.dart';
 import '../../utils/extentions.dart';
 import '../../utils/theme.dart';
 import '../../view_models/area_view_model.dart';
@@ -24,13 +25,15 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(areaViewModelProvider.notifier).clearSelectedAreas();
-     final treatmentId = ref
+      final treatmentId = ref
           .read(treatmentViewModelProvider)
           .selectedTreatmentDetail
           ?.id;
-          if(mounted && treatmentId != null){
-            ref.read(areaViewModelProvider.notifier).fetchAreas(treatmentId: treatmentId);
-          }
+      if (mounted && treatmentId != null) {
+        ref
+            .read(areaViewModelProvider.notifier)
+            .fetchAreas(treatmentId: treatmentId);
+      }
     });
   }
 
@@ -81,7 +84,7 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
                 children: state.areas.map((area) {
                   final selected = state.selectedAreas?.id == area.id;
                   return ChoiceChip(
-                    label: Text(area.name),
+                    label: Text(area.name.capitalize),
                     selected: selected,
                     selectedColor: CustomColors.purple,
                     checkmarkColor: CustomColors.white,
@@ -119,7 +122,7 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
         ),
         CustomPrimaryButton(
           onTap: () async {
-           if (state.selectedAreas == null) {
+            if (state.selectedAreas == null) {
               EasyLoading.showError("Please select at least one area");
               return;
             }

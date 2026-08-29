@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../utils/string_utils.dart';
 import '../../models/responses/get_feature_response.dart';
 import '../../view_models/role_view_model.dart';
 import '../custom_outlined_button.dart';
@@ -219,7 +220,10 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(feature.featureName ?? "N/A", style: CustomFonts.black16w600),
+          Text(
+            feature.featureName?.capitalize ?? "N/A",
+            style: CustomFonts.black16w600,
+          ),
           SizedBox(height: context.h(10)),
           Wrap(
             spacing: context.w(8),
@@ -234,7 +238,7 @@ class _AddCustomRoleDialogState extends ConsumerState<AddCustomRoleDialog> {
                   false;
 
               return ChoiceChip(
-                label: Text(permissions.permissionTitle ?? "N/A"),
+                label: Text(permissions.permissionTitle?.capitalize ?? "N/A"),
                 selected: isSelected,
                 selectedColor: CustomColors.black,
                 checkmarkColor: CustomColors.white,

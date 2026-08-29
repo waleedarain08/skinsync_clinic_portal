@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../utils/string_utils.dart';
 import '../../models/notification_entry.dart';
 import '../../utils/theme.dart';
 import '../../view_models/session_view_model.dart';
@@ -32,7 +33,7 @@ class NotificationsStep extends ConsumerWidget {
             ),
             child: Icon(icon, color: CustomColors.purple, size: 18),
           ),
-          title: Text(title, style: context.fonts.black16w600),
+          title: Text(title.capitalize, style: context.fonts.black16w600),
           children: [
             const Divider(height: 1),
             Padding(padding: context.appEdgeInsets(all: 24), child: content),
@@ -252,16 +253,15 @@ class NotificationsStep extends ConsumerWidget {
                                     ),
                                   ),
                                   child: DropdownButton<String>(
-                                    value: types.contains(entry.type) ? entry.type : types.first,
+                                    value: types.contains(entry.type)
+                                        ? entry.type
+                                        : types.first,
                                     isExpanded: true,
                                     items: types
                                         .map(
                                           (t) => DropdownMenuItem(
                                             value: t,
-                                            child: Text(
-                                              t[0].toUpperCase() +
-                                                  t.substring(1),
-                                            ),
+                                            child: Text(t.capitalize),
                                           ),
                                         )
                                         .toList(),

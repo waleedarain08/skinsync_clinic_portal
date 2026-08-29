@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../view_models/session_view_model.dart';
@@ -257,7 +258,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                         context.horizontalSpace(16),
                         Expanded(
                           child: Text(
-                            steps[index],
+                            steps[index].capitalize,
                             style: isActive
                                 ? context.fonts.purple14w600
                                 : (isCompleted
@@ -354,7 +355,10 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(titles[stepIndex], style: context.fonts.black20w600),
+                  Text(
+                    titles[stepIndex].capitalize,
+                    style: context.fonts.black20w600,
+                  ),
                   Text(
                     descriptions[stepIndex],
                     style: context.fonts.grey14w400,
@@ -498,7 +502,6 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                 );
 
                 success = (result == true);
-                
               } else if (sessionState.sessionStep == 2) {
                 // Scheduling
                 // if (!_validateScheduling(context, viewModel)) return;
@@ -687,7 +690,10 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                     ),
                     context.horizontalSpace(12),
                     Expanded(
-                      child: Text(title, style: context.fonts.black18w600),
+                      child: Text(
+                        title.capitalize,
+                        style: context.fonts.black18w600,
+                      ),
                     ),
                   ],
                 ),
@@ -715,7 +721,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                             Text('• ', style: context.fonts.purple14w700),
                             Expanded(
                               child: Text(
-                                detail,
+                                detail.capitalize,
                                 style: context.fonts.black13w500,
                               ),
                             ),

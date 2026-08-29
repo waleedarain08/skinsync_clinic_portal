@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 
 class StandardDialog extends StatelessWidget {
@@ -40,7 +41,12 @@ class StandardDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(title, style: context.fonts.black18w600)),
+                Expanded(
+                  child: Text(
+                    title.capitalize,
+                    style: context.fonts.black18w600,
+                  ),
+                ),
                 if (showCloseButton)
                   InkWell(
                     onTap: () => Navigator.of(context).pop(),

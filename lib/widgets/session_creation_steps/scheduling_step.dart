@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
@@ -54,7 +53,7 @@ class SchedulingStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionState state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
-  //  final treatmentState = ref.watch(treatmentViewModelProvider);
+    //  final treatmentState = ref.watch(treatmentViewModelProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,17 +95,17 @@ class SchedulingStep extends ConsumerWidget {
         //     ),
         //   ),
         // ),
-       
-      //  context.verticalSpace(32),
-     //   if (   state.isFixedDuration) ...[
-             if ( true) ...[
+
+        //  context.verticalSpace(32),
+        //   if (   state.isFixedDuration) ...[
+        if (true) ...[
           _sectionTitle(context, 'Fixed Duration'),
           context.verticalSpace(24),
           Row(
             children: [
               Expanded(
                 child: BuildTextField(
-                  enabled: state.allowClinicOverride ,
+                  enabled: state.allowClinicOverride,
                   label: 'Fixed Duration (Minutes)',
                   controller: viewModel.fixedDurationController,
                   hintText: 'e.g. 45',
@@ -415,7 +414,8 @@ class SchedulingStep extends ConsumerWidget {
                 controller: viewModel.minimumBookingNoticeController,
                 hintText: 'e.g. 24',
                 keyboardType: TextInputType.number,
-                tooltip: 'The minimum number of hours before an appointment that a patient can book this treatment.',
+                tooltip:
+                    'The minimum number of hours before an appointment that a patient can book this treatment.',
               ),
             ),
             context.horizontalSpace(24),
@@ -425,7 +425,8 @@ class SchedulingStep extends ConsumerWidget {
                 controller: viewModel.maximumDaysInAdvanceController,
                 hintText: 'e.g. 90',
                 keyboardType: TextInputType.number,
-                tooltip: 'The maximum number of days in advance that a patient can book this treatment.',
+                tooltip:
+                    'The maximum number of days in advance that a patient can book this treatment.',
               ),
             ),
           ],
@@ -435,7 +436,8 @@ class SchedulingStep extends ConsumerWidget {
         context.verticalSpace(24),
         AuthorizedRolesWidget(
           title: 'Authorized Roles to Change Schedule',
-          description: 'Select which provider roles are authorized to override or modify treatment scheduling and duration controls.',
+          description:
+              'Select which provider roles are authorized to override or modify treatment scheduling and duration controls.',
           selectedRoles: state.schedulingRoles,
           onRoleToggled: viewModel.toggleSchedulingRole,
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 
 class AppPageHeader extends StatelessWidget {
@@ -22,7 +23,7 @@ class AppPageHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: context.fonts.level1Heading),
+              Text(title.capitalize, style: context.fonts.level1Heading),
               if (subtitle != null) ...[
                 SizedBox(height: 6.h),
                 Text(subtitle!, style: context.fonts.grey13w500),

@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils/string_utils.dart';
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/area_list_response.dart';
@@ -81,31 +82,33 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
       });
     }
   }
-Future<void> _importTreatments() async {
-  final notifier = ref.read(treatmentViewModelProvider.notifier);
 
-  final req = AddTreatmentReqModel(
-    treatments: _selectedTemplateAreas.entries
-        .map((entry) => Treatment(
+  Future<void> _importTreatments() async {
+    final notifier = ref.read(treatmentViewModelProvider.notifier);
+
+    final req = AddTreatmentReqModel(
+      treatments: _selectedTemplateAreas.entries
+          .map(
+            (entry) => Treatment(
               treatmentId: entry.key,
               areasId: entry.value.keys.toList(),
-            ))
-        .toList(),
-  );
+            ),
+          )
+          .toList(),
+    );
 
- 
-  final success = await notifier.addClinicTreatment(treatment: req);
+    final success = await notifier.addClinicTreatment(treatment: req);
 
+    if (!mounted) return;
 
-  if (!mounted) return;
-
-  if (success) {
-    setState(() => _selectedTemplateAreas.clear());
-    EasyLoading.showSuccess('Treatments imported successfully.');
-  } else {
-    EasyLoading.showError('Failed to import treatments.');
+    if (success) {
+      setState(() => _selectedTemplateAreas.clear());
+      EasyLoading.showSuccess('Treatments imported successfully.');
+    } else {
+      EasyLoading.showError('Failed to import treatments.');
+    }
   }
-}
+
   void _onSearchChanged(String query) {
     if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 500), () {

@@ -2,6 +2,7 @@ import 'package:before_after/before_after.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/string_utils.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
@@ -62,7 +63,10 @@ class _SimulationTreatmentRequestCardState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(request.name, style: context.fonts.black18w600),
+                    Text(
+                      request.name.capitalize,
+                      style: context.fonts.black18w600,
+                    ),
                     Text(
                       'Request Date: ${request.createdAt?.substring(0, 10) ?? ""}',
                       style: context.fonts.grey12w400,
@@ -106,7 +110,7 @@ class _SimulationTreatmentRequestCardState
             border: isSelected ? null : Border.all(color: CustomColors.border),
           ),
           child: Text(
-            title,
+            title.capitalize,
             style: isSelected
                 ? context.fonts.white14w600
                 : context.fonts.black14w600,
@@ -441,7 +445,7 @@ class _SimulationTreatmentRequestCardState
               SimulationTreatmentAreaChip(
                 icon: treatment.icon,
                 imageUrl: treatment.image,
-                label: treatment.treatmentName,
+                label: treatment.treatmentName.capitalize,
                 isTreatment: true,
                 onTap: () => widget.onTreatmentTap?.call(treatment.treatmentId),
               ),
@@ -470,7 +474,7 @@ class _SimulationTreatmentRequestCardState
                     return SimulationTreatmentAreaChip(
                       icon: area.icon,
                       imageUrl: area.image,
-                      label: area.areaName,
+                      label: area.areaName.capitalize,
                       isTreatment: false,
                       materialCount: materialCount,
                     );

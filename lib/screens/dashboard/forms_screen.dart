@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/form_template.dart';
 import '../../services/locator.dart';
 import '../../utils/theme.dart';
@@ -100,7 +101,7 @@ class _FormsScreenState extends State<FormsScreen> {
           ),
         ),
         title: Text(
-          form.name,
+          form.name.capitalize,
           style: CustomFonts.black14w600,
           overflow: TextOverflow.ellipsis,
         ),
@@ -204,7 +205,7 @@ class _FormsScreenState extends State<FormsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(title: Text(form.name)),
+          appBar: AppBar(title: Text(form.name.capitalize)),
           body: PdfPreview(
             build: (format) => file.readAsBytesSync(),
             allowPrinting: true,
@@ -228,7 +229,7 @@ class _FormsScreenState extends State<FormsScreen> {
       builder: (context) => AlertDialog(
         title: const Text("Delete Form"),
         content: Text(
-          "Are you sure you want to delete '${form.name}'? This action cannot be undone.",
+          "Are you sure you want to delete '${form.name.capitalize}'? This action cannot be undone.",
         ),
         actions: [
           TextButton(

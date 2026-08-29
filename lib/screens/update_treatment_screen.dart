@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
@@ -135,7 +136,7 @@ class _UpdateTreatmentScreenState extends State<UpdateTreatmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Title
-              Text(treatment.name, style: context.fonts.black18w600),
+              Text(treatment.name.capitalize, style: context.fonts.black18w600),
 
               SizedBox(height: context.h(4)),
 

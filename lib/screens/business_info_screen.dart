@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/responses/clinic_model.dart';
+import '../utils/string_utils.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../utils/validators.dart';
@@ -652,7 +653,7 @@ class _BusinessInformationScreenState
               ].map((day) {
                 final isSelected = entry.selectedDays.contains(day);
                 return FilterChip(
-                  label: Text(day),
+                  label: Text(day.capitalize),
                   selected: isSelected,
                   onSelected: (selected) {
                     setState(() {

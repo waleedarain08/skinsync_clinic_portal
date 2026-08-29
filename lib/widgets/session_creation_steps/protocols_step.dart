@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../utils/string_utils.dart';
 import '../../models/treatment_data_models.dart';
 import '../../models/treatment_model.dart';
 import '../../utils/theme.dart';
@@ -32,7 +33,7 @@ class ProtocolsStep extends ConsumerWidget {
       context: context,
       builder: (context) => StandardDialog(
         title:
-            "Add ${type == ProtocolType.checkbox ? 'Checkbox' : 'Text'} Protocol",
+            "Add ${(type == ProtocolType.checkbox ? 'checkbox' : 'text').capitalize} Protocol",
         width: context.w(450),
         content: BuildTextField(
           label: 'Protocol Title',
@@ -152,7 +153,7 @@ class ProtocolsStep extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: context.fonts.black16w600),
+            Text(title.capitalize, style: context.fonts.black16w600),
             IconButton(
               onPressed: onAdd,
               icon: const Icon(
@@ -218,7 +219,7 @@ class ProtocolsStep extends ConsumerWidget {
                       ),
                       context.horizontalSpace(10),
                       Text(
-                        protocol.title,
+                        protocol.title.capitalize,
                         style: isSelected
                             ? context.fonts.purple14w600
                             : context.fonts.black14w400,
@@ -326,7 +327,7 @@ class ProtocolsStep extends ConsumerWidget {
                       children: [
                         if (note.title != null && note.title!.isNotEmpty)
                           Text(
-                            note.title!,
+                            note.title!.capitalize,
                             style: context.fonts.black14w600,
                           )
                         else
@@ -344,8 +345,8 @@ class ProtocolsStep extends ConsumerWidget {
                                   ? () {
                                       final updated =
                                           List<TreatmentProtocolNoteItem>.from(
-                                        state.standaloneNotes,
-                                      );
+                                            state.standaloneNotes,
+                                          );
                                       final temp = updated[idx];
                                       updated[idx] = updated[idx - 1];
                                       updated[idx - 1] = temp;
@@ -362,8 +363,8 @@ class ProtocolsStep extends ConsumerWidget {
                                   ? () {
                                       final updated =
                                           List<TreatmentProtocolNoteItem>.from(
-                                        state.standaloneNotes,
-                                      );
+                                            state.standaloneNotes,
+                                          );
                                       final temp = updated[idx];
                                       updated[idx] = updated[idx + 1];
                                       updated[idx + 1] = temp;
@@ -400,8 +401,8 @@ class ProtocolsStep extends ConsumerWidget {
                               onPressed: () {
                                 final updated =
                                     List<TreatmentProtocolNoteItem>.from(
-                                  state.standaloneNotes,
-                                );
+                                      state.standaloneNotes,
+                                    );
                                 updated.removeAt(idx);
                                 viewModel.updateStandaloneNotes(updated);
                               },
@@ -411,10 +412,7 @@ class ProtocolsStep extends ConsumerWidget {
                       ],
                     ),
                     context.verticalSpace(8),
-                    Text(
-                      note.description,
-                      style: context.fonts.black14w400,
-                    ),
+                    Text(note.description, style: context.fonts.black14w400),
                   ],
                 ),
               );
@@ -432,9 +430,11 @@ class ProtocolsStep extends ConsumerWidget {
     final dataState = ref.watch(treatmentDataViewModelProvider);
 
     final selectedProtocols = state.selectedProtocolIds
-        .map((id) => dataState.protocols.any((p) => p.id == id)
-            ? dataState.protocols.firstWhere((p) => p.id == id)
-            : null)
+        .map(
+          (id) => dataState.protocols.any((p) => p.id == id)
+              ? dataState.protocols.firstWhere((p) => p.id == id)
+              : null,
+        )
         .whereType<ProtocolItem>()
         .toList();
 
@@ -481,20 +481,28 @@ class ProtocolsStep extends ConsumerWidget {
               onNotesChanged: (updatedNotes) {
                 viewModel.updateProtocolNotes(protocol.title, updatedNotes);
               },
-              onMoveUp: idx > 0 ? () {
-                final updatedIds = List<String>.from(state.selectedProtocolIds);
-                final temp = updatedIds[idx];
-                updatedIds[idx] = updatedIds[idx - 1];
-                updatedIds[idx - 1] = temp;
-                viewModel.updateSelectedProtocolIds(updatedIds);
-              } : null,
-              onMoveDown: idx < selectedProtocols.length - 1 ? () {
-                final updatedIds = List<String>.from(state.selectedProtocolIds);
-                final temp = updatedIds[idx];
-                updatedIds[idx] = updatedIds[idx + 1];
-                updatedIds[idx + 1] = temp;
-                viewModel.updateSelectedProtocolIds(updatedIds);
-              } : null,
+              onMoveUp: idx > 0
+                  ? () {
+                      final updatedIds = List<String>.from(
+                        state.selectedProtocolIds,
+                      );
+                      final temp = updatedIds[idx];
+                      updatedIds[idx] = updatedIds[idx - 1];
+                      updatedIds[idx - 1] = temp;
+                      viewModel.updateSelectedProtocolIds(updatedIds);
+                    }
+                  : null,
+              onMoveDown: idx < selectedProtocols.length - 1
+                  ? () {
+                      final updatedIds = List<String>.from(
+                        state.selectedProtocolIds,
+                      );
+                      final temp = updatedIds[idx];
+                      updatedIds[idx] = updatedIds[idx + 1];
+                      updatedIds[idx + 1] = temp;
+                      viewModel.updateSelectedProtocolIds(updatedIds);
+                    }
+                  : null,
             );
           }),
         ],
@@ -588,23 +596,32 @@ class _ProtocolNotesCardState extends State<ProtocolNotesCard> {
                     context.horizontalSpace(12),
                     Expanded(
                       child: Text(
-                        widget.protocol.title,
+                        widget.protocol.title.capitalize,
                         style: context.fonts.black16w600,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (widget.onMoveUp != null || widget.onMoveDown != null) ...[
+                    if (widget.onMoveUp != null ||
+                        widget.onMoveDown != null) ...[
                       context.horizontalSpace(8),
                       IconButton(
-                        icon: const Icon(Icons.arrow_upward_rounded, size: 16, color: CustomColors.grey),
+                        icon: const Icon(
+                          Icons.arrow_upward_rounded,
+                          size: 16,
+                          color: CustomColors.grey,
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: widget.onMoveUp,
                       ),
                       context.horizontalSpace(4),
                       IconButton(
-                        icon: const Icon(Icons.arrow_downward_rounded, size: 16, color: CustomColors.grey),
+                        icon: const Icon(
+                          Icons.arrow_downward_rounded,
+                          size: 16,
+                          color: CustomColors.grey,
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: widget.onMoveDown,

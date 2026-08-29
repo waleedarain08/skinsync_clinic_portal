@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../utils/string_utils.dart';
 import '../main.dart';
 import '../models/user_model.dart';
 import '../screens/notification_screen.dart';
@@ -51,15 +52,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
         children: [
           if (!context.isLandscape) _MenuButton(context: context),
           const Spacer(),
-         
-             _TopBarAction(
-              icon: Icons.notifications_none_rounded,
-              tooltip: 'Notifications',
-              hasBadge: true,
-              onTap: (){
-                  context.pushNamed(NotificationScreen.routeName);
-              },
-            ),
+
+          _TopBarAction(
+            icon: Icons.notifications_none_rounded,
+            tooltip: 'Notifications',
+            hasBadge: true,
+            onTap: () {
+              context.pushNamed(NotificationScreen.routeName);
+            },
+          ),
           if (!isDeploymentMode) context.horizontalSpace(20),
           if (!isDeploymentMode)
             const _TopBarAction(
@@ -112,7 +113,7 @@ class _TopBarAction extends StatefulWidget {
     required this.icon,
     required this.tooltip,
     this.hasBadge = false,
-    this.onTap
+    this.onTap,
   });
 
   @override
@@ -133,7 +134,7 @@ class _TopBarActionState extends State<_TopBarAction> {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              onPressed:widget.onTap ?? () {},
+              onPressed: widget.onTap ?? () {},
               icon: Icon(widget.icon, size: context.sp(24)),
               color: _hovered ? CustomColors.purple : CustomColors.grey,
               style: IconButton.styleFrom(
@@ -198,8 +199,8 @@ class _UserProfile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(clinicName, style: context.fonts.black12w600),
-                Text(userRole, style: context.fonts.grey10w400),
+                Text(clinicName.capitalize, style: context.fonts.black12w600),
+                Text(userRole.capitalize, style: context.fonts.grey10w400),
               ],
             ),
             context.horizontalSpace(12),
@@ -244,7 +245,7 @@ class _UserProfile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(userName, style: context.fonts.black14w600),
+              Text(userName.capitalize, style: context.fonts.black14w600),
               Text(userEmail, style: context.fonts.grey12w400),
             ],
           ),

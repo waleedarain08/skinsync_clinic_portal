@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/product_model.dart';
 import '../../models/responses/manufacturers_list_response.dart';
 import '../../utils/enums.dart';
@@ -128,7 +129,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Global Product Catalog', style: context.fonts.level1Heading),
+              Text(
+                'Global Product Catalog',
+                style: context.fonts.level1Heading,
+              ),
               context.verticalSpace(8),
               Text(
                 'Manage platform-wide product definitions and template specifications for clinics.',
@@ -685,13 +689,16 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  displayName,
+                  displayName.capitalize,
                   style: context.fonts.black14w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 context.verticalSpace(2),
-                Text(displayBrand, style: context.fonts.purple12w700),
+                Text(
+                  displayBrand.capitalize,
+                  style: context.fonts.purple12w700,
+                ),
               ],
             ),
           ),
@@ -809,7 +816,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
     final lower = trimmed.toLowerCase();
     Color badgeColor = CustomColors.purple;
-    String label = trimmed;
+    String label = trimmed.capitalize;
 
     if (lower == 'required' || lower == 'treatment') {
       badgeColor = CustomColors.green;

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/assets.dart';
 import '../../view_models/auth_view_model.dart';
 import '../custom_outlined_button.dart';
@@ -202,7 +203,10 @@ class _ProductTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product['name'], style: context.fonts.black14w600),
+                Text(
+                  (product['name'] as String).capitalize,
+                  style: context.fonts.black14w600,
+                ),
                 Text(
                   '\$ ${product['price'].toStringAsFixed(0)}',
                   style: context.fonts.purple14w600,

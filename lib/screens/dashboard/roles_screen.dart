@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/responses/get_roles_response.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
@@ -49,7 +50,10 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Roles Management", style: context.fonts.level1Heading),
+                    Text(
+                      "Roles Management",
+                      style: context.fonts.level1Heading,
+                    ),
                     context.verticalSpace(6),
                     Text(
                       "Manage and configure clinic staff access permissions.",
@@ -112,7 +116,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                           ),
                         ),
                         title: Text(
-                          selectedRole.roleName?.toUpperCase() ?? "N/A",
+                          selectedRole.roleName?.capitalize ?? "N/A",
                           style: context.fonts.black18w600,
                         ),
                         subtitle: Text(
@@ -172,7 +176,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        feature.featureTitle ?? "N/A",
+                        feature.featureTitle?.capitalize ?? "N/A",
                         style: context.fonts.black16w600,
                       ),
                       SizedBox(height: context.h(10)),
@@ -187,7 +191,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                               .contains(permission.permissionId);
 
                           return ChoiceChip(
-                            label: Text(permission.permissionTitle ?? "N/A"),
+                            label: Text(
+                              permission.permissionTitle?.capitalize ?? "N/A",
+                            ),
                             selected: isSelected,
                             selectedColor: CustomColors.black,
                             checkmarkColor: CustomColors.white,

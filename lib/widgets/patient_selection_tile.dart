@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 
 class PatientSelectionTile extends StatelessWidget {
@@ -56,9 +57,15 @@ class PatientSelectionTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SelectableText(title, style: context.fonts.black20w600),
+                SelectableText(
+                  title.capitalize,
+                  style: context.fonts.black20w600,
+                ),
                 if (subTitle != null)
-                  SelectableText(subTitle ?? "", style: context.fonts.black13w400),
+                  SelectableText(
+                    subTitle?.capitalize ?? "",
+                    style: context.fonts.black13w400,
+                  ),
               ],
             ),
           ),
@@ -71,11 +78,7 @@ class PatientSelectionTile extends StatelessWidget {
     return CircleAvatar(
       radius: context.w(63) / 2,
       backgroundColor: CustomColors.softGrey,
-      child: Icon(
-        Icons.person,
-        size: context.r(30),
-        color: CustomColors.grey,
-      ),
+      child: Icon(Icons.person, size: context.r(30), color: CustomColors.grey),
     );
   }
 }

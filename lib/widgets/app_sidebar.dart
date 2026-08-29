@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../utils/string_utils.dart';
 import '../main.dart';
 import '../screens/dashboard/appointment_screen.dart';
 import '../screens/dashboard/clinic_ai_plans_screen.dart';
@@ -60,12 +61,12 @@ List<_SidebarEntry> _sidebarEntries() {
       routeName: SharedTreatmentRequestScreen.routeName,
     ),
 
-     const _SidebarEntry(
-        icon: Icons.vaccines_outlined,
-        label: 'Treatments',
-        routeName: TreatmentScreen.routeName,
-        sectionLabel: 'OPERATIONS',
-      ),
+    const _SidebarEntry(
+      icon: Icons.vaccines_outlined,
+      label: 'Treatments',
+      routeName: TreatmentScreen.routeName,
+      sectionLabel: 'OPERATIONS',
+    ),
 
     if (!isDeploymentMode) ...[
       const _SidebarEntry(
@@ -79,7 +80,6 @@ List<_SidebarEntry> _sidebarEntries() {
         label: 'Subscription',
         routeName: ClinicAiPlansScreen.routeName,
         sectionLabel: 'FINANCIALS',
-
       ),
       const _SidebarEntry(
         icon: Icons.inventory,
@@ -102,7 +102,6 @@ List<_SidebarEntry> _sidebarEntries() {
         routeName: PaymentAndWalletScreen.routeName,
         sectionLabel: 'FINANCIALS',
       ),
-
     ],
     const _SidebarEntry(
       icon: Iconsax.user_octagon,
@@ -337,7 +336,7 @@ class _SectionLabel extends StatelessWidget {
             right: 16,
             bottom: 8,
           ),
-          child: Text(title, style: context.fonts.grey11w600ls12),
+          child: Text(title.capitalize, style: context.fonts.grey11w600ls12),
         );
       },
     );

@@ -470,7 +470,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      p.basicInfo?.name ?? 'N/A',
+                      p.basicInfo?.name?.capitalize ?? 'N/A',
                       style: context.fonts.black18w600,
                     ),
                     Text(
@@ -834,7 +834,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                     color: CustomColors.purple.withValues(alpha: 0.2),
                   ),
                   label: Text(
-                    t.name ?? 'N/A',
+                    t.name?.capitalize ?? 'N/A',
                     style: context.fonts.purple11w600,
                   ),
                   onDeleted: () => ref

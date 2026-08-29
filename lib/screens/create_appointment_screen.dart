@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../models/patient_model.dart';
 import '../utils/responsive.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -254,7 +255,10 @@ class _CreateAppointmentScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(patient.name, style: context.fonts.black14w600),
+                    Text(
+                      patient.name.capitalize,
+                      style: context.fonts.black14w600,
+                    ),
                     context.verticalSpace(4),
                     Row(
                       children: [

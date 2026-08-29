@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../utils/string_utils.dart';
 import '../../models/responses/treatment_products_response.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../utils/theme.dart';
@@ -99,7 +100,10 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
             return filtered
                 .map(
                   (p) => ListTile(
-                    title: Text(p.name, style: context.fonts.black14w600),
+                    title: Text(
+                      p.name.capitalize,
+                      style: context.fonts.black14w600,
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -193,7 +197,7 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                       children: [
                         Flexible(
                           child: Text(
-                            entry.productName,
+                            entry.productName.capitalize,
                             style: context.fonts.black14w700,
                             overflow: TextOverflow.ellipsis,
                           ),

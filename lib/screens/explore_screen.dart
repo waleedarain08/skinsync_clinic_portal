@@ -5,6 +5,7 @@ import '../models/explore_models.dart';
 import '../models/requests/community_post_request.dart';
 import '../models/requests/reel_request.dart';
 import '../utils/enums.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/explore_view_model.dart';
 import '../widgets/app_loader.dart';
@@ -17,7 +18,6 @@ import '../widgets/gradient_scaffold.dart';
 import '../widgets/logo_and_name_widget.dart';
 import '../widgets/number_paginator.dart';
 import '../widgets/select_or_create_dropdown_widget.dart';
-import 'dashboard/appointment_treatment_detail_screen.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -687,7 +687,7 @@ class _ReelCard extends ConsumerWidget {
                 ),
                 context.verticalSpace(4),
                 Text(
-                  reel.description?.capitalize ?? '',
+                  reel.description ?? '',
                   style: context.fonts.grey12w400,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
