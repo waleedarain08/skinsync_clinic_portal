@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../screens/chat_list_scrren.dart';
 import '../utils/string_utils.dart';
 import '../main.dart';
 import '../models/user_model.dart';
@@ -61,7 +62,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
               context.pushNamed(NotificationScreen.routeName);
             },
           ),
-          if (!isDeploymentMode) context.horizontalSpace(20),
+            _TopBarAction(
+            icon: Icons.chat_bubble_outline_rounded,
+            tooltip: 'Chat',
+            hasBadge: true,
+            onTap: () {
+             context.pushNamed(ChatListScreen.routeName);
+            },
+          ),
+        
           if (!isDeploymentMode)
             const _TopBarAction(
               icon: Icons.help_outline_rounded,

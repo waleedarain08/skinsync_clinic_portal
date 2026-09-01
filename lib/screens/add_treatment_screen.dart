@@ -5,7 +5,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../utils/string_utils.dart';
 import '../models/requests/add_treatment_req_model.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/area_list_response.dart';
