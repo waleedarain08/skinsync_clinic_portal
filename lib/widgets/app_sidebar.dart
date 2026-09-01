@@ -17,7 +17,9 @@ import '../screens/dashboard/profile_screen.dart';
 import '../screens/dashboard/roles_screen.dart';
 import '../screens/dashboard/shared_treatment_request_screen.dart';
 import '../screens/dashboard/treatment_screen.dart';
+import '../screens/chat_list_scrren.dart';
 import '../screens/explore_screen.dart';
+import '../screens/notification_screen.dart';
 import '../utils/assets.dart';
 import '../utils/theme.dart';
 
@@ -49,6 +51,16 @@ List<_SidebarEntry> _sidebarEntries() {
       icon: Iconsax.discover,
       label: 'Explore',
       routeName: ExploreScreen.routeName,
+    ),
+    const _SidebarEntry(
+      icon: Icons.notifications_outlined,
+      label: 'Notifications',
+      routeName: NotificationScreen.routeName,
+    ),
+    const _SidebarEntry(
+      icon: Iconsax.message,
+      label: 'Messages',
+      routeName: ChatListScreen.routeName,
     ),
     const _SidebarEntry(
       icon: Iconsax.profile_2user,

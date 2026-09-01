@@ -165,12 +165,20 @@ class RouteGenerator {
           GoRoute(
             name: ChatScreen.routeName,
             path: ChatScreen.routeName,
-            builder: (_, _) => const ChatScreen(),
+            builder: (context, state) {
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
+              return ChatScreen(showBackButton: showBackButton);
+            },
           ),
-           GoRoute(
+          GoRoute(
             name: ChatListScreen.routeName,
             path: ChatListScreen.routeName,
-            builder: (_, _) => const ChatListScreen(),
+            builder: (context, state) {
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
+              return ChatListScreen(showBackButton: showBackButton);
+            },
           ),
           GoRoute(
             name: AppointmentDetailScreen.routeName,
@@ -304,17 +312,21 @@ class RouteGenerator {
             name: AddProductScreen.routeName,
             builder: (_, _) => const AddProductScreen(),
           ),
+          GoRoute(
+            name: NotificationScreen.routeName,
+            path: NotificationScreen.routeName,
+            builder: (context, state) {
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
+              return NotificationScreen(showBackButton: showBackButton);
+            },
+          ),
         ],
       ),
       GoRoute(
         name: CreateTreatmentScreen.routeName,
         path: CreateTreatmentScreen.routeName,
         builder: (_, _) => const CreateTreatmentScreen(),
-      ),
-      GoRoute(
-        name: NotificationScreen.routeName,
-        path: NotificationScreen.routeName,
-        builder: (_, _) => const NotificationScreen(),
       ),
       GoRoute(
         name: CreateStaffScreen.routeName,

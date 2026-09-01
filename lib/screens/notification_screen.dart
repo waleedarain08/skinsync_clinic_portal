@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 
-import '../utils/theme.dart';
-import '../widgets/gradient_scaffold.dart';
-import '../utils/responsive.dart';
-import '../widgets/header__with_back_btn.dart';
-import '../widgets/number_paginator.dart';
 import '../models/responses/notification_response.dart';
+import '../utils/theme.dart';
 import '../view_models/notification_view_model.dart';
+import '../widgets/app_loader.dart';
+import '../widgets/gradient_scaffold.dart';
+import '../widgets/number_paginator.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
-  const NotificationScreen({super.key});
-
   static const String routeName = '/Notification';
 
+  final bool showBackButton;
+
+  const NotificationScreen({
+    super.key,
+    this.showBackButton = false,
+  });
+
   @override
-  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() =>
+      _NotificationScreenState();
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-   
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationViewModel.notifier).fetchReels(page: 1);
     });
@@ -38,143 +44,214 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     final state = ref.watch(notificationViewModel);
 
     return GradientScaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: context.h(20),
-            horizontal: context.isLandscape ? context.w(250) : context.w(20),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const BuildHeader(title: 'Notifications'),
-
-              SizedBox(height: context.h(16)),
-
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: CustomColors.border,
-              ),
-
-              SizedBox(height: context.h(16)),
-
-              // Notifications
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(context.r(16)),
-                  decoration: BoxDecoration(
-                    color: CustomColors.white,
-                    borderRadius: BorderRadius.circular(context.r(8)),
-                    border: Border.all(color: CustomColors.border, width: 1),
-                  ),
-                  child: _buildBody(state),
-                ),
-              ),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context, state),
+            context.verticalSpace(32),
+            _buildNotificationsSection(context, state),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBody(NotificationState state) {
+  Widget _buildHeader(BuildContext context, NotificationState state) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.showBackButton) ...[
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: CustomColors.black,
+            ),
+            onPressed: () => context.pop(),
+          ),
+          context.horizontalSpace(10),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Notifications',
+                style: context.fonts.level1Heading,
+              ),
+              context.verticalSpace(6),
+              Text(
+                'Stay updated with real-time clinic alerts, appointments, and activity logs.',
+                style: context.fonts.grey13w500,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            ref
+                .read(notificationViewModel.notifier)
+                .fetchReels(page: state.currentPage, showLoading: true);
+          },
+          icon: Icon(
+            Icons.refresh_rounded,
+            color: CustomColors.purple,
+            size: context.sp(20),
+          ),
+          tooltip: 'Refresh Notifications',
+          style: IconButton.styleFrom(
+            backgroundColor: CustomColors.lightPurple,
+            shape: RoundedRectangleBorder(
+              borderRadius: context.appBorderRadius(all: 8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationsSection(
+    BuildContext context,
+    NotificationState state,
+  ) {
     if (state.loading && state.notification.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 40),
+        child: Center(child: AppLoader()),
+      );
     }
 
     if (state.notification.isEmpty) {
-      return Center(
-        child: Text('No notifications yet', style: context.fonts.grey16w400),
+      return Padding(
+        padding: context.appEdgeInsets(vertical: 48),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(context.r(16)),
+                decoration: const BoxDecoration(
+                  color: CustomColors.whiteGrey,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Iconsax.notification_bing,
+                  size: context.sp(40),
+                  color: CustomColors.grey,
+                ),
+              ),
+              context.verticalSpace(16),
+              Text(
+                'No notifications yet',
+                style: context.fonts.black18w600,
+              ),
+              context.verticalSpace(6),
+              Text(
+                'When you get new notifications, they will appear here.',
+                style: context.fonts.grey13w500,
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: ListView.separated(
-            itemCount: state.notification.length,
-            separatorBuilder: (context, index) => Divider(
-              height: context.h(24),
-              thickness: 1,
-              color: CustomColors.softGrey,
-            ),
-            itemBuilder: (context, index) {
-              return _buildNotificationItem(state.notification[index]);
-            },
-          ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.notification.length,
+          itemBuilder: (context, index) {
+            return _buildNotificationCard(context, state.notification[index]);
+          },
         ),
-
         if (state.totalPages > 1) ...[
-          SizedBox(height: context.h(16)),
-
-          const Divider(height: 1, thickness: 1, color: CustomColors.border),
-
-          SizedBox(height: context.h(16)),
-
-          NumberPaginator(
-            totalPages: state.totalPages,
-            currentPage: state.currentPage - 1, // back to 0-indexed for UI
-            onPageChanged: _onPageChanged,
+          context.verticalSpace(24),
+          Center(
+            child: NumberPaginator(
+              totalPages: state.totalPages,
+              currentPage: state.currentPage - 1, // 0-indexed for UI
+              onPageChanged: _onPageChanged,
+            ),
           ),
         ],
       ],
     );
   }
 
-  Widget _buildNotificationItem(NotificationData notification) {
+  Widget _buildNotificationCard(
+    BuildContext context,
+    NotificationData notification,
+  ) {
     return Container(
-      padding: EdgeInsets.all(context.w(12)),
+      margin: EdgeInsets.only(bottom: context.h(16)),
+      padding: context.appEdgeInsets(all: 16),
       decoration: BoxDecoration(
         color: CustomColors.white,
         borderRadius: BorderRadius.circular(context.r(16)),
-        border: Border.all(color: CustomColors.purple, width: 1),
+        border: Border.all(color: CustomColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.all(context.r(10)),
             decoration: BoxDecoration(
-              color: CustomColors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: CustomColors.purple, width: 1),
+              color: CustomColors.lightPurple,
+              borderRadius: BorderRadius.circular(context.r(10)),
             ),
             child: Icon(
-              Icons.notifications_outlined,
+              Iconsax.notification5,
               color: CustomColors.purple,
-              size: context.r(20),
+              size: context.sp(20),
             ),
           ),
-
-          SizedBox(width: context.w(12)),
-
+          context.horizontalSpace(16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  notification.title ?? '',
-                  style: context.fonts.black16w600,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        notification.title ?? 'Notification',
+                        style: context.fonts.black16w600,
+                      ),
+                    ),
+                    if (notification.createdAt != null) ...[
+                      context.horizontalSpace(12),
+                      Text(
+                        _formatRelativeTime(notification.createdAt!),
+                        style: context.fonts.grey12w400,
+                      ),
+                    ],
+                  ],
                 ),
-
-                SizedBox(height: context.h(4)),
-
-                Text(notification.body ?? '', style: context.fonts.grey16w400),
+                if (notification.body != null &&
+                    notification.body!.isNotEmpty) ...[
+                  context.verticalSpace(6),
+                  Text(
+                    notification.body!,
+                    style: context.fonts.grey14w400,
+                  ),
+                ],
               ],
             ),
           ),
-
-          SizedBox(width: context.w(12)),
-
-          if (notification.createdAt != null)
-            Text(
-              _formatRelativeTime(notification.createdAt!),
-              style: context.fonts.grey16w400.copyWith(
-                fontSize: context.sp(12),
-              ),
-            ),
         ],
       ),
     );

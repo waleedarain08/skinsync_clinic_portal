@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../utils/responsive.dart';
 import '../utils/theme.dart';
+import '../widgets/borderd_container_widget.dart';
+import '../widgets/custom_outlined_button.dart';
+import '../widgets/gradient_scaffold.dart';
 import 'chat_screen.dart';
 
 class ChatListScreen extends StatefulWidget {
-  const ChatListScreen({super.key});
- static const String routeName = '/chat-list-screen';
+  static const String routeName = '/chat-list-screen';
+
+  final bool showBackButton;
+
+  const ChatListScreen({
+    super.key,
+    this.showBackButton = false,
+  });
+
   @override
   State<ChatListScreen> createState() => _ChatListScreenState();
 }
@@ -57,6 +69,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
     _filteredChats = List.from(_allChats);
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   void _filterChats(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -73,175 +91,268 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        elevation: 1,
-        backgroundColor: CustomColors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Messages',
-          style: context.fonts.black18w600,
-        ),
-      ),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 900), // Web layout constraint
-          decoration:const BoxDecoration(
-            color: CustomColors.white,
-            border: Border.symmetric(
-              vertical: BorderSide(color: CustomColors.border),
-            ),
-          ),
-          child: Column(
-            children: [
-              // Search Bar Section
-              Padding(
-                padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-                child: Container(
-                  padding: context.appEdgeInsets(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: CustomColors.softGrey,
-                    borderRadius: BorderRadius.circular(context.r(12)),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: _filterChats,
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.search_rounded,
-                        color: CustomColors.grey,
-                        size: context.r(20),
-                      ),
-                      hintText: 'Search patients or messages...',
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ),
-
-              const Divider(height: 1),
-
-              // Chat List Area
-              Expanded(
-                child: _filteredChats.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No conversations found',
-                          style: context.fonts.grey14w400,
-                        ),
-                      )
-                    : ListView.separated(
-                        itemCount: _filteredChats.length,
-                        separatorBuilder: (context, index) => const Divider(
-                          height: 1,
-                          indent: 72,
-                        ),
-                        itemBuilder: (context, index) {
-                          final item = _filteredChats[index];
-                          return _buildChatTile(context, item);
-                        },
-                      ),
-              ),
-            ],
-          ),
+    return GradientScaffold(
+      body: SingleChildScrollView(
+        padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context),
+            context.verticalSpace(32),
+            _buildSearchBar(context),
+            context.verticalSpace(24),
+            _buildChatListSection(context),
+          ],
         ),
       ),
     );
   }
 
-Widget _buildChatTile(BuildContext context, ChatListItem item) {
-  return Material(
-    color: Colors.transparent,
-    child: ListTile(
-      contentPadding: context.appEdgeInsets(horizontal: 16, vertical: 8),
-      onTap: () {
-        context.pushNamed(ChatScreen.routeName);
-      },
-      leading: Stack(
-        children: [
-          CircleAvatar(
-            radius: context.r(24),
-            backgroundColor: CustomColors.softGrey,
-            child: Text(
-              item.patientName.isNotEmpty ? item.patientName[0] : 'P',
-              style: context.fonts.black16w600,
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.showBackButton) ...[
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: CustomColors.black,
             ),
+            onPressed: () => context.pop(),
           ),
-          if (item.isOnline)
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: context.r(12),
-                height: context.r(12),
-                decoration: BoxDecoration(
-                  color: CustomColors.green,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: CustomColors.white, width: 2),
-                ),
+          context.horizontalSpace(10),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Messages',
+                style: context.fonts.level1Heading,
               ),
-            ),
-        ],
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              item.patientName,
-              style: context.fonts.black16w600,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text(
-            item.time,
-            style: item.unreadCount > 0
-                ? context.fonts.black12w600.copyWith(color: CustomColors.purple)
-                : context.fonts.grey12w400,
-          ),
-        ],
-      ),
-      subtitle: Padding(
-        padding: EdgeInsets.only(top: context.h(4)),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                item.lastMessage,
-                style: item.unreadCount > 0
-                    ? context.fonts.black14w600
-                    : context.fonts.grey14w400,
-                maxLines: 1,
+              context.verticalSpace(6),
+              Text(
+                'Manage clinic communication and direct patient discussions.',
+                style: context.fonts.grey13w500,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-            if (item.unreadCount > 0) ...[
-              context.horizontalSpace(8),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
+      child: TextFormField(
+        controller: _searchController,
+        style: context.fonts.black14w400,
+        decoration: AppDecorations.input(
+          context,
+          hint: 'Search patients or messages...',
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: CustomColors.grey,
+          ),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: CustomColors.grey),
+                  onPressed: () {
+                    _searchController.clear();
+                    _filterChats('');
+                  },
+                )
+              : null,
+        ),
+        onChanged: _filterChats,
+      ),
+    );
+  }
+
+  Widget _buildChatListSection(BuildContext context) {
+    if (_filteredChats.isEmpty) {
+      return BorderdContainerWidget(
+        padding: context.appEdgeInsets(all: 48),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Container(
-                padding: const EdgeInsets.all(6),
-                decoration:const BoxDecoration(
-                  color: CustomColors.purple,
+                padding: context.appEdgeInsets(all: 20),
+                decoration: const BoxDecoration(
+                  color: CustomColors.whiteGrey,
                   shape: BoxShape.circle,
                 ),
-                child: Text(
-                  '${item.unreadCount}',
-                  style: context.fonts.white10w600
+                child: const Icon(
+                  Icons.search_off_rounded,
+                  size: 48,
+                  color: CustomColors.grey,
                 ),
               ),
+              context.verticalSpace(24),
+              Text('No conversations found', style: context.fonts.black18w600),
+              context.verticalSpace(8),
+              Text(
+                'Try clearing your search keyword or search for another patient.',
+                style: context.fonts.grey14w400,
+                textAlign: TextAlign.center,
+              ),
+              if (_searchController.text.isNotEmpty) ...[
+                context.verticalSpace(24),
+                CustomOutlinedButton(
+                  onTap: () {
+                    _searchController.clear();
+                    _filterChats('');
+                  },
+                  label: 'Clear Search',
+                ),
+              ],
             ],
-          ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _filteredChats.length,
+      itemBuilder: (context, index) {
+        final item = _filteredChats[index];
+        return _buildChatCard(context, item);
+      },
+    );
+  }
+
+  Widget _buildChatCard(BuildContext context, ChatListItem item) {
+    return Container(
+      margin: EdgeInsets.only(bottom: context.h(12)),
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(16)),
+        border: Border.all(color: CustomColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(context.r(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(context.r(16)),
+          onTap: () {
+            context.pushNamed(
+              ChatScreen.routeName,
+              queryParameters: {'showBackButton': 'true'},
+            );
+          },
+          child: Padding(
+            padding: context.appEdgeInsets(all: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: context.r(24),
+                      backgroundColor: CustomColors.lightPurple,
+                      child: Text(
+                        item.patientName.isNotEmpty
+                            ? item.patientName[0]
+                            : 'P',
+                        style: context.fonts.purple16w700,
+                      ),
+                    ),
+                    if (item.isOnline)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: context.r(12),
+                          height: context.r(12),
+                          decoration: BoxDecoration(
+                            color: CustomColors.green,
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: CustomColors.white, width: 2),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                context.horizontalSpace(16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.patientName,
+                              style: context.fonts.black16w600,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            item.time,
+                            style: item.unreadCount > 0
+                                ? context.fonts.purple12w700
+                                : context.fonts.grey12w400,
+                          ),
+                        ],
+                      ),
+                      context.verticalSpace(4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.lastMessage,
+                              style: item.unreadCount > 0
+                                  ? context.fonts.black14w600
+                                  : context.fonts.grey14w400,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (item.unreadCount > 0) ...[
+                            context.horizontalSpace(8),
+                            Container(
+                              padding: context.appEdgeInsets(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: CustomColors.purple,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '${item.unreadCount}',
+                                style: context.fonts.white10w700,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class ChatListItem {

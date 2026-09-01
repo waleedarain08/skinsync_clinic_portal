@@ -56,6 +56,7 @@ class CustomFontsGetter {
   TextStyle get grey14w600ls03 => TextStyle(fontSize: context.sp(14), fontWeight: FontWeight.w600, color: CustomColors.grey, fontFamily: _fontFamily, letterSpacing: 0.3);
   TextStyle get grey13w500 => TextStyle(fontSize: context.sp(13), fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily);
   TextStyle get grey13w500h15 => TextStyle(fontSize: context.sp(13), fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily, height: 1.5);
+  TextStyle get grey12w500 => TextStyle(fontSize: context.sp(12), fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily);
   TextStyle get grey12w400 => TextStyle(fontSize: context.sp(12), fontWeight: FontWeight.w400, color: CustomColors.grey, fontFamily: _fontFamily);
   TextStyle get grey11w600 => TextStyle(fontSize: context.sp(11), fontWeight: FontWeight.w600, color: CustomColors.grey, fontFamily: _fontFamily);
   TextStyle get grey10w700 => TextStyle(fontSize: context.sp(10), fontWeight: FontWeight.w700, color: CustomColors.grey, fontFamily: _fontFamily);
@@ -159,6 +160,7 @@ class CustomFonts {
   static TextStyle get grey14w600ls03 => TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: CustomColors.grey, fontFamily: _fontFamily, letterSpacing: 0.3);
   static TextStyle get grey13w500 => TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily);
   static TextStyle get grey13w500h15 => TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily, height: 1.5);
+  static TextStyle get grey12w500 => TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: CustomColors.grey, fontFamily: _fontFamily);
   static TextStyle get grey12w400 => TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400, color: CustomColors.grey, fontFamily: _fontFamily);
   static TextStyle get grey11w600 => TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: CustomColors.grey, fontFamily: _fontFamily);
   static TextStyle get grey10w700 => TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: CustomColors.grey, fontFamily: _fontFamily);
