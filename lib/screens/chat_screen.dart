@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../utils/responsive.dart';
+import '../models/dummy/chat_dummy_model.dart';
+import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
+import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -34,51 +36,14 @@ class _ChatScreenState extends State<ChatScreen> {
     'Share Consent Form',
   ];
 
-  // Dummy chat messages list
-  final List<ChatMessage> _messages = [
-    ChatMessage(
-      id: '1',
-      senderName: 'Jane Cooper',
-      text: 'Hello doctor, I received the simulation results for Option 1.',
-      time: '10:15 AM',
-      isMe: false,
-    ),
-    ChatMessage(
-      id: '2',
-      senderName: 'You',
-      text:
-          'Hi Jane! Great. Have you had a chance to review the before/after comparison?',
-      time: '10:18 AM',
-      isMe: true,
-      isRead: true,
-    ),
-    ChatMessage(
-      id: '3',
-      senderName: 'Jane Cooper',
-      text:
-          'Yes, I looked at it. I wanted to clarify how many sessions are recommended for this treatment.',
-      time: '10:20 AM',
-      isMe: false,
-    ),
-    ChatMessage(
-      id: '4',
-      senderName: 'Jane Cooper',
-      text: 'Here is the simulation summary document I was referring to.',
-      time: '10:21 AM',
-      isMe: false,
-      attachmentName: 'Facial_Rejuvenation_Option_1.pdf',
-      attachmentSize: '1.4 MB',
-    ),
-    ChatMessage(
-      id: '5',
-      senderName: 'You',
-      text:
-          'Based on the selected areas, we usually plan 2 to 3 sessions spread over two months.',
-      time: '10:22 AM',
-      isMe: true,
-      isRead: true,
-    ),
-  ];
+  late final List<ChatMessageModel> _messages;
+
+  @override
+  void initState() {
+    super.initState();
+    // Copy initial dummy messages list
+    _messages = List.from(dummyChatMessages);
+  }
 
   @override
   void dispose() {
@@ -87,9 +52,25 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  void _sendMessage([String? customText]) {
+  void _sendMessage({
+    String? customText,
+    ChatMessageType messageType = ChatMessageType.normal,
+    String? mediaUrl,
+    String? mediaCaption,
+    String? documentName,
+    String? documentSize,
+    ChatSharedRequestData? sharedRequestData,
+    ChatAppointmentData? appointmentData,
+  }) {
     final text = customText ?? _messageController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty &&
+        messageType == ChatMessageType.normal &&
+        documentName == null &&
+        mediaUrl == null &&
+        sharedRequestData == null &&
+        appointmentData == null) {
+      return;
+    }
 
     final now = DateTime.now();
     final timeStr =
@@ -97,13 +78,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() {
       _messages.add(
-        ChatMessage(
+        ChatMessageModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           senderName: 'You',
-          text: text,
           time: timeStr,
           isMe: true,
           isRead: false,
+          messageType: messageType,
+          text: text,
+          mediaUrl: mediaUrl,
+          mediaCaption: mediaCaption,
+          documentName: documentName,
+          documentSize: documentSize,
+          sharedRequestData: sharedRequestData,
+          appointmentData: appointmentData,
         ),
       );
     });
@@ -157,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final message = _messages[index];
-                          return _buildMessageBubble(context, message);
+                          return ChatMessageBubble(message: message);
                         },
                       ),
                     ),
@@ -338,147 +326,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(BuildContext context, ChatMessage message) {
-    final isMe = message.isMe;
-
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: context.h(16)),
-        child: Column(
-          crossAxisAlignment:
-              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(bottom: context.h(4)),
-              child: Text(
-                '${message.senderName}, ${message.time}',
-                style: context.fonts.grey11w400,
-              ),
-            ),
-            Container(
-              constraints: BoxConstraints(maxWidth: context.w(480)),
-              padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isMe ? CustomColors.purple : CustomColors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(context.r(16)),
-                  topRight: Radius.circular(context.r(16)),
-                  bottomLeft:
-                      Radius.circular(isMe ? context.r(16) : context.r(2)),
-                  bottomRight:
-                      Radius.circular(isMe ? context.r(2) : context.r(16)),
-                ),
-                border: Border.all(
-                  color: isMe ? CustomColors.purple : CustomColors.border,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message.text,
-                    style: isMe
-                        ? context.fonts.white14w600
-                            .copyWith(fontWeight: FontWeight.w400)
-                        : context.fonts.black14w400,
-                  ),
-                  if (message.attachmentName != null) ...[
-                    context.verticalSpace(10),
-                    Container(
-                      padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isMe
-                            ? CustomColors.white.withValues(alpha: 0.15)
-                            : CustomColors.softGrey,
-                        borderRadius: BorderRadius.circular(context.r(10)),
-                        border: Border.all(
-                          color: isMe
-                              ? CustomColors.white.withValues(alpha: 0.3)
-                              : CustomColors.border,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.picture_as_pdf_rounded,
-                            size: context.sp(24),
-                            color: isMe
-                                ? CustomColors.white
-                                : CustomColors.purple,
-                          ),
-                          context.horizontalSpace(10),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  message.attachmentName!,
-                                  style: isMe
-                                      ? context.fonts.white12w700
-                                      : context.fonts.black12w600,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (message.attachmentSize != null)
-                                  Text(
-                                    message.attachmentSize!,
-                                    style: isMe
-                                        ? context.fonts.white10w600
-                                        : context.fonts.grey10w400,
-                                  ),
-                              ],
-                            ),
-                          ),
-                          context.horizontalSpace(10),
-                          Icon(
-                            Icons.download_rounded,
-                            size: context.sp(18),
-                            color: isMe
-                                ? CustomColors.white
-                                : CustomColors.purple,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (isMe) ...[
-              context.verticalSpace(2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    message.isRead
-                        ? Icons.done_all_rounded
-                        : Icons.check_rounded,
-                    size: context.sp(14),
-                    color: CustomColors.purple,
-                  ),
-                  context.horizontalSpace(4),
-                  Text(
-                    message.isRead ? 'Read' : 'Sent',
-                    style: context.fonts.purple11w600,
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildQuickPresetsRow(BuildContext context) {
     return Container(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 10),
@@ -537,26 +384,50 @@ class _ChatScreenState extends State<ChatScreen> {
               color: CustomColors.grey,
               size: context.sp(22),
             ),
-            tooltip: 'Attach Media or Document',
+            tooltip: 'Attach Media, Document, Request or Appointment',
             onSelected: (value) {
               if (value == 'photo') {
-                _sendMessage('Shared recent pre-treatment photo.');
+                _sendMessage(
+                  customText: 'Shared pre-treatment photo.',
+                  messageType: ChatMessageType.media,
+                  mediaUrl:
+                      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
+                  mediaCaption: 'Pre-treatment Progress Photo',
+                );
               } else if (value == 'document') {
-                setState(() {
-                  _messages.add(
-                    ChatMessage(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      senderName: 'You',
-                      text: 'Shared treatment care document for review.',
-                      time: 'Now',
-                      isMe: true,
-                      isRead: false,
-                      attachmentName: 'Post_Treatment_Care_Guide.pdf',
-                      attachmentSize: '950 KB',
-                    ),
-                  );
-                });
-                _scrollToBottom();
+                _sendMessage(
+                  customText: 'Shared treatment care instructions document.',
+                  messageType: ChatMessageType.document,
+                  documentName: 'Post_Treatment_Care_Guide.pdf',
+                  documentSize: '950 KB',
+                );
+              } else if (value == 'shared_request') {
+                _sendMessage(
+                  customText: 'Attached shared treatment request details.',
+                  messageType: ChatMessageType.sharedRequest,
+                  sharedRequestData: ChatSharedRequestData(
+                    requestId: 105,
+                    patientName: 'Jane Cooper',
+                    treatmentName: 'Botox & Dermal Fillers Session',
+                    dateShared: 'Aug 28, 2026',
+                    status: 'Pending Approval',
+                    clinicName: 'SkinSync Aesthetic Clinic',
+                  ),
+                );
+              } else if (value == 'appointment') {
+                _sendMessage(
+                  customText: 'Attached appointment confirmation details.',
+                  messageType: ChatMessageType.appointment,
+                  appointmentData: ChatAppointmentData(
+                    appointmentId: 408,
+                    patientName: 'Jane Cooper',
+                    serviceName: 'Dermal Fillers Follow-up',
+                    date: 'Sep 12, 2026',
+                    time: '11:30 AM',
+                    practitionerName: 'Dr. Sarah Johnson',
+                    status: 'Confirmed',
+                  ),
+                );
               }
             },
             itemBuilder: (context) => [
@@ -567,8 +438,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Icon(Icons.image_outlined,
                         size: context.sp(18), color: CustomColors.purple),
                     context.horizontalSpace(12),
-                    Text('Send Photo / Image',
-                        style: context.fonts.black14w400),
+                    Text('Send Photo / Media', style: context.fonts.black14w400),
                   ],
                 ),
               ),
@@ -579,8 +449,29 @@ class _ChatScreenState extends State<ChatScreen> {
                     Icon(Icons.picture_as_pdf_outlined,
                         size: context.sp(18), color: CustomColors.purple),
                     context.horizontalSpace(12),
-                    Text('Send Care Document (PDF)',
-                        style: context.fonts.black14w400),
+                    Text('Send Care Document (PDF)', style: context.fonts.black14w400),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'shared_request',
+                child: Row(
+                  children: [
+                    Icon(Iconsax.profile_2user,
+                        size: context.sp(18), color: CustomColors.purple),
+                    context.horizontalSpace(12),
+                    Text('Share Treatment Request', style: context.fonts.black14w400),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'appointment',
+                child: Row(
+                  children: [
+                    Icon(Iconsax.calendar,
+                        size: context.sp(18), color: CustomColors.purple),
+                    context.horizontalSpace(12),
+                    Text('Share Appointment Card', style: context.fonts.black14w400),
                   ],
                 ),
               ),
@@ -620,26 +511,4 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-}
-
-class ChatMessage {
-  final String id;
-  final String senderName;
-  final String text;
-  final String time;
-  final bool isMe;
-  final bool isRead;
-  final String? attachmentName;
-  final String? attachmentSize;
-
-  ChatMessage({
-    required this.id,
-    required this.senderName,
-    required this.text,
-    required this.time,
-    required this.isMe,
-    this.isRead = false,
-    this.attachmentName,
-    this.attachmentSize,
-  });
 }

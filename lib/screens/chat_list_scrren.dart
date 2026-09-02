@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_outlined_button.dart';
