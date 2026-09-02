@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import '../repositories/ai_onboarding_chat_repository.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/chat_repository.dart';
 import '../repositories/explore_repository.dart';
@@ -9,6 +10,7 @@ import '../repositories/provider_role_repository.dart';
 import '../repositories/session_repository.dart';
 import '../repositories/treatment_repository.dart';
 import 'api_base_helper.dart';
+import 'ai_onboarding_chat_service.dart';
 import 'appointment_service.dart';
 import 'area_services.dart';
 import 'auth_service.dart';
@@ -68,6 +70,9 @@ Future<void> initializeServices() async {
   );
   locator.registerLazySingleton<ChatRepository>(
     () => ChatService(api: apiBaseHelper),
+  );
+  locator.registerLazySingleton<AiOnboardingChatRepository>(
+    () => AiOnboardingChatService(api: apiBaseHelper),
   );
   locator.registerLazySingleton(() => MediaService());
   locator.registerLazySingleton(() => PractitionerService());

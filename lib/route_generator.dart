@@ -7,6 +7,7 @@ import 'app_init.dart';
 import 'models/responses/register_practitioner_response.dart';
 import 'screens/about_screen.dart';
 import 'screens/add_practitioner_screen.dart';
+import 'screens/ai_onboarding_chat_screen.dart';
 import 'screens/business_info_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/add_treatment_screen.dart';
@@ -178,6 +179,15 @@ class RouteGenerator {
               final showBackButton =
                   state.uri.queryParameters['showBackButton'] == 'true';
               return ChatListScreen(showBackButton: showBackButton);
+            },
+          ),
+          GoRoute(
+            name: AiOnboardingChatScreen.routeName,
+            path: AiOnboardingChatScreen.routeName,
+            builder: (context, state) {
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
+              return AiOnboardingChatScreen(showBackButton: showBackButton);
             },
           ),
           GoRoute(

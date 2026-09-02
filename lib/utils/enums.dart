@@ -83,7 +83,8 @@ enum Endpoint {
   downTimeLevel('clinic/treatments/{id}/downtime-presets'),
   notification('clinic/notifications'),
   clinicDetail('clinic/detail'),
-  chatMessages('clinic/chat-messages');
+  chatMessages('clinic/chat-messages'),
+  aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
   const Endpoint(this.path);
@@ -305,6 +306,27 @@ enum ChatMessageType {
     return ChatMessageType.values.firstWhere(
       (e) => e.value.toLowerCase() == val,
       orElse: () => ChatMessageType.text,
+    );
+  }
+}
+
+enum AiChatMessageType {
+  text('text', 'Text'),
+  question('question', 'Question'),
+  optionSelection('optionSelection', 'Option Selection'),
+  treatmentDraft('treatmentDraft', 'Treatment Draft');
+
+  final String value;
+  final String label;
+
+  const AiChatMessageType(this.value, this.label);
+
+  static AiChatMessageType fromValue(String? value) {
+    if (value == null) return AiChatMessageType.text;
+    final val = value.toLowerCase();
+    return AiChatMessageType.values.firstWhere(
+      (e) => e.value.toLowerCase() == val,
+      orElse: () => AiChatMessageType.text,
     );
   }
 }
