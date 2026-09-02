@@ -7,6 +7,7 @@ import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
+import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -402,18 +403,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   documentSize: '950 KB',
                 );
               } else if (value == 'shared_request') {
-                _sendMessage(
-                  customText: 'Attached shared treatment request details.',
-                  messageType: ChatMessageType.sharedRequest,
-                  sharedRequestData: ChatSharedRequestData(
-                    requestId: 105,
+                showDialog<ChatSharedRequestData>(
+                  context: context,
+                  builder: (context) => const ShareTreatmentRequestDialog(
                     patientName: 'Jane Cooper',
-                    treatmentName: 'Botox & Dermal Fillers Session',
-                    dateShared: 'Aug 28, 2026',
-                    status: 'Pending Approval',
-                    clinicName: 'SkinSync Aesthetic Clinic',
                   ),
-                );
+                ).then((selectedReq) {
+                  if (selectedReq != null) {
+                    _sendMessage(
+                      customText: 'Attached shared treatment request details.',
+                      messageType: ChatMessageType.sharedRequest,
+                      sharedRequestData: selectedReq,
+                    );
+                  }
+                });
               } else if (value == 'appointment') {
                 _sendMessage(
                   customText: 'Attached appointment confirmation details.',
