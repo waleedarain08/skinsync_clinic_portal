@@ -18,7 +18,8 @@ class PhaseNotificationsRequest extends BaseRequest {
     });
 
 
-    Map<String, dynamic> toJson() => {
+    @override
+  Map<String, dynamic> toJson() => {
       'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.phaseNotifications.name],
        

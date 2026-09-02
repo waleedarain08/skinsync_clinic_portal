@@ -82,7 +82,8 @@ enum Endpoint {
   deductionTimings('clinic/deduction-timings'),
   downTimeLevel('clinic/treatments/{id}/downtime-presets'),
   notification('clinic/notifications'),
-  clinicDetail('clinic/detail');
+  clinicDetail('clinic/detail'),
+  chatMessages('clinic/chat-messages');
 
   final String path;
   const Endpoint(this.path);

@@ -17,7 +17,7 @@ import 'api_base_helper.dart';
 class TreatmentServices implements TreatmentRepository {
   final ApiBaseService _api;
 
-  TreatmentServices({required ApiBaseService api}) : _api = api;
+  TreatmentServices({required this._api});
 
   @override
   Future<ClinicTreatmentListResponse> getClinicTreatments({

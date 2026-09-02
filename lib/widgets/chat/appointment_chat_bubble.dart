@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../models/dummy/chat_dummy_model.dart';
+import '../../models/chat_appointment_model.dart';
+import '../../models/chat_message_model.dart';
 import '../../screens/dashboard/appointment_screen.dart';
 import '../../utils/theme.dart';
 

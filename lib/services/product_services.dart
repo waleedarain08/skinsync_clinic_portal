@@ -30,7 +30,7 @@ import 'api_base_helper.dart';
 class ProductServices implements ProductRepository {
   final ApiBaseService _api;
 
-  ProductServices({required ApiBaseService api}) : _api = api;
+  ProductServices({required this._api});
 
   @override
   Future<BaseResponse> addBatch({required ProductBatchRequest request}) async {

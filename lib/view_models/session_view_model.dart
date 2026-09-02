@@ -1386,7 +1386,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   
 
   final selected = state.downTimeLevelList
-      ?.where((e) => e.level == level)
+      .where((e) => e.level == level)
       .firstOrNull;
 
   final downtimeDays = selected?.days;

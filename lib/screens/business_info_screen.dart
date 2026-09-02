@@ -586,7 +586,7 @@ class _BusinessInformationScreenState
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _availabilityEntries.length,
-            separatorBuilder: (_, __) => Padding(
+            separatorBuilder: (_, _) => Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Divider(color: CustomColors.grey.withValues(alpha: 0.1)),
             ),

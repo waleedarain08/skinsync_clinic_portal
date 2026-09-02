@@ -227,8 +227,9 @@ class _TreatmentDetailScreenState
     AppointmentTreatmentDetailData detail,
   ) {
     final history = detail.history;
-    if (history == null || history.isEmpty)
+    if (history == null || history.isEmpty) {
       return const Center(child: Text('No history found'));
+    }
 
     return ListView.builder(
       padding: context.appEdgeInsets(all: 24),

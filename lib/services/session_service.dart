@@ -23,7 +23,7 @@ import 'api_base_helper.dart';
 class SessionServices implements SessionRepository {
   final ApiBaseService _api;
 
-  SessionServices({required ApiBaseService api}) : _api = api;
+  SessionServices({required this._api});
 
   @override
   Future<TreatmentProductsResponse> getProductsByTreatment(

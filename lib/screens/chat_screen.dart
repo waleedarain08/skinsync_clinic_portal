@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../models/dummy/chat_dummy_model.dart';
+import '../models/chat_appointment_model.dart';
+import '../models/chat_message_model.dart';
+import '../models/chat_treatment_request_model.dart';
+import '../models/responses/patient_treatment_request_response.dart';
+import '../utils/clinic_dummy_data.dart';
 import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -43,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     // Copy initial dummy messages list
-    _messages = List.from(dummyChatMessages);
+    _messages = List.from(ClinicDummyData.chatDummyMessages);
   }
 
   @override
@@ -60,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
     String? mediaCaption,
     String? documentName,
     String? documentSize,
-    ChatSharedRequestData? sharedRequestData,
+    ChatTreatmentRequestModel? sharedRequestData,
     ChatAppointmentData? appointmentData,
   }) {
     final text = customText ?? _messageController.text.trim();
@@ -403,7 +407,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   documentSize: '950 KB',
                 );
               } else if (value == 'shared_request') {
-                showDialog<ChatSharedRequestData>(
+                showDialog<PatientTreatmentRequestData>(
                   context: context,
                   builder: (context) => const ShareTreatmentRequestDialog(
                     patientName: 'Jane Cooper',
@@ -413,7 +417,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     _sendMessage(
                       customText: 'Attached shared treatment request details.',
                       messageType: ChatMessageType.sharedRequest,
-                      sharedRequestData: selectedReq,
+                      sharedRequestData:
+                          ChatTreatmentRequestModel.fromPatientTreatmentRequestData(selectedReq),
                     );
                   }
                 });

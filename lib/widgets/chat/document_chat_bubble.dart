@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/dummy/chat_dummy_model.dart';
+import '../../models/chat_message_model.dart';
 import '../../utils/theme.dart';
 
 class DocumentChatBubble extends StatelessWidget {

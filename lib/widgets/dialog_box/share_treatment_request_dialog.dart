@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../models/dummy/chat_dummy_model.dart';
-import '../../utils/responsive.dart';
+import '../../models/dummy/patient_dummy.dart';
+import '../../models/responses/patient_treatment_request_response.dart';
 import '../../utils/theme.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
@@ -23,41 +23,15 @@ class ShareTreatmentRequestDialog extends StatefulWidget {
 
 class _ShareTreatmentRequestDialogState
     extends State<ShareTreatmentRequestDialog> {
-  late final List<ChatSharedRequestData> _requests;
-  ChatSharedRequestData? _selectedRequest;
+  late final List<PatientTreatmentRequestData> _requests;
+  PatientTreatmentRequestData? _selectedRequest;
 
   @override
   void initState() {
     super.initState();
-    // Dummy treatment requests for the patient
-    _requests = [
-      ChatSharedRequestData(
-        requestId: 102,
-        patientName: widget.patientName,
-        treatmentName: 'Botox & Dermal Fillers Combo',
-        dateShared: 'Aug 28, 2026',
-        status: 'Pending Review',
-        clinicName: 'Aesthetic Beauty Center',
-      ),
-      ChatSharedRequestData(
-        requestId: 105,
-        patientName: widget.patientName,
-        treatmentName: 'Laser Skin Resurfacing & Hydrafacial',
-        dateShared: 'Aug 20, 2026',
-        status: 'Approved',
-        clinicName: 'SkinSync Aesthetic Clinic',
-      ),
-      ChatSharedRequestData(
-        requestId: 108,
-        patientName: widget.patientName,
-        treatmentName: 'Chemical Peel & Anti-Aging Protocol',
-        dateShared: 'Aug 15, 2026',
-        status: 'Completed',
-        clinicName: 'Aesthetic Care Center',
-      ),
-    ];
+    // Use dummy treatment requests directly from patient_dummy.dart
+    _requests = List.from(dummyTreatmentRequests);
 
-    // Default select first request
     if (_requests.isNotEmpty) {
       _selectedRequest = _requests.first;
     }
@@ -67,7 +41,7 @@ class _ShareTreatmentRequestDialogState
   Widget build(BuildContext context) {
     return StandardDialog(
       title: 'Select Treatment Request to Share',
-      width: 620.w,
+      width: 640.w,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -84,7 +58,7 @@ class _ShareTreatmentRequestDialogState
             separatorBuilder: (context, index) => context.verticalSpace(10),
             itemBuilder: (context, index) {
               final req = _requests[index];
-              final isSelected = _selectedRequest?.requestId == req.requestId;
+              final isSelected = _selectedRequest?.id == req.id;
 
               return InkWell(
                 onTap: () {
@@ -109,15 +83,14 @@ class _ShareTreatmentRequestDialogState
                   ),
                   child: Row(
                     children: [
-                      Radio<ChatSharedRequestData>(
-                        value: req,
-                        groupValue: _selectedRequest,
-                        activeColor: CustomColors.purple,
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedRequest = val;
-                          });
-                        },
+                      Icon(
+                        isSelected
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: isSelected
+                            ? CustomColors.purple
+                            : CustomColors.grey,
+                        size: context.sp(20),
                       ),
                       context.horizontalSpace(8),
                       Expanded(
@@ -129,13 +102,13 @@ class _ShareTreatmentRequestDialogState
                               children: [
                                 Expanded(
                                   child: Text(
-                                    req.treatmentName,
+                                    req.name,
                                     style: context.fonts.black16w600,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                _buildStatusBadge(context, req.status),
+                                _buildStatusBadge(context, 'Pending Review'),
                               ],
                             ),
                             context.verticalSpace(4),
@@ -148,7 +121,7 @@ class _ShareTreatmentRequestDialogState
                                 ),
                                 context.horizontalSpace(6),
                                 Text(
-                                  req.clinicName,
+                                  'SkinSync Clinic',
                                   style: context.fonts.grey12w400,
                                 ),
                                 context.horizontalSpace(12),
@@ -159,11 +132,37 @@ class _ShareTreatmentRequestDialogState
                                 ),
                                 context.horizontalSpace(6),
                                 Text(
-                                  req.dateShared,
+                                  req.createdAt != null
+                                      ? req.createdAt!.substring(0, 10)
+                                      : 'Recent',
                                   style: context.fonts.grey12w400,
                                 ),
                               ],
                             ),
+                            if (req.treatments.isNotEmpty) ...[
+                              context.verticalSpace(8),
+                              Wrap(
+                                spacing: context.w(6),
+                                runSpacing: context.h(4),
+                                children: req.treatments.map((t) {
+                                  return Container(
+                                    padding: context.appEdgeInsets(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: CustomColors.softGrey,
+                                      borderRadius:
+                                          BorderRadius.circular(context.r(6)),
+                                    ),
+                                    child: Text(
+                                      t.treatmentName,
+                                      style: context.fonts.grey11w600,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
                           ],
                         ),
                       ),

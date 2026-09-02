@@ -28,6 +28,7 @@ class PostPhotosRequest extends BaseRequest  {
     required this.photoMilestone,
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'step_number': stepNumber,

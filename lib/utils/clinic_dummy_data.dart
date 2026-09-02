@@ -1,4 +1,9 @@
+import '../models/chat_appointment_model.dart';
+import '../models/chat_message_model.dart';
+import '../models/chat_treatment_request_model.dart';
+import '../models/dummy/patient_dummy.dart';
 import '../models/responses/treatment_products_response.dart';
+import 'enums.dart';
 
 class ClinicDummyProduct {
   final String id;
@@ -562,7 +567,86 @@ class ClinicDummyData {
       "documents": ["https://example.com/license.pdf", "https://example.com/insurance.pdf"]
     }
   };
+
+  /// Dummy messages list demonstrating all 5 chat types using PatientTreatmentRequestData
+  static final List<ChatMessageModel> chatDummyMessages = [
+    ChatMessageModel(
+      id: '1',
+      senderName: 'Jane Cooper',
+      time: '10:15 AM',
+      isMe: false,
+      messageType: ChatMessageType.normal,
+      text: 'Hello doctor, I received the simulation results for Option 1.',
+    ),
+    ChatMessageModel(
+      id: '2',
+      senderName: 'You',
+      time: '10:18 AM',
+      isMe: true,
+      isRead: true,
+      messageType: ChatMessageType.normal,
+      text:
+          'Hi Jane! Great. Have you had a chance to review the before/after comparison?',
+    ),
+    ChatMessageModel(
+      id: '3',
+      senderName: 'Jane Cooper',
+      time: '10:20 AM',
+      isMe: false,
+      messageType: ChatMessageType.media,
+      text: 'Here is my current progress photo for your review.',
+      mediaUrl:
+          'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
+      mediaCaption: 'Pre-treatment Skin Assessment Photo',
+    ),
+    ChatMessageModel(
+      id: '4',
+      senderName: 'You',
+      time: '10:22 AM',
+      isMe: true,
+      isRead: true,
+      messageType: ChatMessageType.document,
+      text: 'Here is the detailed PDF outline for your upcoming treatment plan.',
+      documentName: 'Facial_Rejuvenation_Option_1.pdf',
+      documentSize: '1.4 MB',
+    ),
+    ChatMessageModel(
+      id: '5',
+      senderName: 'Jane Cooper',
+      time: '10:25 AM',
+      isMe: false,
+      messageType: ChatMessageType.sharedRequest,
+      text: 'I submitted a shared treatment request with before & after simulation.',
+      sharedRequestData: dummyTreatmentRequests.isNotEmpty
+          ? ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
+              dummyTreatmentRequests[0],
+            )
+          : null,
+    ),
+    ChatMessageModel(
+      id: '6',
+      senderName: 'You',
+      time: '10:28 AM',
+      isMe: true,
+      isRead: true,
+      messageType: ChatMessageType.appointment,
+      text: 'I have scheduled your next follow-up appointment below.',
+      appointmentData: ChatAppointmentData(
+        appointmentId: 405,
+        patientName: 'Jane Cooper',
+        serviceName: 'Botox Follow-up & Touch-up Session',
+        date: 'Sep 05, 2026',
+        time: '10:00 AM',
+        practitionerName: 'Dr. Sarah Johnson',
+        status: 'Confirmed',
+      ),
+    ),
+  ];
 }
+
+final List<ChatMessageModel> chatDummyMessages = ClinicDummyData.chatDummyMessages;
+// ignore: non_constant_identifier_names
+final List<ChatMessageModel> chat_dummy_messages = ClinicDummyData.chatDummyMessages;
 
 class ClinicDummySessionConfig {
   static final Map<int, Map<String, dynamic>> stepConfigs = {

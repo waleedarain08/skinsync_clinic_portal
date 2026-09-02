@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import '../utils/assets.dart';
-import '../utils/color_constant.dart';
 import '../utils/theme.dart';
 import 'app_network_image.dart';
 

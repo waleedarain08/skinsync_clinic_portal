@@ -15,6 +15,7 @@ class CreateCommunityPostRequest extends BaseRequest {
     this.tags = const [],
   });
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'title': title,

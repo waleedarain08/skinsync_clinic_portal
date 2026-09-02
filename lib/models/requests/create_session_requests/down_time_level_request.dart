@@ -9,6 +9,7 @@ class DownTimeLevelRequest extends BaseRequest {
 
   DownTimeLevelRequest({ required this.stepNumber,this.downtimeLevel, this.downtimeDays});
 
+  @override
   Map<String, dynamic> toJson() => {
     'step_number': stepNumber,
     'keys': [CreateTreatmentSteps.downtimeLevel.name],

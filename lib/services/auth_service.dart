@@ -20,7 +20,7 @@ class AuthService implements AuthRepository {
   final ApiBaseService _api;
   final SecureStorageService _secureStorage = locator<SecureStorageService>();
 
-  AuthService({required ApiBaseService api}) : _api = api;
+  AuthService({required this._api});
 
   @override
   Future<AuthData> login({required LoginRequestModel req}) async {

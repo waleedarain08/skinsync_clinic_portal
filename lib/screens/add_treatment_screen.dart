@@ -35,7 +35,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
   final Map<int, Map<int, AreaModel>> _selectedTemplateAreas = {};
 
   // Accordion controllers, keyed by treatment id so expand state survives rebuilds.
-  final Map<int, ExpansionTileController> _tileControllers = {};
+  final Map<int, ExpansibleController> _tileControllers = {};
 
   List<AdminTreatment> _treatments = [];
   bool _loadingTemplates = false;
@@ -164,7 +164,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
 
     final controller = _tileControllers.putIfAbsent(
       template.id,
-      () => ExpansionTileController(),
+      () => ExpansibleController(),
     );
 
     return BorderdContainerWidget(

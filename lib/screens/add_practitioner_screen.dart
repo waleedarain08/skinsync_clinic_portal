@@ -470,7 +470,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      p.basicInfo?.name?.capitalize ?? 'N/A',
+                      p.basicInfo?.name.capitalize ?? 'N/A',
                       style: context.fonts.black18w600,
                     ),
                     Text(

@@ -9,7 +9,7 @@ import 'api_base_helper.dart';
 class ProviderRolesService implements ProviderRoleRepository {
   final ApiBaseService _api;
 
-  ProviderRolesService({required ApiBaseService api}) : _api = api;
+  ProviderRolesService({required this._api});
 
   @override
   Future<FiltersResponse> providerRoles() async {
