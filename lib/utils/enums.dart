@@ -293,7 +293,7 @@ enum MessageType {
   text('text', 'Text'),
   media('media', 'Media'),
   document('document', 'Document'),
-  sharedRequest('sharedRequest', 'Shared Request'),
+  sharedRequest('request', 'Shared Request'),
   appointment('appointment', 'Appointment');
 
   final String value;

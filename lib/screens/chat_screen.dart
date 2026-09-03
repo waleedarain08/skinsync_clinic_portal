@@ -1,11 +1,14 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
+import '../services/media_service.dart';
 import '../utils/enums.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -47,6 +50,54 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  Future<void> _pickMediaAndSend() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null) {
+      return;
+    }
+
+    final mediaUrl = await MediaService().uploadMedia(
+      path: 'chat/media',
+      file: picked,
+    );
+    if (mediaUrl == null) {
+      return;
+    }
+
+    await _sendMessage(
+      customText: 'Shared media.',
+      messageType: MessageType.media,
+      mediaUrl: mediaUrl,
+    );
+  }
+
+  Future<void> _pickDocumentAndSend() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+      withData: false,
+    );
+    final file = result.singleOrNull;
+    if (file == null || file.path == null) {
+      return;
+    }
+
+    final documentUrl = await MediaService().uploadMedia(
+      path: 'chat/documents',
+      file: file,
+    );
+    if (documentUrl == null) {
+      return;
+    }
+
+    await _sendMessage(
+      customText: 'Shared document.',
+      messageType: MessageType.document,
+      documentName: file.name,
+      documentUrl: documentUrl,
+    );
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -54,16 +105,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  void _sendMessage({
+  Future<void> _sendMessage({
     String? customText,
     MessageType messageType = MessageType.text,
     String? mediaUrl,
-    String? mediaCaption,
     String? documentName,
-    String? documentSize,
+    String? documentUrl,
     ChatTreatmentRequestModel? sharedRequestData,
     ChatAppointmentData? appointmentData,
-  }) {
+  }) async {
     final text = customText ?? _messageController.text.trim();
     if (text.isEmpty &&
         messageType == MessageType.text &&
@@ -74,29 +124,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return;
     }
 
-    // final now = DateTime.now();
-    // final timeStr =
-    //     "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    if (messageType == MessageType.media && mediaUrl == null) {
+      await _pickMediaAndSend();
+      return;
+    }
 
-    // setState(() {
-    //   _messages.add(
-    //     ChatMessageModel(
-    //       id: DateTime.now().millisecondsSinceEpoch.toString(),
-    //       senderName: 'You',
-    //       time: timeStr,
-    //       isMe: true,
-    //       isRead: false,
-    //       messageType: messageType,
-    //       text: text,
-    //       mediaUrl: mediaUrl,
-    //       mediaCaption: mediaCaption,
-    //       documentName: documentName,
-    //       documentSize: documentSize,
-    //       sharedRequestData: sharedRequestData,
-    //       appointmentData: appointmentData,
-    //     ),
-    //   );
-    // });
+    if (messageType == MessageType.document && documentUrl == null) {
+      await _pickDocumentAndSend();
+      return;
+    }
+
+    await ref
+        .read(chatProvider.notifier)
+        .sendChatMessage(
+          type: messageType,
+          content: text,
+          mediaUrl: mediaUrl,
+          documentUrl: documentUrl,
+        );
 
     _messageController.clear();
     _scrollToBottom();
@@ -430,19 +475,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: 'Attach Media, Document, Request or Appointment',
             onSelected: (value) {
               if (value == 'photo') {
-                _sendMessage(
-                  customText: 'Shared pre-treatment photo.',
-                  messageType: MessageType.media,
-                  mediaUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
-                  mediaCaption: 'Pre-treatment Progress Photo',
-                );
+                _pickMediaAndSend();
               } else if (value == 'document') {
-                _sendMessage(
-                  customText: 'Shared treatment care instructions document.',
-                  messageType: MessageType.document,
-                  documentName: 'Post_Treatment_Care_Guide.pdf',
-                  documentSize: '950 KB',
-                );
+                _pickDocumentAndSend();
               } else if (value == 'shared_request') {
                 showDialog<PatientTreatmentRequestData>(
                   context: context,

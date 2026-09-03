@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/dummy/chat_dummy_model.dart';
 import '../models/responses/chats_response.dart';
+import '../models/responses/messages_response.dart';
 import '../repositories/chat_repository.dart';
 import '../services/locator.dart';
+import '../utils/enums.dart';
 import '../utils/exception.dart';
 import 'base_view_model.dart';
 
@@ -40,15 +42,69 @@ class ChatViewModel extends BaseViewModel<ChatState> {
       EasyLoading.show(status: 'Loading messages...');
       final data = await _repo.getMessages(chatId: chatId);
       state = state.copyWith(messagesData: data, loading: false);
+      await openChatSocket();
       EasyLoading.dismiss();
     });
+  }
+
+  Future<void> openChatSocket() async {
+    final chatId = state.selectedChat?.id;
+    if (chatId == null) {
+      return;
+    }
+
+    await _repo.connectChatSocket(
+      chatId: chatId,
+      onMessage: (message) {
+        final existingMessages = List<Message>.from(
+          state.messagesData?.messages ?? <Message>[],
+        );
+        final alreadyExists = existingMessages.any((m) => m.id == message.id);
+        if (alreadyExists) {
+          return;
+        }
+
+        final updatedMessages = [...existingMessages, message];
+        final currentData =
+            state.messagesData ?? MessagesData(messages: const []);
+        state = state.copyWith(
+          messagesData: currentData.copyWith(messages: updatedMessages),
+        );
+      },
+    );
+  }
+
+  Future<void> sendChatMessage({
+    required MessageType type,
+    required String content,
+    String? mediaUrl,
+    String? documentUrl,
+  }) async {
+    return await runSafely(() async {
+      final chatId = state.selectedChat?.id;
+      if (chatId == null) {
+        throw const UnknownException('No chat selected');
+      }
+
+      await _repo.sendChatMessage(
+        chatId: chatId,
+        type: type,
+        content: content,
+        mediaUrl: mediaUrl,
+        documentUrl: documentUrl,
+      );
+    }, showLoading: false);
   }
 
   void selectChat(Chat? chat) {
     state = state.copyWith(selectedChat: chat);
   }
 
-  void clearSelectedChatAndMessages() {
+  Future<void> clearSelectedChatAndMessages() async {
+    final chatId = state.selectedChat?.id;
+    if (chatId != null) {
+      await _repo.closeChatSocket(chatId: chatId);
+    }
     state = state.copyWithNull(selectedChat: true, messagesData: true);
   }
 }
