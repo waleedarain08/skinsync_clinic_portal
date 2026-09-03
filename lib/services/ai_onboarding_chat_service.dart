@@ -116,7 +116,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
   }) async {
     try {
       final uri = Uri.parse(
-        'https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message',
+        'http://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message',
       );
 
       final response = await http.post(
@@ -124,7 +124,6 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: jsonEncode(request.toJson()),
       );
