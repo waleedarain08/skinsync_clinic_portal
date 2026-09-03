@@ -56,7 +56,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
           const Spacer(),
 
           const AiOnboardingButton(
-            initialMessage: 'Hello, I am a new user. Can you help me get started?',
+            initialMessage:"Hi! I just clicked 'Start Onboarding using AI'. Please guide me step-by-step through setting up my clinic profile, adding treatments, and configuring provider accounts.",
             buttonText: 'Start Onboarding using AI',
             isBorder: true,
           ),

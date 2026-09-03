@@ -341,7 +341,7 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
                     queryParameters: {
                       'showBackButton': 'true',
                     },
-                    extra: 'xyz',
+                    extra: "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.",
                   );
                 },
                 borderRadius: BorderRadius.circular(20),

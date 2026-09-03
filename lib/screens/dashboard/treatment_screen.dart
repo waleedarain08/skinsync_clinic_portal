@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+
 import '../../main.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
@@ -145,8 +146,8 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            Text('Treatment Library', style: context.fonts.level1Heading),
-            context.verticalSpace(6),
+              Text('Treatment Library', style: context.fonts.level1Heading),
+              context.verticalSpace(6),
               Text(
                 'Manage clinic medical aesthetic procedures, pricing structures, and anatomical areas.',
                 style: context.fonts.grey13w500,
@@ -156,12 +157,12 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             ],
           ),
         ),
-         context.horizontalSpace(6),
-          const AiOnboardingButton(
-            initialMessage: 'Hello, I am a new user. Can you help me get started?',
-            buttonText: 'Start Onboarding using AI',
-            isBorder: true,
-          ),
+        context.horizontalSpace(6),
+        const AiOnboardingButton(
+          initialMessage: "Hi! I want to add a new treatment to my catalog. Please help me create the details, description, and settings for it.",
+          buttonText: 'Add Treatment with AI',
+          isBorder: true,
+        ),
         if (!isDeploymentMode)
           CustomPrimaryButton(
             onTap: () {
@@ -556,7 +557,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
                   await ref
                       .read(treatmentViewModelProvider.notifier)
                       .fetchTreatmentDetail(t.id!);
-                      
+
                   if (mounted) {
                     await context.push(TreatmentDetailScreen.routeName);
                   }
