@@ -35,7 +35,7 @@ enum Endpoint {
   forgetPassword('clinic/forgot-password'),
   resetPassword('clinic/reset-password'),
   verifyOtp('clinic/verify-reset-otp'),
-   treatmentsStatus('clinic/treatments/status'),
+  treatmentsStatus('clinic/treatments/status'),
   deleteTreatment('clinic/treatments/{treatment_id}'),
   updateDoctorTreatment('clinic/doctors'),
   getFeature("clinic/features"),
@@ -83,7 +83,8 @@ enum Endpoint {
   downTimeLevel('clinic/treatments/{id}/downtime-presets'),
   notification('clinic/notifications'),
   clinicDetail('clinic/detail'),
-  chatMessages('clinic/chat-messages'),
+  chats('clinic/chats'),
+  messages('clinic/chats/messages'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
@@ -101,6 +102,7 @@ enum Endpoint {
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
   apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('http://localhost:8084/api/');
 
   final String url;
 
@@ -287,25 +289,24 @@ enum RequestType {
   const RequestType(this.label);
 }
 
-enum ChatMessageType {
+enum MessageType {
   text('text', 'Text'),
-  normal('normal', 'Normal'),
   media('media', 'Media'),
   document('document', 'Document'),
-  sharedRequest('sharedRequest', 'Shared Request'),
+  sharedRequest('request', 'Shared Request'),
   appointment('appointment', 'Appointment');
 
   final String value;
   final String label;
 
-  const ChatMessageType(this.value, this.label);
+  const MessageType(this.value, this.label);
 
-  static ChatMessageType fromValue(String? value) {
-    if (value == null) return ChatMessageType.text;
+  static MessageType fromValue(String? value) {
+    if (value == null) return MessageType.text;
     final val = value.toLowerCase();
-    return ChatMessageType.values.firstWhere(
+    return MessageType.values.firstWhere(
       (e) => e.value.toLowerCase() == val,
-      orElse: () => ChatMessageType.text,
+      orElse: () => MessageType.text,
     );
   }
 }

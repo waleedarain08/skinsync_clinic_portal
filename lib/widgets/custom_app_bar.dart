@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../screens/chat_list_scrren.dart';
-import '../utils/string_utils.dart';
 import '../main.dart';
 import '../models/user_model.dart';
+import '../screens/chat_list_scrren.dart';
 import '../screens/notification_screen.dart';
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
-import '../utils/theme.dart';
 import '../utils/responsive.dart';
+import '../utils/string_utils.dart';
+import '../utils/theme.dart';
 import 'ai_onboarding_button_widget.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -68,15 +68,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
               context.pushNamed(NotificationScreen.routeName);
             },
           ),
-          _TopBarAction(
-            icon: Icons.chat_bubble_outline_rounded,
-            tooltip: 'Chat',
-            hasBadge: true,
-            onTap: () {
-              context.pushNamed(ChatListScreen.routeName);
-            },
-          ),
-        
+          if (!isDeploymentMode)
+            _TopBarAction(
+              icon: Icons.chat_bubble_outline_rounded,
+              tooltip: 'Chat',
+              hasBadge: true,
+              onTap: () {
+                context.pushNamed(ChatListScreen.routeName);
+              },
+            ),
+
           if (!isDeploymentMode)
             const _TopBarAction(
               icon: Icons.help_outline_rounded,

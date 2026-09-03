@@ -24,6 +24,8 @@ class ApiBaseService {
   final String _baseUrl = isDeploymentMode
       ? BaseUrls.api.url
       : BaseUrls.apiQa.url;
+
+  String get baseUrl => _baseUrl;
   String? authToken;
 
   Future<Map<String, dynamic>> httpRequest({

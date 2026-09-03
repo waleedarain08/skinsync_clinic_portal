@@ -1,7 +1,4 @@
-import '../models/chat_appointment_model.dart';
-import '../models/chat_message_model.dart';
-import '../models/chat_treatment_request_model.dart';
-import '../models/dummy/patient_dummy.dart';
+import '../models/ai_chat_message_model.dart';
 import '../models/responses/treatment_products_response.dart';
 import 'enums.dart';
 
@@ -83,7 +80,8 @@ class ClinicDummyFollowUp {
       appointmentType: appointmentType ?? this.appointmentType,
       intervalValue: intervalValue ?? this.intervalValue,
       intervalUnit: intervalUnit ?? this.intervalUnit,
-      isImageUploadMandatory: isImageUploadMandatory ?? this.isImageUploadMandatory,
+      isImageUploadMandatory:
+          isImageUploadMandatory ?? this.isImageUploadMandatory,
       clinicalInstructions: clinicalInstructions ?? this.clinicalInstructions,
     );
   }
@@ -93,10 +91,7 @@ class ClinicDummySession {
   final int number;
   final List<ClinicDummyFollowUp> followUps;
 
-  ClinicDummySession({
-    required this.number,
-    required this.followUps,
-  });
+  ClinicDummySession({required this.number, required this.followUps});
 
   ClinicDummySession copyWith({
     int? number,
@@ -122,10 +117,12 @@ class ClinicDummyTreatmentTemplate {
   final String consentFormName;
   final String preTreatmentNotificationTitle;
   final String preTreatmentNotificationMessage;
-  final String preTreatmentNotificationTiming; // "24 Hours Before", "2 Days Before", etc.
+  final String
+  preTreatmentNotificationTiming; // "24 Hours Before", "2 Days Before", etc.
   final String postTreatmentNotificationTitle;
   final String postTreatmentNotificationMessage;
-  final String postTreatmentNotificationTiming; // "4 Hours After", "24 Hours After", "2 Days After", etc.
+  final String
+  postTreatmentNotificationTiming; // "4 Hours After", "24 Hours After", "2 Days After", etc.
   final String downtimeLevel;
   final List<String> allowedRoles;
   final List<ClinicDummyProductUsage> products;
@@ -187,12 +184,21 @@ class ClinicDummyTreatmentTemplate {
       status: status ?? this.status,
       sessions: sessions ?? this.sessions,
       consentFormName: consentFormName ?? this.consentFormName,
-      preTreatmentNotificationTitle: preTreatmentNotificationTitle ?? this.preTreatmentNotificationTitle,
-      preTreatmentNotificationMessage: preTreatmentNotificationMessage ?? this.preTreatmentNotificationMessage,
-      preTreatmentNotificationTiming: preTreatmentNotificationTiming ?? this.preTreatmentNotificationTiming,
-      postTreatmentNotificationTitle: postTreatmentNotificationTitle ?? this.postTreatmentNotificationTitle,
-      postTreatmentNotificationMessage: postTreatmentNotificationMessage ?? this.postTreatmentNotificationMessage,
-      postTreatmentNotificationTiming: postTreatmentNotificationTiming ?? this.postTreatmentNotificationTiming,
+      preTreatmentNotificationTitle:
+          preTreatmentNotificationTitle ?? this.preTreatmentNotificationTitle,
+      preTreatmentNotificationMessage:
+          preTreatmentNotificationMessage ??
+          this.preTreatmentNotificationMessage,
+      preTreatmentNotificationTiming:
+          preTreatmentNotificationTiming ?? this.preTreatmentNotificationTiming,
+      postTreatmentNotificationTitle:
+          postTreatmentNotificationTitle ?? this.postTreatmentNotificationTitle,
+      postTreatmentNotificationMessage:
+          postTreatmentNotificationMessage ??
+          this.postTreatmentNotificationMessage,
+      postTreatmentNotificationTiming:
+          postTreatmentNotificationTiming ??
+          this.postTreatmentNotificationTiming,
       downtimeLevel: downtimeLevel ?? this.downtimeLevel,
       allowedRoles: allowedRoles ?? this.allowedRoles,
       products: products ?? this.products,
@@ -261,9 +267,24 @@ class ClinicDummyData {
   ];
 
   static const Map<String, List<String>> subcategories = {
-    'Injectables': ['Neuromodulators', 'Dermal Fillers', 'Skinboosters', 'Kybella'],
-    'Skin Treatments': ['Chemical Peels', 'Microneedling', 'Facials', 'Microdermabrasion'],
-    'Laser & Energy': ['IPL Photofacial', 'Fractional Laser', 'Laser Hair Removal', 'Radiofrequency'],
+    'Injectables': [
+      'Neuromodulators',
+      'Dermal Fillers',
+      'Skinboosters',
+      'Kybella',
+    ],
+    'Skin Treatments': [
+      'Chemical Peels',
+      'Microneedling',
+      'Facials',
+      'Microdermabrasion',
+    ],
+    'Laser & Energy': [
+      'IPL Photofacial',
+      'Fractional Laser',
+      'Laser Hair Removal',
+      'Radiofrequency',
+    ],
     'Body Contouring': ['CoolSculpting', 'Emsculpt', 'Cellulite Treatment'],
   };
 
@@ -289,16 +310,56 @@ class ClinicDummyData {
   ];
 
   static const List<ClinicDummyProduct> inventoryProducts = [
-    ClinicDummyProduct(id: 'prod-botox', name: 'Botox Cosmetic (Allergan)', uom: 'Unit'),
-    ClinicDummyProduct(id: 'prod-dysport', name: 'Dysport (Galderma)', uom: 'Unit'),
-    ClinicDummyProduct(id: 'prod-juve-voluma', name: 'Juvederm Voluma XC (1ml)', uom: 'Syringe'),
-    ClinicDummyProduct(id: 'prod-juve-ultra', name: 'Juvederm Ultra Plus XC', uom: 'Syringe'),
-    ClinicDummyProduct(id: 'prod-restylane-lyft', name: 'Restylane Lyft (1ml)', uom: 'Syringe'),
-    ClinicDummyProduct(id: 'prod-sculptra', name: 'Sculptra Aesthetic (Vial)', uom: 'Vial'),
-    ClinicDummyProduct(id: 'prod-derma-peel-kit', name: 'Perfect Derma Peel Kit', uom: 'Kit'),
-    ClinicDummyProduct(id: 'prod-vi-peel-kit', name: 'VI Peel Purify Kit', uom: 'Kit'),
-    ClinicDummyProduct(id: 'prod-soothing-ointment', name: 'Post-Treatment Healing Gel (Ounce)', uom: 'Tube'),
-    ClinicDummyProduct(id: 'prod-collagen-booster', name: 'SkinCeuticals C E Ferulic', uom: 'Vial'),
+    ClinicDummyProduct(
+      id: 'prod-botox',
+      name: 'Botox Cosmetic (Allergan)',
+      uom: 'Unit',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-dysport',
+      name: 'Dysport (Galderma)',
+      uom: 'Unit',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-juve-voluma',
+      name: 'Juvederm Voluma XC (1ml)',
+      uom: 'Syringe',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-juve-ultra',
+      name: 'Juvederm Ultra Plus XC',
+      uom: 'Syringe',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-restylane-lyft',
+      name: 'Restylane Lyft (1ml)',
+      uom: 'Syringe',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-sculptra',
+      name: 'Sculptra Aesthetic (Vial)',
+      uom: 'Vial',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-derma-peel-kit',
+      name: 'Perfect Derma Peel Kit',
+      uom: 'Kit',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-vi-peel-kit',
+      name: 'VI Peel Purify Kit',
+      uom: 'Kit',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-soothing-ointment',
+      name: 'Post-Treatment Healing Gel (Ounce)',
+      uom: 'Tube',
+    ),
+    ClinicDummyProduct(
+      id: 'prod-collagen-booster',
+      name: 'SkinCeuticals C E Ferulic',
+      uom: 'Vial',
+    ),
   ];
 
   static final List<ClinicDummyTreatmentTemplate> templates = [
@@ -309,7 +370,8 @@ class ClinicDummyData {
       category: 'Injectables',
       subcategory: 'Neuromodulators',
       sku: 'SKU-BOTOX-101',
-      description: 'Precision aesthetic injectable treatment targeting moderate to severe frown lines, forehead creases, and crow’s feet.',
+      description:
+          'Precision aesthetic injectable treatment targeting moderate to severe frown lines, forehead creases, and crow’s feet.',
       status: 'Active',
       sessions: [
         ClinicDummySession(
@@ -320,17 +382,20 @@ class ClinicDummyData {
               intervalValue: 2,
               intervalUnit: 'Weeks',
               isImageUploadMandatory: true,
-              clinicalInstructions: 'Check for facial symmetry and touch up if active lines persist.',
+              clinicalInstructions:
+                  'Check for facial symmetry and touch up if active lines persist.',
             ),
           ],
         ),
       ],
       consentFormName: 'Botox_Clinical_Consent_Form.pdf',
       preTreatmentNotificationTitle: 'Preparing for your Botox treatment',
-      preTreatmentNotificationMessage: 'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.',
+      preTreatmentNotificationMessage:
+          'Please avoid aspirin, alcohol, and NSAIDs for 24 hours prior.',
       preTreatmentNotificationTiming: '24 Hours Before',
       postTreatmentNotificationTitle: 'Botox Aftercare Guide',
-      postTreatmentNotificationMessage: 'Avoid lying down for 4 hours, and do not massage the treated area.',
+      postTreatmentNotificationMessage:
+          'Avoid lying down for 4 hours, and do not massage the treated area.',
       postTreatmentNotificationTiming: '4 Hours After',
       downtimeLevel: 'None',
       allowedRoles: ['Injector', 'MD', 'Nurse'],
@@ -354,7 +419,8 @@ class ClinicDummyData {
       category: 'Injectables',
       subcategory: 'Dermal Fillers',
       sku: 'SKU-JUVE-202',
-      description: 'Injectable gel designed for deep injection in the cheek area to correct age-related volume loss in adults.',
+      description:
+          'Injectable gel designed for deep injection in the cheek area to correct age-related volume loss in adults.',
       status: 'Active',
       sessions: [
         ClinicDummySession(
@@ -365,17 +431,20 @@ class ClinicDummyData {
               intervalValue: 4,
               intervalUnit: 'Weeks',
               isImageUploadMandatory: true,
-              clinicalInstructions: 'Inspect for redness or asymmetric swelling.',
+              clinicalInstructions:
+                  'Inspect for redness or asymmetric swelling.',
             ),
           ],
         ),
       ],
       consentFormName: 'Juvederm_Dermal_Filler_Consent.pdf',
       preTreatmentNotificationTitle: 'Preparing for Juvederm Dermal Filler',
-      preTreatmentNotificationMessage: 'Avoid strenuous exercise and blood thinners 24 hours prior.',
+      preTreatmentNotificationMessage:
+          'Avoid strenuous exercise and blood thinners 24 hours prior.',
       preTreatmentNotificationTiming: '24 Hours Before',
       postTreatmentNotificationTitle: 'Juvederm Filler Aftercare',
-      postTreatmentNotificationMessage: 'Apply cold compress to minimize swelling; do not apply firm pressure.',
+      postTreatmentNotificationMessage:
+          'Apply cold compress to minimize swelling; do not apply firm pressure.',
       postTreatmentNotificationTiming: '24 Hours After',
       downtimeLevel: 'Low',
       allowedRoles: ['Injector', 'MD'],
@@ -399,7 +468,8 @@ class ClinicDummyData {
       category: 'Skin Treatments',
       subcategory: 'Chemical Peels',
       sku: 'SKU-PEEL-303',
-      description: 'Medium depth medical-grade chemical peel containing TCA, retinoic acid, salicylic acid, kojic acid, and glutathione.',
+      description:
+          'Medium depth medical-grade chemical peel containing TCA, retinoic acid, salicylic acid, kojic acid, and glutathione.',
       status: 'Active',
       sessions: [
         ClinicDummySession(
@@ -422,17 +492,20 @@ class ClinicDummyData {
               intervalValue: 1,
               intervalUnit: 'Weeks',
               isImageUploadMandatory: false,
-              clinicalInstructions: 'Evaluate final peel result and recovery status.',
+              clinicalInstructions:
+                  'Evaluate final peel result and recovery status.',
             ),
           ],
         ),
       ],
       consentFormName: 'Chemical_Peel_Consent_Form.pdf',
       preTreatmentNotificationTitle: 'Pre-Peel Preparation Guide',
-      preTreatmentNotificationMessage: 'Stop using topical retinoids 3 days before treatment.',
+      preTreatmentNotificationMessage:
+          'Stop using topical retinoids 3 days before treatment.',
       preTreatmentNotificationTiming: '2 Days Before',
       postTreatmentNotificationTitle: 'Derma Peel Aftercare Steps',
-      postTreatmentNotificationMessage: 'Do not pick or pull peeling skin. Apply mineral sunscreen SPF 30+ daily.',
+      postTreatmentNotificationMessage:
+          'Do not pick or pull peeling skin. Apply mineral sunscreen SPF 30+ daily.',
       postTreatmentNotificationTiming: '24 Hours After',
       downtimeLevel: 'Moderate',
       allowedRoles: ['Aesthetician', 'Specialist', 'Nurse'],
@@ -468,13 +541,14 @@ class ClinicDummyData {
     "current_session": {
       "session_number": 1,
       "date": "2023-10-25",
-      "consent_form_url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "consent_form_url":
+          "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "protocols": [
         "Cleanse and disinfect target area with alcohol swab",
         "Verify patient identity and consent signature",
-        "Confirm lack of contraindications"
+        "Confirm lack of contraindications",
       ],
-      "instructions": "Avoid lying down for 4 hours post-treatment."
+      "instructions": "Avoid lying down for 4 hours post-treatment.",
     },
     "history": [
       {
@@ -482,23 +556,26 @@ class ClinicDummyData {
         "type": "Consultation",
         "date": "2023-09-10",
         "provider": "Dr. Smith",
-        "summary": "Patient interested in forehead wrinkle reduction. No contraindications found."
+        "summary":
+            "Patient interested in forehead wrinkle reduction. No contraindications found.",
       },
       {
         "id": 102,
         "type": "Session",
         "date": "2023-09-15",
         "provider": "Dr. Smith",
-        "summary": "First session completed. 20 units injected in forehead area."
+        "summary":
+            "First session completed. 20 units injected in forehead area.",
       },
       {
         "id": 103,
         "type": "Follow-Up",
         "date": "2023-09-30",
         "provider": "Dr. Smith",
-        "summary": "Check-up after first session. Results are satisfactory. No touch-ups needed."
-      }
-    ]
+        "summary":
+            "Check-up after first session. Results are satisfactory. No touch-ups needed.",
+      },
+    ],
   };
 
   static Map<String, dynamic> getHistoryDetail(int id) {
@@ -508,8 +585,9 @@ class ClinicDummyData {
         "type": "Consultation",
         "date": "2023-09-10",
         "provider": "Dr. Smith",
-        "notes": "Patient discussed expectations and potential side effects. Agreed to proceed with Botox.",
-        "vitals": {"bp": "120/80", "weight": "70kg"}
+        "notes":
+            "Patient discussed expectations and potential side effects. Agreed to proceed with Botox.",
+        "vitals": {"bp": "120/80", "weight": "70kg"},
       };
     } else if (id == 102) {
       return {
@@ -520,7 +598,7 @@ class ClinicDummyData {
         "dosage": "20 Units",
         "product": "Botox Cosmetic",
         "batch_number": "BX12345",
-        "expiry_date": "2025-12-01"
+        "expiry_date": "2025-12-01",
       };
     } else {
       return {
@@ -528,8 +606,9 @@ class ClinicDummyData {
         "type": "Follow-Up",
         "date": "2023-09-30",
         "provider": "Dr. Smith",
-        "observations": "Facial symmetry is good. Patient is happy with the results.",
-        "next_appointment": "In 3 months"
+        "observations":
+            "Facial symmetry is good. Patient is happy with the results.",
+        "next_appointment": "In 3 months",
       };
     }
   }
@@ -543,7 +622,11 @@ class ClinicDummyData {
       "date_of_birth": "1990-01-15",
       "specialization": "Cosmetic Dermatology",
       "years_of_experience": 10,
-      "qualifications": ["MBBS", "MD Dermatology", "Fellowship in Cosmetic Surgery"]
+      "qualifications": [
+        "MBBS",
+        "MD Dermatology",
+        "Fellowship in Cosmetic Surgery",
+      ],
     },
     "contact_info": {
       "email": "wal@yopmail.com",
@@ -555,8 +638,8 @@ class ClinicDummyData {
         "phone": "9876543210",
         "cc": "+1",
         "country": "US",
-        "relationship": "Spouse"
-      }
+        "relationship": "Spouse",
+      },
     },
     "license_info": {
       "license_number": "LIC-2024-12345",
@@ -564,171 +647,94 @@ class ClinicDummyData {
       "issuing_authority": "State Medical Board",
       "indemnity_insurance_number": "INS-98765",
       "indemnity_expiry_date": "2027-06-30",
-      "documents": ["https://example.com/license.pdf", "https://example.com/insurance.pdf"]
-    }
+      "documents": [
+        "https://example.com/license.pdf",
+        "https://example.com/insurance.pdf",
+      ],
+    },
   };
 
-  /// Dummy messages list demonstrating all 5 chat types using PatientTreatmentRequestData
-  static final List<ChatMessageModel> chatDummyMessages = [
-    ChatMessageModel(
-      id: '1',
-      senderName: 'Jane Cooper',
-      time: '10:15 AM',
+  /// AI Onboarding Dummy Messages list
+  static final List<AiChatMessageModel> aiOnboardingDummyMessages = [
+    AiChatMessageModel(
+      id: 'ai_1',
+      senderName: 'SkinSync AI',
+      time: '10:00 AM',
+      isAi: true,
       isMe: false,
-      messageType: ChatMessageType.normal,
-      text: 'Hello doctor, I received the simulation results for Option 1.',
-    ),
-    ChatMessageModel(
-      id: '2',
-      senderName: 'You',
-      time: '10:18 AM',
-      isMe: true,
-      isRead: true,
-      messageType: ChatMessageType.normal,
+      messageType: AiChatMessageType.optionSelection,
       text:
-          'Hi Jane! Great. Have you had a chance to review the before/after comparison?',
+          'Hello Doctor! Welcome to SkinSync AI Onboarding Assistant. I am here to help you quickly set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
+      options: [
+        'Create Botox Treatment Template',
+        'Configure Dermal Fillers',
+        'Set Aftercare Protocols',
+        'Setup Allowed Provider Roles',
+      ],
     ),
-    ChatMessageModel(
-      id: '3',
-      senderName: 'Jane Cooper',
-      time: '10:20 AM',
-      isMe: false,
-      messageType: ChatMessageType.media,
-      text: 'Here is my current progress photo for your review.',
-      mediaUrl:
-          'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
-      mediaCaption: 'Pre-treatment Skin Assessment Photo',
-    ),
-    ChatMessageModel(
-      id: '4',
+    AiChatMessageModel(
+      id: 'user_1',
       senderName: 'You',
-      time: '10:22 AM',
+      time: '10:01 AM',
+      isAi: false,
       isMe: true,
-      isRead: true,
-      messageType: ChatMessageType.document,
-      text: 'Here is the detailed PDF outline for your upcoming treatment plan.',
-      documentName: 'Facial_Rejuvenation_Option_1.pdf',
-      documentSize: '1.4 MB',
+      messageType: AiChatMessageType.text,
+      text: 'I want to create a new treatment template for Botox Cosmetic.',
     ),
-    ChatMessageModel(
-      id: '5',
-      senderName: 'Jane Cooper',
-      time: '10:25 AM',
+    AiChatMessageModel(
+      id: 'ai_2',
+      senderName: 'SkinSync AI',
+      time: '10:01 AM',
+      isAi: true,
       isMe: false,
-      messageType: ChatMessageType.sharedRequest,
-      text: 'I submitted a shared treatment request with before & after simulation.',
-      sharedRequestData: dummyTreatmentRequests.isNotEmpty
-          ? ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
-              dummyTreatmentRequests[0],
-            )
-          : null,
-    ),
-    ChatMessageModel(
-      id: '6',
-      senderName: 'You',
-      time: '10:28 AM',
-      isMe: true,
-      isRead: true,
-      messageType: ChatMessageType.appointment,
-      text: 'I have scheduled your next follow-up appointment below.',
-      appointmentData: ChatAppointmentData(
-        appointmentId: 405,
-        patientName: 'Jane Cooper',
-        serviceName: 'Botox Follow-up & Touch-up Session',
-        date: 'Sep 05, 2026',
-        time: '10:00 AM',
-        practitionerName: 'Dr. Sarah Johnson',
-        status: 'Confirmed',
+      messageType: AiChatMessageType.treatmentDraft,
+      text:
+          'Excellent! I have generated an automated draft for Botox Anti-Wrinkle Treatment based on clinic standard guidelines. Please review:',
+      treatmentDraftData: AiTreatmentDraftData(
+        treatmentName: 'Botox Anti-Wrinkle Treatment',
+        category: 'Injectables',
+        subcategory: 'Neuromodulators',
+        price: '\$150.00 / syringe',
+        sessions: 1,
+        downtime: 'None',
+        allowedRoles: 'Injector, MD, Nurse',
       ),
     ),
+    AiChatMessageModel(
+      id: 'ai_3',
+      senderName: 'SkinSync AI',
+      time: '10:02 AM',
+      isAi: true,
+      isMe: false,
+      messageType: AiChatMessageType.optionSelection,
+      text: 'How would you like to proceed with this treatment configuration?',
+      options: [
+        'Confirm & Save Template',
+        'Customize Pricing Override',
+        'Add Post-Care Instructions',
+      ],
+    ),
+    AiChatMessageModel(
+      id: 'user_2',
+      senderName: 'You',
+      time: '10:03 AM',
+      isAi: false,
+      isMe: true,
+      messageType: AiChatMessageType.text,
+      text: 'Add Post-Care Instructions and Confirm.',
+    ),
+    AiChatMessageModel(
+      id: 'ai_4',
+      senderName: 'SkinSync AI',
+      time: '10:03 AM',
+      isAi: true,
+      isMe: false,
+      messageType: AiChatMessageType.text,
+      text:
+          'Done! Post-care guidelines added: "Stay upright for 4 hours, avoid massaging the treated area, and avoid strenuous exercise for 24 hours." Your Botox treatment template is now active in your clinic portal.',
+    ),
   ];
-
-  /// AI Onboarding Dummy Messages list
-  // static final List<AiChatMessageModel> aiOnboardingDummyMessages = [
-  //   AiChatMessageModel(
-  //     id: 'ai_1',
-  //     senderName: 'SkinSync AI',
-  //     time: '10:00 AM',
-  //     isAi: true,
-  //     isMe: false,
-  //     messageType: AiChatMessageType.optionSelection,
-  //     text:
-  //         'Hello Doctor! Welcome to SkinSync AI Onboarding Assistant. I am here to help you quickly set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
-  //     options: [
-  //       'Create Botox Treatment Template',
-  //       'Configure Dermal Fillers',
-  //       'Set Aftercare Protocols',
-  //       'Setup Allowed Provider Roles',
-  //     ],
-  //   ),
-  //   AiChatMessageModel(
-  //     id: 'user_1',
-  //     senderName: 'You',
-  //     time: '10:01 AM',
-  //     isAi: false,
-  //     isMe: true,
-  //     messageType: AiChatMessageType.text,
-  //     text: 'I want to create a new treatment template for Botox Cosmetic.',
-  //   ),
-  //   AiChatMessageModel(
-  //     id: 'ai_2',
-  //     senderName: 'SkinSync AI',
-  //     time: '10:01 AM',
-  //     isAi: true,
-  //     isMe: false,
-  //     messageType: AiChatMessageType.treatmentDraft,
-  //     text:
-  //         'Excellent! I have generated an automated draft for Botox Anti-Wrinkle Treatment based on clinic standard guidelines. Please review:',
-  //     treatmentDraftData: AiTreatmentDraftData(
-  //       treatmentName: 'Botox Anti-Wrinkle Treatment',
-  //       category: 'Injectables',
-  //       subcategory: 'Neuromodulators',
-  //       price: '\$150.00 / syringe',
-  //       sessions: 1,
-  //       downtime: 'None',
-  //       allowedRoles: 'Injector, MD, Nurse',
-  //     ),
-  //   ),
-  //   AiChatMessageModel(
-  //     id: 'ai_3',
-  //     senderName: 'SkinSync AI',
-  //     time: '10:02 AM',
-  //     isAi: true,
-  //     isMe: false,
-  //     messageType: AiChatMessageType.optionSelection,
-  //     text: 'How would you like to proceed with this treatment configuration?',
-  //     options: [
-  //       'Confirm & Save Template',
-  //       'Customize Pricing Override',
-  //       'Add Post-Care Instructions',
-  //     ],
-  //   ),
-  //   AiChatMessageModel(
-  //     id: 'user_2',
-  //     senderName: 'You',
-  //     time: '10:03 AM',
-  //     isAi: false,
-  //     isMe: true,
-  //     messageType: AiChatMessageType.text,
-  //     text: 'Add Post-Care Instructions and Confirm.',
-  //   ),
-  //   AiChatMessageModel(
-  //     id: 'ai_4',
-  //     senderName: 'SkinSync AI',
-  //     time: '10:03 AM',
-  //     isAi: true,
-  //     isMe: false,
-  //     messageType: AiChatMessageType.text,
-  //     text:
-  //         'Done! Post-care guidelines added: "Stay upright for 4 hours, avoid massaging the treated area, and avoid strenuous exercise for 24 hours." Your Botox treatment template is now active in your clinic portal.',
-  //   ),
-  // ];
-
 }
-
-final List<ChatMessageModel> chatDummyMessages = ClinicDummyData.chatDummyMessages;
-// ignore: non_constant_identifier_names
-final List<ChatMessageModel> chat_dummy_messages = ClinicDummyData.chatDummyMessages;
 
 class ClinicDummySessionConfig {
   static final Map<int, Map<String, dynamic>> stepConfigs = {
@@ -739,7 +745,7 @@ class ClinicDummySessionConfig {
         'Dosage Range: Min 10 Units, Max 100 Units',
         'Allow Substitution: No',
         'Deduction Timing: On Completion of session',
-        'Target Areas: Forehead, Glabella, Crow\'s feet'
+        'Target Areas: Forehead, Glabella, Crow\'s feet',
       ],
     },
     2: {
@@ -750,7 +756,7 @@ class ClinicDummySessionConfig {
         'Preparation Time: 10 minutes',
         'Cleanup / Reset Time: 5 minutes',
         'Online Booking Allowed: Yes',
-        'Manual Approval Required: No'
+        'Manual Approval Required: No',
       ],
     },
     3: {
@@ -760,7 +766,7 @@ class ClinicDummySessionConfig {
         'Sub-Area Pricing Overrides: Yes',
         'Forehead: \$350.00 per syringe',
         'Glabella: \$400.00 per syringe',
-        'Crow\'s Feet: \$300.00 per syringe'
+        'Crow\'s Feet: \$300.00 per syringe',
       ],
     },
     4: {
@@ -772,7 +778,7 @@ class ClinicDummySessionConfig {
         '  - Confirm lack of contraindications (pregnancy, neuromuscular disorders)',
         'Required Notes / Input Fields:',
         '  - Total injected units per anatomical area',
-        '  - Batch number and expiry date of vials used'
+        '  - Batch number and expiry date of vials used',
       ],
     },
     5: {
@@ -782,7 +788,7 @@ class ClinicDummySessionConfig {
         '  - Avoid blood thinners (aspirin, fish oil) for 7 days before.',
         '  - Do not consume alcohol for 24 hours prior.',
         'Attached Informational Documents:',
-        '  - Botox_Preparation_Guide_v3.pdf (245 KB)'
+        '  - Botox_Preparation_Guide_v3.pdf (245 KB)',
       ],
     },
     6: {
@@ -793,7 +799,7 @@ class ClinicDummySessionConfig {
         '  - Do not massage or apply pressure to treated areas.',
         '  - Avoid strenuous exercise and excessive heat for 24 hours.',
         'Attached Guidelines Documents:',
-        '  - Botox_Clinical_Aftercare_Instructions.pdf (180 KB)'
+        '  - Botox_Clinical_Aftercare_Instructions.pdf (180 KB)',
       ],
     },
     7: {
@@ -804,7 +810,7 @@ class ClinicDummySessionConfig {
         'Anatomical Angles Mandatory:',
         '  - Frontal View (Neutral & Maximum Frown)',
         '  - Left Lateral View (45 Degrees)',
-        '  - Right Lateral View (45 Degrees)'
+        '  - Right Lateral View (45 Degrees)',
       ],
     },
     8: {
@@ -815,7 +821,7 @@ class ClinicDummySessionConfig {
         '  - Message: Avoid aspirin and alcohol. See you tomorrow!',
         'Post-Treatment Notification (4 Hours After):',
         '  - Title: Quick Wrinkle relaxation aftercare checklist',
-        '  - Message: Stay upright for 4 hours. No intense workout today!'
+        '  - Message: Stay upright for 4 hours. No intense workout today!',
       ],
     },
     9: {
@@ -823,7 +829,7 @@ class ClinicDummySessionConfig {
       'details': [
         'Default Downtime Level: None (No booking restrictions)',
         'Anatomical Booking Lockout Duration: 0 days',
-        'Override Permission: Clinic manager override allowed'
+        'Override Permission: Clinic manager override allowed',
       ],
     },
     10: {
@@ -832,7 +838,7 @@ class ClinicDummySessionConfig {
         'Authorized Aesthetic Specialists:',
         '  - Injector (RN / Nurse Practitioner)',
         '  - MD (Medical Doctor / Aesthetic Physician)',
-        '  - Nurse (Registered Aesthetic Nurse)'
+        '  - Nurse (Registered Aesthetic Nurse)',
       ],
     },
     11: {
@@ -842,7 +848,7 @@ class ClinicDummySessionConfig {
         'Follow-Up #1 Timing: 14 days after procedure',
         'Appointment Type: In-Person (Clinical assessment)',
         'Mandatory Photo Submission: Yes (Check symmetry)',
-        'Doctor Instructions: Check Glabella action; touch-up if needed.'
+        'Doctor Instructions: Check Glabella action; touch-up if needed.',
       ],
     },
     12: {
@@ -850,7 +856,7 @@ class ClinicDummySessionConfig {
       'details': [
         'Mandatory Informed Consent Document:',
         '  - Botox_Neurotoxin_Informed_Consent_Form.pdf',
-        'Digital Signature Required: Yes (Patient must sign via portal)'
+        'Digital Signature Required: Yes (Patient must sign via portal)',
       ],
     },
   };
