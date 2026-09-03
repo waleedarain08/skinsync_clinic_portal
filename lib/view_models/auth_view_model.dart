@@ -16,6 +16,7 @@ import '../models/requests/change_password_request.dart';
 import '../models/requests/forget_password_request.dart';
 import '../models/requests/login_request_model.dart';
 import '../repositories/auth_repository.dart';
+import '../services/encryption_service.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 import '../services/storage_service.dart';
@@ -216,6 +217,17 @@ class AuthViewModel extends BaseViewModel<AuthState> {
       return false;
     });
   }
+
+ Future<String?> encryptAppointmentData(int clinicId) async {
+  return await runSafely<String?>(() async {
+  
+    return await EncryptionService().encrypt(
+      message: '$clinicId',
+    );
+  });
+}
+
+
 
   void disposeControllers() {
     currentPasswordController.dispose();
