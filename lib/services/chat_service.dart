@@ -1,9 +1,11 @@
 import '../exceptions/app_exception.dart';
-import '../models/responses/chats_message_list_response.dart';
+import '../models/dummy/chat_dummy_model.dart';
+import '../models/responses/chats_response.dart';
 import '../repositories/chat_repository.dart';
 import '../utils/enums.dart';
 import 'api_base_helper.dart';
 import 'locator.dart';
+import 'storage_service.dart';
 
 class ChatService extends ChatRepository {
   final ApiBaseService? api;
@@ -11,7 +13,7 @@ class ChatService extends ChatRepository {
   ChatService({this.api});
 
   @override
-  Future<ChatsData> getChatMessages({
+  Future<ChatsData> getChats({
     int page = 1,
     int limit = 10,
     String? search,
@@ -30,6 +32,37 @@ class ChatService extends ChatRepository {
     final model = ChatsResponse.fromJson(response);
     if (model.success) {
       return model.data!;
+    }
+    throw ApiHttpException(message: model.message);
+  }
+
+  @override
+  Future<MessagesData> getMessages({
+    required int chatId,
+    int page = 1,
+    int limit = 10,
+    String? search,
+  }) async {
+    final apiService = api ?? locator<ApiBaseService>();
+    final response = await apiService.httpRequest(
+      endPoint: Endpoint.messages,
+      requestType: RequestType.get,
+      pathParams: {'chatId': '$chatId'},
+      queryParams: {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search != null && search.isNotEmpty) 'search': search,
+      },
+    );
+
+    final model = MessagesResponse.fromJson(response);
+    if (model.success) {
+      final user = await SecureStorageService().getUser();
+      return model.data!.copyWith(
+        messages: model.data?.messages
+            ?.map((m) => m.copyWith(userId: user?.id))
+            .toList(),
+      );
     }
     throw ApiHttpException(message: model.message);
   }

@@ -84,6 +84,7 @@ enum Endpoint {
   notification('clinic/notifications'),
   clinicDetail('clinic/detail'),
   chats('clinic/chats'),
+  messages('clinic/chats/{chatId}/messages'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
@@ -288,9 +289,8 @@ enum RequestType {
   const RequestType(this.label);
 }
 
-enum ChatMessageType {
+enum MessageType {
   text('text', 'Text'),
-  normal('normal', 'Normal'),
   media('media', 'Media'),
   document('document', 'Document'),
   sharedRequest('sharedRequest', 'Shared Request'),
@@ -299,14 +299,14 @@ enum ChatMessageType {
   final String value;
   final String label;
 
-  const ChatMessageType(this.value, this.label);
+  const MessageType(this.value, this.label);
 
-  static ChatMessageType fromValue(String? value) {
-    if (value == null) return ChatMessageType.text;
+  static MessageType fromValue(String? value) {
+    if (value == null) return MessageType.text;
     final val = value.toLowerCase();
-    return ChatMessageType.values.firstWhere(
+    return MessageType.values.firstWhere(
       (e) => e.value.toLowerCase() == val,
-      orElse: () => ChatMessageType.text,
+      orElse: () => MessageType.text,
     );
   }
 }

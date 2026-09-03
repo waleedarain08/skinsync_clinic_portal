@@ -7,8 +7,11 @@ import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../utils/enums.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
+import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
+import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 
@@ -37,6 +40,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(chatProvider.notifier).loadMessages();
+    });
+  }
+
+  @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
@@ -45,7 +56,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _sendMessage({
     String? customText,
-    ChatMessageType messageType = ChatMessageType.normal,
+    MessageType messageType = MessageType.text,
     String? mediaUrl,
     String? mediaCaption,
     String? documentName,
@@ -55,7 +66,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }) {
     final text = customText ?? _messageController.text.trim();
     if (text.isEmpty &&
-        messageType == ChatMessageType.normal &&
+        messageType == MessageType.text &&
         documentName == null &&
         mediaUrl == null &&
         sharedRequestData == null &&
@@ -105,159 +116,203 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientScaffold(
-      body: Padding(
-        padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(context),
-            context.verticalSpace(16),
-            if (_showPatientInfo) ...[
-              _buildPatientInfoBanner(context),
+    return PopScope(
+      onPopInvokedWithResult: (_, _) {
+        ref.read(chatProvider.notifier).clearSelectedChatAndMessages();
+      },
+      child: GradientScaffold(
+        body: Padding(
+          padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(context),
               context.verticalSpace(16),
-            ],
-            Expanded(
-              child: BorderdContainerWidget(
-                padding: EdgeInsets.zero,
-                borderRadius: context.r(16),
-                child: Column(
-                  children: [
-                    // Date Divider Header
-                    _buildDateDivider(context),
-                    // Message List
-                    // Expanded(
-                    //   child: ListView.builder(
-                    //     controller: _scrollController,
-                    //     padding: context.appEdgeInsets(
-                    //       horizontal: 20,
-                    //       vertical: 12,
-                    //     ),
-                    //     itemCount: _messages.length,
-                    //     itemBuilder: (context, index) {
-                    //       final message = _messages[index];
-                    //       return ChatMessageBubble(message: message);
-                    //     },
-                    //   ),
-                    // ),
-                    const Divider(color: CustomColors.border, height: 1),
-                    // Quick Action Presets Row
-                    _buildQuickPresetsRow(context),
-                    const Divider(color: CustomColors.border, height: 1),
-                    // Bottom Input Bar
-                    _buildInputArea(context),
-                  ],
+              if (_showPatientInfo) ...[
+                _buildPatientInfoBanner(context),
+                context.verticalSpace(16),
+              ],
+              Expanded(
+                child: BorderdContainerWidget(
+                  padding: EdgeInsets.zero,
+                  borderRadius: context.r(16),
+                  child: Column(
+                    children: [
+                      // Date Divider Header
+                      _buildDateDivider(context),
+                      Expanded(child: _buildMessages()),
+                      // Message List
+                      // Expanded(
+                      //   child: ListView.builder(
+                      //     controller: _scrollController,
+                      //     padding: context.appEdgeInsets(
+                      //       horizontal: 20,
+                      //       vertical: 12,
+                      //     ),
+                      //     itemCount: _messages.length,
+                      //     itemBuilder: (context, index) {
+                      //       final message = _messages[index];
+                      //       return ChatMessageBubble(message: message);
+                      //     },
+                      //   ),
+                      // ),
+                      const Divider(color: CustomColors.border, height: 1),
+                      // Quick Action Presets Row
+                      _buildQuickPresetsRow(context),
+                      const Divider(color: CustomColors.border, height: 1),
+                      // Bottom Input Bar
+                      _buildInputArea(context),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildMessages() {
+    return Consumer(
+      builder: (_, ref, _) {
+        final messages = ref.watch(
+          chatProvider.select((s) => s.messagesData?.messages),
+        );
+        if (messages?.isEmpty ?? true) {
+          return const SizedBox.shrink();
+        }
+        return ListView.builder(
+          controller: _scrollController,
+          padding: context.appEdgeInsets(horizontal: 20, vertical: 12),
+          itemCount: messages!.length,
+          itemBuilder: (context, index) {
+            final message = messages[index];
+            return ChatMessageBubble(message: message);
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildHeader(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (widget.showBackButton) ...[
-          IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: CustomColors.black,
-            ),
-            onPressed: () => context.pop(),
-          ),
-          context.horizontalSpace(10),
-        ],
-        Stack(
+    return Consumer(
+      builder: (_, ref, _) {
+        final user = ref.watch(
+          chatProvider.select((s) => s.messagesData?.user),
+        );
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: context.r(24),
-              backgroundColor: CustomColors.lightPurple,
-              child: Text('J', style: context.fonts.purple16w700),
+            if (widget.showBackButton) ...[
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: CustomColors.black,
+                ),
+                onPressed: () => context.pop(),
+              ),
+              context.horizontalSpace(10),
+            ],
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: context.r(24),
+                  backgroundColor: CustomColors.lightPurple,
+                  child: Text(
+                    user?.name?.firstOrNull ?? 'P',
+                    style: context.fonts.purple16w700,
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: context.r(12),
+                    height: context.r(12),
+                    decoration: BoxDecoration(
+                      color: CustomColors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: CustomColors.white, width: 2),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: context.r(12),
-                height: context.r(12),
-                decoration: BoxDecoration(
-                  color: CustomColors.green,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: CustomColors.white, width: 2),
+            context.horizontalSpace(14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        user?.name ?? 'N/A',
+                        style: context.fonts.black18w600,
+                      ),
+                      context.horizontalSpace(8),
+                      Container(
+                        padding: context.appEdgeInsets(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: CustomColors.softGrey,
+                          borderRadius: BorderRadius.circular(context.r(12)),
+                          border: Border.all(color: CustomColors.border),
+                        ),
+                        child: Text(
+                          'ID: ${user?.userId ?? 'N/A'}',
+                          style: context.fonts.grey11w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(2),
+                  Row(
+                    children: [
+                      Text(
+                        'Active Now',
+                        style: context.fonts.grey12w400.copyWith(
+                          color: CustomColors.green,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      context.horizontalSpace(8),
+                      Text('•', style: context.fonts.grey12w400),
+                      context.horizontalSpace(8),
+                      Text(
+                        'Botox & Facial Treatment',
+                        style: context.fonts.grey12w400,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Header Quick Actions
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _showPatientInfo = !_showPatientInfo;
+                });
+              },
+              tooltip: 'Toggle Patient Details',
+              icon: Icon(
+                _showPatientInfo ? Iconsax.info_circle5 : Iconsax.info_circle,
+                color: CustomColors.purple,
+                size: context.sp(22),
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: CustomColors.lightPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: context.appBorderRadius(all: 8),
                 ),
               ),
             ),
           ],
-        ),
-        context.horizontalSpace(14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text('Jane Cooper', style: context.fonts.black18w600),
-                  context.horizontalSpace(8),
-                  Container(
-                    padding: context.appEdgeInsets(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: CustomColors.softGrey,
-                      borderRadius: BorderRadius.circular(context.r(12)),
-                      border: Border.all(color: CustomColors.border),
-                    ),
-                    child: Text(
-                      'ID: #PT-1082',
-                      style: context.fonts.grey11w600,
-                    ),
-                  ),
-                ],
-              ),
-              context.verticalSpace(2),
-              Row(
-                children: [
-                  Text(
-                    'Active Now',
-                    style: context.fonts.grey12w400.copyWith(
-                      color: CustomColors.green,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  context.horizontalSpace(8),
-                  Text('•', style: context.fonts.grey12w400),
-                  context.horizontalSpace(8),
-                  Text(
-                    'Botox & Facial Treatment',
-                    style: context.fonts.grey12w400,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        // Header Quick Actions
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _showPatientInfo = !_showPatientInfo;
-            });
-          },
-          tooltip: 'Toggle Patient Details',
-          icon: Icon(
-            _showPatientInfo ? Iconsax.info_circle5 : Iconsax.info_circle,
-            color: CustomColors.purple,
-            size: context.sp(22),
-          ),
-          style: IconButton.styleFrom(
-            backgroundColor: CustomColors.lightPurple,
-            shape: RoundedRectangleBorder(
-              borderRadius: context.appBorderRadius(all: 8),
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -265,21 +320,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(horizontal: 20, vertical: 14),
       backgroundColor: CustomColors.lightPurple.withValues(alpha: 0.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildInfoItem(context, 'Email', 'jane.cooper@example.com'),
-          const VerticalDivider(color: CustomColors.border, width: 1),
-          _buildInfoItem(context, 'Phone', '+1 (555) 234-5678'),
-          const VerticalDivider(color: CustomColors.border, width: 1),
-          _buildInfoItem(context, 'Last Visit', 'Aug 18, 2026'),
-          const VerticalDivider(color: CustomColors.border, width: 1),
-          _buildInfoItem(
-            context,
-            'Next Appointment',
-            'Sep 05, 2026 (10:00 AM)',
-          ),
-        ],
+      child: Consumer(
+        builder: (_, ref, _) {
+          final user = ref.watch(
+            chatProvider.select((s) => s.messagesData?.user),
+          );
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInfoItem(context, 'Email', user?.emailAddress ?? 'N/A'),
+              const VerticalDivider(color: CustomColors.border, width: 1),
+              _buildInfoItem(context, 'Phone', user?.phoneNumber ?? 'N/A'),
+              const VerticalDivider(color: CustomColors.border, width: 1),
+              _buildInfoItem(context, 'Last Visit', 'Aug 18, 2026'),
+              const VerticalDivider(color: CustomColors.border, width: 1),
+              _buildInfoItem(
+                context,
+                'Next Appointment',
+                'Sep 05, 2026 (10:00 AM)',
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -370,15 +432,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               if (value == 'photo') {
                 _sendMessage(
                   customText: 'Shared pre-treatment photo.',
-                  messageType: ChatMessageType.media,
-                  mediaUrl:
-                      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
+                  messageType: MessageType.media,
+                  mediaUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=80',
                   mediaCaption: 'Pre-treatment Progress Photo',
                 );
               } else if (value == 'document') {
                 _sendMessage(
                   customText: 'Shared treatment care instructions document.',
-                  messageType: ChatMessageType.document,
+                  messageType: MessageType.document,
                   documentName: 'Post_Treatment_Care_Guide.pdf',
                   documentSize: '950 KB',
                 );
@@ -392,7 +453,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   if (selectedReq != null) {
                     _sendMessage(
                       customText: 'Attached shared treatment request details.',
-                      messageType: ChatMessageType.sharedRequest,
+                      messageType: MessageType.sharedRequest,
                       sharedRequestData:
                           ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
                             selectedReq,
@@ -403,7 +464,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               } else if (value == 'appointment') {
                 _sendMessage(
                   customText: 'Attached appointment confirmation details.',
-                  messageType: ChatMessageType.appointment,
+                  messageType: MessageType.appointment,
                   appointmentData: ChatAppointmentData(
                     appointmentId: 408,
                     patientName: 'Jane Cooper',

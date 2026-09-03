@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../models/responses/chats_message_list_response.dart';
+import '../models/responses/chats_response.dart';
 import '../utils/date_time_utills.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -231,6 +231,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(context.r(16)),
           onTap: () {
+            ref.read(chatProvider.notifier).selectChat(item);
             context.pushNamed(
               ChatScreen.routeName,
               queryParameters: {'showBackButton': 'true'},

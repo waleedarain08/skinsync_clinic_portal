@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../models/chat_message_model.dart';
+import '../../models/responses/messages_response.dart';
 import '../../utils/theme.dart';
 
 class DocumentChatBubble extends StatelessWidget {
-  final ChatMessageModel message;
+  final Message message;
 
   const DocumentChatBubble({super.key, required this.message});
 
@@ -37,12 +37,13 @@ class DocumentChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (message.text.isNotEmpty) ...[
+          if (message.content?.isNotEmpty ?? false) ...[
             Text(
-              message.text,
+              message.content!,
               style: isMe
-                  ? context.fonts.white14w600
-                      .copyWith(fontWeight: FontWeight.w400)
+                  ? context.fonts.white14w600.copyWith(
+                      fontWeight: FontWeight.w400,
+                    )
                   : context.fonts.black14w400,
             ),
             context.verticalSpace(10),
@@ -68,28 +69,28 @@ class DocumentChatBubble extends StatelessWidget {
                   color: isMe ? CustomColors.white : CustomColors.purple,
                 ),
                 context.horizontalSpace(12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        message.documentName ?? 'Document.pdf',
-                        style: isMe
-                            ? context.fonts.white12w700
-                            : context.fonts.black12w600,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (message.documentSize != null)
-                        Text(
-                          message.documentSize!,
-                          style: isMe
-                              ? context.fonts.white10w600
-                              : context.fonts.grey10w400,
-                        ),
-                    ],
-                  ),
-                ),
+                // Expanded(
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         message.documentName ?? 'Document.pdf',
+                //         style: isMe
+                //             ? context.fonts.white12w700
+                //             : context.fonts.black12w600,
+                //         maxLines: 1,
+                //         overflow: TextOverflow.ellipsis,
+                //       ),
+                //       if (message.documentSize != null)
+                //         Text(
+                //           message.documentSize!,
+                //           style: isMe
+                //               ? context.fonts.white10w600
+                //               : context.fonts.grey10w400,
+                //         ),
+                //     ],
+                //   ),
+                // ),
                 context.horizontalSpace(8),
                 Icon(
                   Icons.download_rounded,

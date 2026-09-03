@@ -1,13 +1,15 @@
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/responses/chats_message_list_response.dart';
+import '../models/dummy/chat_dummy_model.dart';
+import '../models/responses/chats_response.dart';
 import '../repositories/chat_repository.dart';
 import '../services/locator.dart';
+import '../utils/exception.dart';
 import 'base_view_model.dart';
 
 final chatProvider = NotifierProvider.autoDispose(() {
-  return ChatViewModel( repo: locator<ChatRepository>());
+  return ChatViewModel(repo: locator<ChatRepository>());
 });
 
 class ChatViewModel extends BaseViewModel<ChatState> {
@@ -17,29 +19,77 @@ class ChatViewModel extends BaseViewModel<ChatState> {
 
   @override
   ChatState build() {
-    return ChatState();
+    return const ChatState();
   }
 
   Future<void> loadChats({String? query}) async {
     return await runSafely(() async {
       EasyLoading.show(status: 'Loading chats...');
-      final data = await _repo.getChatMessages(search: query);
+      final data = await _repo.getChats(search: query);
       state = state.copyWith(chatsData: data, loading: false);
       EasyLoading.dismiss();
     });
+  }
+
+  Future<void> loadMessages() async {
+    return await runSafely(() async {
+      final chatId = state.selectedChat?.id;
+      if (chatId == null) {
+        throw const UnknownException('No chat selected');
+      }
+      EasyLoading.show(status: 'Loading messages...');
+      final data = await _repo.getMessages(chatId: chatId);
+      state = state.copyWith(messagesData: data, loading: false);
+      EasyLoading.dismiss();
+    });
+  }
+
+  void selectChat(Chat? chat) {
+    state = state.copyWith(selectedChat: chat);
+  }
+
+  void clearSelectedChatAndMessages() {
+    state = state.copyWithNull(selectedChat: true, messagesData: true);
   }
 }
 
 class ChatState {
   final bool loading;
   final ChatsData? chatsData;
+  final Chat? selectedChat;
+  final MessagesData? messagesData;
 
-  ChatState({this.loading = false, this.chatsData});
+  const ChatState({
+    this.loading = false,
+    this.chatsData,
+    this.selectedChat,
+    this.messagesData,
+  });
 
-  ChatState copyWith({bool? loading, ChatsData? chatsData}) {
+  ChatState copyWith({
+    bool? loading,
+    ChatsData? chatsData,
+    Chat? selectedChat,
+    MessagesData? messagesData,
+  }) {
     return ChatState(
       loading: loading ?? this.loading,
       chatsData: chatsData ?? this.chatsData,
+      selectedChat: selectedChat ?? this.selectedChat,
+      messagesData: messagesData ?? this.messagesData,
+    );
+  }
+
+  ChatState copyWithNull({
+    bool chatsData = false,
+    bool selectedChat = false,
+    bool messagesData = false,
+  }) {
+    return ChatState(
+      loading: this.loading,
+      chatsData: chatsData ? null : this.chatsData,
+      selectedChat: selectedChat ? null : this.selectedChat,
+      messagesData: messagesData ? null : this.messagesData,
     );
   }
 }
