@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../screens/ai_onboarding_chat_screen.dart';
 import '../utils/string_utils.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/session_model.dart';
@@ -277,16 +278,14 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
           ),
           title: Row(
             children: [
-              Expanded(
-                child: Text(
-                  sessionTitle,
-                  style: context.fonts.black14w700,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              Text(
+                sessionTitle,
+                style: context.fonts.black14w700,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               context.horizontalSpace(8),
-
+              _buildStatusToggle(context, ref, entry),
               // Container(
               //   padding: const EdgeInsets.symmetric(
               //     horizontal: 6,
@@ -334,11 +333,41 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildStatusToggle(context, ref, entry),
-              context.horizontalSpace(12),
-              CustomOutlinedButton(
-                width: context.w(100),
-                height: context.h(32),
+              // AI Action Button
+              InkWell(
+                onTap: () {
+                  context.pushNamed(
+                    AiOnboardingChatScreen.routeName,
+                    queryParameters: {
+                      'showBackButton': 'true',
+                    },
+                    extra: 'xyz',
+                  );
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: context.appEdgeInsets(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: CustomColors.purple),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome_outlined,
+                        size: 14,
+                        color: CustomColors.purple,
+                      ),
+                      context.horizontalSpace(4),
+                      Text('AI', style: context.fonts.purple12w600),
+                    ],
+                  ),
+                ),
+              ),
+              context.horizontalSpace(8),
+
+              InkWell(
                 onTap: () {
                   if (onEditDetail != null) {
                     onEditDetail!();
@@ -346,19 +375,37 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
                     _handleDefaultEdit(context, ref, idx, entry);
                   }
                 },
-                label: 'Edit Detail',
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: context.appEdgeInsets(all: 6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: CustomColors.purple),
+                  ),
+                  child: const Icon(
+                    Icons.mode_edit_outline_outlined,
+                    size: 16,
+                    color: CustomColors.purple,
+                  ),
+                ),
               ),
+
+              // Optional Delete Button
               if (onDelete != null) ...[
-                context.horizontalSpace(12),
+                context.horizontalSpace(8),
                 IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
                   icon: const Icon(
                     Icons.delete_outline_rounded,
                     color: CustomColors.red,
+                    size: 20,
                   ),
                   onPressed: onDelete,
                 ),
               ],
-              context.horizontalSpace(12),
+
+              context.horizontalSpace(8),
               const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: CustomColors.grey,

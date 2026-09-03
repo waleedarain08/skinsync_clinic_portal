@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:iconsax/iconsax.dart';
-import '../screens/ai_onboarding_chat_screen.dart';
 import '../screens/chat_list_scrren.dart';
 import '../utils/string_utils.dart';
 import '../main.dart';
@@ -12,6 +10,7 @@ import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/theme.dart';
 import '../utils/responsive.dart';
+import 'ai_onboarding_button_widget.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key, this.showLogo = false});
@@ -56,7 +55,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
           if (!context.isLandscape) _MenuButton(context: context),
           const Spacer(),
 
-          const _AiOnboardingButton(),
+          const AiOnboardingButton(
+            initialMessage: 'Hello, I am a new user. Can you help me get started?',
+            buttonText: 'Start Onboarding using AI',
+            isBorder: true,
+          ),
           _TopBarAction(
             icon: Icons.notifications_none_rounded,
             tooltip: 'Notifications',
@@ -307,62 +310,3 @@ class _UserProfile extends StatelessWidget {
   }
 }
 
-class _AiOnboardingButton extends StatefulWidget {
-  const _AiOnboardingButton();
-
-  @override
-  State<_AiOnboardingButton> createState() => _AiOnboardingButtonState();
-}
-
-class _AiOnboardingButtonState extends State<_AiOnboardingButton> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: Container(
-        margin: context.appEdgeInsets(right: 12),
-        child: ElevatedButton.icon(
-          onPressed: () {
-            context.pushNamed(
-              AiOnboardingChatScreen.routeName,
-              queryParameters: {'showBackButton': 'true'},
-            );
-          },
-          icon: Icon(
-            Iconsax.magicpen,
-            size: context.sp(18),
-            color: _hovered ? CustomColors.white : CustomColors.purple,
-          ),
-          label: Text(
-            'Start Onboarding using AI',
-            style: TextStyle(
-              fontSize: context.sp(13),
-              fontWeight: FontWeight.w600,
-              color: _hovered ? CustomColors.white : CustomColors.purple,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            elevation: _hovered ? 4 : 0,
-            backgroundColor: _hovered
-                ? CustomColors.purple
-                : CustomColors.lightPurple,
-            foregroundColor: CustomColors.purple,
-            padding: context.appEdgeInsets(horizontal: 16, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(context.r(20)),
-              side: BorderSide(
-                color: _hovered
-                    ? CustomColors.purple
-                    : CustomColors.purple.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

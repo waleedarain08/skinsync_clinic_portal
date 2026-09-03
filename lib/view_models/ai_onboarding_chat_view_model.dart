@@ -1,16 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/ai_chat_message_model.dart';
+import '../models/requests/message_request.dart';
+import '../models/responses/ai_onboarding_chat_message_response.dart';
 import '../repositories/ai_onboarding_chat_repository.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
 import '../utils/enums.dart';
 import 'base_view_model.dart';
 
-final aiOnboardingChatViewModel = NotifierProvider.autoDispose<
-    AiOnboardingChatViewModel, AiOnboardingChatState>(
-  () => AiOnboardingChatViewModel._(),
-);
+final aiOnboardingChatViewModel =
+    NotifierProvider.autoDispose<
+      AiOnboardingChatViewModel,
+      AiOnboardingChatState
+    >(() => AiOnboardingChatViewModel._());
 
 class AiOnboardingChatState {
   final List<AiChatMessageModel> messages;
@@ -36,7 +39,8 @@ class AiOnboardingChatState {
   }
 }
 
-class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
+class AiOnboardingChatViewModel
+    extends BaseViewModel<AiOnboardingChatState> {
   AiOnboardingChatViewModel._();
 
   final AiOnboardingChatRepository _repository =
@@ -45,44 +49,52 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
   @override
   AiOnboardingChatState build() {
     init();
+
     ref.onDispose(dispose);
+
     _initChat();
+
     return const AiOnboardingChatState();
   }
 
   Future<void> _initChat() async {
-    final user = await locator<SecureStorageService>().getUser();
-    final name = user?.name ?? 'Doctor';
-    state = state.copyWith(userName: name);
-    await loadInitialMessages(name);
+    try {
+      final user =
+          await locator<SecureStorageService>().getUser();
+
+      final name = user?.name ?? 'Doctor';
+
+      state = state.copyWith(userName: name);
+
+      await loadInitialMessages(name);
+    } catch (e) {
+      state = state.copyWith(loading: false);
+    }
   }
 
   Future<void> loadInitialMessages(String userName) async {
     state = state.copyWith(loading: true);
-    final response = await _repository.getAiOnboardingMessages();
-    List<AiChatMessageModel> list = response.data?.items ?? [];
 
-    if (list.isEmpty) {
-      list = [
-        AiChatMessageModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          senderName: 'SkinSync AI',
-          time: 'Just now',
-          isAi: true,
-          isMe: false,
-          messageType: AiChatMessageType.optionSelection,
-          text:
-              'Hello $userName! Welcome to SkinSync AI Onboarding Assistant. I am here to help you set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
-          options: const [
-            'Create Botox Treatment Template',
-            'Configure Dermal Fillers',
-            'Set Aftercare Protocols',
-            'Setup Allowed Provider Roles',
-          ],
-        ),
-      ];
-    } else {
+    try {
+      final response =
+          await _repository.getAiOnboardingMessages();
+
+      final list =
+          List<AiChatMessageModel>.from(
+        response.data?.items ?? [],
+      );
+
+      if (list.isEmpty) {
+        // No dummy listing here.
+        state = state.copyWith(
+          loading: false,
+          messages: [],
+        );
+        return;
+      }
+
       final first = list.first;
+
       if (first.isAi && first.id == 'ai_1') {
         list[0] = AiChatMessageModel(
           id: first.id,
@@ -92,104 +104,103 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
           isMe: false,
           messageType: first.messageType,
           text:
-              'Hello $userName! Welcome to SkinSync AI Onboarding Assistant. I am here to help you set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
+              'Hello $userName! Welcome to SkinSync AI Onboarding Assistant. '
+              'I am here to help you set up your clinic treatments, pricing, '
+              'and protocols. What would you like to configure first?',
           options: first.options,
           treatmentDraftData: first.treatmentDraftData,
         );
       }
-    }
 
-    state = state.copyWith(loading: false, messages: list);
+      state = state.copyWith(
+        loading: false,
+        messages: list,
+      );
+    } catch (e) {
+      // IMPORTANT:
+      // Always stop the loader if API fails.
+      state = state.copyWith(
+        loading: false,
+        messages: [],
+      );
+    }
   }
 
-  void sendMessage(String text) {
-    if (text.trim().isEmpty) return;
+  Future<void> sendMessage(String text,{bool showLoading = false}) async {
+    final message = text.trim();
+
+    if (message.isEmpty) return;
 
     final now = DateTime.now();
+
     final timeStr =
-        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+        "${now.hour.toString().padLeft(2, '0')}:"
+        "${now.minute.toString().padLeft(2, '0')}";
 
-    final userMsg = AiChatMessageModel(
-      id: now.millisecondsSinceEpoch.toString(),
-      senderName: 'You',
-      time: timeStr,
-      isAi: false,
-      isMe: true,
-      messageType: AiChatMessageType.text,
-      text: text.trim(),
-    );
+    try {
+      final aiReply = await sendAIMessage(message, showLoading: showLoading);
 
-    final updated = List<AiChatMessageModel>.from(state.messages)..add(userMsg);
-    state = state.copyWith(messages: updated);
-
-    _generateAiReply(text.trim());
-  }
-
-  void _generateAiReply(String userQuery) {
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      final now = DateTime.now();
-      final timeStr =
-          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
-
-      late final AiChatMessageModel aiReply;
-      final query = userQuery.toLowerCase();
-
-      if (query.contains('botox') ||
-          query.contains('template') ||
-          query.contains('create')) {
-        aiReply = AiChatMessageModel(
-          id: now.millisecondsSinceEpoch.toString(),
-          senderName: 'SkinSync AI',
-          time: timeStr,
-          isAi: true,
-          isMe: false,
-          messageType: AiChatMessageType.treatmentDraft,
-          text:
-              'Here is the automated draft generated for your requested treatment template:',
-          treatmentDraftData: AiTreatmentDraftData(
-            treatmentName: 'Botox Anti-Wrinkle Treatment',
-            category: 'Injectables',
-            subcategory: 'Neuromodulators',
-            price: '\$150.00 / syringe',
-            sessions: 1,
-            downtime: 'None',
-            allowedRoles: 'Injector, MD, Nurse',
-          ),
-        );
-      } else if (query.contains('price') ||
-          query.contains('pricing') ||
-          query.contains('cost')) {
-        aiReply = AiChatMessageModel(
-          id: now.millisecondsSinceEpoch.toString(),
-          senderName: 'SkinSync AI',
-          time: timeStr,
-          isAi: true,
-          isMe: false,
-          messageType: AiChatMessageType.optionSelection,
-          text:
-              'I can help you configure base pricing, sub-area overrides, and package discounts. Which pricing model do you prefer?',
-          options: const [
-            'Flat Per-Syringe Pricing',
-            'Dynamic Unit Calculation',
-            'Tiered Package Pricing',
-          ],
-        );
-      } else {
-        aiReply = AiChatMessageModel(
-          id: now.millisecondsSinceEpoch.toString(),
-          senderName: 'SkinSync AI',
-          time: timeStr,
-          isAi: true,
-          isMe: false,
-          messageType: AiChatMessageType.text,
-          text:
-              'Understood! I have updated your onboarding preferences for "$userQuery". What would you like to set up next?',
-        );
+      if (aiReply == null) {
+        return;
       }
 
-      final newMessages = List<AiChatMessageModel>.from(state.messages)
-        ..add(aiReply);
-      state = state.copyWith(messages: newMessages);
+      final userMsg = AiChatMessageModel(
+        id: now.millisecondsSinceEpoch.toString(),
+        senderName: 'You',
+        time: timeStr,
+        isAi: false,
+        isMe: true,
+        messageType: AiChatMessageType.text,
+        text: message,
+      );
+
+      final updated =
+          List<AiChatMessageModel>.from(state.messages)
+            ..add(userMsg);
+
+      // Add user's message.
+      state = state.copyWith(
+        messages: updated,
+      );
+
+      // Add actual AI response from API.
+      final aiMessage = AiChatMessageModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        senderName: 'SkinSync AI',
+        time: timeStr,
+        isAi: true,
+        isMe: false,
+        messageType: AiChatMessageType.text,
+        text: aiReply.reply ?? '',
+      );
+
+      final messagesWithReply =
+          List<AiChatMessageModel>.from(state.messages)
+            ..add(aiMessage);
+
+      state = state.copyWith(
+        messages: messagesWithReply,
+      );
+    } catch (e) {
+      // Do not leave anything loading.
+      state = state.copyWith(
+        loading: false,
+      );
+    }
+  }
+
+  Future<AiOnboardingChatMessageResponse?> sendAIMessage(
+    String message,
+    {bool showLoading = true}
+  ) async {
+    return await runSafely(showLoading: showLoading,() async {
+      final response = await _repository.sendMessage(
+        request: MessageRequest(
+          message: message,
+        ),
+      );
+
+      return response;
     });
   }
 }

@@ -7,6 +7,7 @@ import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../models/treatment_model.dart';
+import '../../widgets/ai_onboarding_button_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/custom_outlined_button.dart';
@@ -155,6 +156,12 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
             ],
           ),
         ),
+         context.horizontalSpace(6),
+          const AiOnboardingButton(
+            initialMessage: 'Hello, I am a new user. Can you help me get started?',
+            buttonText: 'Start Onboarding using AI',
+            isBorder: true,
+          ),
         if (!isDeploymentMode)
           CustomPrimaryButton(
             onTap: () {

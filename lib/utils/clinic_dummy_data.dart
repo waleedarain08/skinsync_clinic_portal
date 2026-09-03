@@ -1,4 +1,3 @@
-import '../models/ai_chat_message_model.dart';
 import '../models/chat_appointment_model.dart';
 import '../models/chat_message_model.dart';
 import '../models/chat_treatment_request_model.dart';
@@ -645,85 +644,86 @@ class ClinicDummyData {
   ];
 
   /// AI Onboarding Dummy Messages list
-  static final List<AiChatMessageModel> aiOnboardingDummyMessages = [
-    AiChatMessageModel(
-      id: 'ai_1',
-      senderName: 'SkinSync AI',
-      time: '10:00 AM',
-      isAi: true,
-      isMe: false,
-      messageType: AiChatMessageType.optionSelection,
-      text:
-          'Hello Doctor! Welcome to SkinSync AI Onboarding Assistant. I am here to help you quickly set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
-      options: [
-        'Create Botox Treatment Template',
-        'Configure Dermal Fillers',
-        'Set Aftercare Protocols',
-        'Setup Allowed Provider Roles',
-      ],
-    ),
-    AiChatMessageModel(
-      id: 'user_1',
-      senderName: 'You',
-      time: '10:01 AM',
-      isAi: false,
-      isMe: true,
-      messageType: AiChatMessageType.text,
-      text: 'I want to create a new treatment template for Botox Cosmetic.',
-    ),
-    AiChatMessageModel(
-      id: 'ai_2',
-      senderName: 'SkinSync AI',
-      time: '10:01 AM',
-      isAi: true,
-      isMe: false,
-      messageType: AiChatMessageType.treatmentDraft,
-      text:
-          'Excellent! I have generated an automated draft for Botox Anti-Wrinkle Treatment based on clinic standard guidelines. Please review:',
-      treatmentDraftData: AiTreatmentDraftData(
-        treatmentName: 'Botox Anti-Wrinkle Treatment',
-        category: 'Injectables',
-        subcategory: 'Neuromodulators',
-        price: '\$150.00 / syringe',
-        sessions: 1,
-        downtime: 'None',
-        allowedRoles: 'Injector, MD, Nurse',
-      ),
-    ),
-    AiChatMessageModel(
-      id: 'ai_3',
-      senderName: 'SkinSync AI',
-      time: '10:02 AM',
-      isAi: true,
-      isMe: false,
-      messageType: AiChatMessageType.optionSelection,
-      text: 'How would you like to proceed with this treatment configuration?',
-      options: [
-        'Confirm & Save Template',
-        'Customize Pricing Override',
-        'Add Post-Care Instructions',
-      ],
-    ),
-    AiChatMessageModel(
-      id: 'user_2',
-      senderName: 'You',
-      time: '10:03 AM',
-      isAi: false,
-      isMe: true,
-      messageType: AiChatMessageType.text,
-      text: 'Add Post-Care Instructions and Confirm.',
-    ),
-    AiChatMessageModel(
-      id: 'ai_4',
-      senderName: 'SkinSync AI',
-      time: '10:03 AM',
-      isAi: true,
-      isMe: false,
-      messageType: AiChatMessageType.text,
-      text:
-          'Done! Post-care guidelines added: "Stay upright for 4 hours, avoid massaging the treated area, and avoid strenuous exercise for 24 hours." Your Botox treatment template is now active in your clinic portal.',
-    ),
-  ];
+  // static final List<AiChatMessageModel> aiOnboardingDummyMessages = [
+  //   AiChatMessageModel(
+  //     id: 'ai_1',
+  //     senderName: 'SkinSync AI',
+  //     time: '10:00 AM',
+  //     isAi: true,
+  //     isMe: false,
+  //     messageType: AiChatMessageType.optionSelection,
+  //     text:
+  //         'Hello Doctor! Welcome to SkinSync AI Onboarding Assistant. I am here to help you quickly set up your clinic treatments, pricing, and protocols. What would you like to configure first?',
+  //     options: [
+  //       'Create Botox Treatment Template',
+  //       'Configure Dermal Fillers',
+  //       'Set Aftercare Protocols',
+  //       'Setup Allowed Provider Roles',
+  //     ],
+  //   ),
+  //   AiChatMessageModel(
+  //     id: 'user_1',
+  //     senderName: 'You',
+  //     time: '10:01 AM',
+  //     isAi: false,
+  //     isMe: true,
+  //     messageType: AiChatMessageType.text,
+  //     text: 'I want to create a new treatment template for Botox Cosmetic.',
+  //   ),
+  //   AiChatMessageModel(
+  //     id: 'ai_2',
+  //     senderName: 'SkinSync AI',
+  //     time: '10:01 AM',
+  //     isAi: true,
+  //     isMe: false,
+  //     messageType: AiChatMessageType.treatmentDraft,
+  //     text:
+  //         'Excellent! I have generated an automated draft for Botox Anti-Wrinkle Treatment based on clinic standard guidelines. Please review:',
+  //     treatmentDraftData: AiTreatmentDraftData(
+  //       treatmentName: 'Botox Anti-Wrinkle Treatment',
+  //       category: 'Injectables',
+  //       subcategory: 'Neuromodulators',
+  //       price: '\$150.00 / syringe',
+  //       sessions: 1,
+  //       downtime: 'None',
+  //       allowedRoles: 'Injector, MD, Nurse',
+  //     ),
+  //   ),
+  //   AiChatMessageModel(
+  //     id: 'ai_3',
+  //     senderName: 'SkinSync AI',
+  //     time: '10:02 AM',
+  //     isAi: true,
+  //     isMe: false,
+  //     messageType: AiChatMessageType.optionSelection,
+  //     text: 'How would you like to proceed with this treatment configuration?',
+  //     options: [
+  //       'Confirm & Save Template',
+  //       'Customize Pricing Override',
+  //       'Add Post-Care Instructions',
+  //     ],
+  //   ),
+  //   AiChatMessageModel(
+  //     id: 'user_2',
+  //     senderName: 'You',
+  //     time: '10:03 AM',
+  //     isAi: false,
+  //     isMe: true,
+  //     messageType: AiChatMessageType.text,
+  //     text: 'Add Post-Care Instructions and Confirm.',
+  //   ),
+  //   AiChatMessageModel(
+  //     id: 'ai_4',
+  //     senderName: 'SkinSync AI',
+  //     time: '10:03 AM',
+  //     isAi: true,
+  //     isMe: false,
+  //     messageType: AiChatMessageType.text,
+  //     text:
+  //         'Done! Post-care guidelines added: "Stay upright for 4 hours, avoid massaging the treated area, and avoid strenuous exercise for 24 hours." Your Botox treatment template is now active in your clinic portal.',
+  //   ),
+  // ];
+
 }
 
 final List<ChatMessageModel> chatDummyMessages = ClinicDummyData.chatDummyMessages;

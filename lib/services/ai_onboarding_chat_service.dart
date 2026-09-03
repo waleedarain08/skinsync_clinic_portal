@@ -1,8 +1,13 @@
-import '../models/ai_chat_message_model.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+import '../models/requests/message_request.dart';
 import '../models/responses/ai_onboarding_chat_list_response.dart';
+import '../models/responses/ai_onboarding_chat_message_response.dart';
 import '../repositories/ai_onboarding_chat_repository.dart';
-import '../utils/clinic_dummy_data.dart';
 import '../utils/enums.dart';
+import '../utils/exception.dart';
 import 'api_base_helper.dart';
 import 'locator.dart';
 
@@ -19,6 +24,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
   }) async {
     try {
       final apiService = _api ?? locator<ApiBaseService>();
+
       final response = await apiService.httpRequest(
         endPoint: Endpoint.aiOnboardingChat,
         requestType: RequestType.get,
@@ -30,20 +36,30 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
       );
 
       final model = AiOnboardingChatListResponse.fromJson(response);
+
       if (model.success) {
         return model;
       }
     } catch (_) {
-      // Fallback to dummy data
+      // API error
     }
 
+    // Dummy AI onboarding chat listing disabled
+    /*
     return getDummyAiOnboardingResponse(
       page: page,
       limit: limit,
       search: search,
     );
+    */
+
+    throw const BadRequestException(
+      'Failed to fetch AI onboarding chat messages',
+    );
   }
 
+  // Dummy AI onboarding chat listing disabled
+  /*
   AiOnboardingChatListResponse getDummyAiOnboardingResponse({
     int page = 1,
     int limit = 10,
@@ -53,16 +69,28 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
 
     if (search != null && search.isNotEmpty) {
       final query = search.toLowerCase();
+
       messages = messages
-          .where((m) => m.text.toLowerCase().contains(query))
+          .where(
+            (m) => m.text.toLowerCase().contains(query),
+          )
           .toList();
     }
 
     final startIndex = (page - 1) * limit;
+
     List<AiChatMessageModel> pagedItems = [];
+
     if (startIndex < messages.length) {
-      final endIndex = (startIndex + limit).clamp(0, messages.length);
-      pagedItems = messages.sublist(startIndex, endIndex);
+      final endIndex = (startIndex + limit).clamp(
+        0,
+        messages.length,
+      );
+
+      pagedItems = messages.sublist(
+        startIndex,
+        endIndex,
+      );
     }
 
     final total = messages.length;
@@ -79,5 +107,47 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
         totalPages: totalPages > 0 ? totalPages : 1,
       ),
     );
+  }
+  */
+
+  @override
+  Future<AiOnboardingChatMessageResponse> sendMessage({
+    required MessageRequest request,
+  }) async {
+    try {
+      final uri = Uri.parse(
+        'https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message',
+      );
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: jsonEncode(request.toJson()),
+      );
+
+      final jsonResponse = jsonDecode(response.body);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw const BadRequestException('Failed to send message');
+      }
+
+      final data = AiOnboardingChatMessageResponse.fromJson(jsonResponse);
+
+      if (data.reply == null) {
+        throw const BadRequestException('Failed to send message');
+      }
+
+      return data;
+    } catch (e) {
+      if (e is BadRequestException) {
+        rethrow;
+      }
+
+      throw BadRequestException('Failed to send message: ${e.toString()}');
+    }
   }
 }
