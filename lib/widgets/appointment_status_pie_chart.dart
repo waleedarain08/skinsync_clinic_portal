@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../utils/theme.dart';
+import '../view_models/auth_view_model.dart';
 import 'borderd_container_widget.dart';
 
-class AppointmentStatusPieChart extends StatefulWidget {
+class AppointmentStatusPieChart extends ConsumerStatefulWidget {
   const AppointmentStatusPieChart({super.key});
 
   @override
-  State<AppointmentStatusPieChart> createState() =>
+  ConsumerState<AppointmentStatusPieChart> createState() =>
       _AppointmentStatusPieChartState();
 }
 
 class _AppointmentStatusPieChartState
-    extends State<AppointmentStatusPieChart> {
-  late List<_AppointmentChartData> _chartData;
+    extends ConsumerState<AppointmentStatusPieChart> {
   late TooltipBehavior _tooltipBehavior;
   int _selectedCategoryIndex = -1;
 
@@ -27,36 +28,43 @@ class _AppointmentStatusPieChartState
       format: 'point.x: point.y appointments (point.percentage%)',
       textStyle: const TextStyle(color: Colors.white, fontSize: 12),
     );
+  }
 
-    _chartData = [
+  @override
+  Widget build(BuildContext context) {
+    final overview =
+        ref.watch(authViewModelProvider).dashboard?.appointmentStatusOverview;
+
+    final int completedCount = overview?.completed ?? 18;
+    final int inProgressCount = overview?.inProgress ?? 8;
+    final int pendingCount = overview?.pending ?? 6;
+
+    final List<_AppointmentChartData> chartData = [
       _AppointmentChartData(
         status: 'Completed',
-        count: 18,
+        count: completedCount,
         color: CustomColors.green,
         badgeBg: CustomColors.green.withValues(alpha: 0.1),
         icon: Icons.check_circle_rounded,
       ),
       _AppointmentChartData(
         status: 'In Progress',
-        count: 8,
+        count: inProgressCount,
         color: CustomColors.purple,
         badgeBg: CustomColors.lightPurple,
         icon: Icons.play_circle_fill_rounded,
       ),
       _AppointmentChartData(
         status: 'Pending',
-        count: 6,
+        count: pendingCount,
         color: CustomColors.amber,
         badgeBg: CustomColors.amber.withValues(alpha: 0.1),
         icon: Icons.hourglass_top_rounded,
       ),
     ];
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final int totalAppointments =
-        _chartData.fold(0, (sum, item) => sum + item.count);
+    final int totalAppointments = overview?.totalAppointments ??
+        chartData.fold(0, (sum, item) => sum + item.count);
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
@@ -157,6 +165,7 @@ class _AppointmentStatusPieChartState
                             height: context.h(260),
                             child: _buildSyncfusionDoughnutChart(
                               context,
+                              chartData,
                               totalAppointments,
                             ),
                           ),
@@ -166,6 +175,7 @@ class _AppointmentStatusPieChartState
                           flex: 6,
                           child: _buildDetailedMetricsList(
                             context,
+                            chartData,
                             totalAppointments,
                           ),
                         ),
@@ -177,11 +187,16 @@ class _AppointmentStatusPieChartState
                           height: context.h(240),
                           child: _buildSyncfusionDoughnutChart(
                             context,
+                            chartData,
                             totalAppointments,
                           ),
                         ),
                         context.verticalSpace(24),
-                        _buildDetailedMetricsList(context, totalAppointments),
+                        _buildDetailedMetricsList(
+                          context,
+                          chartData,
+                          totalAppointments,
+                        ),
                       ],
                     );
             },
@@ -193,6 +208,7 @@ class _AppointmentStatusPieChartState
 
   Widget _buildSyncfusionDoughnutChart(
     BuildContext context,
+    List<_AppointmentChartData> chartData,
     int totalAppointments,
   ) {
     return SfCircularChart(
@@ -218,7 +234,7 @@ class _AppointmentStatusPieChartState
       ],
       series: <CircularSeries<_AppointmentChartData, String>>[
         DoughnutSeries<_AppointmentChartData, String>(
-          dataSource: _chartData,
+          dataSource: chartData,
           xValueMapper: (_AppointmentChartData data, _) => data.status,
           yValueMapper: (_AppointmentChartData data, _) => data.count,
           pointColorMapper: (_AppointmentChartData data, _) => data.color,
@@ -244,7 +260,8 @@ class _AppointmentStatusPieChartState
             builder: (dynamic data, dynamic point, dynamic series,
                 int pointIndex, int seriesIndex) {
               final _AppointmentChartData item = data as _AppointmentChartData;
-              final double percentage = (item.count / totalAppointments) * 100;
+              final double percentage =
+                  totalAppointments > 0 ? (item.count / totalAppointments) * 100 : 0;
               return Container(
                 padding: context.appEdgeInsets(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -272,13 +289,15 @@ class _AppointmentStatusPieChartState
 
   Widget _buildDetailedMetricsList(
     BuildContext context,
+    List<_AppointmentChartData> chartData,
     int totalAppointments,
   ) {
     return Column(
-      children: List.generate(_chartData.length, (index) {
-        final item = _chartData[index];
-        final percentage =
-            ((item.count / totalAppointments) * 100).toStringAsFixed(1);
+      children: List.generate(chartData.length, (index) {
+        final item = chartData[index];
+        final percentage = totalAppointments > 0
+            ? ((item.count / totalAppointments) * 100).toStringAsFixed(1)
+            : "0.0";
         final isSelected = _selectedCategoryIndex == index;
 
         return MouseRegion(

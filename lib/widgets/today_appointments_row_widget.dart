@@ -4,25 +4,30 @@ import 'package:go_router/go_router.dart';
 
 import '../models/dummy/appointment_dummy.dart';
 import '../models/responses/appointment_list_response.dart';
+import '../models/responses/login_response_model.dart';
 import '../screens/dashboard/appointment_detail_screen.dart';
 import '../screens/dashboard/appointment_screen.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_view_model.dart';
-import 'borderd_container_widget.dart';
+import '../view_models/auth_view_model.dart';
 
 class TodayAppointmentsRowWidget extends ConsumerWidget {
   const TodayAppointmentsRowWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dashboard = ref.watch(authViewModelProvider).dashboard;
     final appointmentState = ref.watch(appointmentProvider);
     final apiAppointments = appointmentState.appointmentList ?? [];
+    final dashboardTodayAppointments = dashboard?.todayAppointments ?? [];
 
     // Combine or filter appointments: if API returns data, use it; otherwise fallback to dummy today's appointments
     final List<dynamic> todayList;
     if (apiAppointments.isNotEmpty) {
       todayList = apiAppointments;
+    } else if (dashboardTodayAppointments.isNotEmpty) {
+      todayList = dashboardTodayAppointments;
     } else {
       todayList = dummyAppointments;
     }
@@ -155,13 +160,22 @@ class TodayAppointmentsRowWidget extends ConsumerWidget {
   }
 }
 
-class TodayAppointmentCardWidget extends ConsumerWidget {
+class TodayAppointmentCardWidget extends ConsumerStatefulWidget {
   final dynamic appointment;
 
   const TodayAppointmentCardWidget({super.key, required this.appointment});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TodayAppointmentCardWidget> createState() =>
+      _TodayAppointmentCardWidgetState();
+}
+
+class _TodayAppointmentCardWidgetState
+    extends ConsumerState<TodayAppointmentCardWidget> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
     String patientName = '';
     String? patientImage;
     String appointmentType = 'Consultation';
@@ -173,8 +187,8 @@ class TodayAppointmentCardWidget extends ConsumerWidget {
     int? appointmentId;
     double? amount;
 
-    if (appointment is AppointmentData) {
-      final a = appointment as AppointmentData;
+    if (widget.appointment is AppointmentData) {
+      final a = widget.appointment as AppointmentData;
       appointmentId = a.id;
       patientName = a.patientName ?? 'Unknown Patient';
       patientImage = a.patientImage;
@@ -186,8 +200,22 @@ class TodayAppointmentCardWidget extends ConsumerWidget {
           "${a.start.hour.toString().padLeft(2, '0')}:${a.start.minute.toString().padLeft(2, '0')}";
       statusStr = a.status ?? 'Ongoing';
       statusColor = _getBadgeColor(statusStr);
-    } else if (appointment is AppointmentModel) {
-      final a = appointment as AppointmentModel;
+    } else if (widget.appointment is DashboardAppointmentModel) {
+      final a = widget.appointment as DashboardAppointmentModel;
+      appointmentId = a.id;
+      patientName = a.patientName ?? 'Unknown Patient';
+      patientImage = a.patientImage;
+      appointmentType = a.appointmentType ?? 'Consultation';
+      treatmentName = a.formattedTreatments.isNotEmpty
+          ? a.formattedTreatments
+          : 'Botox (Lips), Botox (Cheeks), Dermal Filler (Eyes)';
+      doctorName = a.doctorName ?? 'Staff Practitioner';
+      timeStr = a.time ?? '10:00 AM';
+      statusStr = a.status ?? 'Ongoing';
+      statusColor = _getBadgeColor(statusStr);
+      amount = a.amount;
+    } else if (widget.appointment is AppointmentModel) {
+      final a = widget.appointment as AppointmentModel;
       patientName = a.patientName;
       appointmentType = a.appointmentType;
       treatmentName = a.treatment;
@@ -198,28 +226,49 @@ class TodayAppointmentCardWidget extends ConsumerWidget {
       amount = a.amount;
     }
 
-    return BorderdContainerWidget(
-      width: context.w(310),
-      padding: EdgeInsets.symmetric(
-        horizontal: context.w(16),
-        vertical: context.h(12),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(context.r(12)),
-          onTap: () async {
-            if (appointmentId != null) {
-              await ref
-                  .read(appointmentProvider.notifier)
-                  .getAppointmentsDetail(id: appointmentId);
-              if (context.mounted) {
-                context.push(AppointmentDetailScreen.routeName);
-              }
-            } else {
-              context.push(AppointmentScreen.routeName);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () async {
+          if (appointmentId != null) {
+            await ref
+                .read(appointmentProvider.notifier)
+                .getAppointmentsDetail(id: appointmentId);
+            if (context.mounted) {
+              context.push(AppointmentDetailScreen.routeName);
             }
-          },
+          } else {
+            context.push(AppointmentScreen.routeName);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: context.w(310),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(16),
+            vertical: context.h(12),
+          ),
+          decoration: BoxDecoration(
+            color: _isHovered
+                ? CustomColors.lightPurple.withValues(alpha: 0.35)
+                : CustomColors.white,
+            borderRadius: BorderRadius.circular(context.r(12)),
+            border: Border.all(
+              color: _isHovered ? CustomColors.purple : CustomColors.border,
+              width: _isHovered ? 1.5 : 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _isHovered
+                    ? CustomColors.purple.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.03),
+                blurRadius: _isHovered ? 12 : 6,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -353,9 +402,15 @@ class TodayAppointmentCardWidget extends ConsumerWidget {
                   vertical: context.h(6),
                 ),
                 decoration: BoxDecoration(
-                  color: CustomColors.softGrey.withValues(alpha: 0.6),
+                  color: _isHovered
+                      ? CustomColors.white.withValues(alpha: 0.8)
+                      : CustomColors.softGrey.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(context.r(8)),
-                  border: Border.all(color: CustomColors.border),
+                  border: Border.all(
+                    color: _isHovered
+                        ? CustomColors.purple.withValues(alpha: 0.3)
+                        : CustomColors.border,
+                  ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

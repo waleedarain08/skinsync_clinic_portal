@@ -1,3 +1,5 @@
+export 'treatment_detail_model.dart';
+
 class TreatmentModel {
   int? id;
   int? price;
