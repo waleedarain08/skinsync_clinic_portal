@@ -12,10 +12,12 @@ class AiOnboardingChatScreen extends ConsumerStatefulWidget {
   static const String routeName = '/ai-onboarding-chat-screen';
 
   final bool showBackButton;
+  final String? initialMessage; // 1. Added parameter
 
   const AiOnboardingChatScreen({
     super.key,
     this.showBackButton = true,
+    this.initialMessage, // 2. Added constructor argument
   });
 
   @override
@@ -29,18 +31,36 @@ class _AiOnboardingChatScreenState
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+
+    // 3. Trigger initial message after the first frame completes
+    if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _sendMessage(showLoading: false, customText: widget.initialMessage);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _sendMessage([String? customText]) {
+  void _sendMessage({bool showLoading = true, String? customText}) {
     final text = customText ?? _messageController.text.trim();
     if (text.isEmpty) return;
 
-    ref.read(aiOnboardingChatViewModel.notifier).sendMessage(text);
-    _messageController.clear();
+    ref
+        .read(aiOnboardingChatViewModel.notifier)
+        .sendMessage(text, showLoading: showLoading);
+
+    // Clear text controller if message came from user input
+    if (customText == null) {
+      _messageController.clear();
+    }
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
@@ -86,7 +106,10 @@ class _AiOnboardingChatScreenState
                                 final message = state.messages[index];
                                 return AiChatMessageBubble(
                                   message: message,
-                                  onOptionTap: (option) => _sendMessage(option),
+                                  onOptionTap: (option) => _sendMessage(
+                                    customText: option,
+                                    showLoading: false,
+                                  ),
                                 );
                               },
                             ),

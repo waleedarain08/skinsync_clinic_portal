@@ -8,6 +8,7 @@ class CustomPrimaryButton extends StatefulWidget {
   final VoidCallback? onTap;
   final IconData? icon;
   final bool isLoading;
+  final bool isBorder; // Added field
   final double? width;
   final double? height;
   final EdgeInsets? padding;
@@ -18,6 +19,7 @@ class CustomPrimaryButton extends StatefulWidget {
     this.onTap,
     this.icon,
     this.isLoading = false,
+    this.isBorder = false, // Default to false
     this.width,
     this.height,
     this.padding,
@@ -33,6 +35,28 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
   @override
   Widget build(BuildContext context) {
     final bool enabled = widget.onTap != null && !widget.isLoading;
+
+    // Resolve foreground color (Text & Icon)
+    final Color contentColor = !enabled
+        ? CustomColors.white
+        : widget.isBorder
+            ? CustomColors.purple
+            : CustomColors.white;
+
+    // Resolve background color
+    final Color backgroundColor = !enabled
+        ? CustomColors.lightGrey.withValues(alpha: 0.5)
+        : widget.isBorder
+            ? (_hovered ? CustomColors.lightPurple : CustomColors.white)
+            : CustomColors.purple;
+
+    // Resolve border
+    final Border? border = widget.isBorder && enabled
+        ? Border.all(
+            color: CustomColors.purple,
+            width: 1.5,
+          )
+        : null;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -54,9 +78,8 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
               width: widget.width,
               height: widget.height ?? context.h(52),
               decoration: BoxDecoration(
-                color: enabled
-                    ? CustomColors.purple
-                    : CustomColors.lightGrey.withValues(alpha: 0.5),
+                color: backgroundColor,
+                border: border,
                 borderRadius: context.borderRadius(all: 12),
                 boxShadow: enabled && _hovered
                     ? [
@@ -75,7 +98,7 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
                   child: widget.isLoading
                       ? AppLoader(
                           size: context.w(20),
-                          color: CustomColors.white,
+                          color: contentColor,
                         )
                       : Row(
                           mainAxisSize: MainAxisSize.min,
@@ -84,7 +107,7 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
                             if (widget.icon != null) ...[
                               Icon(
                                 widget.icon,
-                                color: CustomColors.white,
+                                color: contentColor,
                                 size: context.sp(18),
                               ),
                               context.horizontalSpace(10),
@@ -92,7 +115,10 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
                             Flexible(
                               child: Text(
                                 widget.label,
-                                style: context.fonts.white14w600,
+                                style: (widget.isBorder && enabled
+                                        ? context.fonts.purple14w600
+                                        : context.fonts.white14w600)
+                                    .copyWith(color: contentColor),
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
                               ),

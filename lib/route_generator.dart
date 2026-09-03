@@ -187,7 +187,15 @@ class RouteGenerator {
             builder: (context, state) {
               final showBackButton =
                   state.uri.queryParameters['showBackButton'] == 'true';
-              return AiOnboardingChatScreen(showBackButton: showBackButton);
+              final initialMessageFromQuery =
+                  state.uri.queryParameters['initialMessage'];
+              final initialMessageFromExtra = state.extra as String?;
+
+              return AiOnboardingChatScreen(
+                showBackButton: showBackButton,
+                initialMessage:
+                    initialMessageFromExtra ?? initialMessageFromQuery,
+              );
             },
           ),
           GoRoute(
