@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../models/chat_message_model.dart';
+import '../../models/dummy/chat_dummy_model.dart';
 import '../../utils/theme.dart';
 
 class NormalChatBubble extends StatelessWidget {
-  final ChatMessageModel message;
+  final Message message;
 
   const NormalChatBubble({super.key, required this.message});
 
@@ -35,7 +35,7 @@ class NormalChatBubble extends StatelessWidget {
         ],
       ),
       child: Text(
-        message.text,
+        message.content ?? '',
         style: isMe
             ? context.fonts.white14w600.copyWith(fontWeight: FontWeight.w400)
             : context.fonts.black14w400,

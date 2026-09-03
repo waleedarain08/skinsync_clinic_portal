@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../models/chat_message_model.dart';
+import '../../models/responses/messages_response.dart';
 import '../../utils/theme.dart';
 
 class MediaChatBubble extends StatelessWidget {
-  final ChatMessageModel message;
+  final Message message;
 
   const MediaChatBubble({super.key, required this.message});
 
@@ -37,14 +37,15 @@ class MediaChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (message.text.isNotEmpty) ...[
+          if (message.content?.isNotEmpty ?? false) ...[
             Padding(
               padding: context.appEdgeInsets(horizontal: 4, bottom: 8),
               child: Text(
-                message.text,
+                message.content!,
                 style: isMe
-                    ? context.fonts.white14w600
-                        .copyWith(fontWeight: FontWeight.w400)
+                    ? context.fonts.white14w600.copyWith(
+                        fontWeight: FontWeight.w400,
+                      )
                     : context.fonts.black14w400,
               ),
             ),
@@ -62,19 +63,19 @@ class MediaChatBubble extends StatelessWidget {
                   )
                 : _buildPlaceholderImage(context),
           ),
-          if (message.mediaCaption != null &&
-              message.mediaCaption!.isNotEmpty) ...[
-            context.verticalSpace(8),
-            Padding(
-              padding: context.appEdgeInsets(horizontal: 4),
-              child: Text(
-                message.mediaCaption!,
-                style: isMe
-                    ? context.fonts.white12w400
-                    : context.fonts.grey12w400,
-              ),
-            ),
-          ],
+          // if (message.mediaCaption != null &&
+          //     message.mediaCaption!.isNotEmpty) ...[
+          //   context.verticalSpace(8),
+          //   Padding(
+          //     padding: context.appEdgeInsets(horizontal: 4),
+          //     child: Text(
+          //       message.mediaCaption!,
+          //       style: isMe
+          //           ? context.fonts.white12w400
+          //           : context.fonts.grey12w400,
+          //     ),
+          //   ),
+          // ],
         ],
       ),
     );
@@ -94,10 +95,7 @@ class MediaChatBubble extends StatelessWidget {
             color: CustomColors.grey,
           ),
           context.verticalSpace(8),
-          Text(
-            'Media Preview',
-            style: context.fonts.grey12w400,
-          ),
+          Text('Media Preview', style: context.fonts.grey12w400),
         ],
       ),
     );
