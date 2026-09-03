@@ -1,34 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../models/chat_appointment_model.dart';
-import '../models/chat_message_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
-import '../utils/clinic_dummy_data.dart';
 import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../widgets/borderd_container_widget.dart';
-import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   static const String routeName = '/chat-screen';
 
   final bool showBackButton;
 
-  const ChatScreen({
-    super.key,
-    this.showBackButton = true,
-  });
+  const ChatScreen({super.key, this.showBackButton = true});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -40,15 +35,6 @@ class _ChatScreenState extends State<ChatScreen> {
     'Request Follow-up Photos',
     'Share Consent Form',
   ];
-
-  late final List<ChatMessageModel> _messages;
-
-  @override
-  void initState() {
-    super.initState();
-    // Copy initial dummy messages list
-    _messages = List.from(ClinicDummyData.chatDummyMessages);
-  }
 
   @override
   void dispose() {
@@ -77,29 +63,29 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    final now = DateTime.now();
-    final timeStr =
-        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+    // final now = DateTime.now();
+    // final timeStr =
+    //     "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
-    setState(() {
-      _messages.add(
-        ChatMessageModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          senderName: 'You',
-          time: timeStr,
-          isMe: true,
-          isRead: false,
-          messageType: messageType,
-          text: text,
-          mediaUrl: mediaUrl,
-          mediaCaption: mediaCaption,
-          documentName: documentName,
-          documentSize: documentSize,
-          sharedRequestData: sharedRequestData,
-          appointmentData: appointmentData,
-        ),
-      );
-    });
+    // setState(() {
+    //   _messages.add(
+    //     ChatMessageModel(
+    //       id: DateTime.now().millisecondsSinceEpoch.toString(),
+    //       senderName: 'You',
+    //       time: timeStr,
+    //       isMe: true,
+    //       isRead: false,
+    //       messageType: messageType,
+    //       text: text,
+    //       mediaUrl: mediaUrl,
+    //       mediaCaption: mediaCaption,
+    //       documentName: documentName,
+    //       documentSize: documentSize,
+    //       sharedRequestData: sharedRequestData,
+    //       appointmentData: appointmentData,
+    //     ),
+    //   );
+    // });
 
     _messageController.clear();
     _scrollToBottom();
@@ -140,20 +126,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     // Date Divider Header
                     _buildDateDivider(context),
                     // Message List
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        padding: context.appEdgeInsets(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          return ChatMessageBubble(message: message);
-                        },
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: ListView.builder(
+                    //     controller: _scrollController,
+                    //     padding: context.appEdgeInsets(
+                    //       horizontal: 20,
+                    //       vertical: 12,
+                    //     ),
+                    //     itemCount: _messages.length,
+                    //     itemBuilder: (context, index) {
+                    //       final message = _messages[index];
+                    //       return ChatMessageBubble(message: message);
+                    //     },
+                    //   ),
+                    // ),
                     const Divider(color: CustomColors.border, height: 1),
                     // Quick Action Presets Row
                     _buildQuickPresetsRow(context),
@@ -189,10 +175,7 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: context.r(24),
               backgroundColor: CustomColors.lightPurple,
-              child: Text(
-                'J',
-                style: context.fonts.purple16w700,
-              ),
+              child: Text('J', style: context.fonts.purple16w700),
             ),
             Positioned(
               right: 0,
@@ -216,10 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Row(
                 children: [
-                  Text(
-                    'Jane Cooper',
-                    style: context.fonts.black18w600,
-                  ),
+                  Text('Jane Cooper', style: context.fonts.black18w600),
                   context.horizontalSpace(8),
                   Container(
                     padding: context.appEdgeInsets(horizontal: 8, vertical: 2),
@@ -294,7 +274,11 @@ class _ChatScreenState extends State<ChatScreen> {
           const VerticalDivider(color: CustomColors.border, width: 1),
           _buildInfoItem(context, 'Last Visit', 'Aug 18, 2026'),
           const VerticalDivider(color: CustomColors.border, width: 1),
-          _buildInfoItem(context, 'Next Appointment', 'Sep 05, 2026 (10:00 AM)'),
+          _buildInfoItem(
+            context,
+            'Next Appointment',
+            'Sep 05, 2026 (10:00 AM)',
+          ),
         ],
       ),
     );
@@ -322,10 +306,7 @@ class _ChatScreenState extends State<ChatScreen> {
             borderRadius: BorderRadius.circular(context.r(20)),
             border: Border.all(color: CustomColors.border),
           ),
-          child: Text(
-            'Today, Aug 28, 2026',
-            style: context.fonts.grey12w600,
-          ),
+          child: Text('Today, Aug 28, 2026', style: context.fonts.grey12w600),
         ),
       ),
     );
@@ -345,10 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
               color: CustomColors.purple,
             ),
             context.horizontalSpace(8),
-            Text(
-              'Quick Responses:',
-              style: context.fonts.grey11w600,
-            ),
+            Text('Quick Responses:', style: context.fonts.grey11w600),
             context.horizontalSpace(12),
             ..._quickTemplates.map(
               (template) => Padding(
@@ -378,9 +356,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildInputArea(BuildContext context) {
     return Container(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: CustomColors.white,
-      ),
+      decoration: const BoxDecoration(color: CustomColors.white),
       child: Row(
         children: [
           PopupMenuButton<String>(
@@ -418,7 +394,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       customText: 'Attached shared treatment request details.',
                       messageType: ChatMessageType.sharedRequest,
                       sharedRequestData:
-                          ChatTreatmentRequestModel.fromPatientTreatmentRequestData(selectedReq),
+                          ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
+                            selectedReq,
+                          ),
                     );
                   }
                 });
@@ -443,10 +421,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 value: 'photo',
                 child: Row(
                   children: [
-                    Icon(Icons.image_outlined,
-                        size: context.sp(18), color: CustomColors.purple),
+                    Icon(
+                      Icons.image_outlined,
+                      size: context.sp(18),
+                      color: CustomColors.purple,
+                    ),
                     context.horizontalSpace(12),
-                    Text('Send Photo / Media', style: context.fonts.black14w400),
+                    Text(
+                      'Send Photo / Media',
+                      style: context.fonts.black14w400,
+                    ),
                   ],
                 ),
               ),
@@ -454,10 +438,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 value: 'document',
                 child: Row(
                   children: [
-                    Icon(Icons.picture_as_pdf_outlined,
-                        size: context.sp(18), color: CustomColors.purple),
+                    Icon(
+                      Icons.picture_as_pdf_outlined,
+                      size: context.sp(18),
+                      color: CustomColors.purple,
+                    ),
                     context.horizontalSpace(12),
-                    Text('Send Care Document (PDF)', style: context.fonts.black14w400),
+                    Text(
+                      'Send Care Document (PDF)',
+                      style: context.fonts.black14w400,
+                    ),
                   ],
                 ),
               ),
@@ -465,10 +455,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 value: 'shared_request',
                 child: Row(
                   children: [
-                    Icon(Iconsax.profile_2user,
-                        size: context.sp(18), color: CustomColors.purple),
+                    Icon(
+                      Iconsax.profile_2user,
+                      size: context.sp(18),
+                      color: CustomColors.purple,
+                    ),
                     context.horizontalSpace(12),
-                    Text('Share Treatment Request', style: context.fonts.black14w400),
+                    Text(
+                      'Share Treatment Request',
+                      style: context.fonts.black14w400,
+                    ),
                   ],
                 ),
               ),
@@ -476,10 +472,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 value: 'appointment',
                 child: Row(
                   children: [
-                    Icon(Iconsax.calendar,
-                        size: context.sp(18), color: CustomColors.purple),
+                    Icon(
+                      Iconsax.calendar,
+                      size: context.sp(18),
+                      color: CustomColors.purple,
+                    ),
                     context.horizontalSpace(12),
-                    Text('Share Appointment Card', style: context.fonts.black14w400),
+                    Text(
+                      'Share Appointment Card',
+                      style: context.fonts.black14w400,
+                    ),
                   ],
                 ),
               ),

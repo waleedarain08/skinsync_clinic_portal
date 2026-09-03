@@ -35,7 +35,7 @@ enum Endpoint {
   forgetPassword('clinic/forgot-password'),
   resetPassword('clinic/reset-password'),
   verifyOtp('clinic/verify-reset-otp'),
-   treatmentsStatus('clinic/treatments/status'),
+  treatmentsStatus('clinic/treatments/status'),
   deleteTreatment('clinic/treatments/{treatment_id}'),
   updateDoctorTreatment('clinic/doctors'),
   getFeature("clinic/features"),
@@ -83,7 +83,7 @@ enum Endpoint {
   downTimeLevel('clinic/treatments/{id}/downtime-presets'),
   notification('clinic/notifications'),
   clinicDetail('clinic/detail'),
-  chatMessages('clinic/chat-messages'),
+  chats('clinic/chats'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
@@ -100,7 +100,8 @@ enum Endpoint {
 
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
-  apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('https://api-dev.skinsyncai.com/api/');
+  apiQa('http://localhost:8084/api/');
 
   final String url;
 

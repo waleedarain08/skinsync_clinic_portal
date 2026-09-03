@@ -1,92 +1,66 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/responses/chats_message_list_response.dart';
+import '../utils/date_time_utills.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
+import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import 'chat_screen.dart';
 
-class ChatListScreen extends StatefulWidget {
+class ChatListScreen extends ConsumerStatefulWidget {
   static const String routeName = '/chat-list-screen';
 
   final bool showBackButton;
 
-  const ChatListScreen({
-    super.key,
-    this.showBackButton = false,
-  });
+  const ChatListScreen({super.key, this.showBackButton = false});
 
   @override
-  State<ChatListScreen> createState() => _ChatListScreenState();
+  ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends State<ChatListScreen> {
+class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   final TextEditingController _searchController = TextEditingController();
-
-  // Dummy list of patient conversations
-  final List<ChatListItem> _allChats = [
-    ChatListItem(
-      id: '1',
-      patientName: 'Jane Cooper',
-      lastMessage: 'Based on the selected areas, we usually plan 2 to 3 sessions.',
-      time: '10:22 AM',
-      unreadCount: 2,
-      isOnline: true,
-    ),
-    ChatListItem(
-      id: '2',
-      patientName: 'Robert Fox',
-      lastMessage: 'Thank you doctor! When should I schedule the next visit?',
-      time: 'Yesterday',
-      unreadCount: 0,
-      isOnline: false,
-    ),
-    ChatListItem(
-      id: '3',
-      patientName: 'Emily Watson',
-      lastMessage: 'Is there any preparation required before the treatment?',
-      time: '24 Aug',
-      unreadCount: 1,
-      isOnline: true,
-    ),
-    ChatListItem(
-      id: '4',
-      patientName: 'Michael Brown',
-      lastMessage: 'Option 3 looks good to me. Let us proceed with it.',
-      time: '21 Aug',
-      unreadCount: 0,
-      isOnline: false,
-    ),
-  ];
-
-  List<ChatListItem> _filteredChats = [];
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _filteredChats = List.from(_allChats);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(chatProvider.notifier).loadChats();
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
-  void _filterChats(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredChats = List.from(_allChats);
-      } else {
-        _filteredChats = _allChats
-            .where((chat) =>
-                chat.patientName.toLowerCase().contains(query.toLowerCase()) ||
-                chat.lastMessage.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
-  }
+  // void _filterChats(String query) {
+  //   setState(() {
+  //     if (query.isEmpty) {
+  //       _filteredChats = List.from(_allChats);
+  //     } else {
+  //       _filteredChats = _allChats
+  //           .where(
+  //             (chat) =>
+  //                 chat.patientName.toLowerCase().contains(
+  //                   query.toLowerCase(),
+  //                 ) ||
+  //                 chat.lastMessage.toLowerCase().contains(query.toLowerCase()),
+  //           )
+  //           .toList();
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -125,10 +99,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Messages',
-                style: context.fonts.level1Heading,
-              ),
+              Text('Messages', style: context.fonts.level1Heading),
               context.verticalSpace(6),
               Text(
                 'Manage clinic communication and direct patient discussions.',
@@ -161,72 +132,85 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   icon: const Icon(Icons.clear, color: CustomColors.grey),
                   onPressed: () {
                     _searchController.clear();
-                    _filterChats('');
+                    ref.read(chatProvider.notifier).loadChats();
                   },
                 )
               : null,
         ),
-        onChanged: _filterChats,
+        onChanged: (query) {
+          _timer?.cancel();
+          _timer = Timer.periodic(const Duration(milliseconds: 300), (_) {
+            ref.read(chatProvider.notifier).loadChats(query: query);
+          });
+        },
       ),
     );
   }
 
   Widget _buildChatListSection(BuildContext context) {
-    if (_filteredChats.isEmpty) {
-      return BorderdContainerWidget(
-        padding: context.appEdgeInsets(all: 48),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: context.appEdgeInsets(all: 20),
-                decoration: const BoxDecoration(
-                  color: CustomColors.whiteGrey,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.search_off_rounded,
-                  size: 48,
-                  color: CustomColors.grey,
-                ),
+    return Consumer(
+      builder: (_, ref, _) {
+        final chats = ref.watch(chatProvider.select((s) => s.chatsData?.items));
+        if (chats?.isEmpty ?? true) {
+          return BorderdContainerWidget(
+            padding: context.appEdgeInsets(all: 48),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: context.appEdgeInsets(all: 20),
+                    decoration: const BoxDecoration(
+                      color: CustomColors.whiteGrey,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.search_off_rounded,
+                      size: 48,
+                      color: CustomColors.grey,
+                    ),
+                  ),
+                  context.verticalSpace(24),
+                  Text(
+                    'No conversations found',
+                    style: context.fonts.black18w600,
+                  ),
+                  context.verticalSpace(8),
+                  Text(
+                    'Try clearing your search keyword or search for another patient.',
+                    style: context.fonts.grey14w400,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_searchController.text.isNotEmpty) ...[
+                    context.verticalSpace(24),
+                    CustomOutlinedButton(
+                      onTap: () {
+                        _searchController.clear();
+                        ref.read(chatProvider.notifier).loadChats();
+                      },
+                      label: 'Clear Search',
+                    ),
+                  ],
+                ],
               ),
-              context.verticalSpace(24),
-              Text('No conversations found', style: context.fonts.black18w600),
-              context.verticalSpace(8),
-              Text(
-                'Try clearing your search keyword or search for another patient.',
-                style: context.fonts.grey14w400,
-                textAlign: TextAlign.center,
-              ),
-              if (_searchController.text.isNotEmpty) ...[
-                context.verticalSpace(24),
-                CustomOutlinedButton(
-                  onTap: () {
-                    _searchController.clear();
-                    _filterChats('');
-                  },
-                  label: 'Clear Search',
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
+        }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _filteredChats.length,
-      itemBuilder: (context, index) {
-        final item = _filteredChats[index];
-        return _buildChatCard(context, item);
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: chats!.length,
+          itemBuilder: (context, index) {
+            final item = chats[index];
+            return _buildChatCard(context, item);
+          },
+        );
       },
     );
   }
 
-  Widget _buildChatCard(BuildContext context, ChatListItem item) {
+  Widget _buildChatCard(BuildContext context, Chat item) {
     return Container(
       margin: EdgeInsets.only(bottom: context.h(12)),
       decoration: BoxDecoration(
@@ -263,9 +247,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       radius: context.r(24),
                       backgroundColor: CustomColors.lightPurple,
                       child: Text(
-                        item.patientName.isNotEmpty
-                            ? item.patientName[0]
-                            : 'P',
+                        item.patientName?.firstOrNull ?? 'P',
                         style: context.fonts.purple16w700,
                       ),
                     ),
@@ -279,8 +261,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           decoration: BoxDecoration(
                             color: CustomColors.green,
                             shape: BoxShape.circle,
-                            border:
-                                Border.all(color: CustomColors.white, width: 2),
+                            border: Border.all(
+                              color: CustomColors.white,
+                              width: 2,
+                            ),
                           ),
                         ),
                       ),
@@ -296,14 +280,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              item.patientName,
+                              item.patientName ?? 'Patient',
                               style: context.fonts.black16w600,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
-                            item.time,
+                            item.time?.formattedDateTime ?? 'N/A',
                             style: item.unreadCount > 0
                                 ? context.fonts.purple12w700
                                 : context.fonts.grey12w400,
@@ -315,7 +299,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              item.lastMessage,
+                              item.lastMessage ?? '',
                               style: item.unreadCount > 0
                                   ? context.fonts.black14w600
                                   : context.fonts.grey14w400,
@@ -352,22 +336,4 @@ class _ChatListScreenState extends State<ChatListScreen> {
       ),
     );
   }
-}
-
-class ChatListItem {
-  final String id;
-  final String patientName;
-  final String lastMessage;
-  final String time;
-  final int unreadCount;
-  final bool isOnline;
-
-  ChatListItem({
-    required this.id,
-    required this.patientName,
-    required this.lastMessage,
-    required this.time,
-    required this.unreadCount,
-    required this.isOnline,
-  });
 }

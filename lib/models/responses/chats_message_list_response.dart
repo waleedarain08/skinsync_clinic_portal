@@ -1,128 +1,58 @@
 import 'base_response_model.dart';
 
-typedef ChatMessageListResponse = ChatsMessageListResponse;
+class ChatsResponse extends BaseResponse<ChatsData> {
+  ChatsResponse({required super.success, required super.message, super.data});
 
-class ChatsMessageListResponse extends BaseResponse<ChatsMessageListData> {
-  const ChatsMessageListResponse({
-    required super.success,
-    required super.message,
-    super.data,
-  });
-
-  factory ChatsMessageListResponse.fromJson(Map<String, dynamic> json) =>
-      ChatsMessageListResponse(
-        data: json["data"] == null
-            ? null
-            : ChatsMessageListData.fromJson(json["data"]),
-        success: json["is_success"] ?? false,
-        message: json["message"] ?? "",
-      );
-
-  Map<String, dynamic> toJson() => {
-        "is_success": success,
-        "message": message,
-        "data": data?.toJson(),
-      };
+  factory ChatsResponse.fromJson(Map<String, dynamic> json) => ChatsResponse(
+    success: json["is_success"],
+    message: json["message"],
+    data: json["data"] == null ? null : ChatsData.fromJson(json["data"]),
+  );
 }
 
-class ChatsMessageListData {
-  final List<ChatMessageListItem> items;
-  final int limit;
-  final int page;
-  final int total;
-  final int totalPages;
+class ChatsData {
+  final List<Chat>? items;
+  final int? limit;
+  final int? page;
+  final int? total;
+  final int? totalPages;
 
-  ChatsMessageListData({
-    required this.items,
-    required this.limit,
-    required this.page,
-    required this.total,
-    required this.totalPages,
-  });
+  ChatsData({this.items, this.limit, this.page, this.total, this.totalPages});
 
-  factory ChatsMessageListData.fromJson(Map<String, dynamic> json) =>
-      ChatsMessageListData(
-        items: json["items"] == null
-            ? []
-            : List<ChatMessageListItem>.from(
-                json["items"].map((x) => ChatMessageListItem.fromJson(x)),
-              ),
-        limit: json["limit"] ?? 0,
-        page: json["page"] ?? 0,
-        total: json["total"] ?? 0,
-        totalPages: json["total_pages"] ?? 0,
-      );
-
-  Map<String, dynamic> toJson() => {
-        "items": items.map((x) => x.toJson()).toList(),
-        "limit": limit,
-        "page": page,
-        "total": total,
-        "total_pages": totalPages,
-      };
+  factory ChatsData.fromJson(Map<String, dynamic> json) => ChatsData(
+    items: json["items"] == null
+        ? []
+        : List<Chat>.from(json["items"]!.map((x) => Chat.fromJson(x))),
+    limit: json["limit"],
+    page: json["page"],
+    total: json["total"],
+    totalPages: json["total_pages"],
+  );
 }
 
-class ChatMessageListItem {
-  final String id;
-  final String senderName;
-  final String time;
-  final bool isMe;
-  final bool isRead;
-  final String messageType;
-  final String text;
-  final String? mediaUrl;
-  final String? mediaCaption;
-  final String? documentName;
-  final String? documentSize;
-  final String? documentUrl;
-  final String? createdAt;
+class Chat {
+  final int? id;
+  final String? patientName;
+  final String? lastMessage;
+  final DateTime? time;
+  final int unreadCount;
+  final bool isOnline;
 
-  ChatMessageListItem({
-    required this.id,
-    required this.senderName,
-    required this.time,
-    required this.isMe,
-    this.isRead = false,
-    this.messageType = 'normal',
-    this.text = '',
-    this.mediaUrl,
-    this.mediaCaption,
-    this.documentName,
-    this.documentSize,
-    this.documentUrl,
-    this.createdAt,
+  Chat({
+    this.id,
+    this.patientName,
+    this.lastMessage,
+    this.time,
+    this.unreadCount = 0,
+    this.isOnline = false,
   });
 
-  factory ChatMessageListItem.fromJson(Map<String, dynamic> json) =>
-      ChatMessageListItem(
-        id: json["id"]?.toString() ?? "",
-        senderName: json["sender_name"] ?? "",
-        time: json["time"] ?? "",
-        isMe: json["is_me"] ?? false,
-        isRead: json["is_read"] ?? false,
-        messageType: json["message_type"] ?? "normal",
-        text: json["text"] ?? "",
-        mediaUrl: json["media_url"],
-        mediaCaption: json["media_caption"],
-        documentName: json["document_name"],
-        documentSize: json["document_size"],
-        documentUrl: json["document_url"],
-        createdAt: json["created_at"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "sender_name": senderName,
-        "time": time,
-        "is_me": isMe,
-        "is_read": isRead,
-        "message_type": messageType,
-        "text": text,
-        "media_url": mediaUrl,
-        "media_caption": mediaCaption,
-        "document_name": documentName,
-        "document_size": documentSize,
-        "document_url": documentUrl,
-        "created_at": createdAt,
-      };
+  factory Chat.fromJson(Map<String, dynamic> json) => Chat(
+    id: json["id"],
+    patientName: json["patient_name"],
+    lastMessage: json["last_message"],
+    time: DateTime.tryParse(json["time"] ?? ''),
+    unreadCount: json["unread_count"] ?? 0,
+    isOnline: json["is_online"] ?? false,
+  );
 }
