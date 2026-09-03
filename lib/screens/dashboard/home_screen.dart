@@ -7,12 +7,15 @@ import '../../utils/theme.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/analytics_grid_widget.dart';
+import '../../widgets/appointment_status_pie_chart.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../services/locator.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/recent_treatment_row_widget.dart';
+import '../../widgets/today_appointments_row_widget.dart';
 import '../../widgets/treatment_list_widget.dart';
 import '../business_info_screen.dart';
+import 'appointment_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const String routeName = '/home';
@@ -20,14 +23,12 @@ class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-   ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
-    
-
     // Call API to fetch user details
     ref.read(authViewModelProvider.notifier).callGetMe();
 
@@ -42,7 +43,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
   }
 
-void _showIncompleteProfileDialog(BuildContext context) {
+  void _showIncompleteProfileDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false, // Force user to acknowledge
@@ -101,11 +102,12 @@ void _showIncompleteProfileDialog(BuildContext context) {
                         ),
                         onPressed: () async {
                           Navigator.pop(context);
-                            await ref
-                          .read(authViewModelProvider.notifier)
-                          .getClinicDetail();
-                          context.pushNamed(BusinessInformationScreen.routeName); 
-                         
+                          await ref
+                              .read(authViewModelProvider.notifier)
+                              .getClinicDetail();
+                          context.pushNamed(
+                            BusinessInformationScreen.routeName,
+                          );
                         },
                         child: const Text(
                           'Update Now',
@@ -122,6 +124,7 @@ void _showIncompleteProfileDialog(BuildContext context) {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
@@ -156,7 +159,6 @@ void _showIncompleteProfileDialog(BuildContext context) {
                     },
                   ),
                 ),
-                // _buildDateFilter(context),
               ],
             ),
             context.verticalSpace(32),
@@ -176,7 +178,99 @@ void _showIncompleteProfileDialog(BuildContext context) {
             ),
             context.verticalSpace(32),
 
-            // Upcoming Appointments Section (styled with identical border and shadow structures)
+            // Appointment Status Breakdown Pie Chart
+            const AppointmentStatusPieChart(),
+            context.verticalSpace(32),
+
+            // Today Treatments Request Section
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Today's Treatment Requests",
+                        style: context.fonts.black18w600,
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: [
+                            Text("View All", style: context.fonts.purple14w600),
+                            context.horizontalSpace(6),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: CustomColors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                  const TreatmentRequestRowWidget(),
+                ],
+              ),
+            ),
+            context.verticalSpace(32),
+
+            // Today's Appointments Section
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Today's Appointments",
+                        style: context.fonts.black18w600,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.push(AppointmentScreen.routeName);
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: [
+                            Text("View All", style: context.fonts.purple14w600),
+                            context.horizontalSpace(6),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: CustomColors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                  const TodayAppointmentsRowWidget(),
+                ],
+              ),
+            ),
+            context.verticalSpace(32),
+
+            // Treatments Section
             BorderdContainerWidget(
               padding: context.appEdgeInsets(all: 24),
               borderRadius: context.r(12),
@@ -216,49 +310,6 @@ void _showIncompleteProfileDialog(BuildContext context) {
                   ),
                   context.verticalSpace(24),
                   const TreatmentListWidget(),
-                ],
-              ),
-            ),
-            context.verticalSpace(32),
-
-            
-            BorderdContainerWidget(
-              padding: context.appEdgeInsets(all: 24),
-              borderRadius: context.r(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AdaptiveLayoutRowColumn(
-                    alignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Today Treatments Request",
-                        style: context.fonts.black18w600,
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Row(
-                          children: [
-                            Text("View All", style: context.fonts.purple14w600),
-                            context.horizontalSpace(6),
-                            const Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 14,
-                              color: CustomColors.purple,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  context.verticalSpace(24),
-                  const TreatmentRequestRowWidget(),
                 ],
               ),
             ),

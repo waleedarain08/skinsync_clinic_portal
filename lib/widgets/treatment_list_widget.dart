@@ -19,8 +19,8 @@ class TreatmentListWidget extends ConsumerWidget {
       return Center(
         child: _buildHorizontalEmptyState(
           context: context,
-          height: context.h(101),
-          width: context.w(400),
+          height: context.h(110),
+          width: context.w(420),
           icon: Icons.healing_outlined,
           title: 'No Treatments Available',
           subtitle: 'There are no active treatments recorded at the moment.',
@@ -85,14 +85,13 @@ class TreatmentListWidget extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: context.w(16),
-                vertical: context.h(12),
+                vertical: context.h(8),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    height: context.w(48),
-                    width: context.w(48),
+                    height: context.w(44),
+                    width: context.w(44),
                     decoration: BoxDecoration(
                       color: CustomColors.purpleColor.withValues(
                         alpha: 0.12,
@@ -109,15 +108,16 @@ class TreatmentListWidget extends ConsumerWidget {
                       child: Icon(
                         icon,
                         color: CustomColors.purpleColor,
-                        size: context.sp(22),
+                        size: context.sp(20),
                       ),
                     ),
                   ),
-                  SizedBox(width: context.w(14)),
+                  SizedBox(width: context.w(12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           title,
@@ -125,10 +125,10 @@ class TreatmentListWidget extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(height: context.h(4)),
+                        SizedBox(height: context.h(2)),
                         Text(
                           subtitle,
-                          style: CustomFonts.grey13w500,
+                          style: CustomFonts.grey12w400,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

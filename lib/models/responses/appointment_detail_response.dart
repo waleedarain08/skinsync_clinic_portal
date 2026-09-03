@@ -1,3 +1,4 @@
+import '../treatment_detail_model.dart';
 import 'base_response_model.dart';
 
 class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentDetailData> {
@@ -305,47 +306,5 @@ class Simulations {
         rightImageAfter: json["right_image_after"],
         leftImageBefore: json["left_image_before"],
         leftImageAfter: json["left_image_after"],
-      );
-}
-
-class TreatmentDetail {
-  final int? treatmentId;
-  final String? treatmentName;
-  final int? areaId;
-  final String? areaName;
-  final double? treatmentCost;
-  final MaterialDetail? material;
-
-  TreatmentDetail({
-    this.treatmentId,
-    this.treatmentName,
-    this.areaId,
-    this.areaName,
-    this.treatmentCost,
-    this.material,
-  });
-
-  factory TreatmentDetail.fromJson(Map<String, dynamic> json) => TreatmentDetail(
-        treatmentId: json["treatment_id"],
-        treatmentName: json["treatment_name"],
-        areaId: json["area_id"],
-        areaName: json["area_name"],
-        treatmentCost: json["treatment_cost"]?.toDouble(),
-        material: json["material"] == null ? null : MaterialDetail.fromJson(json["material"]),
-      );
-}
-
-class MaterialDetail {
-  final int? id;
-  final int? selectedQuantity;
-
-  MaterialDetail({
-    this.id,
-    this.selectedQuantity,
-  });
-
-  factory MaterialDetail.fromJson(Map<String, dynamic> json) => MaterialDetail(
-        id: json["id"],
-        selectedQuantity: json["selected_quantity"],
       );
 }

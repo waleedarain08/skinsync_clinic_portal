@@ -1,3 +1,4 @@
+import '../treatment_detail_model.dart';
 import '../user_model.dart';
 import 'base_response_model.dart';
 
@@ -61,7 +62,7 @@ class AuthData {
         "access_expires_at": accessExpiresAt,
         "refresh_expires_at": refreshExpiresAt,
         "clinic_user": clinicUser?.toJson(),
-        "is_completed":isCompleted,
+        "is_completed": isCompleted,
         "dashboard": dashboard?.toJson(),
       };
 }
@@ -70,15 +71,21 @@ class DashboardModel {
   final int? totalTreatment;
   final int? totalPractitioner;
   final int? totalTreatmentRequest;
+  final int? totalAppointment;
   final List<DashboardTreatmentModel>? treatments;
   final List<RequestClinicTreatmentModel>? todayTreatmentRequest;
+  final AppointmentStatusOverviewModel? appointmentStatusOverview;
+  final List<DashboardAppointmentModel>? todayAppointments;
 
   DashboardModel({
     this.totalTreatment,
     this.totalPractitioner,
     this.totalTreatmentRequest,
+    this.totalAppointment,
     this.treatments,
     this.todayTreatmentRequest,
+    this.appointmentStatusOverview,
+    this.todayAppointments,
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
@@ -86,6 +93,7 @@ class DashboardModel {
       totalTreatment: json["total_treatment"],
       totalPractitioner: json["total_practitioner"],
       totalTreatmentRequest: json["total_treatment_request"],
+      totalAppointment: json["total_appointment"],
       treatments: json["treatments"] != null
           ? (json["treatments"] as List)
               .map((e) => DashboardTreatmentModel.fromJson(e))
@@ -96,7 +104,19 @@ class DashboardModel {
               .map((e) => RequestClinicTreatmentModel.fromJson(e))
               .toList()
           : null,
-          
+      appointmentStatusOverview: json["appointment_status_overview"] != null ||
+              json["appointment_overview"] != null
+          ? AppointmentStatusOverviewModel.fromJson(
+              json["appointment_status_overview"] ??
+                  json["appointment_overview"],
+            )
+          : null,
+      todayAppointments: json["today_appointments"] != null ||
+              json["today_appointment"] != null
+          ? ((json["today_appointments"] ?? json["today_appointment"]) as List)
+              .map((e) => DashboardAppointmentModel.fromJson(e))
+              .toList()
+          : null,
     );
   }
 
@@ -104,9 +124,142 @@ class DashboardModel {
         "total_treatment": totalTreatment,
         "total_practitioner": totalPractitioner,
         "total_treatment_request": totalTreatmentRequest,
+        "total_appointment": totalAppointment,
         "treatments": treatments?.map((e) => e.toJson()).toList(),
         "today_treatment_request":
             todayTreatmentRequest?.map((e) => e.toJson()).toList(),
+        "appointment_status_overview": appointmentStatusOverview?.toJson(),
+        "today_appointments":
+            todayAppointments?.map((e) => e.toJson()).toList(),
+      };
+}
+
+class AppointmentStatusOverviewModel {
+  final int? totalAppointments;
+  final int? completed;
+  final int? inProgress;
+  final int? pending;
+  final int? arrived;
+  final int? delayed;
+  final int? noShow;
+
+  AppointmentStatusOverviewModel({
+    this.totalAppointments,
+    this.completed,
+    this.inProgress,
+    this.pending,
+    this.arrived,
+    this.delayed,
+    this.noShow,
+  });
+
+  factory AppointmentStatusOverviewModel.fromJson(Map<String, dynamic> json) {
+    return AppointmentStatusOverviewModel(
+      totalAppointments: json["total_appointments"] ?? json["total"],
+      completed: json["completed"],
+      inProgress: json["in_progress"] ?? json["ongoing"],
+      pending: json["pending"] ?? json["scheduled"],
+      arrived: json["arrived"],
+      delayed: json["delayed"],
+      noShow: json["no_show"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "total_appointments": totalAppointments,
+        "completed": completed,
+        "in_progress": inProgress,
+        "pending": pending,
+        "arrived": arrived,
+        "delayed": delayed,
+        "no_show": noShow,
+      };
+}
+
+class DashboardAppointmentModel {
+  final int? id;
+  final String? patientName;
+  final String? patientImage;
+  final String? appointmentType;
+  final List<TreatmentDetail>? treatments;
+  final String? doctorName;
+  final String? doctorImage;
+  final String? time;
+  final String? status;
+  final double? amount;
+  final String? date;
+
+  DashboardAppointmentModel({
+    this.id,
+    this.patientName,
+    this.patientImage,
+    this.appointmentType,
+    this.treatments,
+    this.doctorName,
+    this.doctorImage,
+    this.time,
+    this.status,
+    this.amount,
+    this.date,
+  });
+
+  factory DashboardAppointmentModel.fromJson(Map<String, dynamic> json) {
+    List<TreatmentDetail>? parsedTreatments;
+    if (json["treatments"] != null && json["treatments"] is List) {
+      parsedTreatments = (json["treatments"] as List)
+          .map((e) => TreatmentDetail.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (json["treatment"] != null || json["booking_type"] != null) {
+      final String raw =
+          (json["treatment"] ?? json["booking_type"]).toString();
+      if (raw.isNotEmpty) {
+        parsedTreatments = [
+          TreatmentDetail(treatmentName: raw),
+        ];
+      }
+    }
+
+    return DashboardAppointmentModel(
+      id: json["id"],
+      patientName: json["patient_name"],
+      patientImage: json["patient_image"],
+      appointmentType: json["appointment_type"],
+      treatments: parsedTreatments,
+      doctorName: json["doctor_name"] ?? json["practitioner_name"],
+      doctorImage: json["doctor_image"],
+      time: json["time"] ?? json["start_time"]?.toString(),
+      status: json["status"],
+      amount:
+          json["amount"]?.toDouble() ?? json["treatment_total"]?.toDouble(),
+      date: json["date"]?.toString(),
+    );
+  }
+
+  String get formattedTreatments {
+    if (treatments != null && treatments!.isNotEmpty) {
+      final formattedList = treatments!
+          .map((t) => t.formattedName)
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (formattedList.isNotEmpty) {
+        return formattedList.join(', ');
+      }
+    }
+    return '';
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "patient_name": patientName,
+        "patient_image": patientImage,
+        "appointment_type": appointmentType,
+        "treatments": treatments?.map((e) => e.toJson()).toList(),
+        "doctor_name": doctorName,
+        "doctor_image": doctorImage,
+        "time": time,
+        "status": status,
+        "amount": amount,
+        "date": date,
       };
 }
 
