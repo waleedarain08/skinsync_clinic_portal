@@ -58,8 +58,8 @@ class ChatService extends ChatRepository {
     final response = await apiService.httpRequest(
       endPoint: Endpoint.messages,
       requestType: RequestType.get,
-      pathParams: {'chatId': '$chatId'},
       queryParams: {
+        'id': '$chatId',
         'page': page.toString(),
         'limit': limit.toString(),
         if (search != null && search.isNotEmpty) 'search': search,

@@ -84,7 +84,7 @@ enum Endpoint {
   notification('clinic/notifications'),
   clinicDetail('clinic/detail'),
   chats('clinic/chats'),
-  messages('clinic/chats/{chatId}/messages'),
+  messages('clinic/chats/messages'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
