@@ -8,16 +8,17 @@ import '../../view_models/treatment_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/patient_treatment_request.widget.dart';
-
 import 'treatment_detail_screen.dart';
 
 class SharedTreatmentRequestScreen extends ConsumerStatefulWidget {
-  
-  static const String routeName =
-      '/shared-treatmnet-request-screen';
+  static const String routeName = '/shared-treatmnet-request-screen';
   final int? patientId;
-   final bool showBackButton;
-  const SharedTreatmentRequestScreen({super.key, this.patientId, this.showBackButton = false,});
+  final bool showBackButton;
+  const SharedTreatmentRequestScreen({
+    super.key,
+    this.patientId,
+    this.showBackButton = false,
+  });
 
   @override
   ConsumerState<SharedTreatmentRequestScreen> createState() =>
@@ -32,22 +33,24 @@ class _SharedTreatmentRequestScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(patientProvider.notifier)
-          .getPatientTreatmentRequests(initialCall: true, patientId: widget.patientId);
+          .getPatientTreatmentRequests(
+            initialCall: true,
+            patientId: widget.patientId,
+          );
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final patientState = ref.watch(patientProvider);
-  
+
     return GradientScaffold(
-   
       body: SingleChildScrollView(
         padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             _buildHeader(context),
+            _buildHeader(context),
             context.verticalSpace(32),
 
             _buildTreatmentRequestsSection(context, patientState),
@@ -57,7 +60,7 @@ class _SharedTreatmentRequestScreenState
     );
   }
 
-   Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -101,10 +104,10 @@ class _SharedTreatmentRequestScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (state.treatmentLoading)
-           SizedBox(
+          SizedBox(
             width: 16.w,
             height: 16.w,
-            child: const Center(child: AppLoader(),),
+            child: const Center(child: AppLoader()),
           ),
         if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
           Padding(
@@ -126,12 +129,12 @@ class _SharedTreatmentRequestScreenState
               return SimulationTreatmentRequestCard(
                 request: request,
                 onTreatmentTap: (treatmentId) async {
-                 await ref
-                    .read(treatmentViewModelProvider.notifier)
-                    .fetchTreatmentDetail(treatmentId);
-                if (mounted) {
-                  await context.push(TreatmentDetailScreen.routeName);
-                }
+                  await ref
+                      .read(treatmentViewModelProvider.notifier)
+                      .fetchTreatmentDetail(treatmentId);
+                  if (mounted) {
+                    await context.push(TreatmentDetailScreen.routeName);
+                  }
                 },
               );
             },
@@ -172,8 +175,4 @@ class _SharedTreatmentRequestScreenState
       ],
     );
   }
-
-
-
-
 }

@@ -1,14 +1,17 @@
 import 'package:before_after/before_after.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../screens/chat_screen.dart';
 import '../utils/assets.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
+import '../view_models/chat_view_model.dart';
 import 'simulation_treatment_area_chip.widget.dart';
 
 class SimulationTreatmentRequestCard extends StatefulWidget {
@@ -181,15 +184,24 @@ class _SimulationTreatmentRequestCardState
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                icon: Icon(
-                  Iconsax.message,
-                  color: CustomColors.purple,
-                  size: context.r(20),
-                ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () => context.pushNamed(ChatScreen.routeName),
+              Consumer(
+                builder: (_, ref, _) {
+                  return IconButton(
+                    icon: Icon(
+                      Iconsax.message,
+                      color: CustomColors.purple,
+                      size: context.r(20),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      ref
+                          .read(chatProvider.notifier)
+                          .selectChat(Chat(id: request.chatId));
+                      context.pushNamed(ChatScreen.routeName);
+                    },
+                  );
+                },
               ),
               context.horizontalSpace(8),
               AnimatedRotation(
@@ -286,10 +298,7 @@ class _SimulationTreatmentRequestCardState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Preferred Appointment Slots',
-          style: context.fonts.black14w600,
-        ),
+        Text('Preferred Appointment Slots', style: context.fonts.black14w600),
         context.verticalSpace(12),
         Wrap(
           spacing: context.w(12),
@@ -312,7 +321,8 @@ class _SimulationTreatmentRequestCardState
                   ),
                   context.horizontalSpace(8),
                   Text(
-                    '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'.trim(),
+                    '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'
+                        .trim(),
                     style: context.fonts.black13w600,
                   ),
                 ],
@@ -349,10 +359,7 @@ class _SimulationTreatmentRequestCardState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Patient Medical History',
-          style: context.fonts.black14w600,
-        ),
+        Text('Patient Medical History', style: context.fonts.black14w600),
         context.verticalSpace(12),
         Container(
           width: double.infinity,
