@@ -38,6 +38,16 @@ class PatientTreatmentRequestResponse
       totalPages: json['total_pages'] ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'is_success': success,
+        'message': message,
+        'data': data?.map((e) => e.toJson()).toList(),
+        'page': page,
+        'limit': limit,
+        'total': total,
+        'total_pages': totalPages,
+      };
 }
 
 class PatientTreatmentRequestData {
@@ -65,6 +75,11 @@ class PatientTreatmentRequestData {
   final String? createdAt;
   final String? updatedAt;
 
+  // Additional fields from response
+  final dynamic referenceId;
+  final List<PreferredSlotData>? preferredSlots;
+  final PatientMedicalHistoryData? medicalHistory;
+
   PatientTreatmentRequestData({
     required this.id,
     required this.userId,
@@ -82,6 +97,9 @@ class PatientTreatmentRequestData {
     required this.treatments,
     this.createdAt,
     this.updatedAt,
+    this.referenceId,
+    this.preferredSlots,
+    this.medicalHistory,
   });
 
   factory PatientTreatmentRequestData.fromJson(
@@ -117,8 +135,111 @@ class PatientTreatmentRequestData {
 
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+
+      referenceId: json['reference_id'],
+      preferredSlots: json['preferred_slots'] != null
+          ? (json['preferred_slots'] as List<dynamic>)
+              .map((e) => PreferredSlotData.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+      medicalHistory: json['medical_history'] != null
+          ? PatientMedicalHistoryData.fromJson(
+              json['medical_history'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'user_id': userId,
+        'group_id': groupId,
+        'name': name,
+        'patient_name': patientName,
+        'patient_image': patientImage,
+        'patient_email': patientEmail,
+        'front_image_before': frontImageBefore,
+        'front_image_after': frontImageAfter,
+        'right_image_before': rightImageBefore,
+        'right_image_after': rightImageAfter,
+        'left_image_before': leftImageBefore,
+        'left_image_after': leftImageAfter,
+        'treatments': treatments.map((e) => e.toJson()).toList(),
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'reference_id': referenceId,
+        'preferred_slots': preferredSlots?.map((e) => e.toJson()).toList(),
+        'medical_history': medicalHistory?.toJson(),
+      };
+}
+
+class PreferredSlotData {
+  final String? date;
+  final String? time;
+
+  PreferredSlotData({
+    this.date,
+    this.time,
+  });
+
+  factory PreferredSlotData.fromJson(Map<String, dynamic> json) =>
+      PreferredSlotData(
+        date: json['date'],
+        time: json['time'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        'date': date,
+        'time': time,
+      };
+}
+
+class PatientMedicalHistoryData {
+  final int? id;
+  final int? patientId;
+  final List<String> allergies;
+  final List<String> medicalConditions;
+  final List<String> currentMedications;
+  final String? createdAt;
+  final String? updatedAt;
+
+  PatientMedicalHistoryData({
+    this.id,
+    this.patientId,
+    this.allergies = const [],
+    this.medicalConditions = const [],
+    this.currentMedications = const [],
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory PatientMedicalHistoryData.fromJson(Map<String, dynamic> json) {
+    return PatientMedicalHistoryData(
+      id: json['id'],
+      patientId: json['patient_id'],
+      allergies: json['allergies'] != null
+          ? List<String>.from(json['allergies'])
+          : [],
+      medicalConditions: json['medical_conditions'] != null
+          ? List<String>.from(json['medical_conditions'])
+          : [],
+      currentMedications: json['current_medications'] != null
+          ? List<String>.from(json['current_medications'])
+          : [],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'patient_id': patientId,
+        'allergies': allergies,
+        'medical_conditions': medicalConditions,
+        'current_medications': currentMedications,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+      };
 }
 
 class PatientTreatmentData {
@@ -158,6 +279,15 @@ class PatientTreatmentData {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'treatment_id': treatmentId,
+        'treatment_name': treatmentName,
+        'treatment_desc': description,
+        'treatment_image': image,
+        'treatment_icon': icon,
+        'areas': areas.map((e) => e.toJson()).toList(),
+      };
 }
 
 class PatientTreatmentAreaData {
@@ -165,6 +295,7 @@ class PatientTreatmentAreaData {
   final String areaName;
   final String? image;
   final String? icon;
+  final double? price;
   final List<PatientTreatmentMaterialData> materials;
 
   PatientTreatmentAreaData({
@@ -172,6 +303,7 @@ class PatientTreatmentAreaData {
     required this.areaName,
     this.image,
     this.icon,
+    this.price,
     required this.materials,
   });
 
@@ -183,6 +315,7 @@ class PatientTreatmentAreaData {
       areaName: json['area_name'] ?? '',
       image: json['area_image'],
       icon: json['area_icon'],
+      price: (json['price'] as num?)?.toDouble(),
       materials:
           (json['materials'] as List<dynamic>?)
               ?.map(
@@ -194,6 +327,15 @@ class PatientTreatmentAreaData {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'area_id': areaId,
+        'area_name': areaName,
+        'area_image': image,
+        'area_icon': icon,
+        'price': price,
+        'materials': materials.map((e) => e.toJson()).toList(),
+      };
 }
 
 class PatientTreatmentMaterialData {
@@ -216,6 +358,10 @@ class PatientTreatmentMaterialData {
       selectedQuantity: json['selected_quantity'] ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'selected_quantity': selectedQuantity,
+      };
 }
-
-

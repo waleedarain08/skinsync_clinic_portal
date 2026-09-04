@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
+import 'create_appointment_screen.dart';
 import '../services/media_service.dart';
 import '../utils/enums.dart';
 import '../utils/string_utils.dart';
@@ -335,7 +336,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ],
               ),
             ),
-            // Header Quick Actions
+            // Header Quick Actions: Create Appointment & Toggle Patient Details
+            ElevatedButton.icon(
+              onPressed: () {
+                context.pushNamed(CreateAppointmentScreen.routeName);
+              },
+              icon: Icon(
+                Iconsax.calendar_add,
+                color: CustomColors.white,
+                size: context.sp(16),
+              ),
+              label: Text(
+                'Create Appointment',
+                style: context.fonts.white12w700,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CustomColors.purple,
+                foregroundColor: CustomColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.r(8)),
+                ),
+                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+              ),
+            ),
+            context.horizontalSpace(8),
             IconButton(
               onPressed: () {
                 setState(() {
@@ -496,6 +520,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     );
                   }
                 });
+              } else if (value == 'create_appointment') {
+                context.pushNamed(CreateAppointmentScreen.routeName);
               } else if (value == 'appointment') {
                 _sendMessage(
                   customText: 'Attached appointment confirmation details.',
@@ -559,6 +585,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     context.horizontalSpace(12),
                     Text(
                       'Share Treatment Request',
+                      style: context.fonts.black14w400,
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'create_appointment',
+                child: Row(
+                  children: [
+                    Icon(
+                      Iconsax.calendar_add,
+                      size: context.sp(18),
+                      color: CustomColors.purple,
+                    ),
+                    context.horizontalSpace(12),
+                    Text(
+                      'Create New Appointment',
                       style: context.fonts.black14w400,
                     ),
                   ],

@@ -46,15 +46,34 @@ class _SimulationTreatmentRequestCardState
     return 'N/A';
   }
 
-  String get _optionName {
-    final optName = widget.request.name.trim();
-    if (optName.isNotEmpty) return optName.capitalize;
-    return 'N/A';
+  String get _referenceIdStr {
+    if (widget.request.referenceId != null) {
+      return '#${widget.request.referenceId}';
+    }
+    return '#${widget.request.id}';
+  }
+
+  List<String> get _availableTabs {
+    final tabs = <String>['Simulation', 'Treatments'];
+    if (widget.request.preferredSlots != null &&
+        widget.request.preferredSlots!.isNotEmpty) {
+      tabs.add('Preferred Slots');
+    }
+    if (widget.request.medicalHistory != null) {
+      tabs.add('Medical History');
+    }
+    return tabs;
   }
 
   @override
   Widget build(BuildContext context) {
     final request = widget.request;
+    final availableTabs = _availableTabs;
+
+    // Ensure selected tab is valid
+    if (!availableTabs.contains(_selectedSubTab)) {
+      _selectedSubTab = availableTabs.first;
+    }
 
     return Container(
       margin: EdgeInsets.only(bottom: context.h(16)),
@@ -71,7 +90,6 @@ class _SimulationTreatmentRequestCardState
         ],
       ),
       child: Theme(
-        // Remove default ExpansionTile dividers, splash, and focus colors
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
           splashColor: Colors.transparent,
@@ -120,7 +138,7 @@ class _SimulationTreatmentRequestCardState
                 : null,
           ),
 
-          // Tile Header: Displays Patient Info & Option Name
+          // Tile Header: Displays Patient Info & Reference ID
           title: Text(
             'Patient: $_patientName',
             style: context.fonts.black16w600,
@@ -142,7 +160,7 @@ class _SimulationTreatmentRequestCardState
                 children: [
                   Expanded(
                     child: Text(
-                      'Option: $_optionName',
+                      'Reference ID: $_referenceIdStr',
                       style: context.fonts.black12w600,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -171,7 +189,7 @@ class _SimulationTreatmentRequestCardState
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-               onPressed: () =>  context.pushNamed(ChatScreen.routeName),
+                onPressed: () => context.pushNamed(ChatScreen.routeName),
               ),
               context.horizontalSpace(8),
               AnimatedRotation(
@@ -188,18 +206,31 @@ class _SimulationTreatmentRequestCardState
           children: [
             const Divider(),
             context.verticalSpace(12),
+
+            // Tab Buttons
             Row(
-              children: [
-                _buildSubTabButton(context, "Simulation"),
-                context.horizontalSpace(12),
-                _buildSubTabButton(context, "Treatments"),
-              ],
+              children: availableTabs.map((tabTitle) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: context.w(4)),
+                    child: _buildSubTabButton(context, tabTitle),
+                  ),
+                );
+              }).toList(),
             ),
             context.verticalSpace(16),
+
+            // Tab Content
             if (_selectedSubTab == "Simulation")
               _buildImageComparison(context, request)
-            else
-              _buildTreatmentsList(context, request),
+            else if (_selectedSubTab == "Treatments")
+              _buildTreatmentsList(context, request)
+            else if (_selectedSubTab == "Preferred Slots" &&
+                request.preferredSlots != null)
+              _buildPreferredSlotsView(context, request.preferredSlots!)
+            else if (_selectedSubTab == "Medical History" &&
+                request.medicalHistory != null)
+              _buildMedicalHistoryView(context, request.medicalHistory!),
           ],
         ),
       ),
@@ -209,26 +240,204 @@ class _SimulationTreatmentRequestCardState
   Widget _buildSubTabButton(BuildContext context, String title) {
     final isSelected = _selectedSubTab == title;
 
-    return Expanded(
-      child: InkWell(
-        onTap: () => setState(() => _selectedSubTab = title),
-        borderRadius: BorderRadius.circular(context.r(100)),
-        child: Container(
-          height: context.h(40),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? CustomColors.purple : Colors.transparent,
-            borderRadius: BorderRadius.circular(context.r(100)),
-            border: isSelected ? null : Border.all(color: CustomColors.border),
-          ),
-          child: Text(
-            title.capitalize,
-            style: isSelected
-                ? context.fonts.white14w600
-                : context.fonts.black14w600,
-          ),
+    return InkWell(
+      onTap: () => setState(() => _selectedSubTab = title),
+      borderRadius: BorderRadius.circular(context.r(100)),
+      child: Container(
+        height: context.h(38),
+        alignment: Alignment.center,
+        padding: context.appEdgeInsets(horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? CustomColors.purple : Colors.transparent,
+          borderRadius: BorderRadius.circular(context.r(100)),
+          border: isSelected ? null : Border.all(color: CustomColors.border),
+        ),
+        child: Text(
+          title,
+          style: isSelected
+              ? context.fonts.white12w700
+              : context.fonts.black12w600,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ),
+    );
+  }
+
+  // ----- Preferred Slots Tab -----
+
+  Widget _buildPreferredSlotsView(
+    BuildContext context,
+    List<PreferredSlotData> slots,
+  ) {
+    if (slots.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: context.appEdgeInsets(vertical: 20),
+          child: Text(
+            "No preferred slots provided",
+            style: context.fonts.grey14w400,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Preferred Appointment Slots',
+          style: context.fonts.black14w600,
+        ),
+        context.verticalSpace(12),
+        Wrap(
+          spacing: context.w(12),
+          runSpacing: context.h(12),
+          children: slots.map((slot) {
+            return Container(
+              padding: context.appEdgeInsets(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: CustomColors.softGrey,
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: CustomColors.border),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    size: context.sp(16),
+                    color: CustomColors.purple,
+                  ),
+                  context.horizontalSpace(8),
+                  Text(
+                    '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'.trim(),
+                    style: context.fonts.black13w600,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  // ----- Medical History Tab -----
+
+  Widget _buildMedicalHistoryView(
+    BuildContext context,
+    PatientMedicalHistoryData history,
+  ) {
+    final hasAllergies = history.allergies.isNotEmpty;
+    final hasConditions = history.medicalConditions.isNotEmpty;
+    final hasMedications = history.currentMedications.isNotEmpty;
+
+    if (!hasAllergies && !hasConditions && !hasMedications) {
+      return Center(
+        child: Padding(
+          padding: context.appEdgeInsets(vertical: 20),
+          child: Text(
+            "No medical history recorded",
+            style: context.fonts.grey14w400,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Patient Medical History',
+          style: context.fonts.black14w600,
+        ),
+        context.verticalSpace(12),
+        Container(
+          width: double.infinity,
+          padding: context.appEdgeInsets(all: 16),
+          decoration: BoxDecoration(
+            color: CustomColors.softGrey.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(context.r(12)),
+            border: Border.all(color: CustomColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hasAllergies) ...[
+                _buildMedicalCategoryRow(
+                  context,
+                  title: 'Allergies',
+                  icon: Icons.warning_amber_rounded,
+                  color: CustomColors.red,
+                  items: history.allergies,
+                ),
+                if (hasConditions || hasMedications) context.verticalSpace(12),
+              ],
+              if (hasConditions) ...[
+                _buildMedicalCategoryRow(
+                  context,
+                  title: 'Medical Conditions',
+                  icon: Icons.health_and_safety_outlined,
+                  color: CustomColors.amber,
+                  items: history.medicalConditions,
+                ),
+                if (hasMedications) context.verticalSpace(12),
+              ],
+              if (hasMedications) ...[
+                _buildMedicalCategoryRow(
+                  context,
+                  title: 'Current Medications',
+                  icon: Icons.medication_outlined,
+                  color: CustomColors.purple,
+                  items: history.currentMedications,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMedicalCategoryRow(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required List<String> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: context.sp(16), color: color),
+            context.horizontalSpace(6),
+            Text(title, style: context.fonts.black13w600),
+          ],
+        ),
+        context.verticalSpace(8),
+        Wrap(
+          spacing: context.w(8),
+          runSpacing: context.h(6),
+          children: items.map((item) {
+            return Container(
+              padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(context.r(8)),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                item,
+                style: context.fonts.black12w600.copyWith(color: color),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -517,8 +726,6 @@ class _SimulationTreatmentRequestCardState
       ],
     );
   }
-
-  // ----- Treatments Tab -----
 
   // ----- Treatments Tab -----
 
