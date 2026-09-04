@@ -10,7 +10,7 @@ import '../utils/enums.dart';
 import '../utils/exception.dart';
 import 'base_view_model.dart';
 
-final chatProvider = NotifierProvider.autoDispose(() {
+final chatProvider = NotifierProvider(() {
   return ChatViewModel(repo: locator<ChatRepository>());
 });
 

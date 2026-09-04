@@ -18,6 +18,7 @@ final dummyTreatmentRequests = [
   PatientTreatmentRequestData(
     id: 1,
     userId: 101,
+    chatId: 0,
     groupId: 1,
     name: "Full Face Botox & Filler Plan",
     createdAt: "2026-08-10T10:00:00Z",
@@ -36,14 +37,22 @@ final dummyTreatmentRequests = [
             areaId: 1,
             areaName: "Forehead",
             materials: [
-              PatientTreatmentMaterialData(id: 1, name: "Botulinum Toxin", selectedQuantity: 20),
+              PatientTreatmentMaterialData(
+                id: 1,
+                name: "Botulinum Toxin",
+                selectedQuantity: 20,
+              ),
             ],
           ),
           PatientTreatmentAreaData(
             areaId: 2,
             areaName: "Crow's Feet",
             materials: [
-              PatientTreatmentMaterialData(id: 1, name: "Botulinum Toxin", selectedQuantity: 12),
+              PatientTreatmentMaterialData(
+                id: 1,
+                name: "Botulinum Toxin",
+                selectedQuantity: 12,
+              ),
             ],
           ),
         ],
@@ -53,6 +62,7 @@ final dummyTreatmentRequests = [
   PatientTreatmentRequestData(
     id: 2,
     userId: 101,
+    chatId: 0,
     groupId: 1,
     name: "Lip Augmentation",
     createdAt: "2026-08-12T14:30:00Z",
@@ -67,7 +77,11 @@ final dummyTreatmentRequests = [
             areaId: 3,
             areaName: "Upper Lip",
             materials: [
-              PatientTreatmentMaterialData(id: 2, name: "Juvederm Volbella", selectedQuantity: 1),
+              PatientTreatmentMaterialData(
+                id: 2,
+                name: "Juvederm Volbella",
+                selectedQuantity: 1,
+              ),
             ],
           ),
         ],
@@ -75,6 +89,3 @@ final dummyTreatmentRequests = [
     ],
   ),
 ];
-
-
-

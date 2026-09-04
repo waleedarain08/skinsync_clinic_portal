@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_init.dart';
+import 'models/responses/patient_treatment_request_response.dart';
 import 'models/responses/register_practitioner_response.dart';
 import 'screens/about_screen.dart';
 import 'screens/add_practitioner_screen.dart';
@@ -169,7 +170,12 @@ class RouteGenerator {
             builder: (context, state) {
               final showBackButton =
                   state.uri.queryParameters['showBackButton'] == 'true';
-              return ChatScreen(showBackButton: showBackButton);
+              final treatmentRequestData =
+                  state.extra as PatientTreatmentRequestData?;
+              return ChatScreen(
+                showBackButton: showBackButton,
+                treatmentRequestData: treatmentRequestData,
+              );
             },
           ),
           GoRoute(

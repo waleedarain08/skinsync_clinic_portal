@@ -102,6 +102,7 @@ enum Endpoint {
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
   apiQa('https://api-dev.skinsyncai.com/api/');
+
   // apiQa('http://localhost:8084/api/');
 
   final String url;
