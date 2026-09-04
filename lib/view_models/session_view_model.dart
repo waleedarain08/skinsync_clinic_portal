@@ -793,6 +793,8 @@ class SessionViewModel extends BaseViewModel<SessionState> {
         false;
   }
 
+  
+
   // Future<bool> fetchAndPopulateSessionDetail(int sessionId) async {
   //   return await runSafely<bool>(
   //     onLoadingChange: (loading) => state = state.copyWith(loading: loading),
