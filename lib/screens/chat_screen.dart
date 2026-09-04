@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
-import 'create_appointment_screen.dart';
 import '../services/media_service.dart';
 import '../utils/enums.dart';
 import '../utils/string_utils.dart';
@@ -18,13 +18,19 @@ import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
+import 'create_appointment_screen.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   static const String routeName = '/chat-screen';
 
   final bool showBackButton;
+  final PatientTreatmentRequestData? treatmentRequestData;
 
-  const ChatScreen({super.key, this.showBackButton = true});
+  const ChatScreen({
+    super.key,
+    this.showBackButton = true,
+    this.treatmentRequestData,
+  });
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -46,6 +52,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.treatmentRequestData != null) {
+      _showPatientInfo = true;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(chatProvider.notifier).loadMessages();
     });
@@ -187,21 +196,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       // Date Divider Header
                       _buildDateDivider(context),
                       Expanded(child: _buildMessages()),
-                      // Message List
-                      // Expanded(
-                      //   child: ListView.builder(
-                      //     controller: _scrollController,
-                      //     padding: context.appEdgeInsets(
-                      //       horizontal: 20,
-                      //       vertical: 12,
-                      //     ),
-                      //     itemCount: _messages.length,
-                      //     itemBuilder: (context, index) {
-                      //       final message = _messages[index];
-                      //       return ChatMessageBubble(message: message);
-                      //     },
-                      //   ),
-                      // ),
                       const Divider(color: CustomColors.border, height: 1),
                       // Quick Action Presets Row
                       _buildQuickPresetsRow(context),
@@ -247,6 +241,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         final user = ref.watch(
           chatProvider.select((s) => s.messagesData?.user),
         );
+        final req = widget.treatmentRequestData;
+        final displayName = req?.patientName ?? user?.name ?? 'N/A';
+        final displayId = req != null
+            ? 'Ref: #${req.referenceId ?? req.id}'
+            : 'ID: ${user?.userId ?? 'N/A'}';
+
         return Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -266,7 +266,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   radius: context.r(24),
                   backgroundColor: CustomColors.lightPurple,
                   child: Text(
-                    user?.name?.firstOrNull ?? 'P',
+                    displayName.firstOrNull ?? 'P',
                     style: context.fonts.purple16w700,
                   ),
                 ),
@@ -293,7 +293,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   Row(
                     children: [
                       Text(
-                        user?.name ?? 'N/A',
+                        displayName,
                         style: context.fonts.black18w600,
                       ),
                       context.horizontalSpace(8),
@@ -308,7 +308,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           border: Border.all(color: CustomColors.border),
                         ),
                         child: Text(
-                          'ID: ${user?.userId ?? 'N/A'}',
+                          displayId,
                           style: context.fonts.grey11w600,
                         ),
                       ),
@@ -328,7 +328,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Text('•', style: context.fonts.grey12w400),
                       context.horizontalSpace(8),
                       Text(
-                        'Botox & Facial Treatment',
+                        req != null ? 'Option: ${req.name}' : 'Botox & Facial Treatment',
                         style: context.fonts.grey12w400,
                       ),
                     ],
@@ -386,6 +386,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildPatientInfoBanner(BuildContext context) {
+    final req = widget.treatmentRequestData;
+    if (req != null) {
+      return _buildTreatmentRequestBanner(context, req);
+    }
+
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(horizontal: 20, vertical: 14),
       backgroundColor: CustomColors.lightPurple.withValues(alpha: 0.5),
@@ -411,6 +416,277 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTreatmentRequestBanner(
+    BuildContext context,
+    PatientTreatmentRequestData req,
+  ) {
+    final String refId =
+        req.referenceId != null ? '#${req.referenceId}' : '#${req.id}';
+    final String patientName =
+        req.patientName?.isNotEmpty == true ? req.patientName! : 'Patient';
+    final String patientEmail =
+        req.patientEmail?.isNotEmpty == true ? req.patientEmail! : 'N/A';
+    final hasSlots =
+        req.preferredSlots != null && req.preferredSlots!.isNotEmpty;
+    final hasMedicalHistory = req.medicalHistory != null;
+
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
+      backgroundColor: CustomColors.lightPurple.withValues(alpha: 0.35),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: Header - Reference ID, Option Name & Hide Button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        context.appEdgeInsets(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: CustomColors.purple,
+                      borderRadius: BorderRadius.circular(context.r(12)),
+                    ),
+                    child: Text(
+                      'Ref: $refId',
+                      style: context.fonts.white12w700,
+                    ),
+                  ),
+                  context.horizontalSpace(10),
+                  Text(
+                    'Option: ${req.name}',
+                    style: context.fonts.purple13w700,
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () => setState(() => _showPatientInfo = false),
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: CustomColors.grey,
+                ),
+              ),
+            ],
+          ),
+          context.verticalSpace(12),
+
+          // Row 2: Patient Info (Email, Date, Total Treatments)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInfoItem(context, 'Patient Name', patientName),
+              _buildInfoItem(context, 'Email', patientEmail),
+              _buildInfoItem(
+                context,
+                'Date',
+                (req.createdAt != null && req.createdAt!.length >= 10)
+                    ? req.createdAt!.substring(0, 10)
+                    : 'N/A',
+              ),
+              _buildInfoItem(
+                context,
+                'Total Treatments',
+                '${req.treatments.length} requested',
+              ),
+            ],
+          ),
+
+          // Row 3: Requested Treatments & Areas
+          if (req.treatments.isNotEmpty) ...[
+            context.verticalSpace(12),
+            const Divider(color: CustomColors.border, height: 1),
+            context.verticalSpace(10),
+            Text('Requested Treatments & Areas:',
+                style: context.fonts.black12w600),
+            context.verticalSpace(6),
+            Wrap(
+              spacing: context.w(8),
+              runSpacing: context.h(6),
+              children: req.treatments.expand((t) {
+                return t.areas.map((a) {
+                  final priceText = a.price != null
+                      ? ' (\$${a.price!.toStringAsFixed(0)})'
+                      : '';
+                  return Container(
+                    padding:
+                        context.appEdgeInsets(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: CustomColors.white,
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                      border: Border.all(color: CustomColors.border),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.medical_services_outlined,
+                          size: context.sp(12),
+                          color: CustomColors.purple,
+                        ),
+                        context.horizontalSpace(4),
+                        Text(
+                          '${t.treatmentName}: ${a.areaName}$priceText',
+                          style: context.fonts.purple11w600,
+                        ),
+                      ],
+                    ),
+                  );
+                });
+              }).toList(),
+            ),
+          ],
+
+          // Row 4: Preferred Appointment Slots (if available)
+          if (hasSlots) ...[
+            context.verticalSpace(10),
+            Text('Preferred Slots:', style: context.fonts.black12w600),
+            context.verticalSpace(6),
+            Wrap(
+              spacing: context.w(8),
+              runSpacing: context.h(6),
+              children: req.preferredSlots!.map((slot) {
+                return Container(
+                  padding:
+                      context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: CustomColors.white,
+                    borderRadius: BorderRadius.circular(context.r(8)),
+                    border: Border.all(
+                      color: CustomColors.purple.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: context.sp(12),
+                        color: CustomColors.purple,
+                      ),
+                      context.horizontalSpace(4),
+                      Text(
+                        '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'
+                            .trim(),
+                        style: context.fonts.black11w600,
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          // Row 5: Patient Medical History (if available)
+          if (hasMedicalHistory) ...[
+            context.verticalSpace(10),
+            Text('Medical History:', style: context.fonts.black12w600),
+            context.verticalSpace(6),
+            Wrap(
+              spacing: context.w(8),
+              runSpacing: context.h(6),
+              children: [
+                if (req.medicalHistory!.allergies.isNotEmpty)
+                  _buildMedicalBadge(
+                    'Allergies: ${req.medicalHistory!.allergies.join(", ")}',
+                    CustomColors.red,
+                  ),
+                if (req.medicalHistory!.medicalConditions.isNotEmpty)
+                  _buildMedicalBadge(
+                    'Conditions: ${req.medicalHistory!.medicalConditions.join(", ")}',
+                    CustomColors.amber,
+                  ),
+                if (req.medicalHistory!.currentMedications.isNotEmpty)
+                  _buildMedicalBadge(
+                    'Medications: ${req.medicalHistory!.currentMedications.join(", ")}',
+                    CustomColors.purple,
+                  ),
+              ],
+            ),
+          ],
+
+          // Row 6: Simulation Thumbnails (if available)
+          if (req.frontImageBefore != null || req.frontImageAfter != null) ...[
+            context.verticalSpace(10),
+            Text('Simulation Images:', style: context.fonts.black12w600),
+            context.verticalSpace(6),
+            Row(
+              children: [
+                if (req.frontImageBefore != null)
+                  _buildSimulationThumbnail(
+                      context, 'Front Before', req.frontImageBefore!),
+                if (req.frontImageAfter != null) ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                      context, 'Front After', req.frontImageAfter!),
+                ],
+                if (req.rightImageBefore != null) ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                      context, 'Right Before', req.rightImageBefore!),
+                ],
+                if (req.rightImageAfter != null) ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                      context, 'Right After', req.rightImageAfter!),
+                ],
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedicalBadge(String text, Color color) {
+    return Container(
+      padding: context.appEdgeInsets(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(context.r(6)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        text,
+        style: context.fonts.black11w600.copyWith(color: color),
+      ),
+    );
+  }
+
+  Widget _buildSimulationThumbnail(
+    BuildContext context,
+    String label,
+    String url,
+  ) {
+    return Container(
+      width: context.w(60),
+      height: context.h(50),
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(8)),
+        border: Border.all(color: CustomColors.border),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(context.r(8)),
+        child: url.startsWith('http')
+            ? CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.broken_image, size: 16),
+              )
+            : Image.asset(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image, size: 16),
+              ),
       ),
     );
   }
