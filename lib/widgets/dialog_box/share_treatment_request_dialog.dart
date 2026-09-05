@@ -1,40 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../models/dummy/patient_dummy.dart';
 import '../../models/responses/patient_treatment_request_response.dart';
 import '../../utils/theme.dart';
+import '../../view_models/patient_view_model.dart';
+import '../app_loader.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
 import 'standard_dialog.dart';
 
-class ShareTreatmentRequestDialog extends StatefulWidget {
+class ShareTreatmentRequestDialog extends ConsumerStatefulWidget {
   final String patientName;
+  final int patientId;
 
   const ShareTreatmentRequestDialog({
     super.key,
     this.patientName = 'Jane Cooper',
+    required this.patientId,
   });
 
   @override
-  State<ShareTreatmentRequestDialog> createState() =>
+  ConsumerState<ShareTreatmentRequestDialog> createState() =>
       _ShareTreatmentRequestDialogState();
 }
 
 class _ShareTreatmentRequestDialogState
-    extends State<ShareTreatmentRequestDialog> {
-  late final List<PatientTreatmentRequestData> _requests;
+    extends ConsumerState<ShareTreatmentRequestDialog> {
   PatientTreatmentRequestData? _selectedRequest;
 
   @override
   void initState() {
     super.initState();
-    // Use dummy treatment requests directly from patient_dummy.dart
-    _requests = List.from(dummyTreatmentRequests);
-
-    if (_requests.isNotEmpty) {
-      _selectedRequest = _requests.first;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(patientProvider.notifier)
+          .getPatientTreatmentRequests(
+            patientId: widget.patientId,
+            showEasyLoading: false,
+          );
+    });
   }
 
   @override
@@ -42,6 +47,7 @@ class _ShareTreatmentRequestDialogState
     return StandardDialog(
       title: 'Select Treatment Request to Share',
       width: 640.w,
+      height: 0.5.sh,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -51,126 +57,143 @@ class _ShareTreatmentRequestDialogState
             style: context.fonts.grey13w500,
           ),
           context.verticalSpace(16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _requests.length,
-            separatorBuilder: (context, index) => context.verticalSpace(10),
-            itemBuilder: (context, index) {
-              final req = _requests[index];
-              final isSelected = _selectedRequest?.id == req.id;
+          Expanded(
+            child: Consumer(
+              builder: (_, ref, _) {
+                final state = ref.watch(patientProvider);
+                if (state.loading) {
+                  return const AppLoader();
+                }
+                final requests = state.treatmentRequests;
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: requests.length,
+                  separatorBuilder: (context, index) =>
+                      context.verticalSpace(10),
+                  itemBuilder: (context, index) {
+                    final req = requests[index];
+                    final isSelected = _selectedRequest?.id == req.id;
 
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedRequest = req;
-                  });
-                },
-                borderRadius: BorderRadius.circular(context.r(12)),
-                child: Container(
-                  padding: context.appEdgeInsets(all: 14),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? CustomColors.lightPurple.withValues(alpha: 0.5)
-                        : CustomColors.white,
-                    borderRadius: BorderRadius.circular(context.r(12)),
-                    border: Border.all(
-                      color: isSelected
-                          ? CustomColors.purple
-                          : CustomColors.border,
-                      width: isSelected ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isSelected
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: isSelected
-                            ? CustomColors.purple
-                            : CustomColors.grey,
-                        size: context.sp(20),
-                      ),
-                      context.horizontalSpace(8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedRequest = req;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(context.r(12)),
+                      child: Container(
+                        padding: context.appEdgeInsets(all: 14),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? CustomColors.lightPurple.withValues(alpha: 0.5)
+                              : CustomColors.white,
+                          borderRadius: BorderRadius.circular(context.r(12)),
+                          border: Border.all(
+                            color: isSelected
+                                ? CustomColors.purple
+                                : CustomColors.border,
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    req.name,
-                                    style: context.fonts.black16w600,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                            Icon(
+                              isSelected
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_unchecked,
+                              color: isSelected
+                                  ? CustomColors.purple
+                                  : CustomColors.grey,
+                              size: context.sp(20),
+                            ),
+                            context.horizontalSpace(8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          req.name,
+                                          style: context.fonts.black16w600,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      _buildStatusBadge(
+                                        context,
+                                        'Pending Review',
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                _buildStatusBadge(context, 'Pending Review'),
-                              ],
-                            ),
-                            context.verticalSpace(4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Iconsax.hospital,
-                                  size: context.sp(14),
-                                  color: CustomColors.grey,
-                                ),
-                                context.horizontalSpace(6),
-                                Text(
-                                  'SkinSync Clinic',
-                                  style: context.fonts.grey12w400,
-                                ),
-                                context.horizontalSpace(12),
-                                Icon(
-                                  Iconsax.calendar_1,
-                                  size: context.sp(14),
-                                  color: CustomColors.grey,
-                                ),
-                                context.horizontalSpace(6),
-                                Text(
-                                  req.createdAt != null
-                                      ? req.createdAt!.substring(0, 10)
-                                      : 'Recent',
-                                  style: context.fonts.grey12w400,
-                                ),
-                              ],
-                            ),
-                            if (req.treatments.isNotEmpty) ...[
-                              context.verticalSpace(8),
-                              Wrap(
-                                spacing: context.w(6),
-                                runSpacing: context.h(4),
-                                children: req.treatments.map((t) {
-                                  return Container(
-                                    padding: context.appEdgeInsets(
-                                      horizontal: 8,
-                                      vertical: 2,
+                                  context.verticalSpace(4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Iconsax.hospital,
+                                        size: context.sp(14),
+                                        color: CustomColors.grey,
+                                      ),
+                                      context.horizontalSpace(6),
+                                      Text(
+                                        'SkinSync Clinic',
+                                        style: context.fonts.grey12w400,
+                                      ),
+                                      context.horizontalSpace(12),
+                                      Icon(
+                                        Iconsax.calendar_1,
+                                        size: context.sp(14),
+                                        color: CustomColors.grey,
+                                      ),
+                                      context.horizontalSpace(6),
+                                      Text(
+                                        req.createdAt != null
+                                            ? req.createdAt!.substring(0, 10)
+                                            : 'Recent',
+                                        style: context.fonts.grey12w400,
+                                      ),
+                                    ],
+                                  ),
+                                  if (req.treatments.isNotEmpty) ...[
+                                    context.verticalSpace(8),
+                                    Wrap(
+                                      spacing: context.w(6),
+                                      runSpacing: context.h(4),
+                                      children: req.treatments.map((t) {
+                                        return Container(
+                                          padding: context.appEdgeInsets(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: CustomColors.softGrey,
+                                            borderRadius: BorderRadius.circular(
+                                              context.r(6),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            t.treatmentName,
+                                            style: context.fonts.grey11w600,
+                                          ),
+                                        );
+                                      }).toList(),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: CustomColors.softGrey,
-                                      borderRadius:
-                                          BorderRadius.circular(context.r(6)),
-                                    ),
-                                    child: Text(
-                                      t.treatmentName,
-                                      style: context.fonts.grey11w600,
-                                    ),
-                                  );
-                                }).toList(),
+                                  ],
+                                ],
                               ),
-                            ],
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

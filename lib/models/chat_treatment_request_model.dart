@@ -1,6 +1,7 @@
 import 'responses/patient_treatment_request_response.dart';
 
 class ChatTreatmentRequestModel {
+  final String text;
   final int id;
   final int userId;
   final int groupId;
@@ -26,6 +27,7 @@ class ChatTreatmentRequestModel {
   final String? updatedAt;
 
   ChatTreatmentRequestModel({
+    required this.text,
     required this.id,
     required this.userId,
     required this.groupId,
@@ -48,6 +50,7 @@ class ChatTreatmentRequestModel {
     PatientTreatmentRequestData data,
   ) {
     return ChatTreatmentRequestModel(
+      text: '',
       id: data.id,
       userId: data.userId,
       groupId: data.groupId,
@@ -71,6 +74,7 @@ class ChatTreatmentRequestModel {
 
   factory ChatTreatmentRequestModel.fromJson(Map<String, dynamic> json) {
     return ChatTreatmentRequestModel(
+      text: json['text'] ?? '',
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       groupId: json['group_id'] ?? 0,
@@ -84,8 +88,11 @@ class ChatTreatmentRequestModel {
       rightImageAfter: json['right_image_after'],
       leftImageBefore: json['left_image_before'],
       leftImageAfter: json['left_image_after'],
-      treatments: (json['treatments'] as List<dynamic>?)
-              ?.map((e) => ChatTreatmentData.fromJson(e as Map<String, dynamic>))
+      treatments:
+          (json['treatments'] as List<dynamic>?)
+              ?.map(
+                (e) => ChatTreatmentData.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       createdAt: json['created_at'],
@@ -94,23 +101,59 @@ class ChatTreatmentRequestModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'group_id': groupId,
-        'name': name,
-        'patient_name': patientName,
-        'patient_image': patientImage,
-        'patient_email': patientEmail,
-        'front_image_before': frontImageBefore,
-        'front_image_after': frontImageAfter,
-        'right_image_before': rightImageBefore,
-        'right_image_after': rightImageAfter,
-        'left_image_before': leftImageBefore,
-        'left_image_after': leftImageAfter,
-        'treatments': treatments.map((e) => e.toJson()).toList(),
-        'created_at': createdAt,
-        'updated_at': updatedAt,
-      };
+    'id': id,
+    'user_id': userId,
+    'group_id': groupId,
+    'name': name,
+    'patient_name': patientName,
+    'patient_image': patientImage,
+    'patient_email': patientEmail,
+    'front_image_before': frontImageBefore,
+    'front_image_after': frontImageAfter,
+    'right_image_before': rightImageBefore,
+    'right_image_after': rightImageAfter,
+    'left_image_before': leftImageBefore,
+    'left_image_after': leftImageAfter,
+    'treatments': treatments.map((e) => e.toJson()).toList(),
+    'created_at': createdAt,
+    'updated_at': updatedAt,
+  };
+
+  ChatTreatmentRequestModel copyWith({
+    String? text,
+    int? id,
+    int? userId,
+    int? groupId,
+    String? name,
+    String? patientName,
+    String? patientImage,
+    String? patientEmail,
+    String? frontImageBefore,
+    String? frontImageAfter,
+    String? rightImageBefore,
+    String? rightImageAfter,
+    String? leftImageBefore,
+    String? leftImageAfter,
+    List<ChatTreatmentData>? treatments,
+  }) {
+    return ChatTreatmentRequestModel(
+      text: text ?? this.text,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      groupId: groupId ?? this.groupId,
+      name: name ?? this.name,
+      patientName: patientName ?? this.patientName,
+      patientImage: patientImage ?? this.patientImage,
+      patientEmail: patientEmail ?? this.patientEmail,
+      frontImageBefore: frontImageBefore ?? this.frontImageBefore,
+      frontImageAfter: frontImageAfter ?? this.frontImageAfter,
+      rightImageBefore: rightImageBefore ?? this.rightImageBefore,
+      rightImageAfter: rightImageAfter ?? this.rightImageAfter,
+      leftImageBefore: leftImageBefore ?? this.leftImageBefore,
+      leftImageAfter: leftImageAfter ?? this.leftImageAfter,
+      treatments: treatments ?? this.treatments,
+    );
+  }
 }
 
 class ChatTreatmentData {
@@ -130,7 +173,9 @@ class ChatTreatmentData {
     required this.areas,
   });
 
-  factory ChatTreatmentData.fromPatientTreatmentData(PatientTreatmentData data) {
+  factory ChatTreatmentData.fromPatientTreatmentData(
+    PatientTreatmentData data,
+  ) {
     return ChatTreatmentData(
       treatmentId: data.treatmentId,
       treatmentName: data.treatmentName,
@@ -150,21 +195,25 @@ class ChatTreatmentData {
       description: json['treatment_desc'],
       image: json['treatment_image'],
       icon: json['treatment_icon'],
-      areas: (json['areas'] as List<dynamic>?)
-              ?.map((e) => ChatTreatmentAreaData.fromJson(e as Map<String, dynamic>))
+      areas:
+          (json['areas'] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    ChatTreatmentAreaData.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'treatment_id': treatmentId,
-        'treatment_name': treatmentName,
-        'treatment_desc': description,
-        'treatment_image': image,
-        'treatment_icon': icon,
-        'areas': areas.map((e) => e.toJson()).toList(),
-      };
+    'treatment_id': treatmentId,
+    'treatment_name': treatmentName,
+    'treatment_desc': description,
+    'treatment_image': image,
+    'treatment_icon': icon,
+    'areas': areas.map((e) => e.toJson()).toList(),
+  };
 }
 
 class ChatTreatmentAreaData {
@@ -183,14 +232,18 @@ class ChatTreatmentAreaData {
   });
 
   factory ChatTreatmentAreaData.fromPatientTreatmentAreaData(
-      PatientTreatmentAreaData data) {
+    PatientTreatmentAreaData data,
+  ) {
     return ChatTreatmentAreaData(
       areaId: data.areaId,
       areaName: data.areaName,
       image: data.image,
       icon: data.icon,
       materials: data.materials
-          .map((m) => ChatTreatmentMaterialData.fromPatientTreatmentMaterialData(m))
+          .map(
+            (m) =>
+                ChatTreatmentMaterialData.fromPatientTreatmentMaterialData(m),
+          )
           .toList(),
     );
   }
@@ -201,21 +254,25 @@ class ChatTreatmentAreaData {
       areaName: json['area_name'] ?? '',
       image: json['area_image'],
       icon: json['area_icon'],
-      materials: (json['materials'] as List<dynamic>?)
-              ?.map((e) =>
-                  ChatTreatmentMaterialData.fromJson(e as Map<String, dynamic>))
+      materials:
+          (json['materials'] as List<dynamic>?)
+              ?.map(
+                (e) => ChatTreatmentMaterialData.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'area_id': areaId,
-        'area_name': areaName,
-        'area_image': image,
-        'area_icon': icon,
-        'materials': materials.map((e) => e.toJson()).toList(),
-      };
+    'area_id': areaId,
+    'area_name': areaName,
+    'area_image': image,
+    'area_icon': icon,
+    'materials': materials.map((e) => e.toJson()).toList(),
+  };
 }
 
 class ChatTreatmentMaterialData {
@@ -230,7 +287,8 @@ class ChatTreatmentMaterialData {
   });
 
   factory ChatTreatmentMaterialData.fromPatientTreatmentMaterialData(
-      PatientTreatmentMaterialData data) {
+    PatientTreatmentMaterialData data,
+  ) {
     return ChatTreatmentMaterialData(
       id: data.id,
       name: data.name,
@@ -247,8 +305,8 @@ class ChatTreatmentMaterialData {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'selected_quantity': selectedQuantity,
-      };
+    'id': id,
+    'name': name,
+    'selected_quantity': selectedQuantity,
+  };
 }

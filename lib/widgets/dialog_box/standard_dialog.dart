@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 
 class StandardDialog extends StatelessWidget {
   final String title;
   final double? width;
+  final double? height;
   final Widget content;
   final List<Widget>? actions;
   final bool showCloseButton;
@@ -13,6 +15,7 @@ class StandardDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.width,
+    this.height,
     required this.content,
     this.actions,
     this.showCloseButton = true,
@@ -25,6 +28,7 @@ class StandardDialog extends StatelessWidget {
       insetPadding: context.appEdgeInsets(horizontal: 20, vertical: 20),
       child: Container(
         width: width ?? 520.w,
+        height: height,
         constraints: BoxConstraints(maxWidth: 700.w),
         padding: context.appEdgeInsets(all: 24),
         decoration: BoxDecoration(
@@ -70,7 +74,7 @@ class StandardDialog extends StatelessWidget {
             context.verticalSpace(24),
 
             /// Content
-            content,
+            Expanded(child: content),
 
             /// Actions
             if (actions != null && actions!.isNotEmpty) ...[

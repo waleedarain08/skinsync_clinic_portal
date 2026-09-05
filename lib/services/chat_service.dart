@@ -5,7 +5,6 @@ import '../models/dummy/chat_dummy_model.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/messages_response.dart';
 import '../repositories/chat_repository.dart';
-import '../services/websocket_service.dart';
 import '../utils/enums.dart';
 import 'api_base_helper.dart';
 import 'locator.dart';
@@ -70,37 +69,5 @@ class ChatService extends ChatRepository {
       );
     }
     throw ApiHttpException(message: model.message);
-  }
-
-  @override
-  Future<void> connectChatSocket({
-    required int chatId,
-    required void Function(Message message) onMessage,
-  }) async {
-    // WebSocket handling moved to WebSocketService and ChatViewModel.
-    return;
-  }
-
-  @override
-  Future<void> closeChatSocket({required int chatId}) async {
-    // No-op: socket managed by WebSocketService / ViewModel.
-    return;
-  }
-
-  @override
-  Future<void> sendChatMessage({
-    required int chatId,
-    required MessageType type,
-    required String content,
-    String? mediaUrl,
-    String? documentUrl,
-  }) async {
-    await WebSocketService().sendMessage(
-      chatId: chatId,
-      type: type,
-      content: content,
-      mediaUrl: mediaUrl,
-      documentUrl: documentUrl,
-    );
   }
 }
