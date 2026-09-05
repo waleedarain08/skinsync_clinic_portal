@@ -58,16 +58,21 @@ class _CreateAppointmentScreenState
     ),
   ];
 
-  // Section 3: Practitioner & Schedule
-  String? _selectedPractitioner = 'Dr. Sarah Smith';
-  final List<String> _practitioners = [
-    'Dr. Sarah Smith',
-    'Dr. Michael Lee',
-    'Dr. John Adams',
-    'Dr. Sarah Jenkins',
+  // Section 3: Practitioners & Clinical Schedule
+  static final List<_PractitionerOption> _availablePractitioners = [
+    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
+    _PractitionerOption(id: 65, name: 'Dr. Michael Lee', role: 'injector'),
+    _PractitionerOption(id: 66, name: 'Dr. John Adams', role: 'doctor'),
+    _PractitionerOption(id: 67, name: 'Nurse Sarah Jenkins', role: 'nurse'),
   ];
+
+  late _PractitionerOption _selectedPractitionerOption;
   String _practitionerRole = 'doctor';
   final List<String> _practitionerRoles = ['doctor', 'injector', 'nurse'];
+
+  final List<_PractitionerOption> _assignedPractitioners = [
+    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
+  ];
 
   final _dateController = TextEditingController(
     text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -110,6 +115,7 @@ class _CreateAppointmentScreenState
   @override
   void initState() {
     super.initState();
+    _selectedPractitionerOption = _availablePractitioners.first;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(practitionerProvider.notifier).getPractitioner();
     });
@@ -497,20 +503,49 @@ class _CreateAppointmentScreenState
   // Section 3: Practitioner & Schedule
   Widget _buildPractitionerScheduleSection() {
     return _buildSection(
-      title: 'Practitioner & Clinical Schedule',
+      title: 'Practitioners & Clinical Schedule',
+      trailing: CustomPrimaryButton(
+        onTap: () {
+          final exists = _assignedPractitioners.any(
+            (p) => p.id == _selectedPractitionerOption.id,
+          );
+          if (!exists) {
+            setState(() {
+              _assignedPractitioners.add(
+                _selectedPractitionerOption.copyWith(role: _practitionerRole),
+              );
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Practitioner already assigned to this appointment.'),
+              ),
+            );
+          }
+        },
+        label: 'Add Practitioner',
+        icon: Icons.person_add_alt_outlined,
+        height: context.h(36),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+      ),
       children: [
         Row(
           children: [
             Expanded(
-              child: _buildDropdownField<String>(
+              child: _buildDropdownField<_PractitionerOption>(
                 label: 'Assigned Practitioner',
                 hintText: 'Select Practitioner',
-                value: _selectedPractitioner,
-                items: _practitioners,
+                value: _selectedPractitionerOption,
+                items: _availablePractitioners,
                 onChanged: (val) {
-                  setState(() => _selectedPractitioner = val);
+                  if (val != null) {
+                    setState(() {
+                      _selectedPractitionerOption = val;
+                      _practitionerRole = val.role;
+                    });
+                  }
                 },
-                builder: (val) => Text(val),
+                builder: (val) => Text(val.name),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -557,6 +592,60 @@ class _CreateAppointmentScreenState
             ),
           ],
         ),
+        SizedBox(height: context.h(20)),
+        Text('Assigned Practitioners (${_assignedPractitioners.length})',
+            style: context.fonts.grey11w600ls12),
+        SizedBox(height: context.h(12)),
+        if (_assignedPractitioners.isEmpty)
+          Text('No practitioners assigned yet.',
+              style: context.fonts.grey14w400)
+        else
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: _assignedPractitioners.map((practitioner) {
+              return Container(
+                padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: CustomColors.lightPurple,
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  border: Border.all(
+                    color: CustomColors.purple.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_outline_rounded,
+                      size: context.sp(16),
+                      color: CustomColors.purple,
+                    ),
+                    context.horizontalSpace(8),
+                    Text(
+                      '${practitioner.name} (${practitioner.role.capitalize})',
+                      style: context.fonts.purple13w700,
+                    ),
+                    context.horizontalSpace(8),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _assignedPractitioners.removeWhere(
+                            (p) => p.id == practitioner.id,
+                          );
+                        });
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: CustomColors.purple,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         SizedBox(height: context.h(20)),
         Text('Available Time Slots', style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(12)),
@@ -895,6 +984,13 @@ class _CreateAppointmentScreenState
       return;
     }
 
+    if (_assignedPractitioners.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please assign at least one practitioner.')),
+      );
+      return;
+    }
+
     final selectedDate =
         DateTime.tryParse(_dateController.text) ?? DateTime.now();
     final dateTimestamp = selectedDate.millisecondsSinceEpoch ~/ 1000;
@@ -911,12 +1007,12 @@ class _CreateAppointmentScreenState
         (totalCost - discountVal - paidVal).clamp(0.0, double.infinity);
 
     final request = CreateAppointmentRequest(
-      practitioners: [
-        AppointmentPractitionerRequest(
-          id: 64,
-          role: _practitionerRole,
-        ),
-      ],
+      practitioners: _assignedPractitioners.map((p) {
+        return AppointmentPractitionerRequest(
+          id: p.id,
+          role: p.role,
+        );
+      }).toList(),
       patientId: state.selectedPatient?.id ?? 12,
       date: dateTimestamp,
       startTime: startTimeStamp,
@@ -965,5 +1061,25 @@ class _CreateAppointmentScreenState
         context.pop();
       }
     });
+  }
+}
+
+class _PractitionerOption {
+  final int id;
+  final String name;
+  final String role;
+
+  _PractitionerOption({
+    required this.id,
+    required this.name,
+    required this.role,
+  });
+
+  _PractitionerOption copyWith({String? role}) {
+    return _PractitionerOption(
+      id: id,
+      name: name,
+      role: role ?? this.role,
+    );
   }
 }
