@@ -6,11 +6,13 @@ import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
+import '../models/responses/filters_response.dart';
 import '../models/treatment_model.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
+import '../view_models/appointment_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/build_textfield.dart';
@@ -38,14 +40,8 @@ class _CreateAppointmentScreenState
   final _searchController = TextEditingController();
 
   // Section 2: Treatment & Services
-  String _selectedAppointmentType = 'Consultation & Session';
-  final List<String> _appointmentTypes = [
-    'Consultation & Session',
-    'Treatment Session',
-    'Virtual Consultation',
-    'Follow-Up Session',
-    'In-Person Consultation',
-  ];
+  Filters? _selectedAppointmentTypeFilter;
+
   final List<TreatmentModel> _selectedTreatments = [
     TreatmentModel(
       id: 3,
@@ -118,6 +114,7 @@ class _CreateAppointmentScreenState
     _selectedPractitionerOption = _availablePractitioners.first;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(practitionerProvider.notifier).getPractitioner();
+      ref.read(appointmentProvider.notifier).getAppointmentsTypes();
     });
   }
 
@@ -398,6 +395,9 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Widget _buildTreatmentSection() {
+    final appointmentState = ref.watch(appointmentProvider);
+    final appointmentTypes = appointmentState.appointmentTypes ?? [];
+
     return _buildSection(
       title: 'Treatment & Services',
       trailing: CustomPrimaryButton(
@@ -414,17 +414,23 @@ class _CreateAppointmentScreenState
         Row(
           children: [
             Expanded(
-              child: _buildDropdownField<String>(
+              child: _buildDropdownField<Filters>(
                 label: 'Appointment Type',
                 hintText: 'Select Type',
-                value: _selectedAppointmentType,
-                items: _appointmentTypes,
+                value: _selectedAppointmentTypeFilter ??
+                    (appointmentTypes.isNotEmpty ? appointmentTypes.first : null),
+                items: appointmentTypes,
+                onTap: () {
+                  ref
+                      .read(appointmentProvider.notifier)
+                      .getAppointmentsTypes();
+                },
                 onChanged: (val) {
                   if (val != null) {
-                    setState(() => _selectedAppointmentType = val);
+                    setState(() => _selectedAppointmentTypeFilter = val);
                   }
                 },
-                builder: (val) => Text(val),
+                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -500,7 +506,7 @@ class _CreateAppointmentScreenState
     );
   }
 
-  // Section 3: Practitioner & Schedule
+  // Section 3: Practitioners & Clinical Schedule
   Widget _buildPractitionerScheduleSection() {
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
@@ -932,37 +938,41 @@ class _CreateAppointmentScreenState
     required List<T> items,
     required Function(T?) onChanged,
     Widget Function(T)? builder,
+    VoidCallback? onTap,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: context.fonts.black14w600),
         SizedBox(height: context.h(8)),
-        DropdownButtonHideUnderline(
-          child: DropdownButton2<T>(
-            isExpanded: true,
-            hint: Text(
-              hintText,
-              style: context.fonts.grey14w400.copyWith(
-                color: CustomColors.lightGrey,
+        InkWell(
+          onTap: onTap,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2<T>(
+              isExpanded: true,
+              hint: Text(
+                hintText,
+                style: context.fonts.grey14w400.copyWith(
+                  color: CustomColors.lightGrey,
+                ),
               ),
-            ),
-            value: value,
-            items: items
-                .map(
-                  (item) => DropdownMenuItem<T>(
-                    value: item,
-                    child: builder?.call(item) ?? Text(item.toString()),
-                  ),
-                )
-                .toList(),
-            onChanged: onChanged,
-            buttonStyleData: ButtonStyleData(
-              height: context.h(52),
-              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(context.r(12)),
-                border: Border.all(color: CustomColors.border),
+              value: value,
+              items: items
+                  .map(
+                    (item) => DropdownMenuItem<T>(
+                      value: item,
+                      child: builder?.call(item) ?? Text(item.toString()),
+                    ),
+                  )
+                  .toList(),
+              onChanged: onChanged,
+              buttonStyleData: ButtonStyleData(
+                height: context.h(52),
+                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  border: Border.all(color: CustomColors.border),
+                ),
               ),
             ),
           ),
@@ -1017,7 +1027,7 @@ class _CreateAppointmentScreenState
       date: dateTimestamp,
       startTime: startTimeStamp,
       endTime: endTimeStamp,
-      appointmentTypeId: 1,
+      appointmentTypeId: _selectedAppointmentTypeFilter?.id ?? 1,
       bookingType: _bookingMethod,
       simulations: AppointmentSimulationsRequest(
         frontImageBefore: _frontImageBeforeController.text.trim(),
