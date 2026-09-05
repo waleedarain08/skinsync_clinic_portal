@@ -5,6 +5,8 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
+import '../exceptions/app_exception.dart';
+import '../models/chat_treatment_request_model.dart';
 import '../services/api_base_helper.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
@@ -88,15 +90,25 @@ class WebSocketService {
     required String content,
     String? mediaUrl,
     String? documentUrl,
+    ChatTreatmentRequestModel? treatmentRequest,
   }) async {
     if (_socket == null) {
       throw Exception('Websocket not connected');
+    }
+    String text = '';
+    if (type == .sharedRequest) {
+      if (treatmentRequest == null) {
+        throw const ApiHttpException(message: 'TreatmentRequest is required!');
+      }
+      text = jsonEncode(treatmentRequest.copyWith(text: content).toJson());
+    } else {
+      text = content;
     }
 
     final payload = <String, dynamic>{
       'chat_id': chatId,
       'type': type.value,
-      'content': content,
+      'content': text,
       if (type == MessageType.media) 'media_url': mediaUrl,
       if (type == MessageType.document) 'document_url': documentUrl,
     };

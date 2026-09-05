@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
@@ -111,6 +112,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
+  Future<void> _pickTreatmentRequest() async {
+    final data = ref.read(chatProvider).messagesData;
+    final user = data?.user;
+    if (user == null) {
+      EasyLoading.showError('User not found!');
+      return;
+    }
+    final selectedReq = await showDialog<PatientTreatmentRequestData>(
+      context: context,
+      builder: (context) => ShareTreatmentRequestDialog(
+        patientName: user.name ?? 'N/A',
+        patientId: user.userId!,
+      ),
+    );
+    if (selectedReq != null) {
+      await _sendMessage(
+        customText: 'Attached shared treatment request details.',
+        messageType: MessageType.sharedRequest,
+        sharedRequestData:
+            ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
+              selectedReq,
+            ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -154,6 +181,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           content: text,
           mediaUrl: mediaUrl,
           documentUrl: documentUrl,
+          treatmentRequest: sharedRequestData,
         );
 
     _messageController.clear();
@@ -821,23 +849,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               } else if (value == 'document') {
                 _pickDocumentAndSend();
               } else if (value == 'shared_request') {
-                showDialog<PatientTreatmentRequestData>(
-                  context: context,
-                  builder: (context) => const ShareTreatmentRequestDialog(
-                    patientName: 'Jane Cooper',
-                  ),
-                ).then((selectedReq) {
-                  if (selectedReq != null) {
-                    _sendMessage(
-                      customText: 'Attached shared treatment request details.',
-                      messageType: MessageType.sharedRequest,
-                      sharedRequestData:
-                          ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
-                            selectedReq,
-                          ),
-                    );
-                  }
-                });
+                _pickTreatmentRequest();
               } else if (value == 'create_appointment') {
                 context.pushNamed(CreateAppointmentScreen.routeName);
               } else if (value == 'appointment') {
