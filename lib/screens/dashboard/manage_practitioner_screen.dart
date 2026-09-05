@@ -314,7 +314,7 @@ class _ManagePractitionerScreenState
           Expanded(
             flex: 25,
             child: _tableTextCell(
-              d.specialization,
+              d.role ?? '',
               style: context.fonts.black14w600,
             ),
           ),
