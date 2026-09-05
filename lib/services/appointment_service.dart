@@ -1,5 +1,7 @@
+import '../models/requests/create_appointment_request.dart';
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/filters_response.dart';
 import '../repositories/appointment_repository.dart';
 import '../utils/enums.dart' hide AppointmentStatus;
@@ -72,6 +74,22 @@ class AppointmentService extends AppointmentRepository {
       requestType: RequestType.get,
     );
     final model = FiltersResponse.fromJson(response);
+    if (!model.success) {
+      throw Exception(model.message);
+    }
+    return model;
+  }
+
+  @override
+  Future<BaseResponse> createAppointment({
+    required CreateAppointmentRequest request,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.getAppointment,
+      requestType: RequestType.post,
+      requestBody: request,
+    );
+    final model = BaseResponse.fromJson(response, (json) => json);
     if (!model.success) {
       throw Exception(model.message);
     }

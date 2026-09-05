@@ -305,7 +305,7 @@ class AppSidebar extends StatelessWidget {
             Consumer(
               builder: (context, ref, child) {
                 final clinicId = ref.read(
-                  authViewModelProvider.select((value) => value.user?.id),
+                  authViewModelProvider.select((value) => value.user?.clinicId),
                 );
                 return IconButton(
                   onPressed: () async {
@@ -339,68 +339,73 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-void _showQrDialog({
-  required BuildContext context,
-  required int clinicId,
-  required String encryptedData,
-}) {
-  showDialog(
-    context: context,
-    builder: (context) => Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(context.r(32)),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: context.w(400), // Limits dialog width on web/desktop screens
+  void _showQrDialog({
+    required BuildContext context,
+    required int clinicId,
+    required String encryptedData,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(context.r(32)),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(context.w(24)),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center, // Fixed invalid syntax: .center -> CrossAxisAlignment.center
-            children: [
-              Text("Check-in QR Code", style: CustomFonts.black18w600),
-              SizedBox(height: context.h(4)),
-              SizedBox(height: context.h(24)),
-              Container(
-                padding: EdgeInsets.all(context.w(16)),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(context.r(24)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: CustomColors.purple.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: context.w(
+              400,
+            ), // Limits dialog width on web/desktop screens
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(context.w(24)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center, // Fixed invalid syntax: .center -> CrossAxisAlignment.center
+              children: [
+                Text("Check-in QR Code", style: CustomFonts.black18w600),
+                SizedBox(height: context.h(4)),
+                SizedBox(height: context.h(24)),
+                Container(
+                  padding: EdgeInsets.all(context.w(16)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(context.r(24)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: CustomColors.purple.withValues(alpha: 0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: SizedBox(
+                    width: context.w(220),
+                    height: context.w(220),
+                    child: QrImageView(
+                      data: encryptedData,
+                      size: context.w(220),
                     ),
-                  ],
+                  ),
                 ),
-                child: SizedBox(
-                  width: context.w(220),
-                  height: context.w(220),
-                  child: QrImageView(data: encryptedData, size: context.w(220)),
+                SizedBox(height: context.h(24)),
+                Text(
+                  "Please scan this code at the clinic reception to confirm your arrival.",
+                  textAlign: TextAlign.center,
+                  style: CustomFonts.grey13w500.copyWith(height: 1.4),
                 ),
-              ),
-              SizedBox(height: context.h(24)),
-              Text(
-                "Please scan this code at the clinic reception to confirm your arrival.",
-                textAlign: TextAlign.center,
-                style: CustomFonts.grey13w500.copyWith(height: 1.4),
-              ),
-              SizedBox(height: context.h(24)),
-              CustomPrimaryButton(
-                onTap: () => Navigator.pop(context),
-                label: "Dismiss",
-              ),
-            ],
+                SizedBox(height: context.h(24)),
+                CustomPrimaryButton(
+                  onTap: () => Navigator.pop(context),
+                  label: "Dismiss",
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
- 
+    );
+  }
+
   Widget _buildToggleButton(BuildContext context, bool extended) {
     return InkWell(
       onTap: () => controller.toggleExtended(),

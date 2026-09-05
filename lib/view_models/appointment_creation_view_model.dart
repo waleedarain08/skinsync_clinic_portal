@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/patient_model.dart';
+import '../models/requests/create_appointment_request.dart';
+import '../repositories/appointment_repository.dart';
+import '../services/locator.dart';
 import 'base_view_model.dart';
 
 final appointmentCreationProvider =
@@ -7,14 +10,12 @@ final appointmentCreationProvider =
         AppointmentCreationViewModel.new);
 
 class AppointmentCreationState {
-  final int currentStep;
   final PatientModel? selectedPatient;
   final List<PatientModel> searchResults;
   final bool isLoading;
   final String searchQuery;
 
   AppointmentCreationState({
-    this.currentStep = 0,
     this.selectedPatient,
     this.searchResults = const [],
     this.isLoading = false,
@@ -22,14 +23,12 @@ class AppointmentCreationState {
   });
 
   AppointmentCreationState copyWith({
-    int? currentStep,
     PatientModel? selectedPatient,
     List<PatientModel>? searchResults,
     bool? isLoading,
     String? searchQuery,
   }) {
     return AppointmentCreationState(
-      currentStep: currentStep ?? this.currentStep,
       selectedPatient: selectedPatient ?? this.selectedPatient,
       searchResults: searchResults ?? this.searchResults,
       isLoading: isLoading ?? this.isLoading,
@@ -38,16 +37,17 @@ class AppointmentCreationState {
   }
 }
 
-class AppointmentCreationViewModel extends BaseViewModel<AppointmentCreationState> {
+class AppointmentCreationViewModel
+    extends BaseViewModel<AppointmentCreationState> {
   @override
   AppointmentCreationState build() {
     return AppointmentCreationState();
   }
 
-  // Dummy patients data
+  // Dummy patients data for search
   final List<PatientModel> _dummyPatients = [
     PatientModel(
-      id: 1,
+      id: 12,
       name: 'Sarah Johnson',
       email: 'sarah.johnson@email.com',
       phone: '+1 (555) 0192',
@@ -83,10 +83,6 @@ class AppointmentCreationViewModel extends BaseViewModel<AppointmentCreationStat
     ),
   ];
 
-  void setStep(int step) {
-    state = state.copyWith(currentStep: step);
-  }
-
   void searchPatients(String query) {
     state = state.copyWith(searchQuery: query);
     if (query.isEmpty) {
@@ -114,12 +110,11 @@ class AppointmentCreationViewModel extends BaseViewModel<AppointmentCreationStat
     required String phone,
   }) {
     final newPatient = PatientModel(
-      id: _dummyPatients.length + 1, // temporary ID
+      id: _dummyPatients.length + 12,
       name: name,
       email: email,
       phone: phone,
     );
-    // In a real app, this would be an API call
     state = state.copyWith(selectedPatient: newPatient);
   }
 
@@ -127,15 +122,18 @@ class AppointmentCreationViewModel extends BaseViewModel<AppointmentCreationStat
     state = state.copyWith(selectedPatient: null);
   }
 
-  void nextStep() {
-    if (state.currentStep < 3) {
-      state = state.copyWith(currentStep: state.currentStep + 1);
-    }
-  }
+  Future<bool> createAppointment({
+    required CreateAppointmentRequest request,
+  }) async {
+    final result = await runSafely(() async {
+      state = state.copyWith(isLoading: true);
+      final repository = locator<AppointmentRepository>();
+      final response = await repository.createAppointment(request: request);
+      state = state.copyWith(isLoading: false);
+      return response.success;
+    });
 
-  void previousStep() {
-    if (state.currentStep > 0) {
-      state = state.copyWith(currentStep: state.currentStep - 1);
-    }
+    state = state.copyWith(isLoading: false);
+    return result ?? false;
   }
 }

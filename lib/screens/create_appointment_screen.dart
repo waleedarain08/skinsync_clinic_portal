@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
+import '../models/requests/create_appointment_request.dart';
 import '../models/treatment_model.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
@@ -47,34 +48,32 @@ class _CreateAppointmentScreenState
   ];
   final List<TreatmentModel> _selectedTreatments = [
     TreatmentModel(
-      id: 101,
+      id: 3,
       name: 'Botox Cosmetic',
       description: 'Botox Anti-Wrinkle Treatment',
-      price: 350,
+      price: 250,
       sideAreas: [
-        SideAreaModel(id: 1, name: 'Forehead'),
-        SideAreaModel(id: 2, name: 'Crow\'s Feet'),
-      ],
-    ),
-    TreatmentModel(
-      id: 102,
-      name: 'Juvederm Filler',
-      description: 'Dermal Fillers Lip Volumizer',
-      price: 450,
-      sideAreas: [
-        SideAreaModel(id: 3, name: 'Lips'),
+        SideAreaModel(id: 7, name: 'Forehead'),
       ],
     ),
   ];
 
-  // Section 3: Practitioner & Schedule
-  String? _selectedPractitioner = 'Dr. Sarah Smith';
-  final List<String> _practitioners = [
-    'Dr. Sarah Smith',
-    'Dr. Michael Lee',
-    'Dr. John Adams',
-    'Dr. Sarah Jenkins',
+  // Section 3: Practitioners & Clinical Schedule
+  static final List<_PractitionerOption> _availablePractitioners = [
+    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
+    _PractitionerOption(id: 65, name: 'Dr. Michael Lee', role: 'injector'),
+    _PractitionerOption(id: 66, name: 'Dr. John Adams', role: 'doctor'),
+    _PractitionerOption(id: 67, name: 'Nurse Sarah Jenkins', role: 'nurse'),
   ];
+
+  late _PractitionerOption _selectedPractitionerOption;
+  String _practitionerRole = 'doctor';
+  final List<String> _practitionerRoles = ['doctor', 'injector', 'nurse'];
+
+  final List<_PractitionerOption> _assignedPractitioners = [
+    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
+  ];
+
   final _dateController = TextEditingController(
     text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
   );
@@ -88,15 +87,35 @@ class _CreateAppointmentScreenState
     '04:30 PM',
   ];
 
-  // Section 4: Notes & Financials
-  final _amountController = TextEditingController(text: '350');
-  final _notesController = TextEditingController();
+  // Section 4: Notes & Booking Config
   String _bookingMethod = 'online';
   final List<String> _bookingMethods = ['online', 'walk_in', 'manual'];
+  final _notesController = TextEditingController();
+
+  // Section 5: Financials & Payment Details
+  final _amountController = TextEditingController(text: '250');
+  String _paymentType = 'cash';
+  final List<String> _paymentTypes = ['cash', 'card', 'stripe'];
+  String _paymentStatus = 'pending';
+  final List<String> _paymentStatuses = ['pending', 'completed'];
+  String _discountType = 'flat';
+  final List<String> _discountTypes = ['flat', 'percentage'];
+  final _discountController = TextEditingController(text: '0');
+  final _amountPaidController = TextEditingController(text: '12');
+
+  // Section 6: Simulations (Optional)
+  bool _showSimulationsSection = false;
+  final _frontImageBeforeController = TextEditingController();
+  final _frontImageAfterController = TextEditingController();
+  final _rightImageBeforeController = TextEditingController();
+  final _rightImageAfterController = TextEditingController();
+  final _leftImageBeforeController = TextEditingController();
+  final _leftImageAfterController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _selectedPractitionerOption = _availablePractitioners.first;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(practitionerProvider.notifier).getPractitioner();
     });
@@ -108,6 +127,14 @@ class _CreateAppointmentScreenState
     _dateController.dispose();
     _amountController.dispose();
     _notesController.dispose();
+    _discountController.dispose();
+    _amountPaidController.dispose();
+    _frontImageBeforeController.dispose();
+    _frontImageAfterController.dispose();
+    _rightImageBeforeController.dispose();
+    _rightImageAfterController.dispose();
+    _leftImageBeforeController.dispose();
+    _leftImageAfterController.dispose();
     super.dispose();
   }
 
@@ -144,6 +171,10 @@ class _CreateAppointmentScreenState
                     _buildPractitionerScheduleSection(),
                     SizedBox(height: context.h(24)),
                     _buildNotesFinancialsSection(),
+                    SizedBox(height: context.h(24)),
+                    _buildPaymentSection(),
+                    SizedBox(height: context.h(24)),
+                    _buildSimulationsSection(),
                     SizedBox(height: context.h(40)),
                   ],
                 ),
@@ -400,8 +431,8 @@ class _CreateAppointmentScreenState
             Expanded(
               child: BuildTextField(
                 controller: _amountController,
-                label: 'Total Estimated Cost (\$)',
-                hintText: '350',
+                label: 'Treatment Total (\$)',
+                hintText: '250.00',
                 keyboardType: TextInputType.number,
                 prefixIcon: const Icon(Icons.attach_money, size: 18),
               ),
@@ -472,20 +503,64 @@ class _CreateAppointmentScreenState
   // Section 3: Practitioner & Schedule
   Widget _buildPractitionerScheduleSection() {
     return _buildSection(
-      title: 'Practitioner & Clinical Schedule',
+      title: 'Practitioners & Clinical Schedule',
+      trailing: CustomPrimaryButton(
+        onTap: () {
+          final exists = _assignedPractitioners.any(
+            (p) => p.id == _selectedPractitionerOption.id,
+          );
+          if (!exists) {
+            setState(() {
+              _assignedPractitioners.add(
+                _selectedPractitionerOption.copyWith(role: _practitionerRole),
+              );
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Practitioner already assigned to this appointment.'),
+              ),
+            );
+          }
+        },
+        label: 'Add Practitioner',
+        icon: Icons.person_add_alt_outlined,
+        height: context.h(36),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+      ),
       children: [
         Row(
           children: [
             Expanded(
-              child: _buildDropdownField<String>(
+              child: _buildDropdownField<_PractitionerOption>(
                 label: 'Assigned Practitioner',
                 hintText: 'Select Practitioner',
-                value: _selectedPractitioner,
-                items: _practitioners,
+                value: _selectedPractitionerOption,
+                items: _availablePractitioners,
                 onChanged: (val) {
-                  setState(() => _selectedPractitioner = val);
+                  if (val != null) {
+                    setState(() {
+                      _selectedPractitionerOption = val;
+                      _practitionerRole = val.role;
+                    });
+                  }
                 },
-                builder: (val) => Text(val),
+                builder: (val) => Text(val.name),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: _buildDropdownField<String>(
+                label: 'Practitioner Role',
+                hintText: 'Select Role',
+                value: _practitionerRole,
+                items: _practitionerRoles,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _practitionerRole = val);
+                  }
+                },
+                builder: (val) => Text(val.capitalize),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -517,6 +592,60 @@ class _CreateAppointmentScreenState
             ),
           ],
         ),
+        SizedBox(height: context.h(20)),
+        Text('Assigned Practitioners (${_assignedPractitioners.length})',
+            style: context.fonts.grey11w600ls12),
+        SizedBox(height: context.h(12)),
+        if (_assignedPractitioners.isEmpty)
+          Text('No practitioners assigned yet.',
+              style: context.fonts.grey14w400)
+        else
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: _assignedPractitioners.map((practitioner) {
+              return Container(
+                padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: CustomColors.lightPurple,
+                  borderRadius: BorderRadius.circular(context.r(12)),
+                  border: Border.all(
+                    color: CustomColors.purple.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_outline_rounded,
+                      size: context.sp(16),
+                      color: CustomColors.purple,
+                    ),
+                    context.horizontalSpace(8),
+                    Text(
+                      '${practitioner.name} (${practitioner.role.capitalize})',
+                      style: context.fonts.purple13w700,
+                    ),
+                    context.horizontalSpace(8),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _assignedPractitioners.removeWhere(
+                            (p) => p.id == practitioner.id,
+                          );
+                        });
+                      },
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: CustomColors.purple,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         SizedBox(height: context.h(20)),
         Text('Available Time Slots', style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(12)),
@@ -554,10 +683,10 @@ class _CreateAppointmentScreenState
     );
   }
 
-  // Section 4: Notes & Financials
+  // Section 4: Notes & Booking Config
   Widget _buildNotesFinancialsSection() {
     return _buildSection(
-      title: 'Clinical Notes & Booking Configuration',
+      title: 'Booking Configuration & Clinical Notes',
       children: [
         Row(
           children: [
@@ -583,9 +712,215 @@ class _CreateAppointmentScreenState
         BuildTextField(
           controller: _notesController,
           label: 'Special Clinical Notes & Instructions',
-          hintText: 'Enter patient instructions, contraindications, or preparation notes...',
+          hintText:
+              'Enter patient instructions, contraindications, or preparation notes...',
           maxLines: 3,
         ),
+      ],
+    );
+  }
+
+  // Section 5: Payment & Financial Details
+  Widget _buildPaymentSection() {
+    return _buildSection(
+      title: 'Payment & Financial Details',
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildDropdownField<String>(
+                label: 'Payment Method',
+                hintText: 'Select Payment Type',
+                value: _paymentType,
+                items: _paymentTypes,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _paymentType = val);
+                  }
+                },
+                builder: (val) => Text(val.capitalize),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: _buildDropdownField<String>(
+                label: 'Payment Status',
+                hintText: 'Select Status',
+                value: _paymentStatus,
+                items: _paymentStatuses,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _paymentStatus = val);
+                  }
+                },
+                builder: (val) => Text(val.capitalize),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: _buildDropdownField<String>(
+                label: 'Discount Type',
+                hintText: 'Select Discount Type',
+                value: _discountType,
+                items: _discountTypes,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _discountType = val);
+                  }
+                },
+                builder: (val) => Text(val.capitalize),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: context.h(20)),
+        Row(
+          children: [
+            Expanded(
+              child: BuildTextField(
+                controller: _discountController,
+                label: 'Discount Amount',
+                hintText: '0',
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.money_off, size: 18),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: BuildTextField(
+                controller: _amountPaidController,
+                label: 'Amount Paid (\$)',
+                hintText: '12',
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.attach_money, size: 18),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Remaining Payable', style: context.fonts.black14w600),
+                  SizedBox(height: context.h(8)),
+                  Container(
+                    height: context.h(52),
+                    padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+                    decoration: BoxDecoration(
+                      color: CustomColors.softGrey,
+                      borderRadius: BorderRadius.circular(context.r(12)),
+                      border: Border.all(color: CustomColors.border),
+                    ),
+                    alignment: Alignment.centerLeft,
+                    child: Builder(
+                      builder: (context) {
+                        final total = double.tryParse(_amountController.text) ?? 250.0;
+                        final disc = double.tryParse(_discountController.text) ?? 0.0;
+                        final paid = double.tryParse(_amountPaidController.text) ?? 0.0;
+                        final payable = (total - disc - paid).clamp(0.0, double.infinity);
+                        return Text(
+                          '\$${payable.toStringAsFixed(2)}',
+                          style: context.fonts.purple14w700,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Section 6: Simulations (Optional)
+  Widget _buildSimulationsSection() {
+    return _buildSection(
+      title: 'Simulations & Image Attachments',
+      trailing: TextButton.icon(
+        onPressed: () {
+          setState(() {
+            _showSimulationsSection = !_showSimulationsSection;
+          });
+        },
+        icon: Icon(
+          _showSimulationsSection
+              ? Icons.keyboard_arrow_up
+              : Icons.keyboard_arrow_down,
+          color: CustomColors.purple,
+        ),
+        label: Text(
+          _showSimulationsSection ? 'Hide Images' : 'Attach Image URLs',
+          style: context.fonts.purple12w700,
+        ),
+      ),
+      children: [
+        if (!_showSimulationsSection)
+          Text(
+            'Click "Attach Image URLs" to optionally include simulation before/after image links.',
+            style: context.fonts.grey14w400,
+          )
+        else ...[
+          Row(
+            children: [
+              Expanded(
+                child: BuildTextField(
+                  controller: _frontImageBeforeController,
+                  label: 'Front Image Before URL',
+                  hintText: 'https://...',
+                ),
+              ),
+              SizedBox(width: context.w(16)),
+              Expanded(
+                child: BuildTextField(
+                  controller: _frontImageAfterController,
+                  label: 'Front Image After URL',
+                  hintText: 'https://...',
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: context.h(16)),
+          Row(
+            children: [
+              Expanded(
+                child: BuildTextField(
+                  controller: _rightImageBeforeController,
+                  label: 'Right Image Before URL',
+                  hintText: 'https://...',
+                ),
+              ),
+              SizedBox(width: context.w(16)),
+              Expanded(
+                child: BuildTextField(
+                  controller: _rightImageAfterController,
+                  label: 'Right Image After URL',
+                  hintText: 'https://...',
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: context.h(16)),
+          Row(
+            children: [
+              Expanded(
+                child: BuildTextField(
+                  controller: _leftImageBeforeController,
+                  label: 'Left Image Before URL',
+                  hintText: 'https://...',
+                ),
+              ),
+              SizedBox(width: context.w(16)),
+              Expanded(
+                child: BuildTextField(
+                  controller: _leftImageAfterController,
+                  label: 'Left Image After URL',
+                  hintText: 'https://...',
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -649,13 +984,102 @@ class _CreateAppointmentScreenState
       return;
     }
 
-    // Save appointment logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Appointment created successfully!'),
-        backgroundColor: CustomColors.purple,
+    if (_assignedPractitioners.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please assign at least one practitioner.')),
+      );
+      return;
+    }
+
+    final selectedDate =
+        DateTime.tryParse(_dateController.text) ?? DateTime.now();
+    final dateTimestamp = selectedDate.millisecondsSinceEpoch ~/ 1000;
+    final startTimeStamp =
+        selectedDate.add(const Duration(hours: 10)).millisecondsSinceEpoch ~/ 1000;
+    final endTimeStamp =
+        selectedDate.add(const Duration(hours: 11)).millisecondsSinceEpoch ~/ 1000;
+
+    final double totalCost = double.tryParse(_amountController.text) ?? 250.0;
+    final double discountVal =
+        double.tryParse(_discountController.text) ?? 0.0;
+    final double paidVal = double.tryParse(_amountPaidController.text) ?? 12.0;
+    final double calculatedPayable =
+        (totalCost - discountVal - paidVal).clamp(0.0, double.infinity);
+
+    final request = CreateAppointmentRequest(
+      practitioners: _assignedPractitioners.map((p) {
+        return AppointmentPractitionerRequest(
+          id: p.id,
+          role: p.role,
+        );
+      }).toList(),
+      patientId: state.selectedPatient?.id ?? 12,
+      date: dateTimestamp,
+      startTime: startTimeStamp,
+      endTime: endTimeStamp,
+      appointmentTypeId: 1,
+      bookingType: _bookingMethod,
+      simulations: AppointmentSimulationsRequest(
+        frontImageBefore: _frontImageBeforeController.text.trim(),
+        frontImageAfter: _frontImageAfterController.text.trim(),
+        rightImageBefore: _rightImageBeforeController.text.trim(),
+        rightImageAfter: _rightImageAfterController.text.trim(),
+        leftImageBefore: _leftImageBeforeController.text.trim(),
+        leftImageAfter: _leftImageAfterController.text.trim(),
       ),
+      treatment: _selectedTreatments.map((t) {
+        return AppointmentTreatmentItemRequest(
+          treatmentId: t.id ?? 3,
+          areaId:
+              t.sideAreas?.isNotEmpty == true ? t.sideAreas!.first.id ?? 7 : 7,
+          treatmentCost: (t.price ?? 250).toDouble(),
+          material: AppointmentMaterialItemRequest(
+            id: 10,
+            selectedQuantity: 2,
+          ),
+        );
+      }).toList(),
+      treatmentTotal: totalCost,
+      paymentType: AppointmentPaymentTypeRequest(
+        type: _paymentType,
+        status: _paymentStatus,
+      ),
+      discountType: _discountType,
+      discount: discountVal,
+      amountPaid: paidVal,
+      payable: calculatedPayable,
     );
-    context.pop();
+
+    viewModel.createAppointment(request: request).then((success) {
+      if (mounted && success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Appointment created successfully!'),
+            backgroundColor: CustomColors.purple,
+          ),
+        );
+        context.pop();
+      }
+    });
+  }
+}
+
+class _PractitionerOption {
+  final int id;
+  final String name;
+  final String role;
+
+  _PractitionerOption({
+    required this.id,
+    required this.name,
+    required this.role,
+  });
+
+  _PractitionerOption copyWith({String? role}) {
+    return _PractitionerOption(
+      id: id,
+      name: name,
+      role: role ?? this.role,
+    );
   }
 }
