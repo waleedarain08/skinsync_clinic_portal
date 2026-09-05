@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import '../utils/theme.dart';
 import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
+import '../widgets/custom_primary_button.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
 import 'create_appointment_screen.dart';
@@ -165,6 +168,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+            );
+          }
+        });
       }
     });
   }
@@ -214,11 +226,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessages() {
-    return Consumer(
-      builder: (_, ref, _) {
-        final messages = ref.watch(
-          chatProvider.select((s) => s.messagesData?.messages),
-        );
+    ref.listen(
+      chatProvider.select((s) => s.messagesData?.messages?.length),
+      (previous, next) {
+        if (next != null && (previous == null || next > previous)) {
+          _scrollToBottom();
+        }
+      },
+    );
+
+    final messages = ref.watch(
+      chatProvider.select((s) => s.messagesData?.messages),
+    );
         if (messages?.isEmpty ?? true) {
           return const SizedBox.shrink();
         }
@@ -231,8 +250,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             return ChatMessageBubble(message: message);
           },
         );
-      },
-    );
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -639,6 +656,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ],
             ),
           ],
+
+          // Row 7: Action Button - Use This Request
+          context.verticalSpace(14),
+          const Divider(color: CustomColors.border, height: 1),
+          context.verticalSpace(12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: CustomPrimaryButton(
+              onTap: () {
+                final jsonStr = jsonEncode(req.toJson());
+                _sendMessage(
+                  customText: jsonStr,
+                  messageType: MessageType.sharedRequest,
+                );
+              },
+              label: 'Use This Request',
+              icon: Icons.send_rounded,
+              height: context.h(38),
+              width: context.w(180),
+            ),
+          ),
         ],
       ),
     );
