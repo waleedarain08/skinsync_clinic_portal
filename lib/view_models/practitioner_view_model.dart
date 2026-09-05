@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:country_code_picker/country_code_picker.dart';
@@ -20,6 +21,8 @@ import '../services/practitioner_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+
 final practitionerProvider =
     NotifierProvider.autoDispose<PractitionerViewModel, PractitionerState>(
       () => PractitionerViewModel._(),
@@ -28,11 +31,61 @@ final practitionerProvider =
 class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   PractitionerViewModel._();
   final ImagePicker _picker = ImagePicker();
+
+  late final PagingController<int, PractitionerListItem> pagingController;
+  Timer? _searchTimer;
+
   @override
   PractitionerState build() {
     init();
-    ref.onDispose(dispose);
+    pagingController = PagingController<int, PractitionerListItem>(
+      getNextPageKey: (pagingState) {
+        final keys = pagingState.keys;
+        if (keys == null || keys.isEmpty) {
+          return 1;
+        }
+        if (state.currentPage >= state.totalPages) {
+          return null;
+        }
+        return pagingState.nextIntPageKey;
+      },
+      fetchPage: (pageKey) async {
+        final data = await locator<PractitionerService>().fetchPractitioner(
+          page: pageKey,
+          search: state.searchQuery,
+        );
+
+        if (data != null) {
+          state = state.copyWith(
+            totalPages: data.totalPages,
+            currentPage: data.page,
+          );
+        }
+        return data?.items ?? [];
+      },
+    );
+
+    pagingController.addListener(_syncDoctors);
+
+    ref.onDispose(() {
+      _searchTimer?.cancel();
+      pagingController.removeListener(_syncDoctors);
+      pagingController.dispose();
+      dispose();
+    });
     return PractitionerState(country: CountryCode.fromCountryCode('US'));
+  }
+
+  void _syncDoctors() {
+    state = state.copyWith(doctors: pagingController.items ?? []);
+  }
+
+  void setSearchQuery(String query) {
+    state = state.copyWith(searchQuery: query);
+    _searchTimer?.cancel();
+    _searchTimer = Timer(const Duration(milliseconds: 500), () {
+      pagingController.refresh();
+    });
   }
 
   void changeRole(String? role) {
@@ -153,11 +206,34 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     });
   }
 
-  Future<void> getPractitioner({bool showLoading = true}) async {
+  Future<void> getPractitioner({
+    int page = 1,
+    String? search,
+    bool showLoading = true,
+  }) async {
     return await runSafely(() async {
-      state = state.copyWith(loading: showLoading);
-      final doctors = await locator<PractitionerService>().fetchPractitioner();
-      state = state.copyWith(loading: false, doctors: doctors);
+      state = state.copyWith(
+        loading: showLoading,
+        searchQuery: search ?? state.searchQuery,
+      );
+      final data = await locator<PractitionerService>().fetchPractitioner(
+        page: page,
+        search: state.searchQuery,
+      );
+
+      if (data != null) {
+        state = state.copyWith(
+          loading: false,
+          totalPages: data.totalPages,
+          currentPage: data.page,
+        );
+
+        pagingController.value = PagingState(
+          pages: [data.items],
+          keys: [page],
+          hasNextPage: data.page < data.totalPages,
+        );
+      }
     }, showLoading: false);
   }
 
@@ -236,20 +312,17 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     required AvailabilityInfo availabilityInfo,
     required FinancialInfo financialInfo,
     required String role,
-     required int practitionerID
+    required int practitionerID,
   }) async {
     return await runSafely(() async {
-
       await locator<PractitionerService>().updatePractitioner(
         request: UpdatePractitionerRequest(
-       
-         
           role: role,
           clinicAccess: clinicAccess,
           availabilityInfo: availabilityInfo,
           financialInfo: financialInfo,
         ),
-        practitionerID: practitionerID
+        practitionerID: practitionerID,
       );
 
       state = state.copyWith(loading: false, success: true);
@@ -306,6 +379,9 @@ class PractitionerState {
   final String? cc;
   final String? countryCode;
   final List<String> documents;
+  final int totalPages;
+  final int currentPage;
+  final String searchQuery;
 
   const PractitionerState({
     this.role,
@@ -321,6 +397,9 @@ class PractitionerState {
     this.countryCode,
     this.practitioner,
     this.fetchedPractitioner,
+    this.totalPages = 1,
+    this.currentPage = 1,
+    this.searchQuery = "",
   });
 
   PractitionerState copyWith({
@@ -337,6 +416,9 @@ class PractitionerState {
     List<String>? documents,
     Practitioner? practitioner,
     FetchedPractitionerData? fetchedPractitioner,
+    int? totalPages,
+    int? currentPage,
+    String? searchQuery,
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -352,6 +434,9 @@ class PractitionerState {
       documents: documents ?? this.documents,
       practitioner: practitioner ?? this.practitioner,
       fetchedPractitioner: fetchedPractitioner ?? this.fetchedPractitioner,
+      totalPages: totalPages ?? this.totalPages,
+      currentPage: currentPage ?? this.currentPage,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 
@@ -375,6 +460,9 @@ class PractitionerState {
       cc: cc,
       countryCode: countryCode,
       documents: documents ?? this.documents,
+      totalPages: totalPages,
+      currentPage: currentPage,
+      searchQuery: searchQuery,
     );
   }
 }
