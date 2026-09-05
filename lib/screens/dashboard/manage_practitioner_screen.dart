@@ -1,3 +1,4 @@
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,14 +34,13 @@ class _ManagePractitionerScreenState
     extends ConsumerState<ManagePractitionerScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  int _currentPage = 0;
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ref.read(practitionerProvider.notifier).getPractitioner(),
     );
+    super.initState();
   }
 
   @override
@@ -52,15 +52,7 @@ class _ManagePractitionerScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(practitionerProvider);
-
-    // Filter practitioners dynamically based on search query
-    final filteredDoctors = state.doctors.where((doc) {
-      final query = _searchQuery.toLowerCase();
-      return query.isEmpty ||
-          doc.name.toLowerCase().contains(query) ||
-          doc.email.toLowerCase().contains(query) ||
-          doc.specialization.toLowerCase().contains(query);
-    }).toList();
+    final vm = ref.watch(practitionerProvider.notifier);
 
     final content = SingleChildScrollView(
       padding: context.appEdgeInsets(horizontal: 28, vertical: 28),
@@ -73,9 +65,9 @@ class _ManagePractitionerScreenState
           context.verticalSpace(32),
           _buildFilters(context),
           context.verticalSpace(24),
-          _buildDoctorsTable(filteredDoctors, state.loading),
+          _buildDoctorsTable(vm, state),
           context.verticalSpace(24),
-          _buildFooterPaginator(),
+          _buildFooterPaginator(state),
         ],
       ),
     );
@@ -235,6 +227,9 @@ class _ManagePractitionerScreenState
                           setState(() {
                             _searchQuery = '';
                           });
+                          ref
+                              .read(practitionerProvider.notifier)
+                              .setSearchQuery('');
                         },
                       )
                     : null,
@@ -243,6 +238,7 @@ class _ManagePractitionerScreenState
                 setState(() {
                   _searchQuery = val;
                 });
+                ref.read(practitionerProvider.notifier).setSearchQuery(val);
               },
             ),
           ),
@@ -251,71 +247,87 @@ class _ManagePractitionerScreenState
     );
   }
 
-  Widget _buildDoctorsTable(
-    List<PractitionerListItem> doctors,
-    bool isLoading,
-  ) {
-    if (isLoading) {
-      return const Center(child: AppLoader());
-    }
-
-    if (doctors.isEmpty) {
-      return _buildEmptyState(context);
-    }
-
+  Widget _buildDoctorsTable(PractitionerViewModel vm, PractitionerState state) {
     return BorderdContainerWidget(
       padding: EdgeInsets.zero,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(context.r(12)),
-        child: Table(
-          columnWidths: const {
-            0: FlexColumnWidth(4), // Practitioner Name / Details
-            1: FlexColumnWidth(2.5), // Clinical Role
-            2: FlexColumnWidth(2), // Treatments Assigned
-            3: FlexColumnWidth(2), // Status
-            4: FlexColumnWidth(2), // Actions
-          },
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        child: Column(
           children: [
-            // Header Row
-            TableRow(
-              decoration: const BoxDecoration(
-                color: CustomColors.whiteGrey,
-                border: Border(bottom: BorderSide(color: CustomColors.border)),
-              ),
-              children: [
-                _tableHeaderCell('Provider NAME'),
-                _tableHeaderCell('CLINICAL ROLE'),
-                _tableHeaderCell('ASSIGNED TREATMENTS'),
-                _tableHeaderCell('STATUS'),
-                _tableHeaderCell('ACTIONS'),
-              ],
+            _buildTableHeader(),
+            ValueListenableBuilder<PagingState<int, PractitionerListItem>>(
+              valueListenable: vm.pagingController,
+              builder: (context, pagingState, _) {
+                return PagedListView<int, PractitionerListItem>(
+                  state: pagingState,
+                  fetchNextPage: vm.pagingController.fetchNextPage,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  builderDelegate:
+                      PagedChildBuilderDelegate<PractitionerListItem>(
+                        itemBuilder: (context, item, index) =>
+                            _buildDataRow(item),
+                        noItemsFoundIndicatorBuilder: (_) =>
+                            _buildEmptyState(context),
+                        firstPageProgressIndicatorBuilder: (_) =>
+                            const Center(child: AppLoader()),
+                        newPageProgressIndicatorBuilder: (_) => const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      ),
+                );
+              },
             ),
-            // Data Rows
-            ...doctors.map((d) {
-              return TableRow(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: CustomColors.border),
-                  ),
-                ),
-                children: [
-                  _practitionerNameCell(d),
-                  _tableTextCell(
-                    d.specialization,
-                    style: context.fonts.black14w600,
-                  ),
-                  _tableTextCell(
-                    '${d.treatmentCount} Services',
-                    style: context.fonts.grey14w400,
-                  ),
-                  _statusBadgeCell(d),
-                  _actionsCell(d),
-                ],
-              );
-            }),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTableHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: CustomColors.whiteGrey,
+        border: Border(bottom: BorderSide(color: CustomColors.border)),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 40, child: _tableHeaderCell('Provider NAME')),
+          Expanded(flex: 25, child: _tableHeaderCell('CLINICAL ROLE')),
+          Expanded(flex: 20, child: _tableHeaderCell('ASSIGNED TREATMENTS')),
+          Expanded(flex: 20, child: _tableHeaderCell('STATUS')),
+          Expanded(flex: 20, child: _tableHeaderCell('ACTIONS')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDataRow(PractitionerListItem d) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: CustomColors.border)),
+      ),
+      child: Row(
+        children: [
+          Expanded(flex: 40, child: _practitionerNameCell(d)),
+          Expanded(
+            flex: 25,
+            child: _tableTextCell(
+              d.role ?? '',
+              style: context.fonts.black14w600,
+            ),
+          ),
+          Expanded(
+            flex: 20,
+            child: _tableTextCell(
+              '${d.treatmentCount} Services',
+              style: context.fonts.grey14w400,
+            ),
+          ),
+          Expanded(flex: 20, child: _statusBadgeCell(d)),
+          Expanded(flex: 20, child: _actionsCell(d)),
+        ],
       ),
     );
   }
@@ -523,6 +535,7 @@ class _ManagePractitionerScreenState
                     setState(() {
                       _searchQuery = '';
                     });
+                    ref.read(practitionerProvider.notifier).setSearchQuery('');
                   },
                   label: 'Clear Search Filter',
                 ),
@@ -543,15 +556,15 @@ class _ManagePractitionerScreenState
     );
   }
 
-  Widget _buildFooterPaginator() {
+  Widget _buildFooterPaginator(PractitionerState state) {
     return Center(
       child: NumberPaginator(
-        totalPages: 1,
-        currentPage: _currentPage,
+        totalPages: state.totalPages,
+        currentPage: state.currentPage - 1,
         onPageChanged: (pageIndex) {
-          setState(() {
-            _currentPage = pageIndex;
-          });
+          ref
+              .read(practitionerProvider.notifier)
+              .getPractitioner(page: pageIndex + 1, search: _searchQuery);
         },
       ),
     );

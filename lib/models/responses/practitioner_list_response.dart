@@ -9,7 +9,9 @@ class PractitionerListResponse extends BaseResponse<PractitionerListData> {
 
   factory PractitionerListResponse.fromJson(Map<String, dynamic> json) =>
       PractitionerListResponse(
-        data: json["data"] == null ? null : PractitionerListData.fromJson(json["data"]),
+        data: json["data"] == null
+            ? null
+            : PractitionerListData.fromJson(json["data"]),
         success: json["is_success"] ?? false,
         message: json["message"] ?? "",
       );
@@ -30,10 +32,13 @@ class PractitionerListData {
     required this.totalPages,
   });
 
-  factory PractitionerListData.fromJson(Map<String, dynamic> json) => PractitionerListData(
+  factory PractitionerListData.fromJson(Map<String, dynamic> json) =>
+      PractitionerListData(
         items: json["items"] == null
             ? []
-            : List<PractitionerListItem>.from(json["items"].map((x) => PractitionerListItem.fromJson(x))),
+            : List<PractitionerListItem>.from(
+                json["items"].map((x) => PractitionerListItem.fromJson(x)),
+              ),
         limit: json["limit"] ?? 0,
         page: json["page"] ?? 0,
         total: json["total"] ?? 0,
@@ -51,6 +56,7 @@ class PractitionerListItem {
   final String email;
   final String phone;
   final String cc;
+  final String? role;
   final String country;
   final String licenseExpiryDate;
   final int treatmentCount;
@@ -63,6 +69,7 @@ class PractitionerListItem {
     required this.title,
     required this.image,
     required this.specialization,
+    this.role,
     required this.email,
     required this.phone,
     required this.cc,
@@ -72,7 +79,8 @@ class PractitionerListItem {
     required this.appointmentCount,
   });
 
-  factory PractitionerListItem.fromJson(Map<String, dynamic> json) => PractitionerListItem(
+  factory PractitionerListItem.fromJson(Map<String, dynamic> json) =>
+      PractitionerListItem(
         id: json["id"] ?? 0,
         status: json["status"] ?? "",
         name: json["name"] ?? "",
@@ -81,6 +89,7 @@ class PractitionerListItem {
         specialization: json["specialization"] ?? "",
         email: json["email"] ?? "",
         phone: json["phone"] ?? "",
+        role: json['role'],
         cc: json["cc"] ?? "",
         country: json["country"] ?? "",
         licenseExpiryDate: json["license_expiry_date"] ?? "",

@@ -11,7 +11,11 @@ import '../models/responses/register_practitioner_response.dart';
 abstract class PractitionerRepository {
   Future<Practitioner> register({required RegisterPractitionerRequest request});
 
-  Future<List<PractitionerListItem>> fetchPractitioner();
+  Future<PractitionerListData?> fetchPractitioner({
+    int page = 1,
+    int limit = 10,
+    String? search,
+  });
 
   Future<PractitionerDetailResponse> fetchPractitionerDetail({required int id});
 
@@ -24,7 +28,7 @@ abstract class PractitionerRepository {
 
   Future<void> updatePractitioner({
     required UpdatePractitionerRequest request,
-    required int practitionerID
+    required int practitionerID,
   });
 
   Future<FetchPractitionerByEmailResponse> fetchPractitionerByEmail({

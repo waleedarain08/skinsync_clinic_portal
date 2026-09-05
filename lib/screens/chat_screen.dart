@@ -163,19 +163,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
         Future.delayed(const Duration(milliseconds: 200), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-            );
-          }
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
         });
       }
     });
@@ -226,30 +219,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessages() {
-    ref.listen(
-      chatProvider.select((s) => s.messagesData?.messages?.length),
-      (previous, next) {
-        if (next != null && (previous == null || next > previous)) {
-          _scrollToBottom();
-        }
-      },
-    );
+    ref.listen(chatProvider.select((s) => s.messagesData?.messages?.length), (
+      previous,
+      next,
+    ) {
+      if (next != null && (previous == null || next > previous)) {
+        _scrollToBottom();
+      }
+    });
 
     final messages = ref.watch(
       chatProvider.select((s) => s.messagesData?.messages),
     );
-        if (messages?.isEmpty ?? true) {
-          return const SizedBox.shrink();
-        }
-        return ListView.builder(
-          controller: _scrollController,
-          padding: context.appEdgeInsets(horizontal: 20, vertical: 12),
-          itemCount: messages!.length,
-          itemBuilder: (context, index) {
-            final message = messages[index];
-            return ChatMessageBubble(message: message);
-          },
-        );
+    if (messages?.isEmpty ?? true) {
+      return const SizedBox.shrink();
+    }
+    return ListView.builder(
+      controller: _scrollController,
+      padding: context.appEdgeInsets(horizontal: 20, vertical: 12),
+      reverse: true,
+      itemCount: messages!.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        return ChatMessageBubble(message: message);
+      },
+    );
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -309,10 +303,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        displayName,
-                        style: context.fonts.black18w600,
-                      ),
+                      Text(displayName, style: context.fonts.black18w600),
                       context.horizontalSpace(8),
                       Container(
                         padding: context.appEdgeInsets(
@@ -324,10 +315,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           borderRadius: BorderRadius.circular(context.r(12)),
                           border: Border.all(color: CustomColors.border),
                         ),
-                        child: Text(
-                          displayId,
-                          style: context.fonts.grey11w600,
-                        ),
+                        child: Text(displayId, style: context.fonts.grey11w600),
                       ),
                     ],
                   ),
@@ -345,7 +333,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Text('•', style: context.fonts.grey12w400),
                       context.horizontalSpace(8),
                       Text(
-                        req != null ? 'Option: ${req.name}' : 'Botox & Facial Treatment',
+                        req != null
+                            ? 'Option: ${req.name}'
+                            : 'Botox & Facial Treatment',
                         style: context.fonts.grey12w400,
                       ),
                     ],
@@ -441,12 +431,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     BuildContext context,
     PatientTreatmentRequestData req,
   ) {
-    final String refId =
-        req.referenceId != null ? '#${req.referenceId}' : '#${req.id}';
-    final String patientName =
-        req.patientName?.isNotEmpty == true ? req.patientName! : 'Patient';
-    final String patientEmail =
-        req.patientEmail?.isNotEmpty == true ? req.patientEmail! : 'N/A';
+    final String refId = req.referenceId != null
+        ? '#${req.referenceId}'
+        : '#${req.id}';
+    final String patientName = req.patientName?.isNotEmpty == true
+        ? req.patientName!
+        : 'Patient';
+    final String patientEmail = req.patientEmail?.isNotEmpty == true
+        ? req.patientEmail!
+        : 'N/A';
     final hasSlots =
         req.preferredSlots != null && req.preferredSlots!.isNotEmpty;
     final hasMedicalHistory = req.medicalHistory != null;
@@ -464,8 +457,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Row(
                 children: [
                   Container(
-                    padding:
-                        context.appEdgeInsets(horizontal: 10, vertical: 4),
+                    padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: CustomColors.purple,
                       borderRadius: BorderRadius.circular(context.r(12)),
@@ -520,8 +512,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             context.verticalSpace(12),
             const Divider(color: CustomColors.border, height: 1),
             context.verticalSpace(10),
-            Text('Requested Treatments & Areas:',
-                style: context.fonts.black12w600),
+            Text(
+              'Requested Treatments & Areas:',
+              style: context.fonts.black12w600,
+            ),
             context.verticalSpace(6),
             Wrap(
               spacing: context.w(8),
@@ -532,8 +526,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ? ' (\$${a.price!.toStringAsFixed(0)})'
                       : '';
                   return Container(
-                    padding:
-                        context.appEdgeInsets(horizontal: 10, vertical: 4),
+                    padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: CustomColors.white,
                       borderRadius: BorderRadius.circular(context.r(8)),
@@ -570,8 +563,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               runSpacing: context.h(6),
               children: req.preferredSlots!.map((slot) {
                 return Container(
-                  padding:
-                      context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: CustomColors.white,
                     borderRadius: BorderRadius.circular(context.r(8)),
@@ -637,21 +629,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               children: [
                 if (req.frontImageBefore != null)
                   _buildSimulationThumbnail(
-                      context, 'Front Before', req.frontImageBefore!),
+                    context,
+                    'Front Before',
+                    req.frontImageBefore!,
+                  ),
                 if (req.frontImageAfter != null) ...[
                   context.horizontalSpace(8),
                   _buildSimulationThumbnail(
-                      context, 'Front After', req.frontImageAfter!),
+                    context,
+                    'Front After',
+                    req.frontImageAfter!,
+                  ),
                 ],
                 if (req.rightImageBefore != null) ...[
                   context.horizontalSpace(8),
                   _buildSimulationThumbnail(
-                      context, 'Right Before', req.rightImageBefore!),
+                    context,
+                    'Right Before',
+                    req.rightImageBefore!,
+                  ),
                 ],
                 if (req.rightImageAfter != null) ...[
                   context.horizontalSpace(8),
                   _buildSimulationThumbnail(
-                      context, 'Right After', req.rightImageAfter!),
+                    context,
+                    'Right After',
+                    req.rightImageAfter!,
+                  ),
                 ],
               ],
             ),

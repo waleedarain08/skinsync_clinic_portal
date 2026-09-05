@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../main.dart';
 import '../../models/responses/administration_staff_response.dart';
 import '../../view_models/administration_staff_view_model.dart';
@@ -10,7 +11,6 @@ import '../../widgets/status_toggle_switch.dart';
 import '../../utils/theme.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/gradient_scaffold.dart';
-
 import 'add_administration_staff_screen.dart';
 import 'administration_staff_detail_screen.dart';
 import 'manage_practitioner_screen.dart';
@@ -43,23 +43,23 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           if(!isDeploymentMode)
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.w(28),
-              vertical: context.h(20),
+          if (!isDeploymentMode)
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.w(28),
+                vertical: context.h(20),
+              ),
+              child: Row(
+                children: [
+                  _mainTabItem("Providers", 0),
+                  SizedBox(width: context.w(32)),
+
+                  _mainTabItem("Administration Staff", 1),
+                ],
+              ),
             ),
-            child: Row(
-              children: [
-                _mainTabItem("Providers", 0),
-                SizedBox(width: context.w(32)),
-               
-                _mainTabItem("Administration Staff", 1),
-              ],
-            ),
-          ),
-           if(!isDeploymentMode)
-          const Divider(color: CustomColors.border, height: 1),
+          if (!isDeploymentMode)
+            const Divider(color: CustomColors.border, height: 1),
           Expanded(
             child: _selectedMainTab == 0
                 ? const ManagePractitionerScreen(showScaffold: false)
@@ -188,7 +188,10 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
     );
   }
 
-  Widget _buildStaffTable(List<AdministrationStaffListItem> staff, bool isLoading) {
+  Widget _buildStaffTable(
+    List<AdministrationStaffListItem> staff,
+    bool isLoading,
+  ) {
     if (isLoading) {
       return const Center(child: AppLoader());
     }
@@ -197,7 +200,10 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
       return Center(
         child: Padding(
           padding: context.appEdgeInsets(vertical: 48),
-          child: Text("No staff members found", style: context.fonts.grey14w400),
+          child: Text(
+            "No staff members found",
+            style: context.fonts.grey14w400,
+          ),
         ),
       );
     }
@@ -238,10 +244,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
                 ),
                 children: [
                   _staffNameCell(s),
-                  _tableTextCell(
-                    s.role,
-                    style: context.fonts.black14w600,
-                  ),
+                  _tableTextCell(s.role, style: context.fonts.black14w600),
                   _statusBadgeCell(s),
                   _actionsCell(s),
                 ],
@@ -271,7 +274,11 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
           CircleAvatar(
             radius: context.r(21),
             backgroundColor: CustomColors.softGrey,
-            child: Icon(Icons.person, size: context.r(20), color: CustomColors.grey),
+            child: Icon(
+              Icons.person,
+              size: context.r(20),
+              color: CustomColors.grey,
+            ),
           ),
           context.horizontalSpace(16),
           Expanded(
@@ -319,7 +326,9 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
         width: context.w(110),
         height: context.h(32),
         onChanged: (newStatus) {
-          ref.read(administrationStaffProvider.notifier).updateStaffStatus(s.id, newStatus);
+          ref
+              .read(administrationStaffProvider.notifier)
+              .updateStaffStatus(s.id, newStatus);
         },
       ),
     );
@@ -340,7 +349,9 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               size: 20,
             ),
             onPressed: () async {
-              await ref.read(administrationStaffProvider.notifier).getStaffDetail(s.id);
+              await ref
+                  .read(administrationStaffProvider.notifier)
+                  .getStaffDetail(s.id);
               if (context.mounted) {
                 context.push(AdministrationStaffDetailScreen.routeName);
               }

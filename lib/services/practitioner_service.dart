@@ -33,16 +33,28 @@ class PractitionerService extends PractitionerRepository {
   }
 
   @override
-  Future<List<PractitionerListItem>> fetchPractitioner() async {
+  Future<PractitionerListData?> fetchPractitioner({
+    int page = 1,
+    int limit = 10,
+    String? search,
+  }) async {
+    final Map<String, String?> queryParams = {
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.getPractitioners,
       requestType: RequestType.get,
+      queryParams: queryParams,
     );
     final model = PractitionerListResponse.fromJson(response);
     if (!model.success) {
       throw Exception(model.message);
     }
-    return model.data?.items ?? [];
+    return model.data;
   }
 
   @override
@@ -96,13 +108,13 @@ class PractitionerService extends PractitionerRepository {
   @override
   Future<void> updatePractitioner({
     required UpdatePractitionerRequest request,
-    required int practitionerID
+    required int practitionerID,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.practitionersID,
       requestType: RequestType.patch,
       requestBody: request,
-      pathParams: {'id':practitionerID.toString()}
+      pathParams: {'id': practitionerID.toString()},
     );
 
     if (response['is_success'] != true) {
