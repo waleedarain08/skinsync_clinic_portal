@@ -198,7 +198,11 @@ class _SimulationTreatmentRequestCardState
                       ref
                           .read(chatProvider.notifier)
                           .selectChat(Chat(id: request.chatId));
-                      context.pushNamed(ChatScreen.routeName);
+                      context.pushNamed(
+                        ChatScreen.routeName,
+                        queryParameters: {'showBackButton': 'true'},
+                        extra: request,
+                      );
                     },
                   );
                 },
