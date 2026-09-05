@@ -63,6 +63,7 @@ class SessionDetailDto {
 
   // New MaterialsStep Redesign properties
   final int? selectedUnitTypeId;
+  final String? selectedUnitTypeName;
   final double? minimumUnits;
   final double? maximumUnits;
   final List<int> otherMaterials;
@@ -110,6 +111,7 @@ class SessionDetailDto {
     required this.followUps,
     this.preTreatmentConsentForm,
     this.selectedUnitTypeId,
+    this.selectedUnitTypeName,
     this.minimumUnits,
     this.maximumUnits,
     required this.otherMaterials,
@@ -204,6 +206,7 @@ class SessionDetailDto {
           ? SessionAttachmentDto.fromJson(json['pre_treatment_consent_form'])
           : null,
       selectedUnitTypeId: json['selected_unit_type_id'] as int?,
+      selectedUnitTypeName: json['selected_unit_type_name'],
       minimumUnits: (json['minimum_units'] as num?)?.toDouble() ?? 0.0,
       maximumUnits: (json['maximum_units'] as num?)?.toDouble() ?? 0.0,
       otherMaterials:

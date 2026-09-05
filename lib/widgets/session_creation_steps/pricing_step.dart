@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/session_view_model.dart';
@@ -68,18 +66,16 @@ class PricingStep extends ConsumerWidget {
                   ),
                 ),
                 Switch(
-                  value: 
-                  state.isFixedPrice,
+                  value: state.isFixedPrice,
                   onChanged: viewModel.toggleIsFixedPrice,
-                  activeThumbColor: CustomColors.white,
+                  activeColor: CustomColors.white,
                 ),
               ],
             ),
           ),
         ),
-       context.verticalSpace(32),
+        context.verticalSpace(32),
         if (state.isFixedPrice) ...[
-        // if (true) ...[
           _sectionTitle(context, 'Fixed Pricing'),
           context.verticalSpace(24),
           BuildTextField(
@@ -89,8 +85,7 @@ class PricingStep extends ConsumerWidget {
             keyboardType: TextInputType.number,
             validator: Validators.empty,
           ),
-        ] 
-        else ...[
+        ] else ...[
           _sectionTitle(context, 'Base Pricing'),
           context.verticalSpace(24),
           BuildTextField(
@@ -110,14 +105,10 @@ class PricingStep extends ConsumerWidget {
             ),
             context.verticalSpace(24),
             ...state.productUsageEntries.map((entry) {
-              final parsedMaxQty =
-                  (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
-                      .ceil();
-              // Keep one controller available because the non-differentiated
-              // pricing field uses unitPriceControllers[0].
-              final maxQty = parsedMaxQty < 1 ? 1 : parsedMaxQty;
+              final maxQty = viewModel.getProductMaxQuantity(entry).ceil();
+              final effectiveMaxQty = maxQty < 1 ? 1 : maxQty;
               final formattedUnit = _formatUnitLabel(entry.unit);
-              entry.syncUnitPriceControllers(maxQty);
+              entry.syncUnitPriceControllers(effectiveMaxQty);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 24),
@@ -163,7 +154,7 @@ class PricingStep extends ConsumerWidget {
                                 // Trigger rebuild inside the provider to reflect changes
                                 ref.read(sessionViewModelProvider.notifier).syncUnitPriceControllersForState();
                               },
-                              activeThumbColor: CustomColors.white,
+                              activeColor: CustomColors.white,
                             ),
                           ],
                         ),
@@ -203,7 +194,6 @@ class PricingStep extends ConsumerWidget {
             }),
           ],
         ],
-      
         context.verticalSpace(32),
         const Divider(),
         context.verticalSpace(24),

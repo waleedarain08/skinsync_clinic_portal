@@ -408,38 +408,41 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
                 ),
               ],
             ),
-            context.verticalSpace(20),
-            Row(
-              children: [
-                Expanded(
-                  child: BuildTextField(
-                    label: 'Min Quantity (${entry.unit})',
-                    controller: entry.minQuantityController,
-                    hintText: '1',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    onChanged: (val) {
-                      setState(() {});
-                    },
-                  ),
-                ),
-                context.horizontalSpace(16),
-                Expanded(
-                  child: BuildTextField(
-                    label: 'Max Quantity (${entry.unit})',
-                    controller: entry.maxQuantityController,
-                    hintText: '10',
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    onChanged: (val) {
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ],
-            ),
+            // context.verticalSpace(20),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: BuildTextField(
+            //         readOnly: true,
+            //         label: 'Min Quantity (${entry.unit})',
+            //         controller: entry.minQuantityController,
+            //         hintText: '1',
+            //         keyboardType: const TextInputType.numberWithOptions(
+            //           decimal: true,
+            //         ),
+            //         onChanged: (val) {
+            //           setState(() {});
+            //         },
+            //       ),
+            //     ),
+            //     context.horizontalSpace(16),
+            //     Expanded(
+            //       child: BuildTextField(
+            //         readOnly: true,
+            //         label: 'Max Quantity (${entry.unit})',
+            //         controller: entry.maxQuantityController,
+            //         hintText: '10',
+            //         keyboardType: const TextInputType.numberWithOptions(
+            //           decimal: true,
+            //         ),
+            //         onChanged: (val) {
+            //           setState(() {});
+            //         },
+            //       ),
+            //     ),
+            //   ],
+            // ),
+           
             context.verticalSpace(20),
             BuildTextField(
               label: 'Usage Notes (Optional)',
@@ -458,10 +461,11 @@ class _MaterialsStepState extends ConsumerState<MaterialsStep> {
     final state = ref.watch(sessionViewModelProvider);
     final viewModel = ref.read(sessionViewModelProvider.notifier);
 
-    // Fixed placeholders for Unit configuration (can be connected to API later)
-    const String unitTypeName = 'Unit';
-    const double minUnits = 1.0;
-    const double maxUnits = 10.0;
+    final unitTypeName = state.selectedUnitTypeName ?? 'Unit';
+    final minUnits =
+      double.tryParse(viewModel.minUnitsController.text) ?? 0.0;
+    final maxUnits =
+      double.tryParse(viewModel.maxUnitsController.text) ?? 0.0;
 
     const String minLabel = 'Unit';
     const String maxLabel = 'Units';
