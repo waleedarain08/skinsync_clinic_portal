@@ -20,24 +20,21 @@ class SchedulingStep extends ConsumerWidget {
     );
   }
 
-  double _getProductMinQuantity(
-    ProductUsageEntry entry,
-    List<dynamic> allSubAreas,
-  ) {
+  double _getProductMinQuantity(ProductUsageEntry entry) {
     return double.tryParse(entry.minQuantityController.text) ?? 0.0;
   }
 
-  // double _getProductMaxQuantity(
-  //   ProductUsageEntry entry,
-  //   List<dynamic> allSubAreas,
-  // ) {
-  //   return double.tryParse(entry.maxQuantityController.text) ?? 0.0;
-  // }
+  double _getProductMaxQuantity(ProductUsageEntry entry) {
+    return double.tryParse(entry.maxQuantityController.text) ?? 1.0;
+  }
 
-  double _calculateProductUsageDuration(TreatmentState treatmentState, SessionState sessionState) {
+  double _calculateProductUsageDuration(
+    TreatmentState treatmentState,
+    SessionState sessionState,
+  ) {
     double total = 0.0;
     for (final entry in sessionState.productUsageEntries) {
-      final minQty = _getProductMinQuantity(entry, const []);
+      final minQty = _getProductMinQuantity(entry);
       final perUnit =
           double.tryParse(entry.perUnitDurationController.text) ?? 0.0;
       total += minQty * perUnit;
@@ -154,9 +151,14 @@ class SchedulingStep extends ConsumerWidget {
             ...state.productUsageEntries.asMap().entries.map((item) {
               final idx = item.key;
               final entry = item.value;
-              // final allSubAreas = treatmentState.areas.expand((a) => a.subAreas).toList();
-              // final minQty = _getProductMinQuantity(entry, allSubAreas);
-              // final maxQty = _getProductMaxQuantity(entry, allSubAreas);
+              final minQty = _getProductMinQuantity(entry);
+              final maxQty = _getProductMaxQuantity(entry);
+              final minStr = minQty % 1 == 0
+                  ? minQty.toInt().toString()
+                  : minQty.toStringAsFixed(1);
+              final maxStr = maxQty % 1 == 0
+                  ? maxQty.toInt().toString()
+                  : maxQty.toStringAsFixed(1);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -179,8 +181,7 @@ class SchedulingStep extends ConsumerWidget {
                           style: context.fonts.grey13w500,
                         ),
                         Text(
-                          '  Min Qty: 0 | Max Qty:  1',
-                          //'Min Qty: ${minQty.toStringAsFixed(minQty % 1 == 0 ? 0 : 1)} | Max Qty: ${maxQty.toStringAsFixed(maxQty % 1 == 0 ? 0 : 1)}',
+                          'Min Qty: $minStr | Max Qty: $maxStr',
                           style: context.fonts.grey13w500,
                         ),
                       ],
