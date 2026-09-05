@@ -1,7 +1,9 @@
 
 
+import '../models/requests/create_appointment_request.dart';
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
+import '../models/responses/base_response_model.dart';
 import '../models/responses/filters_response.dart';
 
 abstract class AppointmentRepository {
@@ -15,7 +17,7 @@ abstract class AppointmentRepository {
   Future<AppointmentDetailResponse> appointmentDetail({required int id});
   Future<FiltersResponse> getAppointmentTypes();
   Future<FiltersResponse> getAppointmentStatus();
-  
-
-
+  Future<BaseResponse> createAppointment({
+    required CreateAppointmentRequest request,
+  });
 }
