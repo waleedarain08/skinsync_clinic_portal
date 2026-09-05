@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,16 +8,19 @@ import '../models/responses/chats_response.dart';
 import '../models/responses/messages_response.dart';
 import '../repositories/chat_repository.dart';
 import '../services/locator.dart';
+import '../services/storage_service.dart';
+import '../services/websocket_service.dart';
 import '../utils/enums.dart';
 import '../utils/exception.dart';
 import 'base_view_model.dart';
 
-final chatProvider = NotifierProvider(() {
+final chatProvider = NotifierProvider.autoDispose<ChatViewModel, ChatState>(() {
   return ChatViewModel(repo: locator<ChatRepository>());
 });
 
 class ChatViewModel extends BaseViewModel<ChatState> {
   final ChatRepository _repo;
+  StreamSubscription<WsEvent>? _wsSubscription;
 
   ChatViewModel({required this._repo});
 
@@ -42,37 +47,54 @@ class ChatViewModel extends BaseViewModel<ChatState> {
       EasyLoading.show(status: 'Loading messages...');
       final data = await _repo.getMessages(chatId: chatId);
       state = state.copyWith(messagesData: data, loading: false);
-      await openChatSocket();
       EasyLoading.dismiss();
     });
   }
 
-  Future<void> openChatSocket() async {
-    final chatId = state.selectedChat?.id;
-    if (chatId == null) {
-      return;
-    }
+  Future<void> addMessage(Message message) async {
+    final existingMessages = List<Message>.from(
+      state.messagesData?.messages ?? <Message>[],
+    );
+    final alreadyExists = existingMessages.any((m) => m.id == message.id);
+    if (alreadyExists) return;
+    final user = await SecureStorageService().getUser();
 
-    await _repo.connectChatSocket(
-      chatId: chatId,
-      onMessage: (message) {
-        final existingMessages = List<Message>.from(
-          state.messagesData?.messages ?? <Message>[],
-        );
-        final alreadyExists = existingMessages.any((m) => m.id == message.id);
-        if (alreadyExists) {
-          return;
-        }
-
-        final updatedMessages = [message, ...existingMessages];
-        final currentData =
-            state.messagesData ?? MessagesData(messages: const []);
-        state = state.copyWith(
-          messagesData: currentData.copyWith(messages: updatedMessages),
-        );
-      },
+    final updatedMessages = [
+      message.copyWith(userId: user?.id),
+      ...existingMessages,
+    ];
+    final currentData = state.messagesData ?? MessagesData(messages: const []);
+    state = state.copyWith(
+      messagesData: currentData.copyWith(messages: updatedMessages),
     );
   }
+
+  // Future<void> openChatSocket() async {
+  //   final chatId = state.selectedChat?.id;
+  //   if (chatId == null) return;
+  //
+  //   final user = await locator<SecureStorageService>().getUser();
+  //   await WebSocketService().connect();
+  //
+  //   await _wsSubscription?.cancel();
+  //   _wsSubscription = WebSocketService().events.listen((wsEvent) {
+  //     if (wsEvent.type != EventType.chat) return;
+  //     try {
+  //       final message = Message.fromJson(wsEvent.data).copyWith(userId: user?.id);
+  //       final existingMessages = List<Message>.from(state.messagesData?.messages ?? <Message>[]);
+  //       final alreadyExists = existingMessages.any((m) => m.id == message.id);
+  //       if (alreadyExists) return;
+  //
+  //       final updatedMessages = [message, ...existingMessages];
+  //       final currentData = state.messagesData ?? MessagesData(messages: const []);
+  //       state = state.copyWith(
+  //         messagesData: currentData.copyWith(messages: updatedMessages),
+  //       );
+  //     } catch (_) {
+  //       // ignore parse errors
+  //     }
+  //   });
+  // }
 
   Future<void> sendChatMessage({
     required MessageType type,
@@ -101,11 +123,15 @@ class ChatViewModel extends BaseViewModel<ChatState> {
   }
 
   Future<void> clearSelectedChatAndMessages() async {
-    final chatId = state.selectedChat?.id;
-    if (chatId != null) {
-      await _repo.closeChatSocket(chatId: chatId);
-    }
+    await _wsSubscription?.cancel();
+    _wsSubscription = null;
     state = state.copyWithNull(selectedChat: true, messagesData: true);
+  }
+
+  @override
+  void dispose() {
+    _wsSubscription?.cancel();
+    super.dispose();
   }
 }
 

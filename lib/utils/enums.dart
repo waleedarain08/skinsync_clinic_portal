@@ -332,3 +332,20 @@ enum AiChatMessageType {
     );
   }
 }
+
+enum EventType {
+  chat('chat'),
+  subscription('subscription');
+
+  final String value;
+  const EventType(this.value);
+
+  static EventType fromValue(String? value) {
+    if (value == null) return EventType.chat;
+    final val = value.toLowerCase();
+    return EventType.values.firstWhere(
+      (e) => e.value.toLowerCase() == val,
+      orElse: () => EventType.chat,
+    );
+  }
+}

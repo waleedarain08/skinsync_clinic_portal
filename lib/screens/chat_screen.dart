@@ -163,19 +163,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
         Future.delayed(const Duration(milliseconds: 200), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-            );
-          }
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
         });
       }
     });
@@ -226,31 +219,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessages() {
-    ref.listen(
-      chatProvider.select((s) => s.messagesData?.messages?.length),
-      (previous, next) {
-        if (next != null && (previous == null || next > previous)) {
-          _scrollToBottom();
-        }
-      },
-    );
+    ref.listen(chatProvider.select((s) => s.messagesData?.messages?.length), (
+      previous,
+      next,
+    ) {
+      if (next != null && (previous == null || next > previous)) {
+        _scrollToBottom();
+      }
+    });
 
     final messages = ref.watch(
       chatProvider.select((s) => s.messagesData?.messages),
     );
-        if (messages?.isEmpty ?? true) {
-          return const SizedBox.shrink();
-        }
-        return ListView.builder(
-          controller: _scrollController,
-          padding: context.appEdgeInsets(horizontal: 20, vertical: 12),
-          reverse: true,
-          itemCount: messages!.length,
-          itemBuilder: (context, index) {
-            final message = messages[index];
-            return ChatMessageBubble(message: message);
-          },
-        );
+    if (messages?.isEmpty ?? true) {
+      return const SizedBox.shrink();
+    }
+    return ListView.builder(
+      controller: _scrollController,
+      padding: context.appEdgeInsets(horizontal: 20, vertical: 12),
+      reverse: true,
+      itemCount: messages!.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        return ChatMessageBubble(message: message);
+      },
+    );
   }
 
   Widget _buildHeader(BuildContext context) {
