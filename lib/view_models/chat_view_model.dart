@@ -69,33 +69,6 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     );
   }
 
-  // Future<void> openChatSocket() async {
-  //   final chatId = state.selectedChat?.id;
-  //   if (chatId == null) return;
-  //
-  //   final user = await locator<SecureStorageService>().getUser();
-  //   await WebSocketService().connect();
-  //
-  //   await _wsSubscription?.cancel();
-  //   _wsSubscription = WebSocketService().events.listen((wsEvent) {
-  //     if (wsEvent.type != EventType.chat) return;
-  //     try {
-  //       final message = Message.fromJson(wsEvent.data).copyWith(userId: user?.id);
-  //       final existingMessages = List<Message>.from(state.messagesData?.messages ?? <Message>[]);
-  //       final alreadyExists = existingMessages.any((m) => m.id == message.id);
-  //       if (alreadyExists) return;
-  //
-  //       final updatedMessages = [message, ...existingMessages];
-  //       final currentData = state.messagesData ?? MessagesData(messages: const []);
-  //       state = state.copyWith(
-  //         messagesData: currentData.copyWith(messages: updatedMessages),
-  //       );
-  //     } catch (_) {
-  //       // ignore parse errors
-  //     }
-  //   });
-  // }
-
   Future<void> sendChatMessage({
     required MessageType type,
     required String content,

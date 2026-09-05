@@ -44,8 +44,12 @@
 //   });
 // }
 
+import 'dart:convert';
+import 'dart:developer';
+
 import '../../utils/enums.dart';
 import 'base_response_model.dart';
+import 'patient_treatment_request_response.dart';
 
 class MessagesResponse extends BaseResponse<MessagesData> {
   const MessagesResponse({
@@ -188,6 +192,21 @@ class Message {
 
   bool get isMe {
     return userId == senderId;
+  }
+
+  PatientTreatmentRequestData? get sharedRequestData {
+    try {
+      if (type != .sharedRequest) {
+        return null;
+      }
+      if (content == null) {
+        return null;
+      }
+      return .fromJson(jsonDecode(content!));
+    } catch (e, s) {
+      log('Error: $e', stackTrace: s);
+      return null;
+    }
   }
 }
 

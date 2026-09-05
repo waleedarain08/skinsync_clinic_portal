@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:before_after/before_after.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -27,19 +26,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
   @override
   Widget build(BuildContext context) {
     final isMe = widget.message.isMe;
-    final contentStr = widget.message.content;
-
-    PatientTreatmentRequestData? request;
-    if (contentStr != null && contentStr.isNotEmpty) {
-      try {
-        final decoded = jsonDecode(contentStr);
-        if (decoded is Map<String, dynamic>) {
-          request = PatientTreatmentRequestData.fromJson(decoded);
-        }
-      } catch (_) {
-        // Content is plain text or fallback string
-      }
-    }
+    final request = widget.message.sharedRequestData;
 
     if (request == null) {
       return Container(
@@ -53,9 +40,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
           ),
         ),
         child: Text(
-          contentStr?.isNotEmpty == true
-              ? contentStr!
-              : 'Shared Treatment Request Data Unavailable',
+          widget.message.content ?? 'Shared Treatment Request Data Unavailable',
           style: isMe
               ? context.fonts.white14w600.copyWith(fontWeight: FontWeight.w400)
               : context.fonts.black14w400,
@@ -63,8 +48,9 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
       );
     }
 
-    final refId =
-        request.referenceId != null ? '#${request.referenceId}' : '#${request.id}';
+    final refId = request.referenceId != null
+        ? '#${request.referenceId}'
+        : '#${request.id}';
     final patientName = request.patientName?.isNotEmpty == true
         ? request.patientName!
         : 'Patient';
@@ -138,10 +124,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                   color: CustomColors.purple,
                   borderRadius: BorderRadius.circular(context.r(12)),
                 ),
-                child: Text(
-                  'Ref: $refId',
-                  style: context.fonts.white10w700,
-                ),
+                child: Text('Ref: $refId', style: context.fonts.white10w700),
               ),
             ],
           ),
@@ -160,11 +143,13 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                 CircleAvatar(
                   radius: context.r(20),
                   backgroundColor: CustomColors.lightPurple,
-                  backgroundImage: (request.patientImage != null &&
+                  backgroundImage:
+                      (request.patientImage != null &&
                           request.patientImage!.startsWith('http'))
                       ? CachedNetworkImageProvider(request.patientImage!)
                       : null,
-                  child: (request.patientImage == null ||
+                  child:
+                      (request.patientImage == null ||
                           !request.patientImage!.startsWith('http'))
                       ? Text(
                           patientName[0].toUpperCase(),
@@ -177,16 +162,10 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        patientName,
-                        style: context.fonts.black14w600,
-                      ),
+                      Text(patientName, style: context.fonts.black14w600),
                       if (patientEmail.isNotEmpty) ...[
                         context.verticalSpace(2),
-                        Text(
-                          patientEmail,
-                          style: context.fonts.grey12w400,
-                        ),
+                        Text(patientEmail, style: context.fonts.grey12w400),
                       ],
                     ],
                   ),
@@ -199,7 +178,10 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
           // Simulation Before & After Preview Slider (If Images Exist)
           if (request.frontImageBefore != null ||
               request.frontImageAfter != null) ...[
-            Text('Simulation Before / After:', style: context.fonts.black13w600),
+            Text(
+              'Simulation Before / After:',
+              style: context.fonts.black13w600,
+            ),
             context.verticalSpace(8),
             _buildSimulationViewer(context, request),
             context.verticalSpace(12),
@@ -207,8 +189,10 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
 
           // Requested Treatments & Areas
           if (request.treatments.isNotEmpty) ...[
-            Text('Requested Treatments & Areas:',
-                style: context.fonts.black13w600),
+            Text(
+              'Requested Treatments & Areas:',
+              style: context.fonts.black13w600,
+            ),
             context.verticalSpace(8),
             ...request.treatments.map((treatment) {
               return Container(
@@ -250,8 +234,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                             ),
                             decoration: BoxDecoration(
                               color: CustomColors.lightPurple,
-                              borderRadius:
-                                  BorderRadius.circular(context.r(6)),
+                              borderRadius: BorderRadius.circular(context.r(6)),
                             ),
                             child: Text(
                               '${area.areaName}$priceText',
