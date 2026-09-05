@@ -13,6 +13,7 @@ import '../../services/locator.dart';
 import '../../services/storage_service.dart';
 import '../../widgets/recent_treatment_row_widget.dart';
 import '../../widgets/today_appointments_row_widget.dart';
+import '../../widgets/today_checkin_tile.dart';
 import '../../widgets/treatment_list_widget.dart';
 import '../business_info_screen.dart';
 import 'appointment_screen.dart';
@@ -29,10 +30,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
-    // Call API to fetch user details
     ref.read(authViewModelProvider.notifier).callGetMe();
 
-    // Wait until the build phase completes before showing the dialog
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final isCompleted = ref.read(authViewModelProvider).isCompletedProfile;
 
@@ -46,14 +45,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showIncompleteProfileDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Force user to acknowledge
+      barrierDismissible: false,
       builder: (context) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(context.r(16)),
           ),
           child: SizedBox(
-            width: context.w(360), // Decreased width constraint
+            width: context.w(360),
             child: Padding(
               padding: EdgeInsets.all(context.w(20)),
               child: Column(
@@ -133,7 +132,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row (Matches Admin Dashboard Screen structure and styles)
+            // Header Row
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -163,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             context.verticalSpace(32),
 
-            // Analytics Section (styled exactly like Admin overview panels)
+            // Analytics Section
             BorderdContainerWidget(
               padding: context.appEdgeInsets(all: 24),
               borderRadius: context.r(12),
@@ -173,6 +172,69 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Text("Analytics", style: context.fonts.black18w600),
                   context.verticalSpace(24),
                   const AnalyticsGridWidget(),
+                ],
+              ),
+            ),
+            context.verticalSpace(32),
+
+            // Today's Check-in Section
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Today's Check-in",
+                        style: context.fonts.black18w600,
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Row(
+                          children: [
+                            Text("View All", style: context.fonts.purple14w600),
+                            context.horizontalSpace(6),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: CustomColors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                // List of TodaysCheckInTile items
+                  SizedBox(
+                    height: context.h(104), // Increased from 84 to fit tile content
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      itemCount: 6,
+                      separatorBuilder: (context, index) => context.horizontalSpace(12),
+                      itemBuilder: (context, index) {
+                        return SizedBox(
+                          width: context.w(300),
+                          child: const TodaysCheckInTile(
+                            patientImage: 'https://i.pravatar.cc/150?img=1',
+                            name: 'Jane Doe',
+                            email: 'jane.doe@example.com',
+                            appointmentRef: 'APT-10293',
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),

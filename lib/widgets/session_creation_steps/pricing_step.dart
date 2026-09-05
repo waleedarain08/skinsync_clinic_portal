@@ -163,7 +163,7 @@ class PricingStep extends ConsumerWidget {
                                 // Trigger rebuild inside the provider to reflect changes
                                 ref.read(sessionViewModelProvider.notifier).syncUnitPriceControllersForState();
                               },
-                              activeThumbColor: CustomColors.purple,
+                              activeThumbColor: CustomColors.white,
                             ),
                           ],
                         ),
