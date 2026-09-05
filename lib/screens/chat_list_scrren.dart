@@ -296,37 +296,38 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         ],
                       ),
                       context.verticalSpace(4),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.lastMessage ?? '',
-                              style: item.unreadCount > 0
-                                  ? context.fonts.black14w600
-                                  : context.fonts.grey14w400,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (item.unreadCount > 0) ...[
-                            context.horizontalSpace(8),
-                            Container(
-                              padding: context.appEdgeInsets(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: const BoxDecoration(
-                                color: CustomColors.purple,
-                                shape: BoxShape.circle,
-                              ),
+                      if (item.lastMessage != null)
+                        Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                '${item.unreadCount}',
-                                style: context.fonts.white10w700,
+                                item.lastMessage!,
+                                style: item.unreadCount > 0
+                                    ? context.fonts.black14w600
+                                    : context.fonts.grey14w400,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            if (item.unreadCount > 0) ...[
+                              context.horizontalSpace(8),
+                              Container(
+                                padding: context.appEdgeInsets(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: const BoxDecoration(
+                                  color: CustomColors.purple,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  '${item.unreadCount}',
+                                  style: context.fonts.white10w700,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
+                        ),
                     ],
                   ),
                 ),
