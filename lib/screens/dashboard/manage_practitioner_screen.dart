@@ -1,4 +1,3 @@
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -248,6 +247,14 @@ class _ManagePractitionerScreenState
   }
 
   Widget _buildDoctorsTable(PractitionerViewModel vm, PractitionerState state) {
+    if (state.loading) {
+      return const Center(child: AppLoader());
+    }
+
+    if (state.doctors.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
     return BorderdContainerWidget(
       padding: EdgeInsets.zero,
       child: ClipRRect(
@@ -255,30 +262,7 @@ class _ManagePractitionerScreenState
         child: Column(
           children: [
             _buildTableHeader(),
-            ValueListenableBuilder<PagingState<int, PractitionerListItem>>(
-              valueListenable: vm.pagingController,
-              builder: (context, pagingState, _) {
-                return PagedListView<int, PractitionerListItem>(
-                  state: pagingState,
-                  fetchNextPage: vm.pagingController.fetchNextPage,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  builderDelegate:
-                      PagedChildBuilderDelegate<PractitionerListItem>(
-                        itemBuilder: (context, item, index) =>
-                            _buildDataRow(item),
-                        noItemsFoundIndicatorBuilder: (_) =>
-                            _buildEmptyState(context),
-                        firstPageProgressIndicatorBuilder: (_) =>
-                            const Center(child: AppLoader()),
-                        newPageProgressIndicatorBuilder: (_) => const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      ),
-                );
-              },
-            ),
+            ...state.doctors.map((d) => _buildDataRow(d)),
           ],
         ),
       ),
