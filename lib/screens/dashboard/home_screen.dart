@@ -341,6 +341,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 email: checkIn.patientEmail ?? '',
                                 appointmentRef:
                                     checkIn.appointmentReference ?? '-',
+                                    appointmentId: checkIn.appointmentId!,
                               ),
                             );
                           },
