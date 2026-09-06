@@ -11,6 +11,7 @@ import '../../widgets/frequently_conversion.widget.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/analytics_grid_widget.dart';
 import '../../widgets/appointment_status_pie_chart.dart';
+import '../../widgets/revenue_generated_chart_widget.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../services/locator.dart';
 import '../../services/storage_service.dart';
@@ -178,6 +179,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
             ),
+            context.verticalSpace(32),
+
+            // Revenue Generated Chart
+            const RevenueGeneratedChartWidget(),
+            context.verticalSpace(32),
+
+            // Appointment Status Breakdown Pie Chart
+            const AppointmentStatusPieChart(),
             context.verticalSpace(32),
 
             // Today's Check-in Section
@@ -354,10 +363,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
             ),
-            context.verticalSpace(32),
-
-            // Appointment Status Breakdown Pie Chart
-            const AppointmentStatusPieChart(),
             context.verticalSpace(32),
 
             // Today Treatments Request Section
