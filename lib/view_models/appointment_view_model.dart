@@ -8,7 +8,7 @@ import '../services/locator.dart';
 import 'base_view_model.dart';
 
 final appointmentProvider =
-    NotifierProvider.autoDispose<AppointmentViewModel, AppointmentState>(
+    NotifierProvider<AppointmentViewModel, AppointmentState>(
       () => AppointmentViewModel._(),
     );
 

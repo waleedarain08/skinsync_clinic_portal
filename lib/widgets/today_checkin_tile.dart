@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../utils/theme.dart';
 
 class TodaysCheckInTile extends StatelessWidget {
@@ -62,8 +63,17 @@ class TodaysCheckInTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                     SizedBox(width: context.w(6)),
-                    Container(
+                  ],
+                ),
+                SizedBox(height: context.h(2)),
+                Text(
+                  email,
+                  style: context.fonts.grey13w500,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: context.h(2)),
+                Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: context.w(8),
                     vertical: context.h(3),
@@ -81,17 +91,6 @@ class TodaysCheckInTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                  ],
-                ),
-                SizedBox(height: context.h(2)),
-                Text(
-                  email,
-                  style: context.fonts.grey13w500,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-               
-                
               ],
             ),
           ),
