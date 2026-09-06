@@ -32,12 +32,16 @@ class _AppointmentStatusPieChartState
 
   @override
   Widget build(BuildContext context) {
-    final overview =
-        ref.watch(authViewModelProvider).dashboard?.appointmentStatusOverview;
-
-    final int completedCount = overview?.completed ?? 18;
-    final int inProgressCount = overview?.inProgress ?? 8;
-    final int pendingCount = overview?.pending ?? 6;
+    final appointments =
+      ref.watch(authViewModelProvider).dashboard?.todaysAppointment ?? [];
+    final completedCount = _countByStatus(appointments, 'completed');
+    final inProgressCount = appointments
+      .where((appointment) =>
+        appointment.status?.toLowerCase() == 'in_progress' ||
+        appointment.status?.toLowerCase() == 'in progress' ||
+        appointment.status?.toLowerCase() == 'ongoing')
+      .length;
+    final pendingCount = _countByStatus(appointments, 'pending');
 
     final List<_AppointmentChartData> chartData = [
       _AppointmentChartData(
@@ -63,8 +67,7 @@ class _AppointmentStatusPieChartState
       ),
     ];
 
-    final int totalAppointments = overview?.totalAppointments ??
-        chartData.fold(0, (sum, item) => sum + item.count);
+    final int totalAppointments = appointments.length;
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
@@ -374,6 +377,15 @@ class _AppointmentStatusPieChartState
         );
       }),
     );
+  }
+
+  int _countByStatus(
+    List<dynamic> appointments,
+    String status,
+  ) {
+    return appointments
+        .where((appointment) => appointment.status?.toLowerCase() == status)
+        .length;
   }
 }
 

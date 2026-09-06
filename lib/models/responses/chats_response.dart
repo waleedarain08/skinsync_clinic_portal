@@ -34,6 +34,7 @@ class Chat {
   final int? id;
   final String? patientName;
   final String? lastMessage;
+  final String? patientEmail;
   final DateTime? time;
   final int unreadCount;
   final bool isOnline;
@@ -42,6 +43,7 @@ class Chat {
     this.id,
     this.patientName,
     this.lastMessage,
+    this.patientEmail,
     this.time,
     this.unreadCount = 0,
     this.isOnline = false,
@@ -53,6 +55,7 @@ class Chat {
     lastMessage: json["last_message"],
     time: DateTime.tryParse(json["time"] ?? ''),
     unreadCount: json["unread_count"] ?? 0,
+    patientEmail: json["patient_email"],
     isOnline: json["is_online"] ?? false,
   );
 }

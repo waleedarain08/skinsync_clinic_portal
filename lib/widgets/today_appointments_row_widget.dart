@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../models/dummy/appointment_dummy.dart';
 import '../models/responses/appointment_list_response.dart';
 import '../models/responses/login_response_model.dart';
 import '../screens/dashboard/appointment_detail_screen.dart';
@@ -18,19 +17,7 @@ class TodayAppointmentsRowWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboard = ref.watch(authViewModelProvider).dashboard;
-    final appointmentState = ref.watch(appointmentProvider);
-    final apiAppointments = appointmentState.appointmentList ?? [];
-    final dashboardTodayAppointments = dashboard?.todayAppointments ?? [];
-
-    // Combine or filter appointments: if API returns data, use it; otherwise fallback to dummy today's appointments
-    final List<dynamic> todayList;
-    if (apiAppointments.isNotEmpty) {
-      todayList = apiAppointments;
-    } else if (dashboardTodayAppointments.isNotEmpty) {
-      todayList = dashboardTodayAppointments;
-    } else {
-      todayList = dummyAppointments;
-    }
+    final todayList = dashboard?.todaysAppointment ?? [];
 
     if (todayList.isEmpty) {
       return Center(
@@ -185,7 +172,6 @@ class _TodayAppointmentCardWidgetState
     String statusStr = 'Ongoing';
     Color statusColor = CustomColors.purple;
     int? appointmentId;
-    double? amount;
 
     if (widget.appointment is AppointmentData) {
       final a = widget.appointment as AppointmentData;
@@ -210,20 +196,9 @@ class _TodayAppointmentCardWidgetState
           ? a.formattedTreatments
           : 'Botox (Lips), Botox (Cheeks), Dermal Filler (Eyes)';
       doctorName = a.doctorName ?? 'Staff Practitioner';
-      timeStr = a.time ?? '10:00 AM';
+      timeStr = _formatDashboardTime(a.slot?.startTime);
       statusStr = a.status ?? 'Ongoing';
       statusColor = _getBadgeColor(statusStr);
-      amount = a.amount;
-    } else if (widget.appointment is AppointmentModel) {
-      final a = widget.appointment as AppointmentModel;
-      patientName = a.patientName;
-      appointmentType = a.appointmentType;
-      treatmentName = a.treatment;
-      doctorName = a.doctor;
-      timeStr = a.time;
-      statusStr = a.status.label;
-      statusColor = a.status.color;
-      amount = a.amount;
     }
 
     return MouseRegion(
@@ -233,7 +208,7 @@ class _TodayAppointmentCardWidgetState
       child: GestureDetector(
         onTap: () async {
           if (appointmentId != null) {
-            await ref
+          await ref
                 .read(appointmentProvider.notifier)
                 .getAppointmentsDetail(id: appointmentId);
             if (context.mounted) {
@@ -460,13 +435,6 @@ class _TodayAppointmentCardWidgetState
                       ],
                     ),
                   ),
-                  if (amount != null) ...[
-                    SizedBox(width: context.w(8)),
-                    Text(
-                      '\$${amount.toStringAsFixed(0)}',
-                      style: context.fonts.purple14w600,
-                    ),
-                  ],
                 ],
               ),
             ],
@@ -491,5 +459,15 @@ class _TodayAppointmentCardWidgetState
       default:
         return CustomColors.purple;
     }
+  }
+
+  String _formatDashboardTime(int? minutesFromMidnight) {
+    if (minutesFromMidnight == null) return 'Time unavailable';
+
+    final hour = minutesFromMidnight ~/ 60;
+    final minute = minutesFromMidnight % 60;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+    return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
   }
 }
