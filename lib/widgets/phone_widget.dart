@@ -16,6 +16,9 @@ class PhoneWidget extends ConsumerWidget {
   final bool removeValidation;
   final bool isEditable;
 
+  // Controls whether user can change the country.
+  final bool allowCountrySelection;
+
   PhoneWidget({
     super.key,
     required this.controller,
@@ -26,6 +29,7 @@ class PhoneWidget extends ConsumerWidget {
     this.showLabel = true,
     this.filled = false,
     this.removeValidation = false,
+    this.allowCountrySelection = true,
   });
 
   final FocusNode _focusNode = FocusNode();
@@ -52,7 +56,10 @@ class PhoneWidget extends ConsumerWidget {
             }
             return null;
           },
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontFamily: "General Sans"),
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(fontFamily: "General Sans"),
           onTapOutside: (_) {
             _focusNode.unfocus();
           },
@@ -60,8 +67,12 @@ class PhoneWidget extends ConsumerWidget {
           decoration: AppDecorations.input(
             context,
             hint: '921 - 2341 -99908',
-            prefixIcon: _buildPhoneNumberPicker(context: context, ref: ref),
-            fillColor: filled ? CustomColors.softGrey : CustomColors.white,
+            prefixIcon: _buildPhoneNumberPicker(
+              context: context,
+              ref: ref,
+            ),
+            fillColor:
+                filled ? CustomColors.softGrey : CustomColors.white,
           ),
         ),
       ],
@@ -76,20 +87,25 @@ class PhoneWidget extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(
-            onTap: () {},
-            child: CountryCodePicker(
-              onChanged: onCountryChanged,
-              dialogSize: Size(context.w(400), context.w(600)),
-              textStyle: CustomFonts.black14w500,
-              initialSelection: initialCountryCode ?? "US",
-              showCountryOnly: false,
-              showOnlyCountryWhenClosed: false,
-              alignLeft: false,
+          CountryCodePicker(
+            onChanged: allowCountrySelection ? onCountryChanged : null,
+            dialogSize: Size(
+              context.w(400),
+              context.w(600),
             ),
+            textStyle: CustomFonts.black14w500,
+            initialSelection: initialCountryCode ?? "US",
+            showCountryOnly: false,
+            showOnlyCountryWhenClosed: false,
+            alignLeft: false,
+
+            // Prevent opening country selector when disabled.
+            enabled: allowCountrySelection,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: context.h(14.3)),
+            padding: EdgeInsets.symmetric(
+              vertical: context.h(14.3),
+            ),
             child: const VerticalDivider(
               color: Color(0xffE2E5E8),
               thickness: 1,

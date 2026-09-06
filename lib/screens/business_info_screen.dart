@@ -268,6 +268,7 @@ class _BusinessInformationScreenState
                       Text('Phone Number', style: context.fonts.black14w600),
                       SizedBox(height: 10.h),
                       PhoneWidget(
+                        allowCountrySelection: false,
                         controller: _clinicPhoneController,
                         filled: false,
                       ),

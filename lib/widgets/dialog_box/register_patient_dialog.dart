@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
 import '../../view_models/appointment_creation_view_model.dart';
 import '../build_textfield.dart';
 import '../custom_outlined_button.dart';
 import '../custom_primary_button.dart';
+import '../phone_widget.dart';
 import 'standard_dialog.dart';
 
 class RegisterPatientDialog extends ConsumerStatefulWidget {
   const RegisterPatientDialog({super.key});
 
   @override
-  ConsumerState<RegisterPatientDialog> createState() => _RegisterPatientDialogState();
+  ConsumerState<RegisterPatientDialog> createState() =>
+      _RegisterPatientDialogState();
 
   static Future<void> show(BuildContext context) {
     return showDialog(
@@ -61,12 +64,12 @@ class _RegisterPatientDialogState extends ConsumerState<RegisterPatientDialog> {
               validator: Validators.email,
             ),
             context.verticalSpace(16),
-            BuildTextField(
-              label: 'Phone Number',
+            Text('Phone Number', style: context.fonts.black14w600),
+            SizedBox(height: 10.h),
+            PhoneWidget(
+              allowCountrySelection: false,
               controller: _phoneController,
-              hintText: 'Enter patient phone number',
-              validator: Validators.phone,
-              keyboardType: TextInputType.phone,
+              filled: false,
             ),
           ],
         ),
@@ -80,7 +83,9 @@ class _RegisterPatientDialogState extends ConsumerState<RegisterPatientDialog> {
         CustomPrimaryButton(
           onTap: () {
             if (_formKey.currentState?.validate() ?? false) {
-              ref.read(appointmentCreationProvider.notifier).registerNewPatient(
+              ref
+                  .read(appointmentCreationProvider.notifier)
+                  .registerNewPatient(
                     name: _nameController.text.trim(),
                     email: _emailController.text.trim(),
                     phone: _phoneController.text.trim(),
