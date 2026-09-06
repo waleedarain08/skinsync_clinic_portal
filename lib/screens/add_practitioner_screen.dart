@@ -206,8 +206,10 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDoctorEmailSection(isEditing),
-                      SizedBox(height: context.h(24)),
+                      if (!isEditing) ...[
+                        _buildDoctorEmailSection(isEditing),
+                        SizedBox(height: context.h(24)),
+                      ],
                       _buildClinicAccessSection(),
                       SizedBox(height: context.h(24)),
                       _buildAvailabilitySection(),
