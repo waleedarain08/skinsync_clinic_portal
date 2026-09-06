@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/responses/filters_response.dart';
+import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
@@ -54,21 +55,11 @@ class _CreateAppointmentScreenState
     ),
   ];
 
-  // Section 3: Practitioners & Clinical Schedule
-  static final List<_PractitionerOption> _availablePractitioners = [
-    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
-    _PractitionerOption(id: 65, name: 'Dr. Michael Lee', role: 'injector'),
-    _PractitionerOption(id: 66, name: 'Dr. John Adams', role: 'doctor'),
-    _PractitionerOption(id: 67, name: 'Nurse Sarah Jenkins', role: 'nurse'),
-  ];
+  // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
+  final _practitionerSearchController = TextEditingController();
+  PractitionerListItem? _selectedPractitionerItem;
 
-  late _PractitionerOption _selectedPractitionerOption;
-  String _practitionerRole = 'doctor';
-  final List<String> _practitionerRoles = ['doctor', 'injector', 'nurse'];
-
-  final List<_PractitionerOption> _assignedPractitioners = [
-    _PractitionerOption(id: 64, name: 'Dr. Sarah Smith', role: 'doctor'),
-  ];
+  final List<_AssignedPractitioner> _assignedPractitioners = [];
 
   final _dateController = TextEditingController(
     text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -111,9 +102,8 @@ class _CreateAppointmentScreenState
   @override
   void initState() {
     super.initState();
-    _selectedPractitionerOption = _availablePractitioners.first;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(practitionerProvider.notifier).getPractitioner();
+      ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
     });
   }
@@ -121,6 +111,7 @@ class _CreateAppointmentScreenState
   @override
   void dispose() {
     _searchController.dispose();
+    _practitionerSearchController.dispose();
     _dateController.dispose();
     _amountController.dispose();
     _notesController.dispose();
@@ -396,7 +387,24 @@ class _CreateAppointmentScreenState
   // Section 2: Treatment & Services
   Widget _buildTreatmentSection() {
     final appointmentState = ref.watch(appointmentProvider);
-    final appointmentTypes = appointmentState.appointmentTypes ?? [];
+    final rawAppointmentTypes = appointmentState.appointmentTypes ?? [];
+    final uniqueFiltersMap = <int, Filters>{};
+    for (final f in rawAppointmentTypes) {
+      if (f.id != null) uniqueFiltersMap[f.id!] = f;
+    }
+    final appointmentTypes = uniqueFiltersMap.values.toList();
+
+    Filters? selectedAppointmentType;
+    if (appointmentTypes.isNotEmpty) {
+      if (_selectedAppointmentTypeFilter != null) {
+        selectedAppointmentType = appointmentTypes.firstWhere(
+          (f) => f.id == _selectedAppointmentTypeFilter!.id,
+          orElse: () => appointmentTypes.first,
+        );
+      } else {
+        selectedAppointmentType = appointmentTypes.first;
+      }
+    }
 
     return _buildSection(
       title: 'Treatment & Services',
@@ -417,8 +425,7 @@ class _CreateAppointmentScreenState
               child: _buildDropdownField<Filters>(
                 label: 'Appointment Type',
                 hintText: 'Select Type',
-                value: _selectedAppointmentTypeFilter ??
-                    (appointmentTypes.isNotEmpty ? appointmentTypes.first : null),
+                value: selectedAppointmentType,
                 items: appointmentTypes,
                 onTap: () {
                   ref
@@ -506,19 +513,54 @@ class _CreateAppointmentScreenState
     );
   }
 
-  // Section 3: Practitioners & Clinical Schedule
+  // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
+    final practitionerState = ref.watch(practitionerProvider);
+    final rawDoctors = practitionerState.doctors;
+    final uniqueDoctorsMap = <int, PractitionerListItem>{};
+    for (final d in rawDoctors) {
+      uniqueDoctorsMap[d.id] = d;
+    }
+    final doctors = uniqueDoctorsMap.values.toList();
+
+    PractitionerListItem? selectedDoctor;
+    if (doctors.isNotEmpty) {
+      if (_selectedPractitionerItem != null) {
+        selectedDoctor = doctors.firstWhere(
+          (doc) => doc.id == _selectedPractitionerItem!.id,
+          orElse: () => doctors.first,
+        );
+      } else {
+        selectedDoctor = doctors.first;
+      }
+    }
+
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
       trailing: CustomPrimaryButton(
         onTap: () {
+          final targetDoc = selectedDoctor ?? _selectedPractitionerItem;
+          if (targetDoc == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select a practitioner first.'),
+              ),
+            );
+            return;
+          }
           final exists = _assignedPractitioners.any(
-            (p) => p.id == _selectedPractitionerOption.id,
+            (p) => p.id == targetDoc.id,
           );
           if (!exists) {
             setState(() {
               _assignedPractitioners.add(
-                _selectedPractitionerOption.copyWith(role: _practitionerRole),
+                _AssignedPractitioner(
+                  id: targetDoc.id,
+                  name: targetDoc.name,
+                  role: targetDoc.role?.isNotEmpty == true
+                      ? targetDoc.role!
+                      : 'doctor',
+                ),
               );
             });
           } else {
@@ -538,35 +580,30 @@ class _CreateAppointmentScreenState
         Row(
           children: [
             Expanded(
-              child: _buildDropdownField<_PractitionerOption>(
+              child: _buildSearchableDropdownField<PractitionerListItem>(
                 label: 'Assigned Practitioner',
-                hintText: 'Select Practitioner',
-                value: _selectedPractitionerOption,
-                items: _availablePractitioners,
+                hintText: 'Search or Select Practitioner',
+                value: selectedDoctor,
+                items: doctors,
+                searchController: _practitionerSearchController,
+                onSearchChanged: (query) {
+                  ref.read(practitionerProvider.notifier).setSearchQuery(query);
+                },
                 onChanged: (val) {
                   if (val != null) {
                     setState(() {
-                      _selectedPractitionerOption = val;
-                      _practitionerRole = val.role;
+                      _selectedPractitionerItem = val;
                     });
                   }
                 },
-                builder: (val) => Text(val.name),
-              ),
-            ),
-            SizedBox(width: context.w(16)),
-            Expanded(
-              child: _buildDropdownField<String>(
-                label: 'Practitioner Role',
-                hintText: 'Select Role',
-                value: _practitionerRole,
-                items: _practitionerRoles,
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _practitionerRole = val);
-                  }
-                },
-                builder: (val) => Text(val.capitalize),
+                builder: (val) => Text(
+                  val.name.isNotEmpty
+                      ? '${val.name} (${val.email})'
+                      : 'Practitioner ID: ${val.id}',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: context.fonts.black14w400,
+                ),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -595,6 +632,41 @@ class _CreateAppointmentScreenState
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
+        SizedBox(height: context.h(12)),
+        // Pagination & Search Controls
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Page ${practitionerState.currentPage} of ${practitionerState.totalPages}',
+              style: context.fonts.grey12w400,
+            ),
+            Row(
+              children: [
+                if (practitionerState.currentPage > 1)
+                  TextButton.icon(
+                    onPressed: () {
+                      ref.read(practitionerProvider.notifier).getPractitioner(
+                            page: practitionerState.currentPage - 1,
+                          );
+                    },
+                    icon: const Icon(Icons.arrow_back_ios, size: 12),
+                    label: const Text('Prev Page'),
+                  ),
+                if (practitionerState.currentPage < practitionerState.totalPages)
+                  TextButton.icon(
+                    onPressed: () {
+                      ref.read(practitionerProvider.notifier).getPractitioner(
+                            page: practitionerState.currentPage + 1,
+                          );
+                    },
+                    icon: const Icon(Icons.arrow_forward_ios, size: 12),
+                    label: const Text('Next Page'),
+                  ),
+              ],
             ),
           ],
         ),
@@ -931,6 +1003,103 @@ class _CreateAppointmentScreenState
     );
   }
 
+  Widget _buildSearchableDropdownField<T>({
+    required String label,
+    required String hintText,
+    required T? value,
+    required List<T> items,
+    required TextEditingController searchController,
+    required ValueChanged<String> onSearchChanged,
+    required Function(T?) onChanged,
+    Widget Function(T)? builder,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: context.fonts.black14w600),
+        SizedBox(height: context.h(8)),
+        DropdownButtonHideUnderline(
+          child: DropdownButton2<T>(
+            isExpanded: true,
+            hint: Text(
+              hintText,
+              style: context.fonts.grey14w400.copyWith(
+                color: CustomColors.lightGrey,
+              ),
+            ),
+            value: value,
+            items: items
+                .map(
+                  (item) => DropdownMenuItem<T>(
+                    value: item,
+                    child: builder?.call(item) ?? Text(item.toString()),
+                  ),
+                )
+                .toList(),
+            selectedItemBuilder: builder != null
+                ? (context) => items
+                    .map(
+                      (item) => Align(
+                        alignment: Alignment.centerLeft,
+                        child: builder(item),
+                      ),
+                    )
+                    .toList()
+                : null,
+            onChanged: onChanged,
+            buttonStyleData: ButtonStyleData(
+              height: context.h(52),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: CustomColors.border),
+              ),
+            ),
+            dropdownSearchData: DropdownSearchData(
+              searchController: searchController,
+              searchInnerWidgetHeight: 50,
+              searchInnerWidget: Container(
+                height: 50,
+                padding: const EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    hintText: 'Type to search practitioner...',
+                    hintStyle: context.fonts.grey12w400,
+                    prefixIcon: const Icon(Icons.search, size: 18),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onChanged: onSearchChanged,
+                ),
+              ),
+              searchMatchFn: (item, searchValue) {
+                if (item.value is PractitionerListItem) {
+                  final doc = item.value as PractitionerListItem;
+                  final query = searchValue.toLowerCase();
+                  return doc.name.toLowerCase().contains(query) ||
+                      doc.email.toLowerCase().contains(query) ||
+                      doc.specialization.toLowerCase().contains(query);
+                }
+                return item.value
+                        ?.toString()
+                        .toLowerCase()
+                        .contains(searchValue.toLowerCase()) ??
+                    false;
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDropdownField<T>({
     required String label,
     required String hintText,
@@ -1074,22 +1243,14 @@ class _CreateAppointmentScreenState
   }
 }
 
-class _PractitionerOption {
+class _AssignedPractitioner {
   final int id;
   final String name;
   final String role;
 
-  _PractitionerOption({
+  _AssignedPractitioner({
     required this.id,
     required this.name,
     required this.role,
   });
-
-  _PractitionerOption copyWith({String? role}) {
-    return _PractitionerOption(
-      id: id,
-      name: name,
-      role: role ?? this.role,
-    );
-  }
 }
