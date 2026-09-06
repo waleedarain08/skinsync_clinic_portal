@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
+import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../services/media_service.dart';
 import '../utils/enums.dart';
@@ -60,7 +61,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _showPatientInfo = true;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(chatProvider.notifier).loadMessages();
+      if (widget.treatmentRequestData?.chatId != null) {
+        ref
+            .read(chatProvider.notifier)
+            .selectChat(Chat(id: widget.treatmentRequestData?.chatId));
+        ref.read(chatProvider.notifier).loadMessages();
+      }
     });
   }
 
