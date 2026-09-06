@@ -1,7 +1,13 @@
 
+import 'dart:developer';
+
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/requests/create_protocol_field_request.dart';
 import '../models/treatment_data_models.dart';
+import '../repositories/treatment_repository.dart';
+import '../services/locator.dart';
 
 final treatmentDataViewModelProvider =
     NotifierProvider<TreatmentDataViewModel, TreatmentDataState>(
@@ -76,95 +82,6 @@ class TreatmentDataViewModel extends Notifier<TreatmentDataState> {
     return TreatmentDataState(
     
       protocols: [
-        ProtocolItem(
-          id: '1',
-          title: 'Cleanse treatment area',
-          type: ProtocolType.checkbox,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Step 1',
-              text: 'Cleanse the skin surface with antiseptic agent.',
-              order: 1,
-            ),
-            ProtocolDescription(
-              title: 'Step 2',
-              text: 'Pat dry with sterile gauze.',
-              order: 2,
-            ),
-          ],
-        ),
-        ProtocolItem(
-          id: '2',
-          title: 'Review contraindications',
-          type: ProtocolType.checkbox,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Allergies',
-              text: 'Confirm patient has no lidocaine or product allergies.',
-              order: 1,
-            ),
-            ProtocolDescription(
-              title: 'Pregnancy',
-              text: 'Verify patient is not pregnant or breastfeeding.',
-              order: 2,
-            ),
-          ],
-        ),
-        ProtocolItem(
-          id: '3',
-          title: 'Mark injection sites',
-          type: ProtocolType.checkbox,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Mapping',
-              text:
-                  'Use surgical marker to outline the target injection points.',
-              order: 1,
-            ),
-          ],
-        ),
-        ProtocolItem(
-          id: '4',
-          title: 'Pre-Treatment Instructions',
-          type: ProtocolType.text,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Pre Care',
-              text:
-                  'Avoid blood thinners and alcohol 24 hours before treatment.',
-              order: 1,
-            ),
-          ],
-        ),
-        ProtocolItem(
-          id: '5',
-          title: 'Post-Treatment Notes',
-          type: ProtocolType.text,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Aftercare',
-              text: 'Apply cold compress to reduce swelling.',
-              order: 1,
-            ),
-            ProtocolDescription(
-              title: 'Restrictions',
-              text: 'Do not touch or massage treated areas for 6 hours.',
-              order: 2,
-            ),
-          ],
-        ),
-        ProtocolItem(
-          id: '6',
-          title: 'Recovery Instructions',
-          type: ProtocolType.text,
-          descriptions: [
-            ProtocolDescription(
-              title: 'Follow-up',
-              text: 'Contact clinic if redness persists past 72 hours.',
-              order: 1,
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -214,7 +131,46 @@ class TreatmentDataViewModel extends Notifier<TreatmentDataState> {
     final regex = RegExp(r'^[A-Z]{4}-[0-9]{4}$');
     return regex.hasMatch(sku);
   }
+Future<void> fetchProtocolFields() async {
+    try {
+      final repo = locator<TreatmentRepository>();
+      final response = await repo.getProtocolFields();
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data!.isNotEmpty) {
+        state = state.copyWith(protocols: response.data!);
+      }
+    } catch (e) {
+      log('Error fetching protocol fields: $e');
+    }
+  }
 
+Future<bool> createProtocolField(String title, ProtocolType type) async {
+    if (title.isEmpty) return false;
+    EasyLoading.show(status: 'Saving protocol field...');
+    try {
+      final repo = locator<TreatmentRepository>();
+      final request = CreateProtocolFieldRequest(
+        title: title,
+        type: type,
+      );
+      final response = await repo.createProtocolField(request);
+      if (response.success) {
+        EasyLoading.showSuccess('Protocol field added successfully!');
+        await fetchProtocolFields();
+        return true;
+      } else {
+        EasyLoading.showError(response.message);
+        return false;
+      }
+    } catch (e) {
+      log('Error creating protocol field: $e');
+      EasyLoading.showError('Failed to create protocol field.');
+      return false;
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
 
 
 }

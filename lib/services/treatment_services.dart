@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import '../models/requests/add_treatment_req_model.dart';
+import '../models/requests/create_protocol_field_request.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/responses/admin_treatment_response.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/protocol_fields_response.dart';
 import '../models/responses/treatment_detail_response.dart';
 import '../models/responses/treatment_template_list_response.dart';
 import '../models/responses/clinic_treatment_list_response.dart';
@@ -225,6 +227,30 @@ Future<BaseResponse> changeSessionStatus({
     );
     final response = BaseResponse.fromJson(jsonResponse,(json) => json);
 
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+ @override
+  Future<ProtocolFieldsResponse> getProtocolFields() async {
+    final jsonResponse = await _api.httpRequest(requestType: .get,endPoint:   Endpoint.protocolFields);
+    final response = ProtocolFieldsResponse.fromJson(jsonResponse);
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
+   @override
+  Future<BaseResponse> createProtocolField(
+    CreateProtocolFieldRequest request,
+  ) async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: .post,endPoint: 
+      Endpoint.protocolFields,
+      requestBody: request,
+    );
+    final response = BaseResponse.fromJson(jsonResponse,(json) => json);
     if (!response.success) {
       throw BadRequestException(response.message);
     }

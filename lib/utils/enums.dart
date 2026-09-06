@@ -85,6 +85,7 @@ enum Endpoint {
   clinicDetail('clinic/detail'),
   chats('clinic/chats'),
   messages('clinic/chats/messages'),
+   protocolFields('clinic/protocol_fields'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;

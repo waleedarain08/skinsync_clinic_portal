@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +9,9 @@ import '../utils/theme.dart';
 import '../utils/clinic_dummy_data.dart';
 import '../view_models/session_view_model.dart';
 import '../view_models/treatment_data_view_model.dart';
-import '../view_models/treatment_view_model.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
-import '../widgets/protocol_preview_widget.dart';
 import '../widgets/session_creation_steps/treatment_creation_steps.dart';
 
 class CreateSessionScreen extends ConsumerStatefulWidget {
@@ -43,6 +40,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
   @override
   Widget build(BuildContext context) {
     final sessionViewModel = ref.read(sessionViewModelProvider.notifier);
+         final dataState = ref.watch(treatmentDataViewModelProvider);
 
     final bool isDesktop = context.screenWidth > 1200;
     final bool isTablet =
@@ -110,7 +108,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                                 child: _buildCurrentStepContent(context, ref),
                               ),
                               context.verticalSpace(48),
-                              _buildActionButtons(context, sessionViewModel),
+                              _buildActionButtons(context, sessionViewModel,dataState),
                             ],
                           ),
                         ),
@@ -461,7 +459,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
     }
   }
 
-  Widget _buildActionButtons(BuildContext context, SessionViewModel viewModel) {
+  Widget _buildActionButtons(BuildContext context, SessionViewModel viewModel, TreatmentDataState dataState,) {
     final sessionState = ref.watch(sessionViewModelProvider);
     final bool isLastStep = sessionState.sessionStep == 12;
     return Row(
@@ -514,25 +512,26 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                 final result = await viewModel.callStepPricing(
                   stepNumber: sessionState.sessionStep,
                 );
-                success = (result == true);
+                success =  true;
+                (result == true);
               } else if (sessionState.sessionStep == 4) {
                 // Protocols
-                final bool hasProtocolContent =
-                    sessionState.selectedProtocolIds.isNotEmpty ||
-                    sessionState.standaloneNotes.isNotEmpty;
+                // final bool hasProtocolContent =
+                //     sessionState.selectedProtocolIds.isNotEmpty ||
+                //     sessionState.standaloneNotes.isNotEmpty;
 
-                Uint8List? bytes;
-                if (hasProtocolContent) {
-                  bytes = await ProtocolFormPreview.getPdfBytes(
-                    state: ref.watch(treatmentViewModelProvider),
-                    sessionState: sessionState,
-                    dataState: ref.watch(treatmentDataViewModelProvider),
-                  );
-                }
+                // Uint8List? bytes;
+                // if (hasProtocolContent) {
+                //   bytes = await ProtocolFormPreview.getPdfBytes(
+                //     state: ref.watch(treatmentViewModelProvider),
+                //     sessionState: sessionState,
+                //     dataState: ref.watch(treatmentDataViewModelProvider),
+                //   );
+                // }
 
                 final result = await viewModel.callProtocol(
                   stepNumber: sessionState.sessionStep,
-                  bytes: bytes ?? Uint8List(0),
+                  masterProtocols: dataState.protocols,
                 );
                 success = (result == true);
               } else if (sessionState.sessionStep == 5) {

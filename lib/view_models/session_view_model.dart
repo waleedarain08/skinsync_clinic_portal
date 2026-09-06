@@ -1,12 +1,10 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../exceptions/app_exception.dart';
 import '../models/common_models.dart';
@@ -1287,43 +1285,66 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     return baseDuration + productDuration + prepTime + cleanupTime;
   }
 
-  // Original callProtocol Implementation
   Future<bool?> callProtocol({
     required int stepNumber,
-    required Uint8List bytes,
+    List<ProtocolItem>? masterProtocols,
   }) async {
-    final mediaService = MediaService();
-    const String pdfName = 'clinicForm.pdf';
+    final List<ProtocolRequestItem> protocolItems = [];
 
-    return await runSafely(() async {
-      ClinicalProtocolPdf? clinicalProtocolPdf;
+    for (final id in state.selectedProtocolIds) {
+      final pItem = masterProtocols?.firstWhereOrNull((p) => p.id == id);
+      final title = pItem?.title ?? '';
 
-      if (bytes.isNotEmpty) {
-        final uploadedFile = await mediaService.uploadFile(
-          'treatment/pdf',
-          XFile.fromData(bytes, name: pdfName, length: bytes.length),
-        );
-
-        if (uploadedFile == null) {
-          throw const UnknownException(message: 'Failed to upload');
-        }
-
-        clinicalProtocolPdf = ClinicalProtocolPdf(
-          name: pdfName,
-          url: uploadedFile,
-        );
-      }
-
-      final response = await locator<SessionRepository>().protocol(
-        request: ProtocolRequest(
-          stepNumber: stepNumber,
-          clinicalProtocolPdf: clinicalProtocolPdf,
-        ),
-        id: state.sessionId!,
+      final matchingNoteEntry = state.selectedProtocolNotes.firstWhereOrNull(
+        (n) => n.protocolName == title,
       );
+      final noteText =
+          matchingNoteEntry != null && matchingNoteEntry.notes.isNotEmpty
+              ? matchingNoteEntry.notes.map((e) => e.description).join('\n')
+              : '';
 
-      return response.success;
-    });
+      protocolItems.add(
+        ProtocolRequestItem(
+          fieldId: int.tryParse(id) ?? 0,
+          title: title,
+          note: noteText,
+        ),
+      );
+    }
+
+    final List<ProtocolInstructionItem> instructionItems =
+        state.standaloneNotes.map((note) {
+          return ProtocolInstructionItem(
+            title: note.title ?? '',
+            note: note.description,
+          );
+        }).toList();
+
+    final request = ProtocolRequest(
+      stepNumber: stepNumber,
+      protocols: protocolItems,
+      instrictions: instructionItems,
+    );
+
+    log('''
+=========== PROTOCOL REQUEST ===========
+Step No : $stepNumber
+Body    : ${request.toJson()}
+========================================
+''');
+
+    return await runSafely<bool>(
+      
+      () async {
+        final response = await locator<SessionRepository>().protocol(
+          request: request,
+          id: state.sessionId!,
+        );
+
+        log('Protocol Step Saved for Session ID: ${state.sessionId!}');
+        return response.success;
+      },
+    );
   }
 
   Future<void> fetchDownTimeLevelByTreatment({required int id}) async {
