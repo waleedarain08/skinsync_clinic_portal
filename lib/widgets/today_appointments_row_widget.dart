@@ -12,7 +12,7 @@ import '../view_models/appointment_view_model.dart';
 import '../view_models/auth_view_model.dart';
 
 class TodayAppointmentsRowWidget extends ConsumerWidget {
-  const TodayAppointmentsRowWidget({super.key});
+  const  TodayAppointmentsRowWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

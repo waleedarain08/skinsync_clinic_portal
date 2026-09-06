@@ -3,18 +3,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
-import '../view_models/auth_view_model.dart';
-import 'treatment_container.dart';
+import 'frequently_treatment_container.dart';
 
 class TreatmentListWidget extends ConsumerWidget {
   const TreatmentListWidget({super.key});
 
+  List<FrequentlyTreatmentModel> _dummyFrequentlyTreatments() {
+    return const [
+      FrequentlyTreatmentModel(
+        treatmentName: 'Dermal Fillers',
+        areaName: 'Chin Shadow Area',
+        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
+        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
+      ),
+      FrequentlyTreatmentModel(
+        treatmentName: 'Neurotoxin (Botox)',
+        areaName: 'Bunny Lines',
+        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
+        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
+      ),
+      FrequentlyTreatmentModel(
+        treatmentName: 'Dermal Fillers',
+        areaName: 'Jawline',
+        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
+        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
+      ),
+
+      FrequentlyTreatmentModel(
+        treatmentName: 'Neurotoxin (Botox)',
+        areaName: 'Gummy Smile',
+        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
+        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final treatmentList =
-        ref.watch(authViewModelProvider).dashboard?.treatments ?? [];
+    final treatmentList = _dummyFrequentlyTreatments();
 
-    // Return centered empty state card when treatment list is empty
     if (treatmentList.isEmpty) {
       return Center(
         child: _buildHorizontalEmptyState(
@@ -22,26 +49,25 @@ class TreatmentListWidget extends ConsumerWidget {
           height: context.h(110),
           width: context.w(420),
           icon: Icons.healing_outlined,
-          title: 'No Treatments Available',
-          subtitle: 'There are no active treatments recorded at the moment.',
+          title: 'No Frequently Used Treatments',
+          subtitle:
+              'There are no frequently used treatments recorded at the moment.',
         ),
       );
     }
 
-    // Render list view when data exists
     return AdaptiveLayoutList(
       isScrollVertical: false,
-      horizontalHeight: context.r(268),
+      horizontalHeight: context.r(185),
       spaceWidth: context.w(20),
       spaceHeight: context.h(20),
-      children: List.generate(
-        treatmentList.length,
-        (index) {
-          return TreatmentContainer(
-            treatment: treatmentList[index],
-          );
-        },
-      ),
+      children: List.generate(treatmentList.length, (index) {
+        return FrequentlyTreatmentContainer(
+          treatment: treatmentList[index],
+          width: context.w(380),
+          imageHeight: context.h(155),
+        );
+      }),
     );
   }
 
@@ -56,10 +82,7 @@ class TreatmentListWidget extends ConsumerWidget {
     const myLocalGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [
-        CustomColors.lightPurple,
-        CustomColors.purpleColor,
-      ],
+      colors: [CustomColors.lightPurple, CustomColors.purpleColor],
     );
 
     return Container(
@@ -78,9 +101,7 @@ class TreatmentListWidget extends ConsumerWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: Container(
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
+              child: Container(color: Colors.white.withValues(alpha: 0.85)),
             ),
             Padding(
               padding: EdgeInsets.symmetric(
@@ -93,14 +114,10 @@ class TreatmentListWidget extends ConsumerWidget {
                     height: context.w(44),
                     width: context.w(44),
                     decoration: BoxDecoration(
-                      color: CustomColors.purpleColor.withValues(
-                        alpha: 0.12,
-                      ),
+                      color: CustomColors.purpleColor.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: CustomColors.purpleColor.withValues(
-                          alpha: 0.15,
-                        ),
+                        color: CustomColors.purpleColor.withValues(alpha: 0.15),
                         width: context.w(1),
                       ),
                     ),
@@ -142,5 +159,37 @@ class TreatmentListWidget extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class FrequentlyTreatmentModel {
+  final String treatmentName;
+  final String areaName;
+  final String treatmentImage;
+  final String icon;
+
+  const FrequentlyTreatmentModel({
+    required this.treatmentName,
+    required this.areaName,
+    required this.treatmentImage,
+    required this.icon,
+  });
+
+  factory FrequentlyTreatmentModel.fromJson(Map<String, dynamic> json) {
+    return FrequentlyTreatmentModel(
+      treatmentName: json['treatment_name'] ?? '',
+      areaName: json['area_name'] ?? '',
+      treatmentImage: json['treatment_image'] ?? '',
+      icon: json['area_image'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'treatment_name': treatmentName,
+      'area_name': areaName,
+      'treatment_image': treatmentImage,
+      'area_image': icon,
+    };
   }
 }

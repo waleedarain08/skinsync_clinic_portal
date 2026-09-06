@@ -10,7 +10,7 @@ import '../services/locator.dart';
 import 'base_view_model.dart';
 
 final patientProvider =
-    NotifierProvider.autoDispose<PatientViewModel, PatientState>(
+    NotifierProvider<PatientViewModel, PatientState>(
       () => PatientViewModel._(),
     );
 
@@ -102,6 +102,10 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     state = state.copyWith(detailLoading: false);
 
     return success;
+  }
+
+  void setPatientDetail(PatientDetailData patient){
+    state = state.copyWith(patientDetail: patient);
   }
 
   void clearPatientDetail() {
