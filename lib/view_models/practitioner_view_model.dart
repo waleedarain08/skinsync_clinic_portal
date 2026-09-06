@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:country_code_picker/country_code_picker.dart';
@@ -21,8 +20,6 @@ import '../services/practitioner_service.dart';
 import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
 final practitionerProvider =
     NotifierProvider.autoDispose<PractitionerViewModel, PractitionerState>(
       () => PractitionerViewModel._(),
@@ -32,60 +29,16 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   PractitionerViewModel._();
   final ImagePicker _picker = ImagePicker();
 
-  late final PagingController<int, PractitionerListItem> pagingController;
-  Timer? _searchTimer;
-
   @override
   PractitionerState build() {
     init();
-    pagingController = PagingController<int, PractitionerListItem>(
-      getNextPageKey: (pagingState) {
-        final keys = pagingState.keys;
-        if (keys == null || keys.isEmpty) {
-          return 1;
-        }
-        if (state.currentPage >= state.totalPages) {
-          return null;
-        }
-        return pagingState.nextIntPageKey;
-      },
-      fetchPage: (pageKey) async {
-        final data = await locator<PractitionerService>().fetchPractitioner(
-          page: pageKey,
-          search: state.searchQuery,
-        );
-
-        if (data != null) {
-          state = state.copyWith(
-            totalPages: data.totalPages,
-            currentPage: data.page,
-          );
-        }
-        return data?.items ?? [];
-      },
-    );
-
-    pagingController.addListener(_syncDoctors);
-
-    ref.onDispose(() {
-      _searchTimer?.cancel();
-      pagingController.removeListener(_syncDoctors);
-      pagingController.dispose();
-      dispose();
-    });
+    ref.onDispose(dispose);
     return PractitionerState(country: CountryCode.fromCountryCode('US'));
-  }
-
-  void _syncDoctors() {
-    state = state.copyWith(doctors: pagingController.items ?? []);
   }
 
   void setSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);
-    _searchTimer?.cancel();
-    _searchTimer = Timer(const Duration(milliseconds: 500), () {
-      pagingController.refresh();
-    });
+    getPractitioner(page: 1, search: query);
   }
 
   void changeRole(String? role) {
@@ -226,15 +179,28 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
           loading: false,
           totalPages: data.totalPages,
           currentPage: data.page,
-        );
-
-        pagingController.value = PagingState(
-          pages: [data.items],
-          keys: [page],
-          hasNextPage: data.page < data.totalPages,
+          doctors: data.items,
         );
       }
     }, showLoading: false);
+  }
+
+  Future<void> goToPage(int page) async {
+    if (page >= 1 && page <= state.totalPages) {
+      await getPractitioner(page: page, search: state.searchQuery);
+    }
+  }
+
+  Future<void> nextPage() async {
+    if (state.currentPage < state.totalPages) {
+      await goToPage(state.currentPage + 1);
+    }
+  }
+
+  Future<void> previousPage() async {
+    if (state.currentPage > 1) {
+      await goToPage(state.currentPage - 1);
+    }
   }
 
   Future<void> getPractitionerDetail({required int id}) async {
