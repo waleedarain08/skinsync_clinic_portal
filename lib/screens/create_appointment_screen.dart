@@ -15,12 +15,12 @@ import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
+import '../view_models/treatment_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/dialog_box/register_patient_dialog.dart';
-import '../widgets/dialog_box/select_treatment_dailog.dart';
 import '../widgets/gradient_scaffold.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
@@ -42,18 +42,10 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
+  TreatmentModel? _selectedDropdownTreatment;
+  List<SideAreaModel> _selectedDropdownSideAreas = [];
 
-  final List<TreatmentModel> _selectedTreatments = [
-    TreatmentModel(
-      id: 3,
-      name: 'Botox Cosmetic',
-      description: 'Botox Anti-Wrinkle Treatment',
-      price: 250,
-      sideAreas: [
-        SideAreaModel(id: 7, name: 'Forehead'),
-      ],
-    ),
-  ];
+  final List<TreatmentModel> _selectedTreatments = [];
 
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   final _practitionerSearchController = TextEditingController();
@@ -105,6 +97,7 @@ class _CreateAppointmentScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
+      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
     });
   }
 
@@ -406,19 +399,107 @@ class _CreateAppointmentScreenState
       }
     }
 
+    final treatmentState = ref.watch(treatmentViewModelProvider);
+    final treatments = treatmentState.treatments;
+
     return _buildSection(
       title: 'Treatment & Services',
-      trailing: CustomPrimaryButton(
-        onTap: () => showDialog(
-          context: context,
-          builder: (context) => const SelectTreatmentDialog(),
-        ),
-        label: 'Assign Treatments',
-        icon: Icons.add,
-        height: context.h(36),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
       children: [
+        // Select Treatment Dropdown
+        _buildDropdownField<TreatmentModel>(
+          label: 'Select Treatment',
+          hintText: treatmentState.loading ? 'Loading treatments...' : 'Select Treatment',
+          value: _selectedDropdownTreatment,
+          items: treatments,
+          onTap: () {
+            ref.read(treatmentViewModelProvider.notifier).getTreatments();
+          },
+          onChanged: (val) {
+            setState(() {
+              _selectedDropdownTreatment = val;
+              _selectedDropdownSideAreas = [];
+            });
+          },
+          builder: (val) => Text(
+            val.name?.capitalize ?? 'N/A',
+            style: context.fonts.black14w400,
+          ),
+        ),
+        if (_selectedDropdownTreatment != null &&
+            _selectedDropdownTreatment!.sideAreas != null &&
+            _selectedDropdownTreatment!.sideAreas!.isNotEmpty) ...[
+          SizedBox(height: context.h(16)),
+          Text('Select Areas', style: context.fonts.black14w600),
+          SizedBox(height: context.h(8)),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: _selectedDropdownTreatment!.sideAreas!.map((area) {
+              final isSelected = _selectedDropdownSideAreas.contains(area);
+              return ChoiceChip(
+                label: Text(area.name?.capitalize ?? 'N/A'),
+                selected: isSelected,
+                selectedColor: CustomColors.purple,
+                checkmarkColor: CustomColors.white,
+                labelStyle: context.fonts.black14w500.copyWith(
+                  color: isSelected ? CustomColors.white : CustomColors.black,
+                ),
+                backgroundColor: CustomColors.whiteGrey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: context.appBorderRadius(all: 8),
+                  side: BorderSide(
+                    color: isSelected ? CustomColors.purple : CustomColors.border,
+                  ),
+                ),
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedDropdownSideAreas.add(area);
+                    } else {
+                      _selectedDropdownSideAreas.remove(area);
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+        SizedBox(height: context.h(16)),
+        Align(
+          alignment: Alignment.centerRight,
+          child: CustomPrimaryButton(
+            onTap: () {
+              if (_selectedDropdownTreatment == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select a treatment first.')),
+                );
+                return;
+              }
+              if (_selectedDropdownTreatment!.isArea == true &&
+                  _selectedDropdownSideAreas.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select at least one area.')),
+                );
+                return;
+              }
+              setState(() {
+                _selectedTreatments.add(
+                  _selectedDropdownTreatment!.copyWith(
+                    sideAreas: List.from(_selectedDropdownSideAreas),
+                  ),
+                );
+                _selectedDropdownTreatment = null;
+                _selectedDropdownSideAreas = [];
+              });
+            },
+            label: 'Add Treatment',
+            icon: Icons.add,
+            height: context.h(36),
+            width: context.w(150),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+          ),
+        ),
+        SizedBox(height: context.h(20)),
         Row(
           children: [
             Expanded(

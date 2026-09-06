@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:before_after/before_after.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -345,49 +346,8 @@ class AppointmentDetailScreen extends ConsumerWidget {
     BuildContext context,
     AppointmentDetailData appointment,
   ) {
-    final simulations = appointment.simulations!;
-    final images = [
-      {'label': 'Front Before', 'url': simulations.frontImageBefore},
-      {'label': 'Front After', 'url': simulations.frontImageAfter},
-      {'label': 'Right Before', 'url': simulations.rightImageBefore},
-      {'label': 'Right After', 'url': simulations.rightImageAfter},
-      {'label': 'Left Before', 'url': simulations.leftImageBefore},
-      {'label': 'Left After', 'url': simulations.leftImageAfter},
-    ].where((img) => img['url'] != null && img['url']!.isNotEmpty).toList();
-
-    if (images.isEmpty) return const SizedBox();
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: context.w(16),
-        mainAxisSpacing: context.h(16),
-        childAspectRatio: 1,
-      ),
-      itemCount: images.length,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(context.r(8)),
-                child: CachedNetworkImage(
-                  imageUrl: images[index]['url']!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: CustomColors.softGrey),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
-              ),
-            ),
-            context.verticalSpace(4),
-            Text(images[index]['label']!, style: context.fonts.grey11w400),
-          ],
-        );
-      },
-    );
+    if (appointment.simulations == null) return const SizedBox();
+    return _AppointmentSimulationsWidget(simulations: appointment.simulations!);
   }
 
   Widget _infoRow(
@@ -440,6 +400,172 @@ class AppointmentDetailScreen extends ConsumerWidget {
         Icons.person,
         size: context.r(radius),
         color: CustomColors.grey,
+      ),
+    );
+  }
+}
+
+class _AppointmentSimulationsWidget extends StatefulWidget {
+  final Simulations simulations;
+
+  const _AppointmentSimulationsWidget({required this.simulations});
+
+  @override
+  State<_AppointmentSimulationsWidget> createState() =>
+      _AppointmentSimulationsWidgetState();
+}
+
+class _AppointmentSimulationsWidgetState
+    extends State<_AppointmentSimulationsWidget> {
+  final Map<String, double> _sliderValues = {};
+
+  @override
+  Widget build(BuildContext context) {
+    final views = [
+      if (widget.simulations.frontImageBefore != null ||
+          widget.simulations.frontImageAfter != null)
+        (
+          'Front View',
+          widget.simulations.frontImageBefore,
+          widget.simulations.frontImageAfter
+        ),
+      if (widget.simulations.leftImageBefore != null ||
+          widget.simulations.leftImageAfter != null)
+        (
+          'Left Profile',
+          widget.simulations.leftImageBefore,
+          widget.simulations.leftImageAfter
+        ),
+      if (widget.simulations.rightImageBefore != null ||
+          widget.simulations.rightImageAfter != null)
+        (
+          'Right Profile',
+          widget.simulations.rightImageBefore,
+          widget.simulations.rightImageAfter
+        ),
+    ];
+
+    if (views.isEmpty) {
+      return Container(
+        height: context.h(120),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: CustomColors.softGrey,
+          borderRadius: BorderRadius.circular(context.r(12)),
+        ),
+        child: Center(
+          child: Text(
+            'No simulation images available',
+            style: context.fonts.grey14w400,
+          ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: views.map((view) {
+          final (label, before, after) = view;
+          _sliderValues.putIfAbsent(label, () => 0.5);
+
+          return Padding(
+            padding: EdgeInsets.only(right: context.w(16)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.fonts.grey12w600),
+                context.verticalSpace(8),
+                Container(
+                  height: context.h(260),
+                  width: context.w(260),
+                  decoration: BoxDecoration(
+                    color: CustomColors.softGrey,
+                    borderRadius: BorderRadius.circular(context.r(16)),
+                    border: Border.all(color: CustomColors.border),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: before != null && after != null
+                      ? Stack(
+                          children: [
+                            BeforeAfter(
+                              value: _sliderValues[label]!,
+                              onValueChanged: (val) =>
+                                  setState(() => _sliderValues[label] = val),
+                              before: CachedNetworkImage(
+                                imageUrl: before,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: context.h(260),
+                                placeholder: (context, url) =>
+                                    Container(color: CustomColors.softGrey),
+                                errorWidget: (context, url, error) =>
+                                    Container(color: CustomColors.softGrey),
+                              ),
+                              after: CachedNetworkImage(
+                                imageUrl: after,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: context.h(260),
+                                placeholder: (context, url) =>
+                                    Container(color: CustomColors.softGrey),
+                                errorWidget: (context, url, error) =>
+                                    Container(color: CustomColors.softGrey),
+                              ),
+                            ),
+                            Positioned(
+                              top: context.h(10),
+                              left: context.w(10),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.w(8),
+                                  vertical: context.h(3),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(context.r(6)),
+                                ),
+                                child: Text(
+                                  'BEFORE',
+                                  style: context.fonts.white10w700,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: context.h(10),
+                              right: context.w(10),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.w(8),
+                                  vertical: context.h(3),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(context.r(6)),
+                                ),
+                                child: Text(
+                                  'AFTER',
+                                  style: context.fonts.white10w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: before ?? after ?? '',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: context.h(260),
+                          placeholder: (context, url) =>
+                              Container(color: CustomColors.softGrey),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
