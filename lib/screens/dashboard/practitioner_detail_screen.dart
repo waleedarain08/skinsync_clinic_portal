@@ -10,6 +10,7 @@ import '../../view_models/practitioner_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../add_practitioner_screen.dart';
 
 class PractitionerDetailScreen extends ConsumerWidget {
   static const String routeName = '/practitioner-detail';
@@ -38,6 +39,38 @@ class PractitionerDetailScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back, color: CustomColors.black),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: CustomColors.purple),
+            tooltip: 'Edit Provider',
+            onPressed: () async {
+              if (practitioner.id != null) {
+                await ref
+                    .read(practitionerProvider.notifier)
+                    .getPractitionerDetail(id: practitioner.id!);
+                final detail = ref.read(practitionerProvider).practitioner;
+                if (detail != null && context.mounted) {
+                  context.push(AddPractitionerScreen.routeName, extra: detail);
+                }
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: CustomColors.red),
+            tooltip: 'Delete Provider',
+            onPressed: () async {
+              if (practitioner.id != null) {
+                await ref
+                    .read(practitionerProvider.notifier)
+                    .deletePractitioner(id: practitioner.id!);
+                if (context.mounted) {
+                  context.pop();
+                }
+              }
+            },
+          ),
+          context.horizontalSpace(8),
+        ],
       ),
       body: SingleChildScrollView(
         padding: context.appEdgeInsets(horizontal: 24, vertical: 24),

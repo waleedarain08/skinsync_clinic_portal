@@ -440,40 +440,6 @@ class _ManagePractitionerScreenState
               }
             },
           ),
-          IconButton(
-            visualDensity: .compact,
-            padding: EdgeInsets.zero,
-            tooltip: 'Delete Provider',
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: CustomColors.red,
-              size: 20,
-            ),
-            onPressed: () async {
-              await ref
-                  .read(practitionerProvider.notifier)
-                  .deletePractitioner(id: d.id);
-            },
-          ),
-          IconButton(
-            visualDensity: .compact,
-            padding: EdgeInsets.zero,
-            tooltip: 'Edit Provider',
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: CustomColors.purple,
-              size: 20,
-            ),
-            onPressed: () async {
-              await ref
-                  .read(practitionerProvider.notifier)
-                  .getPractitionerDetail(id: d.id);
-              final detail = ref.read(practitionerProvider).practitioner;
-              if (detail != null && context.mounted) {
-                context.push(AddPractitionerScreen.routeName, extra: detail);
-              }
-            },
-          ),
         ],
       ),
     );

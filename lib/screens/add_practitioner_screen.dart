@@ -773,6 +773,19 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
     required Function(T?) onChanged,
     Widget Function(T)? builder,
   }) {
+    T? safeValue = value;
+    if (safeValue != null && !items.contains(safeValue)) {
+      if (safeValue is String) {
+        final match = items.cast<String?>().firstWhere(
+              (item) => item?.toLowerCase() == (safeValue as String).toLowerCase(),
+              orElse: () => null,
+            );
+        safeValue = match as T?;
+      } else {
+        safeValue = null;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -787,7 +800,7 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                 color: CustomColors.lightGrey,
               ),
             ),
-            value: value,
+            value: safeValue,
             items: items
                 .map(
                   (item) => DropdownMenuItem<T>(
