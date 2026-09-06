@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 
 import '../../view_models/auth_view_model.dart';
+import '../../widgets/frequently_conversion.widget.dart';
 import '../../widgets/gradient_scaffold.dart';
 import '../../widgets/analytics_grid_widget.dart';
 import '../../widgets/appointment_status_pie_chart.dart';
@@ -341,7 +343,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 email: checkIn.patientEmail ?? '',
                                 appointmentRef:
                                     checkIn.appointmentReference ?? '-',
-                                    appointmentId: checkIn.appointmentId!,
+                                appointmentId: checkIn.appointmentId!,
                               ),
                             );
                           },
@@ -446,7 +448,121 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             context.verticalSpace(32),
 
-            // Treatments Section
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 24),
+              borderRadius: context.r(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdaptiveLayoutRowColumn(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Frequently Conversions",
+                        style: context.fonts.black18w600,
+                      ),
+
+                      // TextButton(
+                      //   onPressed: () {},
+                      //   style: TextButton.styleFrom(
+                      //     padding: EdgeInsets.zero,
+                      //     minimumSize: Size.zero,
+                      //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       Text("View All", style: context.fonts.purple14w600),
+                      //       context.horizontalSpace(6),
+                      //       const Icon(
+                      //         Icons.arrow_forward_ios_rounded,
+                      //         size: 14,
+                      //         color: CustomColors.purple,
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                  context.verticalSpace(24),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      // Dummy data for Frequently Conversion
+                      final dummyConversions = [
+                        {
+                          'patientImage': '',
+                          'name': 'James Anderson',
+                          'email': 'james.anderson@example.com',
+                          'phoneNumber': '+1 (555) 234-5678',
+                          'appointmentRef': 'APT-1001',
+                          'appointmentId': 101,
+                          'conversionCount': 12,
+                        },
+                        {
+                          'patientImage': '',
+                          'name': 'Sarah Wilson',
+                          'email': 'sarah.wilson@example.com',
+                          'phoneNumber': '+1 (555) 876-5432',
+                          'appointmentRef': 'APT-1002',
+                          'appointmentId': 102,
+                          'conversionCount': 8,
+                        },
+                        {
+                          'patientImage': '',
+                          'name': 'Michael Smith',
+                          'email': 'michael.smith@example.com',
+                          'phoneNumber': '+1 (555) 345-6789',
+                          'appointmentRef': 'APT-1003',
+                          'appointmentId': 103,
+                          'conversionCount': 15,
+                        },
+                        {
+                          'patientImage': '',
+                          'name': 'Emily Johnson',
+                          'email': 'emily.johnson@example.com',
+                          'phoneNumber': '+1 (555) 987-6543',
+                          'appointmentRef': 'APT-1004',
+                          'appointmentId': 104,
+                          'conversionCount': 6,
+                        },
+                      ];
+                      return SizedBox(
+                        height: context.h(135),
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: dummyConversions.length,
+                          separatorBuilder: (context, index) =>
+                              context.horizontalSpace(12),
+                          itemBuilder: (context, index) {
+                            final conversion = dummyConversions[index];
+
+                            return SizedBox(
+                              width: context.w(300),
+                              child: FrequentlyConversionTile(
+                                patientImage:
+                                    conversion['patientImage'] as String,
+                                name: conversion['name'] as String,
+                                email: conversion['email'] as String,
+                                appointmentRef:
+                                    conversion['appointmentRef'] as String,
+                                appointmentId:
+                                    conversion['appointmentId'] as int,
+                                conversionCount:
+                                    conversion['conversionCount'] as int,
+                                    phoneNumber:  conversion['phoneNumber'] as String, 
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            context.verticalSpace(32),
+            //  Treatments Section
             BorderdContainerWidget(
               padding: context.appEdgeInsets(all: 24),
               borderRadius: context.r(12),
@@ -458,7 +574,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          "Treatments",
+                          "Frequently Use Treatments",
                           style: context.fonts.black18w600,
                         ),
                       ),

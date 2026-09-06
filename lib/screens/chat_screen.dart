@@ -226,10 +226,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             children: [
               _buildHeader(context),
               context.verticalSpace(16),
+
               if (_showPatientInfo) ...[
                 _buildPatientInfoBanner(context),
                 context.verticalSpace(16),
               ],
+
               Expanded(
                 child: BorderdContainerWidget(
                   padding: EdgeInsets.zero,
