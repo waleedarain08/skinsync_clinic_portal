@@ -43,7 +43,7 @@ class TodaysCheckInTile extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade200),
             ),
             child: Row(
-              crossAxisAlignment: .center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Patient Avatar
                 ClipOval(
@@ -68,47 +68,49 @@ class TodaysCheckInTile extends StatelessWidget {
 
                 // Patient Details
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            name,
-                            style: context.fonts.black16w700,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  child: SingleChildScrollView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              name,
+                              style: context.fonts.black16w700,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: context.h(2)),
+                        Text(
+                          email,
+                          style: context.fonts.grey13w500,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: context.h(2)),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.w(8),
+                            vertical: context.h(3),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: context.h(2)),
-                      Text(
-                        email,
-                        style: context.fonts.grey13w500,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: context.h(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.w(8),
-                          vertical: context.h(3),
-                        ),
-                        decoration: BoxDecoration(
-                          color: CustomColors.purple.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(context.r(6)),
-                        ),
-                        child: Text(
-                          'Ref: $appointmentRef',
-                          style: TextStyle(
-                            color: CustomColors.purple,
-                            fontWeight: FontWeight.w600,
-                            fontSize: context.sp(11),
+                          decoration: BoxDecoration(
+                            color: CustomColors.purple.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(context.r(6)),
+                          ),
+                          child: Text(
+                            'Ref: $appointmentRef',
+                            style: TextStyle(
+                              color: CustomColors.purple,
+                              fontWeight: FontWeight.w600,
+                              fontSize: context.sp(11),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -327,7 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       }
 
                       return SizedBox(
-                        height: context.h(110),
+                        height: context.h(140),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: checkIns.length,
@@ -527,7 +527,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                       ];
                       return SizedBox(
-                        height: context.h(135),
+                        height: context.h(160),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: dummyConversions.length,
