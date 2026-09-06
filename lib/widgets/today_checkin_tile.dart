@@ -28,7 +28,7 @@ class TodaysCheckInTile extends StatelessWidget {
       builder: (context, ref, _) {
         return GestureDetector(
           onTap: () async {
-            await ref
+            await ref 
                 .read(appointmentProvider.notifier)
                 .getAppointmentsDetail(id: appointmentId);
             if (context.mounted) {
