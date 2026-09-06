@@ -1,12 +1,10 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../exceptions/app_exception.dart';
 import '../models/common_models.dart';
@@ -144,7 +142,7 @@ class SessionState {
     this.consentFormUrl = '',
     this.existingPreAttachments = const [],
     this.existingPostAttachments = const [],
-    this.downtimeLevel ,
+    this.downtimeLevel,
     this.downTimeLevelList = const [],
     this.selectedRoles = const [],
     this.providerRolesSource = 'Category_Default',
@@ -496,6 +494,11 @@ class SessionViewModel extends BaseViewModel<SessionState> {
             // Set Session ID
             setSessionId(detail.id);
 
+            minUnitsController.text = (detail.minimumUnits ?? 0.0)
+              .toStringAsFixed(0);
+            maxUnitsController.text = (detail.maximumUnits ?? 0.0)
+              .toStringAsFixed(0);
+
             // 1. Materials Step
             final mappedUsages = detail.productUsages.map((e) {
               final durationMatch = detail.productDurations.firstWhereOrNull(
@@ -509,10 +512,10 @@ class SessionViewModel extends BaseViewModel<SessionState> {
                 unit: 'Unit',
                 notesController: TextEditingController(text: e.notes),
                 minQuantityController: TextEditingController(
-                  text: e.minQuantity.toString(),
+                  text: minUnitsController.text,
                 ),
                 maxQuantityController: TextEditingController(
-                  text: e.maxQuantity.toString(),
+                  text: maxUnitsController.text,
                 ),
                 perUnitDurationController: TextEditingController(
                   text: perUnitDuration.toString(),
@@ -531,23 +534,23 @@ class SessionViewModel extends BaseViewModel<SessionState> {
                 productName: product?.name ?? 'Product #$id',
                 unit: 'Unit',
                 notesController: TextEditingController(),
-                minQuantityController: TextEditingController(text: '0'),
-                maxQuantityController: TextEditingController(text: '0'),
+                minQuantityController: TextEditingController(
+                  text: minUnitsController.text,
+                ),
+                maxQuantityController: TextEditingController(
+                  text: maxUnitsController.text,
+                ),
                 perUnitDurationController: TextEditingController(text: '0'),
                 allowSubstitution: false,
                 deductionTiming: 'On_Completion',
               );
             }).toList();
 
-            minUnitsController.text = (detail.minimumUnits ?? 0.0)
-                .toStringAsFixed(0);
-            maxUnitsController.text = (detail.maximumUnits ?? 0.0)
-                .toStringAsFixed(0);
-
             state = state.copyWith(
               productUsageEntries: mappedUsages,
               otherMaterialsUsageEntries: mappedOtherUsages,
               selectedUnitTypeId: detail.selectedUnitTypeId,
+              selectedUnitTypeName: detail.selectedUnitTypeName,
             );
 
             // 2. Schedule Step
@@ -793,8 +796,13 @@ class SessionViewModel extends BaseViewModel<SessionState> {
         false;
   }
 
-  
-
+  double getProductMaxQuantity(ProductUsageEntry entry) {
+    final entryMax = double.tryParse(entry.maxQuantityController.text) ?? 0.0;
+    final sessionMax = double.tryParse(maxUnitsController.text) ?? 0.0;
+    if (entryMax > 0 && entryMax != 1.0) return entryMax;
+    if (sessionMax > 0) return sessionMax;
+    return entryMax;
+  }
   // Future<bool> fetchAndPopulateSessionDetail(int sessionId) async {
   //   return await runSafely<bool>(
   //     onLoadingChange: (loading) => state = state.copyWith(loading: loading),
@@ -1128,6 +1136,12 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       productId: productId,
       productName: productName,
       unit: resolvedUnit,
+      minQuantityController: TextEditingController(
+        text: minUnitsController.text,
+      ),
+      maxQuantityController: TextEditingController(
+        text: maxUnitsController.text,
+      ),
       packageType: resolvedPackageType,
       boxQuantity: resolvedBoxQuantity,
       clinicCost: resolvedClinicCost,
@@ -1225,7 +1239,6 @@ class SessionViewModel extends BaseViewModel<SessionState> {
   Future<bool?> callProductUsage({required int stepNumber}) async {
     final request = ProductUsagesRequest(
       stepNumber: stepNumber,
-
       billableMaterials: state.productUsageEntries.map((e) {
         return ProductUsage(
           productId: e.productId,
@@ -1272,43 +1285,66 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     return baseDuration + productDuration + prepTime + cleanupTime;
   }
 
-  // Original callProtocol Implementation
   Future<bool?> callProtocol({
     required int stepNumber,
-    required Uint8List bytes,
+    List<ProtocolItem>? masterProtocols,
   }) async {
-    final mediaService = MediaService();
-    const String pdfName = 'clinicForm.pdf';
+    final List<ProtocolRequestItem> protocolItems = [];
 
-    return await runSafely(() async {
-      ClinicalProtocolPdf? clinicalProtocolPdf;
+    for (final id in state.selectedProtocolIds) {
+      final pItem = masterProtocols?.firstWhereOrNull((p) => p.id == id);
+      final title = pItem?.title ?? '';
 
-      if (bytes.isNotEmpty) {
-        final uploadedFile = await mediaService.uploadFile(
-          'treatment/pdf',
-          XFile.fromData(bytes, name: pdfName, length: bytes.length),
-        );
-
-        if (uploadedFile == null) {
-          throw const UnknownException(message: 'Failed to upload');
-        }
-
-        clinicalProtocolPdf = ClinicalProtocolPdf(
-          name: pdfName,
-          url: uploadedFile,
-        );
-      }
-
-      final response = await locator<SessionRepository>().protocol(
-        request: ProtocolRequest(
-          stepNumber: stepNumber,
-          clinicalProtocolPdf: clinicalProtocolPdf,
-        ),
-        id: state.sessionId!,
+      final matchingNoteEntry = state.selectedProtocolNotes.firstWhereOrNull(
+        (n) => n.protocolName == title,
       );
+      final noteText =
+          matchingNoteEntry != null && matchingNoteEntry.notes.isNotEmpty
+              ? matchingNoteEntry.notes.map((e) => e.description).join('\n')
+              : '';
 
-      return response.success;
-    });
+      protocolItems.add(
+        ProtocolRequestItem(
+          fieldId: int.tryParse(id) ?? 0,
+          title: title,
+          note: noteText,
+        ),
+      );
+    }
+
+    final List<ProtocolInstructionItem> instructionItems =
+        state.standaloneNotes.map((note) {
+          return ProtocolInstructionItem(
+            title: note.title ?? '',
+            note: note.description,
+          );
+        }).toList();
+
+    final request = ProtocolRequest(
+      stepNumber: stepNumber,
+      protocols: protocolItems,
+      instrictions: instructionItems,
+    );
+
+    log('''
+=========== PROTOCOL REQUEST ===========
+Step No : $stepNumber
+Body    : ${request.toJson()}
+========================================
+''');
+
+    return await runSafely<bool>(
+      
+      () async {
+        final response = await locator<SessionRepository>().protocol(
+          request: request,
+          id: state.sessionId!,
+        );
+
+        log('Protocol Step Saved for Session ID: ${state.sessionId!}');
+        return response.success;
+      },
+    );
   }
 
   Future<void> fetchDownTimeLevelByTreatment({required int id}) async {
@@ -1330,16 +1366,21 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       unitPriceOverrides: state.isFixedPrice
           ? []
           : state.productUsageEntries.map((entry) {
-              final maxQty =
-                  (double.tryParse(entry.maxQuantityController.text) ?? 1.0)
-                      .ceil();
-              entry.syncUnitPriceControllers(maxQty);
+              final maxQty = getProductMaxQuantity(entry).ceil();
+              final effectiveMaxQty = maxQty < 1 ? 1 : maxQty;
+              entry.syncUnitPriceControllers(effectiveMaxQty);
 
-              final List<int> prices = [];
               if (entry.useDifferentPricingPerUnit) {
+                final List<int> prices = [];
                 for (final c in entry.unitPriceControllers) {
                   prices.add(int.tryParse(c.text.trim()) ?? 0);
                 }
+                return UnitPriceOverride(
+                  productId: entry.productId,
+                  isDiffPrice: true,
+                  pricePerUnit: 0,
+                  pricePerUnitList: prices,
+                );
               } else {
                 final singlePrice =
                     int.tryParse(
@@ -1348,13 +1389,13 @@ class SessionViewModel extends BaseViewModel<SessionState> {
                           : entry.unitPriceControllers[0].text.trim(),
                     ) ??
                     0;
-                prices.addAll(List.filled(maxQty, singlePrice));
+                return UnitPriceOverride(
+                  productId: entry.productId,
+                  isDiffPrice: false,
+                  pricePerUnit: singlePrice,
+                  pricePerUnitList: [],
+                );
               }
-
-              return UnitPriceOverride(
-                productId: entry.productId,
-                pricePerUnit: prices,
-              );
             }).toList(),
       isFixedPrice: state.isFixedPrice,
       fixedPrice: state.isFixedPrice
@@ -1363,12 +1404,12 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       allowedRoles: state.pricingRoles,
     );
     log('''
-  =========== PRODUCT USAGE REQUEST ===========
+=========== PRODUCT USAGE REQUEST ===========
 
-  Step No    : $stepNumber
-  Body       : ${request.toJson()}
-  ============================================
-  ''');
+Step No    : $stepNumber
+Body       : ${request.toJson()}
+============================================
+''');
 
     return await runSafely<bool>(() async {
       await locator<SessionRepository>().stepPricing(
@@ -1382,38 +1423,32 @@ class SessionViewModel extends BaseViewModel<SessionState> {
     });
   }
 
- Future<bool?> callDownTimeLevels({required int stepNumber}) async {
-  final level = state.downtimeLevel;
+  Future<bool?> callDownTimeLevels({required int stepNumber}) async {
+    final level = state.downtimeLevel;
 
-  
+    final selected = state.downTimeLevelList
+        .where((e) => e.level == level)
+        .firstOrNull;
 
-  final selected = state.downTimeLevelList
-      .where((e) => e.level == level)
-      .firstOrNull;
+    final downtimeDays = selected?.days;
 
-  final downtimeDays = selected?.days;
-
- 
-
-  final request = DownTimeLevelRequest(
-    stepNumber: stepNumber,
-    downtimeLevel: (level ?? '' ).toLowerCase(),
-    downtimeDays: downtimeDays,
-  );
-
-
-
-  return await runSafely<bool>(() async {
-    await locator<SessionRepository>().downTimeLevels(
-      request: request,
-      id: state.sessionId!,
+    final request = DownTimeLevelRequest(
+      stepNumber: stepNumber,
+      downtimeLevel: (level ?? '').toLowerCase(),
+      downtimeDays: downtimeDays,
     );
 
-    log('Step Downtime Saved: ${state.sessionId!}');
+    return await runSafely<bool>(() async {
+      await locator<SessionRepository>().downTimeLevels(
+        request: request,
+        id: state.sessionId!,
+      );
 
-    return true;
-  });
-}
+      log('Step Downtime Saved: ${state.sessionId!}');
+
+      return true;
+    });
+  }
 
   Future<bool?> callAllowedProviderRoles({required int stepNumber}) async {
     final request = AllowedProviderRolesRequest(
@@ -2211,8 +2246,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
               order: 2,
             ),
             TreatmentProtocolNoteItem(
-              description:
-                  'Confirm lack of contraindications (pregnancy, neuromuscular disorders)',
+              description: 'Confirm lack of contraindications (pregnancy, neuromuscular disorders)',
               order: 3,
             ),
           ],
@@ -2229,8 +2263,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       case 6: // Post-Treatment Instructions
         _presetBackups[step]?['postInstructions'] =
             postTreatmentInstructionsController.text;
-        postTreatmentInstructionsController.text =
-            'Avoid lying down for 4 hours, and do not massage the treated area.';
+        postTreatmentInstructionsController.text = 'Avoid lying down for 4 hours, and do not massage the treated area.';
         break;
 
       case 7: // Post Treatment Photos
@@ -2264,8 +2297,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
         final postEntry = NotificationEntry(
           titleController: TextEditingController(text: 'Botox Aftercare Guide'),
           messageController: TextEditingController(
-            text:
-                'Avoid lying down for 4 hours, and do not massage the treated area.',
+            text: 'Avoid lying down for 4 hours, and do not massage the treated area.',
           ),
           timingValueController: TextEditingController(text: '4'),
           timingUnit: 'hours',

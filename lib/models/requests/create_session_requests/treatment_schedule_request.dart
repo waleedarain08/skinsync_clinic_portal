@@ -56,7 +56,7 @@ class TreatmentScheduleRequest extends BaseRequest {
     'allowed_roles': allowedRoles == null
         ? []
         : List<dynamic>.from(allowedRoles!.map((x) => x)),
-    //'is_fixed_duration': isFixedDuration,
+    'is_fixed_duration': isFixedDuration,
   };
 }
 
