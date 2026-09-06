@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:go_router/go_router.dart';
 
-import '../utils/color_constant.dart';
-import '../utils/custom_fonts.dart';
+import '../screens/dashboard/appointment_detail_screen.dart';
+import '../utils/theme.dart';
+import '../view_models/appointment_view_model.dart';
 
 class TodaysCheckInTile extends StatelessWidget {
   final String patientImage;
@@ -28,31 +28,40 @@ class TodaysCheckInTile extends StatelessWidget {
       builder: (context, ref, _) {
         return GestureDetector(
           onTap: () async {
-            // Navigation logic
+            await ref
+                .read(appointmentProvider.notifier)
+                .getAppointmentsDetail(id: appointmentId);
+            if (context.mounted) {
+              context.push(AppointmentDetailScreen.routeName);
+            }
           },
           child: Container(
-            width: context.w(280),
             padding: EdgeInsets.all(context.w(12)),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(context.r(12)),
+              borderRadius: BorderRadius.circular(context.r(10)),
               border: Border.all(color: Colors.grey.shade200),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: .center,
               children: [
-                // Patient Avatar (Iconsax User Icon)
-                Container(
-                  width: context.r(44),
-                  height: context.r(44),
-                  decoration: BoxDecoration(
-                    color: CustomColors.lightPurple.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Iconsax.user,
-                    color: CustomColors.lightPurple,
-                    size: context.sp(22),
+                // Patient Avatar
+                ClipOval(
+                  child: Image.network(
+                    patientImage,
+                    width: context.r(44),
+                    height: context.r(44),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: context.r(44),
+                      height: context.r(44),
+                      color: CustomColors.purple.withOpacity(0.1),
+                      child: Icon(
+                        Icons.person,
+                        color: CustomColors.purple,
+                        size: context.sp(22),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(width: context.w(10)),
@@ -63,27 +72,31 @@ class TodaysCheckInTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        name,
-                        style: CustomFonts.black16w700,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Text(
+                            name,
+                            style: context.fonts.black16w700,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                       SizedBox(height: context.h(2)),
                       Text(
                         email,
-                        style: CustomFonts.grey14w400,
+                        style: context.fonts.grey13w500,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: context.h(4)),
+                      SizedBox(height: context.h(2)),
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: context.w(8),
                           vertical: context.h(3),
                         ),
                         decoration: BoxDecoration(
-                          color: CustomColors.purple.withValues(alpha: 0.08),
+                          color: CustomColors.purple.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(context.r(6)),
                         ),
                         child: Text(
