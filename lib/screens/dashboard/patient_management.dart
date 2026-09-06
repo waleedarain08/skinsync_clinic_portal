@@ -196,7 +196,7 @@ class _PatientManagementContent extends ConsumerWidget {
                 )
               : null,
         ),
-        onFieldSubmitted: (_) {
+        onChanged: (_) {
           ref
               .read(patientProvider.notifier)
               .getPatients(initialCall: true, showEasyLoading: true);
