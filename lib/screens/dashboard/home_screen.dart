@@ -21,6 +21,7 @@ import '../../widgets/today_checkin_tile.dart';
 import '../../widgets/treatment_list_widget.dart';
 import '../business_info_screen.dart';
 import 'appointment_screen.dart';
+import 'shared_treatment_request_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static const String routeName = '/home';
@@ -381,7 +382,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: context.fonts.black18w600,
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                           context.push(SharedTreatmentRequestScreen.routeName);
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,

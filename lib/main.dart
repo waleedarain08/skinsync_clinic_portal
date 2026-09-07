@@ -17,7 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await ScreenUtilPlus.ensureScreenSize();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); 
   await initializeServices();
   Stripe.publishableKey = 'pk_test_51RZrW32UDQ1Rzrd8uNB07ptQPHxECWTfB4ZZF6ZCgiFyfWBpBGdQhSSlD7J3u79aMSzQCAeVgI30pnA8iyNekaA500go9X7wD7';
 

@@ -85,14 +85,14 @@ List<_SidebarEntry> _sidebarEntries() {
       routeName: TreatmentScreen.routeName,
       sectionLabel: 'OPERATIONS',
     ),
-
-    if (!isDeploymentMode) ...[
-      const _SidebarEntry(
+     const _SidebarEntry(
         icon: Iconsax.calendar,
         label: 'Appointments',
         routeName: AppointmentScreen.routeName,
         sectionLabel: 'CLINICAL',
       ),
+    if (!isDeploymentMode) ...[
+     
       const _SidebarEntry(
         icon: Iconsax.mask,
         label: 'Subscription',

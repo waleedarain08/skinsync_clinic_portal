@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../screens/dashboard/patient_management_detail.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import '../view_models/auth_view_model.dart';
+import '../view_models/patient_view_model.dart';
 import 'patient_treatment_request_widget.dart';
 
 class TreatmentRequestRowWidget extends ConsumerWidget {
@@ -40,6 +43,20 @@ class TreatmentRequestRowWidget extends ConsumerWidget {
         (index) {
           return PatientTreatmentRequestCard(
             data: treatmentList[index],
+            onTap: () async {
+                if (treatmentList[index].id == null) return;
+
+                      final success = await ref
+                          .read(patientProvider.notifier)
+                          .getPatientDetail(patientId: treatmentList[index].id!);
+
+                      if (success && context.mounted) {
+                        context.push(
+                          PatientManagementDetailScreen.routeName,
+                          extra:treatmentList[index].id,
+                        );
+                      }
+            },
           );
         },
       ),
