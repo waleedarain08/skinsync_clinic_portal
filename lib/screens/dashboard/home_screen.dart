@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 
+import '../../utils/clinic_dummy_data.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../widgets/frequently_conversion.widget.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -495,45 +496,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   context.verticalSpace(24),
                   Consumer(
                     builder: (context, ref, child) {
-                      // Dummy data for Frequently Conversion
-                      final dummyConversions = [
-                        {
-                          'patientImage': '',
-                          'name': 'James Anderson',
-                          'email': 'james.anderson@example.com',
-                          'phoneNumber': '+1 (555) 234-5678',
-                          'appointmentRef': 'APT-1001',
-                          'appointmentId': 101,
-                          'conversionCount': 12,
-                        },
-                        {
-                          'patientImage': '',
-                          'name': 'Sarah Wilson',
-                          'email': 'sarah.wilson@example.com',
-                          'phoneNumber': '+1 (555) 876-5432',
-                          'appointmentRef': 'APT-1002',
-                          'appointmentId': 102,
-                          'conversionCount': 8,
-                        },
-                        {
-                          'patientImage': '',
-                          'name': 'Michael Smith',
-                          'email': 'michael.smith@example.com',
-                          'phoneNumber': '+1 (555) 345-6789',
-                          'appointmentRef': 'APT-1003',
-                          'appointmentId': 103,
-                          'conversionCount': 15,
-                        },
-                        {
-                          'patientImage': '',
-                          'name': 'Emily Johnson',
-                          'email': 'emily.johnson@example.com',
-                          'phoneNumber': '+1 (555) 987-6543',
-                          'appointmentRef': 'APT-1004',
-                          'appointmentId': 104,
-                          'conversionCount': 6,
-                        },
-                      ];
+                      final dummyConversions =
+                          ClinicDummyData.dummyFrequentlyConversions;
                       return SizedBox(
                         height: context.h(160),
                         child: ListView.separated(
