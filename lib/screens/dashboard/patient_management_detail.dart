@@ -10,6 +10,8 @@ import '../../view_models/patient_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/patient_simulations_widget.dart';
+import '../../widgets/patient_treatment_history_widget.dart';
 
 import 'patient_management.dart';
 
@@ -26,16 +28,21 @@ class PatientManagementDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PatientManagementDetailScreenState
-    extends ConsumerState<PatientManagementDetailScreen> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     ref
-  //         .read(patientProvider.notifier)
-  //         .getPatientTreatmentRequests(initialCall: true, patientId: widget.patientId);
-  //   });
-  // }
+    extends ConsumerState<PatientManagementDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +66,7 @@ class _PatientManagementDetailScreenState
           onPressed: () => context.pop(),
         ),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,8 +74,29 @@ class _PatientManagementDetailScreenState
             _buildProfileHeader(context, patient),
             context.verticalSpace(24),
             _buildInfoSection(context, patient),
-            // context.verticalSpace(24),
-            // _buildTreatmentRequestsSection(context, patientState),
+            context.verticalSpace(24),
+            BorderdContainerWidget(
+              padding: EdgeInsets.zero,
+              backgroundColor: CustomColors.white,
+              borderRadius: context.r(12),
+              child: TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Treatment History'),
+                  Tab(text: 'Simulations'),
+                ],
+              ),
+            ),
+            context.verticalSpace(16),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: const [
+                  SingleChildScrollView(child: PatientTreatmentHistoryWidget()),
+                  SingleChildScrollView(child: PatientSimulationsWidget()),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -133,97 +161,6 @@ class _PatientManagementDetailScreenState
     );
   }
 
-  // Widget _buildTreatmentRequestsSection(
-  //   BuildContext context,
-  //   PatientState state,
-  // ) {
-  //   return BorderdContainerWidget(
-  //     padding: context.appEdgeInsets(all: 24),
-  //     backgroundColor: CustomColors.white,
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Text('Treatment Requests', style: context.fonts.subHeading),
-  //             if (state.treatmentLoading)
-  //               const SizedBox(
-  //                 width: 16,
-  //                 height: 16,
-  //                 child: CircularProgressIndicator(strokeWidth: 2),
-  //               ),
-  //           ],
-  //         ),
-  //         const Divider(color: CustomColors.border, height: 32),
-  //         if (state.treatmentRequests.isEmpty && !state.treatmentLoading)
-  //           Padding(
-  //             padding: context.appEdgeInsets(vertical: 20),
-  //             child: Center(
-  //               child: Text(
-  //                 'No treatment requests found',
-  //                 style: context.fonts.grey14w400,
-  //               ),
-  //             ),
-  //           )
-  //         else
-  //           ListView.builder(
-  //             shrinkWrap: true,
-  //             physics: const NeverScrollableScrollPhysics(),
-  //             itemCount: state.treatmentRequests.length,
-  //             itemBuilder: (context, index) {
-  //               final request = state.treatmentRequests[index];
-  //               return SimulationTreatmentRequestCard(
-  //                 request: request,
-  //                 onTreatmentTap: (treatmentId) async {
-  //                  await ref
-  //                     .read(treatmentViewModelProvider.notifier)
-  //                     .fetchTreatmentDetail(treatmentId);
-  //                 if (mounted) {
-  //                   await context.push(TreatmentDetailScreen.routeName);
-  //                 }
-  //                 },
-  //               );
-  //             },
-  //           ),
-  //         if (state.treatmentTotalPage != null &&
-  //             state.treatmentTotalPage! > 1) ...[
-  //           context.verticalSpace(24),
-  //           _buildPagination(context, state),
-  //         ],
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildPagination(BuildContext context, PatientState state) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       IconButton(
-  //         onPressed: state.treatmentPage > 1
-  //             ? () => ref
-  //                   .read(patientProvider.notifier)
-  //                   .setTreatmentPageNumber(state.treatmentPage - 1)
-  //             : null,
-  //         icon: const Icon(Icons.arrow_back_ios, size: 16),
-  //       ),
-  //       Text(
-  //         'Page ${state.treatmentPage} of ${state.treatmentTotalPage}',
-  //         style: context.fonts.black14w600,
-  //       ),
-  //       IconButton(
-  //         onPressed: state.treatmentPage < (state.treatmentTotalPage ?? 1)
-  //             ? () => ref
-  //                   .read(patientProvider.notifier)
-  //                   .setTreatmentPageNumber(state.treatmentPage + 1)
-  //             : null,
-  //         icon: const Icon(Icons.arrow_forward_ios, size: 16),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _infoRow(
     BuildContext context,
     IconData icon,
@@ -255,23 +192,13 @@ class _PatientManagementDetailScreenState
   Widget _buildAvatar(BuildContext context, String? imageUrl, double radius) {
     return ClipOval(
       child: imageUrl != null && imageUrl.isNotEmpty
-          ? (imageUrl.startsWith('http')
-                ? CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    height: context.r(radius * 2),
-                    width: context.r(radius * 2),
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) =>
-                        _buildDefaultAvatar(context, radius),
-                  )
-                : Image.asset(
-                    imageUrl,
-                    height: context.r(radius * 2),
-                    width: context.r(radius * 2),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        _buildDefaultAvatar(context, radius),
-                  ))
+          ? CachedNetworkImage(
+              imageUrl: imageUrl,
+              height: context.r(radius * 2),
+              width: context.r(radius * 2),
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => _buildDefaultAvatar(context, radius),
+            )
           : _buildDefaultAvatar(context, radius),
     );
   }
@@ -280,11 +207,7 @@ class _PatientManagementDetailScreenState
     return CircleAvatar(
       radius: context.r(radius),
       backgroundColor: CustomColors.softGrey,
-      child: Icon(
-        Icons.person,
-        size: context.r(radius),
-        color: CustomColors.grey,
-      ),
+      child: Icon(Icons.person, size: context.r(radius), color: CustomColors.grey),
     );
   }
 }
