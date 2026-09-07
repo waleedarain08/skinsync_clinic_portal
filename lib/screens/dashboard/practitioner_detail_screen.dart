@@ -10,6 +10,7 @@ import '../../view_models/practitioner_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/provider_leave_calendar_widget.dart';
 import '../add_practitioner_screen.dart';
 
 class PractitionerDetailScreen extends ConsumerWidget {
@@ -89,6 +90,8 @@ class PractitionerDetailScreen extends ConsumerWidget {
             ],
             context.verticalSpace(24),
             _buildFinancialSection(context, practitioner),
+            context.verticalSpace(24),
+            ProviderLeaveCalendarWidget(practitionerId: practitioner.id),
           ],
         ),
       ),
