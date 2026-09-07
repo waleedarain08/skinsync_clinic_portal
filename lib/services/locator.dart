@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+
 import '../repositories/ai_onboarding_chat_repository.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/chat_repository.dart';
@@ -9,19 +10,19 @@ import '../repositories/product_repository.dart';
 import '../repositories/provider_role_repository.dart';
 import '../repositories/session_repository.dart';
 import '../repositories/treatment_repository.dart';
-import 'api_base_helper.dart';
+import '../view_models/forms_controller.dart';
 import 'ai_onboarding_chat_service.dart';
+import 'api_base_helper.dart';
 import 'appointment_service.dart';
 import 'area_services.dart';
 import 'auth_service.dart';
 import 'chat_service.dart';
 import 'explore_service.dart';
 import 'firebase_notification_service.dart';
+import 'media_service.dart';
 import 'notification_service.dart';
 import 'patient_service.dart';
 import 'practitioner_service.dart';
-import '../view_models/forms_controller.dart';
-import 'media_service.dart';
 import 'product_services.dart';
 import 'provider_roles_service.dart';
 import 'role_service.dart';
@@ -56,18 +57,14 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton<ProductRepository>(
     () => ProductServices(api: apiBaseHelper),
   );
-   locator.registerLazySingleton<ProviderRoleRepository>(
+  locator.registerLazySingleton<ProviderRoleRepository>(
     () => ProviderRolesService(api: apiBaseHelper),
   );
-  locator.registerLazySingleton<ExploreRepository>(
-    () => ExploreService(),
-  );
-   locator.registerLazySingleton<NotificationRepository>(
+  locator.registerLazySingleton<ExploreRepository>(() => ExploreService());
+  locator.registerLazySingleton<NotificationRepository>(
     () => NotificationService(),
   );
-   locator.registerLazySingleton<PatientRepository>(
-    () => PatientService(),
-  );
+  locator.registerLazySingleton<PatientRepository>(() => PatientService());
   locator.registerLazySingleton<ChatRepository>(
     () => ChatService(api: apiBaseHelper),
   );
@@ -79,11 +76,7 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton(() => RoleService());
   locator.registerLazySingleton(() => AppointmentService());
   locator.registerLazySingleton(() => AreaServices());
-
-  // Notification service (initializes FirebaseMessaging + local notifications)
-  final firebaseNotificationService = FireBaseNotificationService();
-  await firebaseNotificationService.init();
-  locator.registerSingleton(firebaseNotificationService);
+  locator.registerSingleton(FireBaseNotificationService());
 
   locator.registerSingleton(apiBaseHelper);
 }

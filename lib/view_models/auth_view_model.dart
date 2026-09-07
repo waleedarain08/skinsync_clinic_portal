@@ -7,16 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../models/requests/change_password_request.dart';
+import '../models/requests/forget_password_request.dart';
+import '../models/requests/login_request_model.dart';
 import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/clinic_model.dart';
 import '../models/responses/login_response_model.dart';
 import '../models/user_model.dart';
-import '../models/requests/change_password_request.dart';
-import '../models/requests/forget_password_request.dart';
-import '../models/requests/login_request_model.dart';
 import '../repositories/auth_repository.dart';
 import '../services/encryption_service.dart';
+import '../services/firebase_notification_service.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 import '../services/storage_service.dart';
@@ -34,6 +36,18 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     init();
     ref.onDispose(dispose);
     return AuthState(country: CountryCode.fromCountryCode('US'));
+  }
+
+  @override
+  void init() {
+    super.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await locator<FireBaseNotificationService>().init(
+        onNotification: () async {
+          await callGetMe(showLoading: false);
+        },
+      );
+    });
   }
 
   final AuthRepository _authRepository = locator<AuthRepository>();
@@ -73,12 +87,14 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     confirmPasswordController.clear();
   }
 
-  Future<bool?> callGetMe() async {
-    return await runSafely<bool?>(() async {
+  Future<bool?> callGetMe({bool showLoading = true}) async {
+    return await runSafely<bool?>(showLoading: showLoading, () async {
       final response = await _authRepository.getMe();
-      state = state.copyWith
-      (
-        user: response.data!.clinicUser,dashboard:response.data?.dashboard,isCompletedProfile: response.data?.isCompleted );
+      state = state.copyWith(
+        user: response.data!.clinicUser,
+        dashboard: response.data?.dashboard,
+        isCompletedProfile: response.data?.isCompleted,
+      );
       return true;
     });
   }
@@ -92,7 +108,11 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     );
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.login(req: request);
-          state = state.copyWith(user: response.clinicUser,dashboard:response.dashboard,isCompletedProfile: response.isCompleted );
+          state = state.copyWith(
+            user: response.clinicUser,
+            dashboard: response.dashboard,
+            isCompletedProfile: response.isCompleted,
+          );
           return true;
         }) ??
         false;
@@ -218,16 +238,11 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     });
   }
 
- Future<String?> encryptAppointmentData(int clinicId) async {
-  return await runSafely<String?>(() async {
-  
-    return await EncryptionService().encrypt(
-      message: '$clinicId',
-    );
-  });
-}
-
-
+  Future<String?> encryptAppointmentData(int clinicId) async {
+    return await runSafely<String?>(() async {
+      return await EncryptionService().encrypt(message: '$clinicId');
+    });
+  }
 
   void disposeControllers() {
     currentPasswordController.dispose();
@@ -306,7 +321,7 @@ class AuthState {
       user: user ?? this.user,
       clinicDetail: clinicDetail ?? this.clinicDetail,
       error: error,
-      isCompletedProfile:isCompletedProfile ?? this.isCompletedProfile,
+      isCompletedProfile: isCompletedProfile ?? this.isCompletedProfile,
       passwordChanged: passwordChanged ?? this.passwordChanged,
       obscureCurrent: obscureCurrent ?? this.obscureCurrent,
       obscureNew: obscureNew ?? this.obscureNew,
@@ -315,7 +330,7 @@ class AuthState {
       signature: signature ?? this.signature,
       navigateDailogIndex: navigateDailogIndex ?? this.navigateDailogIndex,
       country: country ?? this.country,
-      dashboard:dashboard ?? this.dashboard
+      dashboard: dashboard ?? this.dashboard,
     );
   }
 }
