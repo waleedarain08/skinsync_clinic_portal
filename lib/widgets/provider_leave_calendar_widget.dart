@@ -5,11 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../models/responses/appointment_list_response.dart';
-import '../screens/dashboard/appointment_detail_screen.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_view_model.dart';
 import 'borderd_container_widget.dart';
 import 'custom_primary_button.dart';
+import 'dialog_box/standard_dialog.dart';
 
 class LeaveRecord {
   final String dateRange;
@@ -37,6 +37,8 @@ class _ProviderLeaveCalendarWidgetState
     extends ConsumerState<ProviderLeaveCalendarWidget> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
 
   final List<LeaveRecord> _leaves = [
     LeaveRecord(
@@ -51,92 +53,122 @@ class _ProviderLeaveCalendarWidgetState
     ),
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = _focusedDay;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(appointmentProvider.notifier).getAppointments();
-    });
+  List<AppointmentData> get _dummyAppointments {
+    final now = DateTime.now();
+    return [
+      AppointmentData(
+        id: 101,
+        appointmentKey: 'APT-1001',
+        appointmentType: 'Botox Treatment',
+        patientName: 'Sarah Wilson',
+        status: 'Confirmed',
+        start: DateTime(now.year, now.month, now.day + 2, 10, 0),
+        end: DateTime(now.year, now.month, now.day + 2, 11, 0),
+        date: DateTime(now.year, now.month, now.day + 2),
+      ),
+      AppointmentData(
+        id: 102,
+        appointmentKey: 'APT-1002',
+        appointmentType: 'Dermal Filler',
+        patientName: 'Michael Smith',
+        status: 'Confirmed',
+        start: DateTime(now.year, now.month, now.day + 5, 14, 0),
+        end: DateTime(now.year, now.month, now.day + 5, 15, 0),
+        date: DateTime(now.year, now.month, now.day + 5),
+      ),
+    ];
   }
 
-  void _showMarkLeaveDialog(BuildContext context, DateTime startDate) {
-    final dateController = TextEditingController(
-      text: DateFormat('MMM dd, yyyy').format(startDate),
-    );
-    String leaveType = 'Annual Leave';
+  void _markLeaveForSelectedRange() {
+    if (_rangeStart == null && _selectedDay == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select date(s) on the calendar first'),
+        ),
+      );
+      return;
+    }
 
+    final formatter = DateFormat('MMM dd, yyyy');
+    String rangeStr;
+
+    if (_rangeStart != null) {
+      final start = _rangeStart!;
+      final end = _rangeEnd ?? _rangeStart!;
+      rangeStr = start.isAtSameMomentAs(end)
+          ? formatter.format(start)
+          : '${formatter.format(start)} - ${formatter.format(end)}';
+    } else {
+      rangeStr = formatter.format(_selectedDay!);
+    }
+
+    setState(() {
+      _leaves.insert(
+        0,
+        LeaveRecord(
+          dateRange: rangeStr,
+          reason: 'Annual Leave',
+          status: 'Approved',
+        ),
+      );
+      _rangeStart = null;
+      _rangeEnd = null;
+      _selectedDay = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Leave successfully marked for $rangeStr')),
+    );
+  }
+
+  void _showRescheduleDialog(AppointmentData appt) {
+    DateTime newDate = appt.start ?? DateTime.now();
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text('Mark Provider Leave', style: context.fonts.black18w600),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Leave Type', style: context.fonts.black14w600),
-                  context.verticalSpace(8),
-                  DropdownButtonFormField<String>(
-                    value: leaveType,
-                    decoration: AppDecorations.input(context),
-                    items: ['Annual Leave', 'Sick Leave', 'Personal Leave', 'Unpaid Leave']
-                        .map((type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type, style: context.fonts.black14w400),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setDialogState(() => leaveType = val);
-                      }
-                    },
-                  ),
-                  context.verticalSpace(16),
-                  Text('Selected Date', style: context.fonts.black14w600),
-                  context.verticalSpace(8),
-                  TextField(
-                    controller: dateController,
-                    style: context.fonts.black14w400,
-                    decoration: AppDecorations.input(
-                      context,
-                      hint: 'Date',
-                      prefixIcon: const Icon(Icons.calendar_month_outlined),
+        return StandardDialog(
+          title: 'Reschedule Appointment (${appt.appointmentKey})',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Patient: ${appt.patientName}', style: context.fonts.black14w600),
+              context.verticalSpace(8),
+              Text(
+                'Service: ${appt.appointmentType ?? "Consultation"}',
+                style: context.fonts.grey13w500,
+              ),
+              context.verticalSpace(16),
+              Text('Select New Date', style: context.fonts.black14w600),
+              context.verticalSpace(8),
+              SizedBox(
+                width: 420,
+                height: 280,
+                child: CalendarDatePicker(
+                  initialDate: newDate,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  onDateChanged: (d) => newDate = d,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CustomPrimaryButton(
+              label: 'Confirm Reschedule',
+              onTap: () {
+                context.pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Appointment ${appt.appointmentKey} rescheduled to ${DateFormat('MMM dd, yyyy').format(newDate)}',
                     ),
                   ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: Text('Cancel', style: context.fonts.grey13w500),
-                ),
-                CustomPrimaryButton(
-                  label: 'Mark Leave',
-                  onTap: () {
-                    if (dateController.text.trim().isEmpty) return;
-                    setState(() {
-                      _leaves.insert(
-                        0,
-                        LeaveRecord(
-                          dateRange: dateController.text.trim(),
-                          reason: leaveType,
-                          status: 'Approved',
-                        ),
-                      );
-                    });
-                    context.pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Leave marked successfully')),
-                    );
-                  },
-                  width: 165,
-                ),
-              ],
-            );
-          },
+                );
+              },
+              width: 170,
+            ),
+          ],
         );
       },
     );
@@ -145,18 +177,18 @@ class _ProviderLeaveCalendarWidgetState
   @override
   Widget build(BuildContext context) {
     final appointmentState = ref.watch(appointmentProvider);
-    final appointments = appointmentState.appointmentList ?? [];
+    final apiAppointments = appointmentState.appointmentList ?? [];
+    final allAppointments = [...apiAppointments, ..._dummyAppointments];
 
     List<AppointmentData> getAppointmentsForDay(DateTime day) {
-      return appointments.where((a) {
+      return allAppointments.where((a) {
         final date = a.date ?? a.start;
         return isSameDay(date, day);
       }).toList();
     }
 
-    final selectedDayAppointments = _selectedDay != null
-        ? getAppointmentsForDay(_selectedDay!)
-        : <AppointmentData>[];
+    final activeTargetDay = _selectedDay ?? _rangeStart ?? DateTime.now();
+    final selectedDayAppointments = getAppointmentsForDay(activeTargetDay);
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
@@ -167,12 +199,19 @@ class _ProviderLeaveCalendarWidgetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Calendar & Leaves', style: context.fonts.subHeading),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Calendar & Leaves', style: context.fonts.subHeading),
+                  context.verticalSpace(2),
+                  Text(
+                    'Tap/drag dates on calendar to select leave range',
+                    style: context.fonts.grey12w400,
+                  ),
+                ],
+              ),
               CustomPrimaryButton(
-                onTap: () => _showMarkLeaveDialog(
-                  context,
-                  _selectedDay ?? DateTime.now(),
-                ),
+                onTap: _markLeaveForSelectedRange,
                 label: 'Mark Leave',
                 icon: Icons.event_busy_outlined,
                 height: context.h(36),
@@ -182,7 +221,7 @@ class _ProviderLeaveCalendarWidgetState
           ),
           const Divider(color: CustomColors.border, height: 32),
 
-          // Inline TableCalendar with appointment markers
+          // Inline TableCalendar with range selection & appointment markers
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: CustomColors.border),
@@ -193,6 +232,9 @@ class _ProviderLeaveCalendarWidgetState
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _focusedDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              rangeStartDay: _rangeStart,
+              rangeEndDay: _rangeEnd,
+              rangeSelectionMode: RangeSelectionMode.toggledOn,
               eventLoader: getAppointmentsForDay,
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -203,6 +245,15 @@ class _ProviderLeaveCalendarWidgetState
                   color: CustomColors.purple,
                   shape: BoxShape.circle,
                 ),
+                rangeStartDecoration: const BoxDecoration(
+                  color: CustomColors.purple,
+                  shape: BoxShape.circle,
+                ),
+                rangeEndDecoration: const BoxDecoration(
+                  color: CustomColors.purple,
+                  shape: BoxShape.circle,
+                ),
+                rangeHighlightColor: CustomColors.lightPurple,
                 markerDecoration: const BoxDecoration(
                   color: CustomColors.green,
                   shape: BoxShape.circle,
@@ -216,6 +267,16 @@ class _ProviderLeaveCalendarWidgetState
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
+                  _rangeStart = selectedDay;
+                  _rangeEnd = null;
+                });
+              },
+              onRangeSelected: (start, end, focusedDay) {
+                setState(() {
+                  _rangeStart = start;
+                  _rangeEnd = end;
+                  _focusedDay = focusedDay;
+                  _selectedDay = null;
                 });
               },
               onPageChanged: (focusedDay) {
@@ -228,68 +289,90 @@ class _ProviderLeaveCalendarWidgetState
 
           // Selected Day Appointments & Reschedule
           if (selectedDayAppointments.isNotEmpty) ...[
-            Text(
-              'Appointments on ${DateFormat('MMM dd, yyyy').format(_selectedDay!)}',
-              style: context.fonts.black14w600,
-            ),
-            context.verticalSpace(12),
-            ...selectedDayAppointments.map((appt) => Container(
-                  margin: EdgeInsets.only(bottom: context.h(12)),
-                  padding: context.appEdgeInsets(all: 12),
-                  decoration: BoxDecoration(
-                    color: CustomColors.whiteGrey,
-                    borderRadius: BorderRadius.circular(context.r(8)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(
+              padding: context.appEdgeInsets(all: 16),
+              decoration: BoxDecoration(
+                color: CustomColors.lightPurple.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(
+                  color: CustomColors.purple.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              appt.patientName ?? 'Patient',
-                              style: context.fonts.black14w600,
-                            ),
-                            context.verticalSpace(2),
-                            Text(
-                              'Ref: ${appt.appointmentKey ?? appt.id}',
-                              style: context.fonts.grey12w400,
-                            ),
-                          ],
-                        ),
+                      const Icon(
+                        Icons.event_note,
+                        color: CustomColors.purple,
+                        size: 20,
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: CustomColors.purple,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.w(12),
-                            vertical: context.h(8),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(context.r(8)),
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (appt.id != null) {
-                            await ref
-                                .read(appointmentProvider.notifier)
-                                .getAppointmentsDetail(id: appt.id!);
-                            if (context.mounted) {
-                              context.push(AppointmentDetailScreen.routeName);
-                            }
-                          }
-                        },
-                        child: const Text(
-                          'Reschedule / View',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
+                      context.horizontalSpace(8),
+                      Text(
+                        'Appointments on ${DateFormat('MMM dd, yyyy').format(activeTargetDay)}',
+                        style: context.fonts.black14w600.copyWith(
+                          color: CustomColors.purple,
                         ),
                       ),
                     ],
                   ),
-                )),
-            context.verticalSpace(16),
+                  context.verticalSpace(12),
+                  ...selectedDayAppointments.map(
+                    (appt) => Container(
+                      margin: EdgeInsets.only(bottom: context.h(8)),
+                      padding: context.appEdgeInsets(all: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(context.r(8)),
+                        border: Border.all(color: CustomColors.border),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  appt.patientName ?? 'Patient',
+                                  style: context.fonts.black14w600,
+                                ),
+                                context.verticalSpace(2),
+                                Text(
+                                  'Service: ${appt.appointmentType ?? "Consultation"} (${appt.appointmentKey ?? appt.id})',
+                                  style: context.fonts.grey12w400,
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: CustomColors.purple,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.w(12),
+                                vertical: context.h(8),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(context.r(8)),
+                              ),
+                            ),
+                            onPressed: () => _showRescheduleDialog(appt),
+                            child: const Text(
+                              'Reschedule',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            context.verticalSpace(20),
           ],
 
           Text('Recorded Leaves', style: context.fonts.black14w600),
@@ -297,50 +380,55 @@ class _ProviderLeaveCalendarWidgetState
           if (_leaves.isEmpty)
             Text('No leaves recorded.', style: context.fonts.grey14w400)
           else
-            ..._leaves.map((leave) => Padding(
-                  padding: EdgeInsets.only(bottom: context.h(12)),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: context.appEdgeInsets(all: 10),
-                        decoration: BoxDecoration(
-                          color: CustomColors.amber.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(context.r(8)),
-                        ),
-                        child: const Icon(
-                          Icons.event_busy,
-                          color: CustomColors.amber,
-                          size: 20,
-                        ),
+            ..._leaves.map(
+              (leave) => Padding(
+                padding: EdgeInsets.only(bottom: context.h(12)),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: context.appEdgeInsets(all: 10),
+                      decoration: BoxDecoration(
+                        color: CustomColors.amber.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(context.r(8)),
                       ),
-                      context.horizontalSpace(14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(leave.reason, style: context.fonts.black14w600),
-                            context.verticalSpace(2),
-                            Text(leave.dateRange, style: context.fonts.grey12w400),
-                          ],
-                        ),
+                      child: const Icon(
+                        Icons.event_busy,
+                        color: CustomColors.amber,
+                        size: 20,
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.w(10),
-                          vertical: context.h(4),
-                        ),
-                        decoration: BoxDecoration(
-                          color: CustomColors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(context.r(12)),
-                        ),
-                        child: Text(
-                          leave.status,
-                          style: context.fonts.green10w600,
-                        ),
+                    ),
+                    context.horizontalSpace(14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(leave.reason, style: context.fonts.black14w600),
+                          context.verticalSpace(2),
+                          Text(
+                            leave.dateRange,
+                            style: context.fonts.grey12w400,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.w(10),
+                        vertical: context.h(4),
+                      ),
+                      decoration: BoxDecoration(
+                        color: CustomColors.green.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(context.r(12)),
+                      ),
+                      child: Text(
+                        leave.status,
+                        style: context.fonts.green10w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
