@@ -144,7 +144,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: FutureBuilder(
                     future: locator<SecureStorageService>().getUser(),
                     builder: (context, snapshot) {
-                      final name = snapshot.data?.name ?? 'Alex';
+                      const name = "Dr. Jeremy Warner MD";
+                      //final name = snapshot.data?.name ?? '';
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
