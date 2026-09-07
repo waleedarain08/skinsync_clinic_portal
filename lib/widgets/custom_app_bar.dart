@@ -229,22 +229,22 @@ class _UserProfile extends StatelessWidget {
               ),
               child: logoUrl != null && logoUrl.isNotEmpty
                   ? ClipRRect(
-                      borderRadius: context.appBorderRadius(all: 8),
-                      child: Image.network(
-                        logoUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.person_rounded,
-                          size: context.sp(22),
-                          color: CustomColors.white,
-                        ),
-                      ),
-                    )
+                borderRadius: context.appBorderRadius(all: 8),
+                child: Image.network(
+                  logoUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.person_rounded,
+                    size: context.sp(22),
+                    color: CustomColors.white,
+                  ),
+                ),
+              )
                   : Icon(
-                      Icons.person_rounded,
-                      size: context.sp(22),
-                      color: CustomColors.white,
-                    ),
+                Icons.person_rounded,
+                size: context.sp(22),
+                color: CustomColors.white,
+              ),
             ),
             context.horizontalSpace(4),
             Icon(
