@@ -165,8 +165,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       child: Consumer(
         builder: (context, ref, _) {
-          const name = "Dr. Jeremy Warner MD ";
-       //   final name = ref.watch(authViewModelProvider).user?.name;
+          final name = ref.watch(authViewModelProvider).user?.name;
           final image = ref.watch(authViewModelProvider).user?.clinic?.logo;
           final email = ref.watch(authViewModelProvider).user?.email;
           return Column(

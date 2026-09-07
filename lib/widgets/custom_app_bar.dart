@@ -190,11 +190,9 @@ class _UserProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final String clinicName = user?.name ?? "Clinic Portal";
-    const String clinicName = "Dr. Jeremy Warner MD";
+    final String clinicName = user?.name ?? "Clinic Portal";
     final String userRole = user?.role ?? "User";
-    const String userName = "Dr. Jeremy Warner MD";
-   // final String userName = user?.name ?? "Guest";
+    final String userName = user?.name ?? "Guest";
     final String userEmail = user?.email ?? "";
     final String? logoUrl = user?.clinic?.logo;
 
@@ -231,22 +229,22 @@ class _UserProfile extends StatelessWidget {
               ),
               child: logoUrl != null && logoUrl.isNotEmpty
                   ? ClipRRect(
-                      borderRadius: context.appBorderRadius(all: 8),
-                      child: Image.network(
-                        logoUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.person_rounded,
-                          size: context.sp(22),
-                          color: CustomColors.white,
-                        ),
-                      ),
-                    )
+                borderRadius: context.appBorderRadius(all: 8),
+                child: Image.network(
+                  logoUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.person_rounded,
+                    size: context.sp(22),
+                    color: CustomColors.white,
+                  ),
+                ),
+              )
                   : Icon(
-                      Icons.person_rounded,
-                      size: context.sp(22),
-                      color: CustomColors.white,
-                    ),
+                Icons.person_rounded,
+                size: context.sp(22),
+                color: CustomColors.white,
+              ),
             ),
             context.horizontalSpace(4),
             Icon(
