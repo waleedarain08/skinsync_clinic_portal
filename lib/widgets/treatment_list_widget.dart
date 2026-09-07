@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../utils/clinic_dummy_data.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
 import 'frequently_treatment_container.dart';
@@ -8,39 +9,9 @@ import 'frequently_treatment_container.dart';
 class TreatmentListWidget extends ConsumerWidget {
   const TreatmentListWidget({super.key});
 
-  List<FrequentlyTreatmentModel> _dummyFrequentlyTreatments() {
-    return const [
-      FrequentlyTreatmentModel(
-        treatmentName: 'Dermal Fillers',
-        areaName: 'Chin Shadow Area',
-        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
-        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
-      ),
-      FrequentlyTreatmentModel(
-        treatmentName: 'Neurotoxin (Botox)',
-        areaName: 'Bunny Lines',
-        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
-        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
-      ),
-      FrequentlyTreatmentModel(
-        treatmentName: 'Dermal Fillers',
-        areaName: 'Jawline',
-        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
-        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
-      ),
-
-      FrequentlyTreatmentModel(
-        treatmentName: 'Neurotoxin (Botox)',
-        areaName: 'Gummy Smile',
-        treatmentImage: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
-        icon: 'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final treatmentList = _dummyFrequentlyTreatments();
+    final treatmentList = ClinicDummyData.dummyFrequentlyTreatmentsList;
 
     if (treatmentList.isEmpty) {
       return Center(

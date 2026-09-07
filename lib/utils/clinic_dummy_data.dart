@@ -1,5 +1,8 @@
 import '../models/ai_chat_message_model.dart';
 import '../models/responses/treatment_products_response.dart';
+import '../models/responses/login_response_model.dart';
+import '../widgets/treatment_list_widget.dart';
+import '../widgets/revenue_generated_chart_widget.dart';
 import 'enums.dart';
 
 class ClinicDummyProduct {
@@ -118,11 +121,11 @@ class ClinicDummyTreatmentTemplate {
   final String preTreatmentNotificationTitle;
   final String preTreatmentNotificationMessage;
   final String
-  preTreatmentNotificationTiming; // "24 Hours Before", "2 Days Before", etc.
+      preTreatmentNotificationTiming; // "24 Hours Before", "2 Days Before", etc.
   final String postTreatmentNotificationTitle;
   final String postTreatmentNotificationMessage;
   final String
-  postTreatmentNotificationTiming; // "4 Hours After", "24 Hours After", "2 Days After", etc.
+      postTreatmentNotificationTiming; // "4 Hours After", "24 Hours After", "2 Days After", etc.
   final String downtimeLevel;
   final List<String> allowedRoles;
   final List<ClinicDummyProductUsage> products;
@@ -188,17 +191,17 @@ class ClinicDummyTreatmentTemplate {
           preTreatmentNotificationTitle ?? this.preTreatmentNotificationTitle,
       preTreatmentNotificationMessage:
           preTreatmentNotificationMessage ??
-          this.preTreatmentNotificationMessage,
+              this.preTreatmentNotificationMessage,
       preTreatmentNotificationTiming:
           preTreatmentNotificationTiming ?? this.preTreatmentNotificationTiming,
       postTreatmentNotificationTitle:
           postTreatmentNotificationTitle ?? this.postTreatmentNotificationTitle,
       postTreatmentNotificationMessage:
           postTreatmentNotificationMessage ??
-          this.postTreatmentNotificationMessage,
+              this.postTreatmentNotificationMessage,
       postTreatmentNotificationTiming:
           postTreatmentNotificationTiming ??
-          this.postTreatmentNotificationTiming,
+              this.postTreatmentNotificationTiming,
       downtimeLevel: downtimeLevel ?? this.downtimeLevel,
       allowedRoles: allowedRoles ?? this.allowedRoles,
       products: products ?? this.products,
@@ -733,6 +736,271 @@ class ClinicDummyData {
       text:
           'Done! Post-care guidelines added: "Stay upright for 4 hours, avoid massaging the treated area, and avoid strenuous exercise for 24 hours." Your Botox treatment template is now active in your clinic portal.',
     ),
+  ];
+
+  // ==========================================
+  // HOME SCREEN DASHBOARD DUMMY DATA
+  // ==========================================
+  static final DashboardModel dummyDashboard = DashboardModel(
+    totalTreatment: 24,
+    totalPractitioner: 8,
+    totalTreatmentRequest: 12,
+    treatments: [
+      DashboardTreatmentModel(
+        id: 1,
+        name: 'Dermal Fillers',
+        shortDescription: 'Chin Shadow Area & Jawline Volume Restoration',
+        image:
+            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
+        icon:
+            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
+        sku: 'SKU-FILLER-01',
+      ),
+      DashboardTreatmentModel(
+        id: 2,
+        name: 'Neurotoxin (Botox)',
+        shortDescription: 'Bunny Lines & Gummy Smile Correction',
+        image:
+            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
+        icon:
+            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
+        sku: 'SKU-BOTOX-02',
+      ),
+    ],
+    todayTreatmentRequest: [
+      RequestClinicTreatmentModel(
+        id: 201,
+        patientName: 'Sophia Martinez',
+        patientEmail: 'sophia.martinez@example.com',
+        image:
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+        totalTreatmentCount: 3,
+      ),
+      RequestClinicTreatmentModel(
+        id: 202,
+        patientName: 'Liam Johnson',
+        patientEmail: 'liam.johnson@example.com',
+        image:
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        totalTreatmentCount: 2,
+      ),
+      RequestClinicTreatmentModel(
+        id: 203,
+        patientName: 'Alexander Wright',
+        patientEmail: 'alexander.wright@example.com',
+        image:
+            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+        totalTreatmentCount: 4,
+      ),
+      RequestClinicTreatmentModel(
+        id: 204,
+        patientName: 'Chloe Grace',
+        patientEmail: 'chloe.grace@example.com',
+        image:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        totalTreatmentCount: 1,
+      ),
+    ],
+    todaysCheckin: [
+      TodaysCheckinModel(
+        patientId: 301,
+        appointmentId: 101,
+        patientName: 'Jessica Taylor',
+        patientEmail: 'jessica.taylor@example.com',
+        patientImage:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        appointmentReference: 'APT-5001',
+      ),
+      TodaysCheckinModel(
+        patientId: 302,
+        appointmentId: 102,
+        patientName: 'Robert Fox',
+        patientEmail: 'robert.fox@example.com',
+        patientImage:
+            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+        appointmentReference: 'APT-5002',
+      ),
+      TodaysCheckinModel(
+        patientId: 303,
+        appointmentId: 103,
+        patientName: 'Lucas Brown',
+        patientEmail: 'lucas.brown@example.com',
+        patientImage:
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+        appointmentReference: 'APT-5003',
+      ),
+      TodaysCheckinModel(
+        patientId: 304,
+        appointmentId: 104,
+        patientName: 'Charlotte Davis',
+        patientEmail: 'charlotte.davis@example.com',
+        patientImage:
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+        appointmentReference: 'APT-5004',
+      ),
+    ],
+    todaysAppointment: [
+      DashboardAppointmentModel(
+        id: 401,
+        appointmentKey: 'KEY-401',
+        patientName: 'Emma Watson',
+        patientImage:
+            'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150',
+        appointmentType: 'In-Person',
+        doctorName: 'Dr. John Smith',
+        status: 'completed',
+        treatmentCount: 2,
+        bookingType: 'Botox Anti-Wrinkle Treatment',
+        slot: AppointmentSlotModel(startTime: 540, endTime: 570), // 9:00 AM
+      ),
+      DashboardAppointmentModel(
+        id: 402,
+        appointmentKey: 'KEY-402',
+        patientName: 'David Beckham',
+        patientImage:
+            'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
+        appointmentType: 'Virtual',
+        doctorName: 'Dr. Sarah Connor',
+        status: 'in_progress',
+        treatmentCount: 1,
+        bookingType: 'Juvederm Cheek Volumizer',
+        slot: AppointmentSlotModel(startTime: 600, endTime: 630), // 10:00 AM
+      ),
+      DashboardAppointmentModel(
+        id: 403,
+        appointmentKey: 'KEY-403',
+        patientName: 'Olivia Wilde',
+        patientImage:
+            'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150',
+        appointmentType: 'Follow-Up',
+        doctorName: 'Dr. John Smith',
+        status: 'pending',
+        treatmentCount: 1,
+        bookingType: 'Chemical Peel Follow-up',
+        slot: AppointmentSlotModel(startTime: 660, endTime: 690), // 11:00 AM
+      ),
+      DashboardAppointmentModel(
+        id: 404,
+        appointmentKey: 'KEY-404',
+        patientName: 'Ethan Hunt',
+        patientImage:
+            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+        appointmentType: 'In-Person',
+        doctorName: 'Dr. Sarah Connor',
+        status: 'completed',
+        treatmentCount: 2,
+        bookingType: 'Laser Hair Removal',
+        slot: AppointmentSlotModel(startTime: 720, endTime: 750), // 12:00 PM
+      ),
+      DashboardAppointmentModel(
+        id: 405,
+        appointmentKey: 'KEY-405',
+        patientName: 'Mia Khalifa',
+        patientImage:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        appointmentType: 'Virtual',
+        doctorName: 'Dr. John Smith',
+        status: 'in_progress',
+        treatmentCount: 1,
+        bookingType: 'SkinBoosters Consultation',
+        slot: AppointmentSlotModel(startTime: 780, endTime: 810), // 1:00 PM
+      ),
+    ],
+  );
+
+  static final List<Map<String, dynamic>> dummyFrequentlyConversions = [
+    {
+      'patientImage':
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      'name': 'James Anderson',
+      'email': 'james.anderson@example.com',
+      'phoneNumber': '+1 (555) 234-5678',
+      'appointmentRef': 'APT-1001',
+      'appointmentId': 101,
+      'conversionCount': 12,
+    },
+    {
+      'patientImage':
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+      'name': 'Sarah Wilson',
+      'email': 'sarah.wilson@example.com',
+      'phoneNumber': '+1 (555) 876-5432',
+      'appointmentRef': 'APT-1002',
+      'appointmentId': 102,
+      'conversionCount': 8,
+    },
+    {
+      'patientImage':
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+      'name': 'Michael Smith',
+      'email': 'michael.smith@example.com',
+      'phoneNumber': '+1 (555) 345-6789',
+      'appointmentRef': 'APT-1003',
+      'appointmentId': 103,
+      'conversionCount': 15,
+    },
+    {
+      'patientImage':
+          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150',
+      'name': 'Emily Johnson',
+      'email': 'emily.johnson@example.com',
+      'phoneNumber': '+1 (555) 987-6543',
+      'appointmentRef': 'APT-1004',
+      'appointmentId': 104,
+      'conversionCount': 6,
+    },
+  ];
+
+  static final List<FrequentlyTreatmentModel> dummyFrequentlyTreatmentsList = [
+    const FrequentlyTreatmentModel(
+      treatmentName: 'Dermal Fillers',
+      areaName: 'Chin Shadow Area',
+      treatmentImage:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
+      icon:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
+    ),
+    const FrequentlyTreatmentModel(
+      treatmentName: 'Neurotoxin (Botox)',
+      areaName: 'Bunny Lines',
+      treatmentImage:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
+      icon:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
+    ),
+    const FrequentlyTreatmentModel(
+      treatmentName: 'Dermal Fillers',
+      areaName: 'Jawline',
+      treatmentImage:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
+      icon:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
+    ),
+    const FrequentlyTreatmentModel(
+      treatmentName: 'Neurotoxin (Botox)',
+      areaName: 'Gummy Smile',
+      treatmentImage:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
+      icon:
+          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
+    ),
+  ];
+
+  static final List<RevenueChartData> dummyWeeklyRevenue = [
+    RevenueChartData('Mon', 1200),
+    RevenueChartData('Tue', 2400),
+    RevenueChartData('Wed', 1800),
+    RevenueChartData('Thu', 3200),
+    RevenueChartData('Fri', 4500),
+    RevenueChartData('Sat', 5100),
+    RevenueChartData('Sun', 3800),
+  ];
+
+  static final List<RevenueChartData> dummyMonthlyRevenue = [
+    RevenueChartData('Week 1', 14200),
+    RevenueChartData('Week 2', 18500),
+    RevenueChartData('Week 3', 21000),
+    RevenueChartData('Week 4', 26400),
   ];
 }
 
