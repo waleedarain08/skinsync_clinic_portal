@@ -31,11 +31,19 @@ class _PatientManagementDetailScreenState
     extends ConsumerState<PatientManagementDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _currentIndex = _tabController.index;
+        });
+      }
+    });
   }
 
   @override
@@ -66,7 +74,7 @@ class _PatientManagementDetailScreenState
           onPressed: () => context.pop(),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,16 +95,10 @@ class _PatientManagementDetailScreenState
                 ],
               ),
             ),
-            context.verticalSpace(16),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: const [
-                  SingleChildScrollView(child: PatientTreatmentHistoryWidget()),
-                  SingleChildScrollView(child: PatientSimulationsWidget()),
-                ],
-              ),
-            ),
+            context.verticalSpace(20),
+            _currentIndex == 0
+                ? const PatientTreatmentHistoryWidget()
+                : const PatientSimulationsWidget(),
           ],
         ),
       ),
