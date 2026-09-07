@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 
 import '../repositories/ai_onboarding_chat_repository.dart';
+import '../repositories/appointment_repository.dart';
+import '../repositories/appointment_repository.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/chat_repository.dart';
 import '../repositories/explore_repository.dart';
@@ -74,7 +76,9 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton(() => MediaService());
   locator.registerLazySingleton(() => PractitionerService());
   locator.registerLazySingleton(() => RoleService());
-  locator.registerLazySingleton(() => AppointmentService());
+  locator.registerLazySingleton<AppointmentRepository>(
+    () => AppointmentService(),
+  );
   locator.registerLazySingleton(() => AreaServices());
   locator.registerSingleton(FireBaseNotificationService());
 

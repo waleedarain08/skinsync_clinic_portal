@@ -21,9 +21,9 @@ import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/create_appointment_from_chat_dialog.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
-import 'create_appointment_screen.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   static const String routeName = '/chat-screen';
@@ -386,7 +386,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             // Header Quick Actions: Create Appointment & Toggle Patient Details
             ElevatedButton.icon(
               onPressed: () {
-                context.pushNamed(CreateAppointmentScreen.routeName);
+                showDialog(
+                  context: context,
+                  builder: (context) => CreateAppointmentFromChatDialog(
+                    treatmentRequestData: widget.treatmentRequestData,
+                  ),
+                );
               },
               icon: Icon(
                 Iconsax.calendar_add,
@@ -863,7 +868,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               } else if (value == 'shared_request') {
                 _pickTreatmentRequest();
               } else if (value == 'create_appointment') {
-                context.pushNamed(CreateAppointmentScreen.routeName);
+                showDialog(
+                  context: context,
+                  builder: (context) => CreateAppointmentFromChatDialog(
+                    treatmentRequestData: widget.treatmentRequestData,
+                  ),
+                );
               } else if (value == 'appointment') {
                 _sendMessage(
                   customText: 'Attached appointment confirmation details.',
