@@ -1,3 +1,4 @@
+import '../requests/create_session_requests/protocol_request.dart';
 import 'base_response_model.dart';
 
 class SessionDetailResponse extends BaseApiResponseModel<SessionDetailDto> {
@@ -60,7 +61,8 @@ class SessionDetailDto {
   final List<String> allowedRoles;
   final List<SessionFollowUpDto> followUps;
   final SessionAttachmentDto? preTreatmentConsentForm;
-
+  final List<ProtocolRequestItem> protocols;
+  final List<ProtocolInstructionItem> instructions;
   // New MaterialsStep Redesign properties
   final int? selectedUnitTypeId;
   final String? selectedUnitTypeName;
@@ -115,6 +117,8 @@ class SessionDetailDto {
     this.minimumUnits,
     this.maximumUnits,
     required this.otherMaterials,
+    this.protocols =const [],
+    this.instructions= const [],
   });
 
   factory SessionDetailDto.fromJson(Map<String, dynamic> json) {
@@ -218,6 +222,14 @@ class SessionDetailDto {
                               (e)['id'])
                           as int,
               )
+              .toList() ??
+          [],
+          protocols: (json['protocols'] as List?)
+              ?.map((e) => ProtocolRequestItem.fromJson(e))
+              .toList() ??
+          [], 
+         instructions: (json['instructions'] as List?)
+              ?.map((e) => ProtocolInstructionItem.fromJson(e))
               .toList() ??
           [],
     );
