@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
 import '../models/responses/filters_response.dart';
-import '../services/appointment_service.dart';
+import '../repositories/appointment_repository.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
 
@@ -50,7 +50,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     }
     await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(loading: !showEasyLoading);
-      final appointment = await locator<AppointmentService>().appointmentList(
+      final appointment = await locator<AppointmentRepository>().appointmentList(
         page: state.page,
         filter: state.filter,
         status: state.status,
@@ -72,14 +72,14 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
 
   Future<void> getAppointmentsStatus() async {
     return await runSafely(() async {
-      final appointment = await locator<AppointmentService>()
+      final appointment = await locator<AppointmentRepository>()
           .getAppointmentStatus();
       state = state.copyWith(appointmentStatus: appointment.data ?? []);
     });
   }
    Future<void> getAppointmentsDetail({required int id}) async {
     return await runSafely(() async {
-      final appointment = await locator<AppointmentService>()
+      final appointment = await locator<AppointmentRepository>()
           .appointmentDetail(id:id);
           if(appointment.success){
              state = state.copyWith(appointmentDetail: appointment.data);
@@ -89,7 +89,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
 
   Future<void> getAppointmentsTypes() async {
     return await runSafely(() async {
-      final appointment = await locator<AppointmentService>()
+      final appointment = await locator<AppointmentRepository>()
           .getAppointmentTypes();
       state = state.copyWith(appointmentTypes: appointment.data ?? []);
     });
