@@ -512,8 +512,7 @@ class _CreateTreatmentScreenState extends ConsumerState<CreateSessionScreen> {
                 final result = await viewModel.callStepPricing(
                   stepNumber: sessionState.sessionStep,
                 );
-                success =  true;
-                (result == true);
+                success = (result == true);
               } else if (sessionState.sessionStep == 4) {
                 // Protocols
                 // final bool hasProtocolContent =
