@@ -19,7 +19,7 @@ class ProtocolRequest extends BaseRequest  {
     'protocols': protocols == null
         ? <dynamic>[]
         : List<dynamic>.from(protocols!.map((x) => x.toJson())),
-    'instrictions': instrictions == null
+    'instructions': instrictions == null
         ? <dynamic>[]
         : List<dynamic>.from(instrictions!.map((x) => x.toJson())),
   };
