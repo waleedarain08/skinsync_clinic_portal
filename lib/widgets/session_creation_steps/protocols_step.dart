@@ -654,7 +654,7 @@ class _ProtocolNotesCardState extends State<ProtocolNotesCard> {
             ..._noteControllers.asMap().entries.map((entry) {
               final idx = entry.key;
               final controllers = entry.value;
-              final titleCtrl = controllers['title']!;
+             // final titleCtrl = controllers['title']!;
               final descCtrl = controllers['description']!;
 
               return Container(
@@ -734,12 +734,12 @@ class _ProtocolNotesCardState extends State<ProtocolNotesCard> {
                       ],
                     ),
                     context.verticalSpace(12),
-                    BuildTextField(
-                      label: 'Title (Optional)',
-                      controller: titleCtrl,
-                      hintText: 'e.g. Pre Care',
-                      onChanged: (_) => _notify(),
-                    ),
+                    // BuildTextField(
+                    //   label: 'Title (Optional)',
+                    //   controller: titleCtrl,
+                    //   hintText: 'e.g. Pre Care',
+                    //   onChanged: (_) => _notify(),
+                    // ),
                     context.verticalSpace(12),
                     BuildTextField(
                       label: 'Description (Required)',

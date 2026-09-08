@@ -493,6 +493,41 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
             // Set Session ID
             setSessionId(detail.id);
+             // Restore protocol selections and their saved notes when opening
+              // an existing session.
+            final selectedProtocolIds = detail.protocols
+                  .where((protocol) => protocol.fieldId != null)
+                  .map((protocol) => protocol.fieldId.toString())
+                  .toList();
+              final selectedProtocolNotes = detail.protocols.map((protocol) {
+                final note = protocol.note?.trim() ?? '';
+                return TreatmentProtocolNote(
+                  protocolName: protocol.title ?? '',
+                  notes: note.isEmpty
+                      ? const []
+                      : [
+                          TreatmentProtocolNoteItem(
+                            description: note,
+                            order: 1,
+                          ),
+                        ],
+                );
+              }).toList();
+              final standaloneNotes = detail.instructions
+                  .map(
+                    (instruction) => TreatmentProtocolNoteItem(
+                      title: instruction.title,
+                      description: instruction.note ?? '',
+                      order: 1,
+                    ),
+                  )
+                  .toList();
+
+              state = state.copyWith(
+                selectedProtocolIds: selectedProtocolIds,
+                selectedProtocolNotes: selectedProtocolNotes,
+                standaloneNotes: standaloneNotes,
+              );
 
             minUnitsController.text = (detail.minimumUnits ?? 0.0)
               .toStringAsFixed(0);
