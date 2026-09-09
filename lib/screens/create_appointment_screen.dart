@@ -18,6 +18,7 @@ import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import 'dashboard/patient_management_detail.dart';
+import '../widgets/app_loader.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
@@ -512,26 +513,80 @@ class _CreateAppointmentScreenState
     return _buildSection(
       title: 'Treatment & Services',
       children: [
-        // Select Treatment Dropdown
-        _buildDropdownField<TreatmentModel>(
-          label: 'Select Treatment',
-          hintText: treatmentState.loading ? 'Loading treatments...' : 'Select Treatment',
-          value: _selectedDropdownTreatment,
-          items: treatments,
-          onTap: () {
-            ref.read(treatmentViewModelProvider.notifier).getTreatments();
-          },
-          onChanged: (val) {
-            setState(() {
-              _selectedDropdownTreatment = val;
-              _selectedDropdownSideAreas = [];
-            });
-          },
-          builder: (val) => Text(
-            val.name?.capitalize ?? 'N/A',
-            style: context.fonts.black14w400,
+        // Select Treatment Horizontal List
+        Text('Select Treatment', style: context.fonts.black14w600),
+        SizedBox(height: context.h(10)),
+        if (treatmentState.loading && treatments.isEmpty)
+          const Center(child: AppLoader())
+        else if (treatments.isEmpty)
+          Text('No treatments available.', style: context.fonts.grey14w400)
+        else
+          SizedBox(
+            height: context.h(220),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: treatments.length,
+              separatorBuilder: (context, index) =>
+                  SizedBox(width: context.w(16)),
+              itemBuilder: (context, index) {
+                final treatment = treatments[index];
+                final bool isSelected =
+                    _selectedDropdownTreatment?.id == treatment.id;
+
+                final dashboardTreatment = DashboardTreatmentModel(
+                  id: treatment.id,
+                  name: treatment.name,
+                  shortDescription: treatment.shortDescription ??
+                      treatment.description ??
+                      '',
+                  image: treatment.image,
+                  icon: treatment.icon,
+                  sku: treatment.globalSku,
+                );
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        _selectedDropdownTreatment = null;
+                        _selectedDropdownSideAreas = [];
+                      } else {
+                        _selectedDropdownTreatment = treatment;
+                        _selectedDropdownSideAreas = [];
+                      }
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(context.r(20)),
+                      border: Border.all(
+                        color: isSelected
+                            ? CustomColors.purple
+                            : Colors.transparent,
+                        width: 3,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color:
+                                    CustomColors.purple.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: TreatmentContainer(
+                      treatment: dashboardTreatment,
+                      width: context.w(280),
+                      imageHeight: context.h(220),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
         if (_selectedDropdownTreatment != null &&
             _selectedDropdownTreatment!.sideAreas != null &&
             _selectedDropdownTreatment!.sideAreas!.isNotEmpty) ...[
