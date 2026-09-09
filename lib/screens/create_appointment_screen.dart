@@ -17,6 +17,8 @@ import '../view_models/appointment_view_model.dart';
 import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
+import '../models/responses/area_list_response.dart';
+import '../view_models/area_view_model.dart';
 import 'dashboard/patient_management_detail.dart';
 import '../widgets/app_loader.dart';
 import '../widgets/borderd_container_widget.dart';
@@ -53,6 +55,8 @@ class _CreateAppointmentScreenState
   TreatmentModel? _selectedDropdownTreatment;
 
   final List<TreatmentModel> _selectedTreatments = [];
+  final Map<int, List<AreaModel>> _fetchedAreasMap = {};
+  bool _isFetchingAreas = false;
 
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   final _practitionerSearchController = TextEditingController();
@@ -564,7 +568,8 @@ class _CreateAppointmentScreenState
                         : null,
                   ),
                   child: TreatmentContainer(
-                    onTap: () {
+                    onTap: () async {
+                      final bool willBeSelected = !isSelected;
                       setState(() {
                         if (isSelected) {
                           _selectedTreatments.removeWhere(
@@ -574,11 +579,43 @@ class _CreateAppointmentScreenState
                             _selectedDropdownTreatment = null;
                           }
                         } else {
-                          final newTx = treatment.copyWith(sideAreas: []);
+                          final existingAreas = _fetchedAreasMap[treatment.id]
+                                  ?.map((a) => SideAreaModel(id: a.id, name: a.name))
+                                  .toList() ??
+                              (treatment.sideAreas ?? []);
+                          final newTx = treatment.copyWith(sideAreas: existingAreas);
                           _selectedTreatments.add(newTx);
                           _selectedDropdownTreatment = newTx;
                         }
                       });
+
+                      if (willBeSelected && treatment.id != null) {
+                        if (!_fetchedAreasMap.containsKey(treatment.id)) {
+                          setState(() {
+                            _isFetchingAreas = true;
+                          });
+                          try {
+                            final fetchedAreas = await ref
+                                .read(areaViewModelProvider.notifier)
+                                .fetchClinicAreas(
+                                  treatmentId: treatment.id!,
+                                  showLoading: false,
+                                );
+                            if (mounted) {
+                              setState(() {
+                                _fetchedAreasMap[treatment.id!] = fetchedAreas;
+                                _isFetchingAreas = false;
+                              });
+                            }
+                          } catch (_) {
+                            if (mounted) {
+                              setState(() {
+                                _isFetchingAreas = false;
+                              });
+                            }
+                          }
+                        }
+                      }
                     },
                     treatment: dashboardTreatment,
                     width: context.w(280),
@@ -588,70 +625,108 @@ class _CreateAppointmentScreenState
               },
             ),
           ),
-        if (_selectedDropdownTreatment != null &&
-            _selectedDropdownTreatment!.sideAreas != null &&
-            _selectedDropdownTreatment!.sideAreas!.isNotEmpty) ...[
+        if (_selectedDropdownTreatment != null && _selectedDropdownTreatment!.id != null) ...[
           SizedBox(height: context.h(16)),
           Text(
             'Select Areas for ${_selectedDropdownTreatment!.name ?? ''}',
             style: context.fonts.black14w600,
           ),
           SizedBox(height: context.h(8)),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: _selectedDropdownTreatment!.sideAreas!.map((area) {
-              final currentTxIndex = _selectedTreatments.indexWhere(
-                (t) => t.id == _selectedDropdownTreatment!.id,
-              );
-              final currentTx = currentTxIndex != -1
-                  ? _selectedTreatments[currentTxIndex]
-                  : null;
-              final isAreaSelected = currentTx?.sideAreas?.any(
-                    (a) => a.id == area.id,
-                  ) ??
-                  false;
+          if (_isFetchingAreas &&
+              !_fetchedAreasMap.containsKey(_selectedDropdownTreatment!.id)) ...[
+            Row(
+              children: [
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: context.w(10)),
+                Text('Fetching treatment areas...', style: context.fonts.grey12w400),
+              ],
+            ),
+          ] else ...[
+            Builder(
+              builder: (context) {
+                final currentTreatmentId = _selectedDropdownTreatment!.id!;
+                final areasList = _fetchedAreasMap[currentTreatmentId] ??
+                    (_selectedDropdownTreatment!.sideAreas
+                            ?.map((sa) => AreaModel(
+                                  id: sa.id ?? 0,
+                                  name: sa.name ?? '',
+                                  globalSku: '',
+                                  icon: '',
+                                  image: '',
+                                ))
+                            .toList() ??
+                        []);
 
-              return ChoiceChip(
-                label: Text(area.name?.capitalize ?? 'N/A'),
-                selected: isAreaSelected,
-                selectedColor: CustomColors.purple,
-                checkmarkColor: CustomColors.white,
-                labelStyle: context.fonts.black14w500.copyWith(
-                  color:
-                      isAreaSelected ? CustomColors.white : CustomColors.black,
-                ),
-                backgroundColor: CustomColors.whiteGrey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: context.appBorderRadius(all: 8),
-                  side: BorderSide(
-                    color: isAreaSelected
-                        ? CustomColors.purple
-                        : CustomColors.border,
-                  ),
-                ),
-                onSelected: (selected) {
-                  if (currentTxIndex == -1) return;
-                  setState(() {
-                    final currentAreas = List<SideAreaModel>.from(
-                      _selectedTreatments[currentTxIndex].sideAreas ?? [],
+                if (areasList.isEmpty) {
+                  return Text('No specific areas found for this treatment.',
+                      style: context.fonts.grey12w400);
+                }
+
+                final currentTxIndex = _selectedTreatments.indexWhere(
+                  (t) => t.id == currentTreatmentId,
+                );
+                final currentTx = currentTxIndex != -1
+                    ? _selectedTreatments[currentTxIndex]
+                    : null;
+
+                return Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: areasList.map((area) {
+                    final isAreaSelected = currentTx?.sideAreas?.any(
+                          (a) => a.id == area.id,
+                        ) ??
+                        false;
+
+                    return ChoiceChip(
+                      label: Text(area.name.capitalize),
+                      selected: isAreaSelected,
+                      selectedColor: CustomColors.purple,
+                      checkmarkColor: CustomColors.white,
+                      labelStyle: context.fonts.black14w500.copyWith(
+                        color:
+                            isAreaSelected ? CustomColors.white : CustomColors.black,
+                      ),
+                      backgroundColor: CustomColors.whiteGrey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: context.appBorderRadius(all: 8),
+                        side: BorderSide(
+                          color: isAreaSelected
+                              ? CustomColors.purple
+                              : CustomColors.border,
+                        ),
+                      ),
+                      onSelected: (selected) {
+                        if (currentTxIndex == -1) return;
+                        setState(() {
+                          final currentAreas = List<SideAreaModel>.from(
+                            _selectedTreatments[currentTxIndex].sideAreas ?? [],
+                          );
+                          if (selected) {
+                            if (!currentAreas.any((a) => a.id == area.id)) {
+                              currentAreas.add(
+                                SideAreaModel(id: area.id, name: area.name),
+                              );
+                            }
+                          } else {
+                            currentAreas.removeWhere((a) => a.id == area.id);
+                          }
+                          _selectedTreatments[currentTxIndex] =
+                              _selectedTreatments[currentTxIndex].copyWith(
+                            sideAreas: currentAreas,
+                          );
+                        });
+                      },
                     );
-                    if (selected) {
-                      if (!currentAreas.any((a) => a.id == area.id)) {
-                        currentAreas.add(area);
-                      }
-                    } else {
-                      currentAreas.removeWhere((a) => a.id == area.id);
-                    }
-                    _selectedTreatments[currentTxIndex] =
-                        _selectedTreatments[currentTxIndex].copyWith(
-                      sideAreas: currentAreas,
-                    );
-                  });
-                },
-              );
-            }).toList(),
-          ),
+                  }).toList(),
+                );
+              },
+            ),
+          ],
         ],
         SizedBox(height: context.h(20)),
         Row(

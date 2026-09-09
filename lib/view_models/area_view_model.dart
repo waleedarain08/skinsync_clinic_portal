@@ -52,13 +52,28 @@ class AreaViewModel extends BaseViewModel<AreaState> {
 
   final AreaRepository _areaRepository = locator<AreaServices>();
 
-  Future<List<AreaModel>> fetchAreas({bool showLoading = true,required int treatmentId}) async {
+  Future<List<AreaModel>> fetchAvailableAreas({bool showLoading = true,required int treatmentId}) async {
    
 
     state = state.copyWith(loading: showLoading);
 
     await runSafely(showLoading:  false,() async {
-      final fetched = await _areaRepository.getAreas(treatmentId: treatmentId);
+      final fetched = await _areaRepository.getAvailableAreas(treatmentId: treatmentId);
+
+      state = state.copyWith(areas: fetched, loading: false);
+    });
+    return state.areas;
+  }
+
+  Future<List<AreaModel>> fetchClinicAreas({
+    bool showLoading = true,
+    required int treatmentId,
+  }) async {
+    state = state.copyWith(loading: showLoading);
+
+    await runSafely(showLoading: false, () async {
+      final fetched =
+          await _areaRepository.getClinicAreas(treatmentId: 23);
 
       state = state.copyWith(areas: fetched, loading: false);
     });
@@ -86,7 +101,7 @@ Future<void> addAreas() async {
     );
 
     if (response.success) {
-      await fetchAreas(showLoading: false, treatmentId: treatmentId);
+      await fetchAvailableAreas(showLoading: false, treatmentId: treatmentId);
     }
   });
 }

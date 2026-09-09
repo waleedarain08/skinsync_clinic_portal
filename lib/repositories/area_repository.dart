@@ -5,6 +5,10 @@ import '../models/responses/area_list_response.dart';
 import '../models/responses/base_response_model.dart';
 
 abstract class AreaRepository {
-  Future<List<AreaModel>> getAreas({required int treatmentId});
- Future<BaseResponse> addAreas({required AddAreaRequest request,required int treatmentId});
+  Future<List<AreaModel>> getAvailableAreas({required int treatmentId});
+  Future<List<AreaModel>> getClinicAreas({required int treatmentId});
+  Future<BaseResponse> addAreas({
+    required AddAreaRequest request,
+    required int treatmentId,
+  });
 }

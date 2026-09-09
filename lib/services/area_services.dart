@@ -9,11 +9,26 @@ import 'locator.dart';
 
 class AreaServices implements AreaRepository {
   @override
-  Future<List<AreaModel>> getAreas({required int treatmentId}) async {
+  Future<List<AreaModel>> getAvailableAreas({required int treatmentId}) async {
     final jsonResponse = await locator<ApiBaseService>().httpRequest(
       requestType: RequestType.get,
       endPoint: Endpoint.areasAvailable,
-        pathParams: {'treatmentId' : treatmentId.toString()}
+      pathParams: {'treatmentId': treatmentId.toString()},
+    );
+    final response = AreaListResponse.fromJson(jsonResponse);
+
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response.data ?? [];
+  }
+
+  @override
+  Future<List<AreaModel>> getClinicAreas({required int treatmentId}) async {
+    final jsonResponse = await locator<ApiBaseService>().httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.treatmentAreas,
+      pathParams: {'treatmentId': treatmentId.toString()},
     );
     final response = AreaListResponse.fromJson(jsonResponse);
 

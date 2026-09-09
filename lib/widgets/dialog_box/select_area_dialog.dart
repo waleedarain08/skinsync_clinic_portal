@@ -32,7 +32,7 @@ class _SelectAreaDialogState extends ConsumerState<SelectAreaDialog> {
       if (mounted && treatmentId != null) {
         ref
             .read(areaViewModelProvider.notifier)
-            .fetchAreas(treatmentId: treatmentId);
+            .fetchAvailableAreas(treatmentId: treatmentId);
       }
     });
   }

@@ -68,6 +68,7 @@ enum Endpoint {
   appointmentTypes('clinic/appointment-types'),
   areasAvailable('clinic/treatments/{treatmentId}/available-areas'),
   areas('clinic/treatments/{treatmentId}/areas'),
+  treatmentAreas('clinic/treatment/{treatmentId}/areas'),
   adminAreas('admin/treatments/{treatmentId}/areas'),
   explorerReels('clinic/reels'),
   updateReel('clinic/reels/{id}'),
