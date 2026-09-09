@@ -76,6 +76,7 @@ enum Endpoint {
   postCategories('clinic/community-post/categories'),
   patients('clinic/patients'),
   patientDetail('clinic/patients/{id}'),
+  patientRegister('clinic/patient/register'),
   patientTreatmentRequest('clinic/patient-treatment-request'),
   getMe("clinic/me"),
   updateClinicProfile('clinic/profile'),

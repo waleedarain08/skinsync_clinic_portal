@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
+import '../models/requests/register_patient_request.dart';
+import '../models/responses/register_patient_response.dart';
 import '../repositories/appointment_repository.dart';
+import '../repositories/patient_repository.dart';
 import '../services/locator.dart';
 import 'base_view_model.dart';
 
@@ -14,12 +17,14 @@ class AppointmentCreationState {
   final List<PatientModel> searchResults;
   final bool isLoading;
   final String searchQuery;
+  final RegisterPatientData? registeredPatientData;
 
   AppointmentCreationState({
     this.selectedPatient,
     this.searchResults = const [],
     this.isLoading = false,
     this.searchQuery = '',
+    this.registeredPatientData,
   });
 
   AppointmentCreationState copyWith({
@@ -27,12 +32,15 @@ class AppointmentCreationState {
     List<PatientModel>? searchResults,
     bool? isLoading,
     String? searchQuery,
+    RegisterPatientData? registeredPatientData,
   }) {
     return AppointmentCreationState(
       selectedPatient: selectedPatient ?? this.selectedPatient,
       searchResults: searchResults ?? this.searchResults,
       isLoading: isLoading ?? this.isLoading,
       searchQuery: searchQuery ?? this.searchQuery,
+      registeredPatientData:
+          registeredPatientData ?? this.registeredPatientData,
     );
   }
 }
@@ -116,6 +124,44 @@ class AppointmentCreationViewModel
       phone: phone,
     );
     state = state.copyWith(selectedPatient: newPatient);
+  }
+
+  Future<RegisterPatientData?> registerOrFetchPatient({
+    required String email,
+    required String phone,
+    required String userName,
+    required String cc,
+  }) async {
+    final result = await runSafely(() async {
+      state = state.copyWith(isLoading: true);
+      final repository = locator<PatientRepository>();
+      final request = RegisterPatientRequest(
+        email: email,
+        phone: phone,
+        userName: userName,
+        cc: cc,
+      );
+      final response = await repository.registerPatient(request: request);
+      state = state.copyWith(isLoading: false);
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        final newPatient = PatientModel(
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          phone: '${data.cc}${data.phoneNumber}'.trim(),
+        );
+        state = state.copyWith(
+          selectedPatient: newPatient,
+          registeredPatientData: data,
+        );
+        return data;
+      }
+      return null;
+    });
+
+    state = state.copyWith(isLoading: false);
+    return result;
   }
 
   void clearSelection() {

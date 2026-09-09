@@ -14,8 +14,10 @@ import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
+import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
+import 'dashboard/patient_management_detail.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
@@ -41,6 +43,7 @@ class _CreateAppointmentScreenState
   final _patientNameController = TextEditingController();
   final _patientEmailController = TextEditingController();
   final _patientPhoneController = TextEditingController();
+  String _selectedCountryCode = '+1';
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
@@ -297,37 +300,82 @@ class _CreateAppointmentScreenState
         Text('Phone Number', style: context.fonts.black14w600),
         SizedBox(height: context.h(8)),
         PhoneWidget(
-          allowCountrySelection: false,
+          allowCountrySelection: true,
           controller: _patientPhoneController,
           filled: false,
+          onCountryChanged: (code) {
+            setState(() {
+              _selectedCountryCode = code.dialCode ?? '+1';
+            });
+          },
         ),
         SizedBox(height: context.h(16)),
         Align(
           alignment: Alignment.centerRight,
           child: CustomPrimaryButton(
-            onTap: () {
-              final name = _patientNameController.text.trim();
+            onTap: () async {
               final email = _patientEmailController.text.trim();
               final phone = _patientPhoneController.text.trim();
-              if (name.isNotEmpty || email.isNotEmpty || phone.isNotEmpty) {
-                viewModel.registerNewPatient(
-                  name: name.isEmpty ? 'New Patient' : name,
-                  email: email,
-                  phone: phone,
+              final userName = _patientNameController.text.trim();
+              if (email.isEmpty && phone.isEmpty && userName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter patient details first.'),
+                  ),
+                );
+                return;
+              }
+              final data = await viewModel.registerOrFetchPatient(
+                email: email,
+                phone: phone,
+                userName: userName,
+                cc: _selectedCountryCode,
+              );
+              if (data != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Patient details fetched successfully!',
+                    ),
+                  ),
                 );
               }
             },
             label: 'Register or Fetch Detail',
             icon: Icons.person_add_alt_1_outlined,
-            height: context.h(40),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: context.h(36),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
           ),
         ),
         if (state.selectedPatient != null) ...[
           SizedBox(height: context.h(16)),
-          Text('Selected Patient', style: context.fonts.grey11w600ls12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Selected Patient', style: context.fonts.grey11w600ls12),
+              if (state.registeredPatientData != null &&
+                  state.registeredPatientData!.detailAvailable == true)
+                CustomOutlinedButton(
+                  onTap: () async {
+                    final patientId = state.registeredPatientData!.id;
+                    final success = await ref
+                        .read(patientProvider.notifier)
+                        .getPatientDetail(patientId: patientId);
+                    if (success && context.mounted) {
+                      context.push(
+                        PatientManagementDetailScreen.routeName,
+                        extra: patientId,
+                      );
+                    }
+                  },
+                  label: 'View Detail',
+                  height: context.h(32),
+                  width: context.w(110),
+                ),
+            ],
+          ),
           SizedBox(height: context.h(10)),
-          _buildPatientCard(state.selectedPatient!, true, viewModel),
+          _buildPatientCard(state.selectedPatient!, true, viewModel, state),
         ],
         if (state.searchResults.isNotEmpty) ...[
           SizedBox(height: context.h(12)),
@@ -335,7 +383,7 @@ class _CreateAppointmentScreenState
           SizedBox(height: context.h(10)),
           ...state.searchResults
               .where((p) => p.id != state.selectedPatient?.id)
-              .map((p) => _buildPatientCard(p, false, viewModel)),
+              .map((p) => _buildPatientCard(p, false, viewModel, state)),
         ],
       ],
     );
@@ -345,7 +393,13 @@ class _CreateAppointmentScreenState
     PatientModel patient,
     bool isSelected,
     AppointmentCreationViewModel viewModel,
+    AppointmentCreationState state,
   ) {
+    final bool showViewDetail = isSelected &&
+        state.registeredPatientData != null &&
+        state.registeredPatientData!.id == patient.id &&
+        state.registeredPatientData!.detailAvailable == true;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
@@ -369,7 +423,9 @@ class _CreateAppointmentScreenState
                 radius: context.r(20),
                 backgroundColor: CustomColors.palePurple,
                 child: Text(
-                  patient.name[0].toUpperCase(),
+                  patient.name.isNotEmpty
+                      ? patient.name[0].toUpperCase()
+                      : 'P',
                   style: context.fonts.purple16w700,
                 ),
               ),
@@ -405,6 +461,26 @@ class _CreateAppointmentScreenState
                   ],
                 ),
               ),
+              if (showViewDetail) ...[
+                CustomOutlinedButton(
+                  onTap: () async {
+                    final patientId = patient.id!;
+                    final success = await ref
+                        .read(patientProvider.notifier)
+                        .getPatientDetail(patientId: patientId);
+                    if (success && context.mounted) {
+                      context.push(
+                        PatientManagementDetailScreen.routeName,
+                        extra: patientId,
+                      );
+                    }
+                  },
+                  label: 'View Detail',
+                  height: context.h(32),
+                  width: context.w(110),
+                ),
+                context.horizontalSpace(10),
+              ],
               if (isSelected)
                 const Icon(Icons.check_circle_rounded, color: CustomColors.purple)
               else

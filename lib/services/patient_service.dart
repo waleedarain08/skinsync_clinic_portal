@@ -1,6 +1,8 @@
+import '../models/requests/register_patient_request.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
+import '../models/responses/register_patient_response.dart';
 import '../repositories/patient_repository.dart';
 import '../utils/enums.dart';
 import 'api_base_helper.dart';
@@ -70,6 +72,25 @@ class PatientService extends PatientRepository {
     );
 
     final model = PatientTreatmentRequestResponse.fromJson(response);
+
+    if (!model.success) {
+      throw Exception(model.message);
+    }
+
+    return model;
+  }
+
+  @override
+  Future<RegisterPatientResponse> registerPatient({
+    required RegisterPatientRequest request,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.patientRegister,
+      requestType: RequestType.post,
+      requestBody: request,
+    );
+
+    final model = RegisterPatientResponse.fromJson(response);
 
     if (!model.success) {
       throw Exception(model.message);
