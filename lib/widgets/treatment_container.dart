@@ -11,12 +11,14 @@ class TreatmentContainer extends StatelessWidget {
   final double? imageHeight;
   final double? width;
   final DashboardTreatmentModel? treatment;
+  final VoidCallback? onTap;
 
   const TreatmentContainer({
     super.key,
     this.treatment,
     this.imageHeight,
     this.width,
+    this.onTap,
   });
 
   Widget? _buildLeftIcon(BuildContext context, String? iconKey) {
@@ -68,19 +70,7 @@ class TreatmentContainer extends StatelessWidget {
     final globalSku = treatment?.sku ?? '';
 
     return GestureDetector(
-      onTap: () {
-        // Handle treatment tap here.
-        //
-        // Example:
-        //
-        // if (treatment == null) return;
-        //
-        // Navigator.pushNamed(
-        //   context,
-        //   TreatmentDetailScreen.routeName,
-        //   arguments: treatment,
-        // );
-      },
+      onTap: onTap,
       child: Container(
         height: imageHeight ?? context.h(300),
         width: width ?? context.w(400),

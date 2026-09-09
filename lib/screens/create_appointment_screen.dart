@@ -51,7 +51,6 @@ class _CreateAppointmentScreenState
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
   TreatmentModel? _selectedDropdownTreatment;
-  List<SideAreaModel> _selectedDropdownSideAreas = [];
 
   final List<TreatmentModel> _selectedTreatments = [];
 
@@ -531,7 +530,7 @@ class _CreateAppointmentScreenState
               itemBuilder: (context, index) {
                 final treatment = treatments[index];
                 final bool isSelected =
-                    _selectedDropdownTreatment?.id == treatment.id;
+                    _selectedTreatments.any((t) => t.id == treatment.id);
 
                 final dashboardTreatment = DashboardTreatmentModel(
                   id: treatment.id,
@@ -544,44 +543,46 @@ class _CreateAppointmentScreenState
                   sku: treatment.globalSku,
                 );
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedDropdownTreatment = null;
-                        _selectedDropdownSideAreas = [];
-                      } else {
-                        _selectedDropdownTreatment = treatment;
-                        _selectedDropdownSideAreas = [];
-                      }
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(context.r(20)),
-                      border: Border.all(
-                        color: isSelected
-                            ? CustomColors.purple
-                            : Colors.transparent,
-                        width: 3,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color:
-                                    CustomColors.purple.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
-                            ]
-                          : null,
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(context.r(20)),
+                    border: Border.all(
+                      color: isSelected
+                          ? CustomColors.purple
+                          : Colors.transparent,
+                      width: 3,
                     ),
-                    child: TreatmentContainer(
-                      treatment: dashboardTreatment,
-                      width: context.w(280),
-                      imageHeight: context.h(220),
-                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: CustomColors.purple.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: TreatmentContainer(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedTreatments.removeWhere(
+                            (t) => t.id == treatment.id,
+                          );
+                          if (_selectedDropdownTreatment?.id == treatment.id) {
+                            _selectedDropdownTreatment = null;
+                          }
+                        } else {
+                          final newTx = treatment.copyWith(sideAreas: []);
+                          _selectedTreatments.add(newTx);
+                          _selectedDropdownTreatment = newTx;
+                        }
+                      });
+                    },
+                    treatment: dashboardTreatment,
+                    width: context.w(280),
+                    imageHeight: context.h(220),
                   ),
                 );
               },
@@ -591,75 +592,67 @@ class _CreateAppointmentScreenState
             _selectedDropdownTreatment!.sideAreas != null &&
             _selectedDropdownTreatment!.sideAreas!.isNotEmpty) ...[
           SizedBox(height: context.h(16)),
-          Text('Select Areas', style: context.fonts.black14w600),
+          Text(
+            'Select Areas for ${_selectedDropdownTreatment!.name ?? ''}',
+            style: context.fonts.black14w600,
+          ),
           SizedBox(height: context.h(8)),
           Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
             children: _selectedDropdownTreatment!.sideAreas!.map((area) {
-              final isSelected = _selectedDropdownSideAreas.contains(area);
+              final currentTxIndex = _selectedTreatments.indexWhere(
+                (t) => t.id == _selectedDropdownTreatment!.id,
+              );
+              final currentTx = currentTxIndex != -1
+                  ? _selectedTreatments[currentTxIndex]
+                  : null;
+              final isAreaSelected = currentTx?.sideAreas?.any(
+                    (a) => a.id == area.id,
+                  ) ??
+                  false;
+
               return ChoiceChip(
                 label: Text(area.name?.capitalize ?? 'N/A'),
-                selected: isSelected,
+                selected: isAreaSelected,
                 selectedColor: CustomColors.purple,
                 checkmarkColor: CustomColors.white,
                 labelStyle: context.fonts.black14w500.copyWith(
-                  color: isSelected ? CustomColors.white : CustomColors.black,
+                  color:
+                      isAreaSelected ? CustomColors.white : CustomColors.black,
                 ),
                 backgroundColor: CustomColors.whiteGrey,
                 shape: RoundedRectangleBorder(
                   borderRadius: context.appBorderRadius(all: 8),
                   side: BorderSide(
-                    color: isSelected ? CustomColors.purple : CustomColors.border,
+                    color: isAreaSelected
+                        ? CustomColors.purple
+                        : CustomColors.border,
                   ),
                 ),
                 onSelected: (selected) {
+                  if (currentTxIndex == -1) return;
                   setState(() {
+                    final currentAreas = List<SideAreaModel>.from(
+                      _selectedTreatments[currentTxIndex].sideAreas ?? [],
+                    );
                     if (selected) {
-                      _selectedDropdownSideAreas.add(area);
+                      if (!currentAreas.any((a) => a.id == area.id)) {
+                        currentAreas.add(area);
+                      }
                     } else {
-                      _selectedDropdownSideAreas.remove(area);
+                      currentAreas.removeWhere((a) => a.id == area.id);
                     }
+                    _selectedTreatments[currentTxIndex] =
+                        _selectedTreatments[currentTxIndex].copyWith(
+                      sideAreas: currentAreas,
+                    );
                   });
                 },
               );
             }).toList(),
           ),
         ],
-        SizedBox(height: context.h(16)),
-        Align(
-          alignment: Alignment.centerRight,
-          child: CustomPrimaryButton(
-            onTap: () {
-              if (_selectedDropdownTreatment == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please select a treatment first.')),
-                );
-                return;
-              }
-              if (_selectedDropdownTreatment!.isArea == true &&
-                  _selectedDropdownSideAreas.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please select at least one area.')),
-                );
-                return;
-              }
-              setState(() {
-                _selectedTreatments.add(
-                  _selectedDropdownTreatment!.copyWith(
-                    sideAreas: List.from(_selectedDropdownSideAreas),
-                  ),
-                );
-                _selectedDropdownTreatment = null;
-                _selectedDropdownSideAreas = [];
-              });
-            },
-            label: 'Add Treatment',
-            icon: Icons.add,
-            height: context.h(36),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-        ),
         SizedBox(height: context.h(20)),
         Row(
           children: [
