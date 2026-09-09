@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/requests/add_area_request.dart';
 import '../models/responses/area_list_response.dart';
+import '../models/responses/session_materials_response.dart';
 import '../repositories/area_repository.dart';
 import '../services/area_services.dart';
 import '../services/locator.dart';
@@ -73,11 +74,26 @@ class AreaViewModel extends BaseViewModel<AreaState> {
 
     await runSafely(showLoading: false, () async {
       final fetched =
-          await _areaRepository.getClinicAreas(treatmentId: 23);
+          await _areaRepository.getClinicAreas(treatmentId: treatmentId);
 
       state = state.copyWith(areas: fetched, loading: false);
     });
     return state.areas;
+  }
+
+  Future<List<SessionMaterialData>> fetchSessionMaterials({
+    required int treatmentId,
+    required int areaId,
+    bool showLoading = false,
+  }) async {
+    List<SessionMaterialData> result = [];
+    await runSafely(showLoading: showLoading, () async {
+      result = await _areaRepository.getSessionMaterials(
+        treatmentId: treatmentId,
+        areaId: areaId,
+      );
+    });
+    return result;
   }
 
 Future<void> addAreas() async {

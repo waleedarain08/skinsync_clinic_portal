@@ -18,6 +18,7 @@ import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../models/responses/area_list_response.dart';
+import '../models/responses/session_materials_response.dart';
 import '../view_models/area_view_model.dart';
 import 'dashboard/patient_management_detail.dart';
 import '../widgets/app_loader.dart';
