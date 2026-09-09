@@ -59,6 +59,13 @@ class _CreateAppointmentScreenState
   final Map<int, List<AreaModel>> _fetchedAreasMap = {};
   bool _isFetchingAreas = false;
 
+  // Session materials state
+  final Map<String, List<SessionMaterialData>> _sessionMaterialsMap = {};
+  final Map<String, bool> _fetchingSessionMaterialsMap = {};
+  final Map<String, SessionMaterialData?> _selectedSessionMap = {};
+  final Map<String, MaterialItem?> _selectedMaterialMap = {};
+  final Map<String, int> _selectedMaterialQtyMap = {};
+
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   final _practitionerSearchController = TextEditingController();
   PractitionerListItem? _selectedPractitionerItem;
@@ -580,11 +587,7 @@ class _CreateAppointmentScreenState
                             _selectedDropdownTreatment = null;
                           }
                         } else {
-                          final existingAreas = _fetchedAreasMap[treatment.id]
-                                  ?.map((a) => SideAreaModel(id: a.id, name: a.name))
-                                  .toList() ??
-                              (treatment.sideAreas ?? []);
-                          final newTx = treatment.copyWith(sideAreas: existingAreas);
+                          final newTx = treatment.copyWith(sideAreas: []);
                           _selectedTreatments.add(newTx);
                           _selectedDropdownTreatment = newTx;
                         }
@@ -674,56 +677,77 @@ class _CreateAppointmentScreenState
                     ? _selectedTreatments[currentTxIndex]
                     : null;
 
-                return Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
-                  children: areasList.map((area) {
-                    final isAreaSelected = currentTx?.sideAreas?.any(
-                          (a) => a.id == area.id,
-                        ) ??
-                        false;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: areasList.map((area) {
+                        final isAreaSelected = currentTx?.sideAreas?.any(
+                              (a) => a.id == area.id,
+                            ) ??
+                            false;
 
-                    return ChoiceChip(
-                      label: Text(area.name.capitalize),
-                      selected: isAreaSelected,
-                      selectedColor: CustomColors.purple,
-                      checkmarkColor: CustomColors.white,
-                      labelStyle: context.fonts.black14w500.copyWith(
-                        color:
-                            isAreaSelected ? CustomColors.white : CustomColors.black,
-                      ),
-                      backgroundColor: CustomColors.whiteGrey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: context.appBorderRadius(all: 8),
-                        side: BorderSide(
-                          color: isAreaSelected
-                              ? CustomColors.purple
-                              : CustomColors.border,
-                        ),
-                      ),
-                      onSelected: (selected) {
-                        if (currentTxIndex == -1) return;
-                        setState(() {
-                          final currentAreas = List<SideAreaModel>.from(
-                            _selectedTreatments[currentTxIndex].sideAreas ?? [],
-                          );
-                          if (selected) {
-                            if (!currentAreas.any((a) => a.id == area.id)) {
-                              currentAreas.add(
-                                SideAreaModel(id: area.id, name: area.name),
+                        return ChoiceChip(
+                          label: Text(area.name.capitalize),
+                          selected: isAreaSelected,
+                          selectedColor: CustomColors.purple,
+                          checkmarkColor: CustomColors.white,
+                          labelStyle: context.fonts.black14w500.copyWith(
+                            color: isAreaSelected
+                                ? CustomColors.white
+                                : CustomColors.black,
+                          ),
+                          backgroundColor: CustomColors.whiteGrey,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: context.appBorderRadius(all: 8),
+                            side: BorderSide(
+                              color: isAreaSelected
+                                  ? CustomColors.purple
+                                  : CustomColors.border,
+                            ),
+                          ),
+                          onSelected: (selected) {
+                            if (currentTxIndex == -1) return;
+                            setState(() {
+                              final currentAreas = List<SideAreaModel>.from(
+                                _selectedTreatments[currentTxIndex].sideAreas ?? [],
                               );
+                              if (selected) {
+                                if (!currentAreas.any((a) => a.id == area.id)) {
+                                  currentAreas.add(
+                                    SideAreaModel(id: area.id, name: area.name),
+                                  );
+                                }
+                              } else {
+                                currentAreas.removeWhere((a) => a.id == area.id);
+                              }
+                              _selectedTreatments[currentTxIndex] =
+                                  _selectedTreatments[currentTxIndex].copyWith(
+                                sideAreas: currentAreas,
+                              );
+                            });
+
+                            if (selected) {
+                              _fetchSessionMaterials(currentTreatmentId, area.id);
                             }
-                          } else {
-                            currentAreas.removeWhere((a) => a.id == area.id);
-                          }
-                          _selectedTreatments[currentTxIndex] =
-                              _selectedTreatments[currentTxIndex].copyWith(
-                            sideAreas: currentAreas,
-                          );
-                        });
-                      },
-                    );
-                  }).toList(),
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    if (currentTx != null &&
+                        currentTx.sideAreas != null &&
+                        currentTx.sideAreas!.isNotEmpty) ...[
+                      SizedBox(height: context.h(12)),
+                      ...currentTx.sideAreas!.map((selectedArea) {
+                        return _buildSessionsAndMaterialsSection(
+                          currentTreatmentId,
+                          selectedArea,
+                        );
+                      }),
+                    ],
+                  ],
                 );
               },
             ),
@@ -792,8 +816,12 @@ class _CreateAppointmentScreenState
               children: flattenedItems.map((item) {
                 final tx = item.treatment;
                 final area = item.area;
+                final key = area != null ? '${tx.id}-${area.id}' : '';
+                final selectedSession = _selectedSessionMap[key];
                 final displayText = area != null
-                    ? '${tx.name} - ${area.name}'
+                    ? (selectedSession != null
+                        ? '${tx.name} - ${area.name} (${selectedSession.sessionName})'
+                        : '${tx.name} - ${area.name}')
                     : '${tx.name}';
 
                 return Container(
@@ -1495,6 +1523,211 @@ class _CreateAppointmentScreenState
     );
   }
 
+  Future<void> _fetchSessionMaterials(int treatmentId, int areaId) async {
+    final key = '$treatmentId-$areaId';
+    if (_sessionMaterialsMap.containsKey(key) ||
+        (_fetchingSessionMaterialsMap[key] ?? false)) {
+      return;
+    }
+
+    setState(() {
+      _fetchingSessionMaterialsMap[key] = true;
+    });
+
+    try {
+      final materials = await ref
+          .read(areaViewModelProvider.notifier)
+          .fetchSessionMaterials(
+            treatmentId: treatmentId,
+            areaId: areaId,
+            showLoading: false,
+          );
+
+      if (mounted) {
+        setState(() {
+          _sessionMaterialsMap[key] = materials;
+          _fetchingSessionMaterialsMap[key] = false;
+          if (materials.isNotEmpty) {
+            _selectedSessionMap[key] = materials.first;
+            if (materials.first.material.isNotEmpty) {
+              _selectedMaterialMap[key] = materials.first.material.first;
+              _selectedMaterialQtyMap[key] =
+                  materials.first.material.first.minQty;
+            }
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _fetchingSessionMaterialsMap[key] = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildSessionsAndMaterialsSection(
+      int treatmentId, SideAreaModel area) {
+    final areaId = area.id;
+    if (areaId == null) return const SizedBox.shrink();
+    final key = '$treatmentId-$areaId';
+
+    final isLoading = _fetchingSessionMaterialsMap[key] ?? false;
+    final sessions = _sessionMaterialsMap[key] ?? [];
+    final selectedSession = _selectedSessionMap[key];
+    final selectedMaterial = _selectedMaterialMap[key];
+
+    return Container(
+      margin: EdgeInsets.only(top: context.h(8)),
+      padding: context.appEdgeInsets(all: 12),
+      decoration: BoxDecoration(
+        color: CustomColors.lightPurple.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(context.r(12)),
+        border: Border.all(
+          color: CustomColors.purple.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.inventory_2_outlined,
+                size: context.sp(16),
+                color: CustomColors.purple,
+              ),
+              SizedBox(width: context.w(8)),
+              Text(
+                'Sessions & Materials for ${area.name ?? ''}',
+                style: context.fonts.black14w600,
+              ),
+            ],
+          ),
+          SizedBox(height: context.h(8)),
+          if (isLoading) ...[
+            Row(
+              children: [
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: context.w(8)),
+                Text(
+                  'Fetching sessions for ${area.name}...',
+                  style: context.fonts.grey12w400,
+                ),
+              ],
+            ),
+          ] else if (sessions.isEmpty) ...[
+            Text(
+              'No sessions or materials found for ${area.name}.',
+              style: context.fonts.grey12w400,
+            ),
+          ] else ...[
+            Text(
+              'Select Session:',
+              style: context.fonts.grey12w600,
+            ),
+            SizedBox(height: context.h(6)),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: sessions.map((session) {
+                final isSessionSelected =
+                    selectedSession?.sessionId == session.sessionId;
+                return ChoiceChip(
+                  label: Text(session.sessionName),
+                  selected: isSessionSelected,
+                  selectedColor: CustomColors.purple,
+                  checkmarkColor: CustomColors.white,
+                  labelStyle: context.fonts.black14w500.copyWith(
+                    fontSize: 12.sp,
+                    color: isSessionSelected
+                        ? CustomColors.white
+                        : CustomColors.black,
+                  ),
+                  backgroundColor: CustomColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: context.appBorderRadius(all: 6),
+                    side: BorderSide(
+                      color: isSessionSelected
+                          ? CustomColors.purple
+                          : CustomColors.border,
+                    ),
+                  ),
+                  onSelected: (selected) {
+                    if (selected) {
+                      setState(() {
+                        _selectedSessionMap[key] = session;
+                        if (session.material.isNotEmpty) {
+                          _selectedMaterialMap[key] = session.material.first;
+                          _selectedMaterialQtyMap[key] =
+                              session.material.first.minQty;
+                        } else {
+                          _selectedMaterialMap[key] = null;
+                          _selectedMaterialQtyMap[key] = 0;
+                        }
+                      });
+                    }
+                  },
+                );
+              }).toList(),
+            ),
+            if (selectedSession != null &&
+                selectedSession.material.isNotEmpty) ...[
+              SizedBox(height: context.h(10)),
+              Text(
+                'Session Materials:',
+                style: context.fonts.grey12w600,
+              ),
+              SizedBox(height: context.h(6)),
+              Wrap(
+                spacing: 8.w,
+                runSpacing: 8.h,
+                children: selectedSession.material.map((mat) {
+                  final isMatSelected = selectedMaterial?.id == mat.id;
+                  return ChoiceChip(
+                    label: Text(
+                      '${mat.unitType} (Min: ${mat.minQty}, Max: ${mat.maxQty})',
+                    ),
+                    selected: isMatSelected,
+                    selectedColor: CustomColors.purple,
+                    checkmarkColor: CustomColors.white,
+                    labelStyle: context.fonts.black14w500.copyWith(
+                      fontSize: 12.sp,
+                      color: isMatSelected
+                          ? CustomColors.white
+                          : CustomColors.black,
+                    ),
+                    backgroundColor: CustomColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: context.appBorderRadius(all: 6),
+                      side: BorderSide(
+                        color: isMatSelected
+                            ? CustomColors.purple
+                            : CustomColors.border,
+                      ),
+                    ),
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() {
+                          _selectedMaterialMap[key] = mat;
+                          _selectedMaterialQtyMap[key] = mat.minQty;
+                        });
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
   void _submitForm(
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
@@ -1555,23 +1788,33 @@ class _CreateAppointmentScreenState
         final List<AppointmentTreatmentItemRequest> items = [];
         for (final t in _selectedTreatments) {
           final cost = (t.price ?? totalCost).toDouble();
-          final defaultMaterial = AppointmentMaterialItemRequest(
-            id: 0,
-            selectedQuantity: 1,
-          );
 
           if (t.sideAreas != null && t.sideAreas!.isNotEmpty) {
             for (final area in t.sideAreas!) {
+              final key = '${t.id}-${area.id}';
+              final selectedMat = _selectedMaterialMap[key];
+              final selectedQty =
+                  _selectedMaterialQtyMap[key] ?? selectedMat?.minQty ?? 1;
+
+              final materialReq = AppointmentMaterialItemRequest(
+                id: selectedMat?.id ?? 0,
+                selectedQuantity: selectedQty,
+              );
+
               items.add(
                 AppointmentTreatmentItemRequest(
                   treatmentId: t.id,
                   areaId: area.id,
                   treatmentCost: cost,
-                  material: defaultMaterial,
+                  material: materialReq,
                 ),
               );
             }
           } else {
+            final defaultMaterial = AppointmentMaterialItemRequest(
+              id: 0,
+              selectedQuantity: 1,
+            );
             items.add(
               AppointmentTreatmentItemRequest(
                 treatmentId: t.id,
