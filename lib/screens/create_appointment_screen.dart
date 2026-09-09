@@ -19,6 +19,7 @@ import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../models/responses/area_list_response.dart';
 import '../models/responses/session_materials_response.dart';
+import '../models/requests/treatment_cost_request.dart';
 import '../view_models/area_view_model.dart';
 import 'dashboard/patient_management_detail.dart';
 import '../widgets/app_loader.dart';
@@ -66,6 +67,10 @@ class _CreateAppointmentScreenState
   final Map<String, MaterialItem?> _selectedMaterialMap = {};
   final Map<String, int> _selectedMaterialQtyMap = {};
 
+  // Treatment cost state
+  final Map<String, num?> _treatmentCostMap = {};
+  final Map<String, bool> _fetchingTreatmentCostMap = {};
+
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   final _practitionerSearchController = TextEditingController();
   PractitionerListItem? _selectedPractitionerItem;
@@ -91,7 +96,7 @@ class _CreateAppointmentScreenState
   final _notesController = TextEditingController();
 
   // Section 5: Financials & Payment Details
-  final _amountController = TextEditingController(text: '250');
+  final _amountController = TextEditingController(text: '0.00');
   String _paymentType = 'cash';
   final List<String> _paymentTypes = ['cash', 'card', 'stripe'];
   String _paymentStatus = 'pending';
@@ -591,6 +596,7 @@ class _CreateAppointmentScreenState
                           _selectedTreatments.add(newTx);
                           _selectedDropdownTreatment = newTx;
                         }
+                        _updateTotalAmount();
                       });
 
                       if (willBeSelected && treatment.id != null) {
@@ -754,40 +760,6 @@ class _CreateAppointmentScreenState
           ],
         ],
         SizedBox(height: context.h(20)),
-        Row(
-          children: [
-            Expanded(
-              child: _buildDropdownField<Filters>(
-                label: 'Appointment Type',
-                hintText: 'Select Type',
-                value: selectedAppointmentType,
-                items: appointmentTypes,
-                onTap: () {
-                  ref
-                      .read(appointmentProvider.notifier)
-                      .getAppointmentsTypes();
-                },
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _selectedAppointmentTypeFilter = val);
-                  }
-                },
-                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
-              ),
-            ),
-            SizedBox(width: context.w(16)),
-            Expanded(
-              child: BuildTextField(
-                controller: _amountController,
-                label: 'Treatment Total (\$)',
-                hintText: '250.00',
-                keyboardType: TextInputType.number,
-                prefixIcon: const Icon(Icons.attach_money, size: 18),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: context.h(20)),
         Text('Selected Treatments & Anatomical Areas',
             style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(12)),
@@ -875,6 +847,7 @@ class _CreateAppointmentScreenState
                               _selectedTreatments
                                   .removeWhere((t) => t.id == tx.id);
                             }
+                            _updateTotalAmount();
                           });
                         },
                         child: const Icon(
@@ -889,6 +862,41 @@ class _CreateAppointmentScreenState
               }).toList(),
             );
           },
+        ),
+        SizedBox(height: context.h(20)),
+        Row(
+          children: [
+            Expanded(
+              child: _buildDropdownField<Filters>(
+                label: 'Appointment Type',
+                hintText: 'Select Type',
+                value: selectedAppointmentType,
+                items: appointmentTypes,
+                onTap: () {
+                  ref
+                      .read(appointmentProvider.notifier)
+                      .getAppointmentsTypes();
+                },
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _selectedAppointmentTypeFilter = val);
+                  }
+                },
+                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: BuildTextField(
+                controller: _amountController,
+                label: 'Treatment Total (\$)',
+                hintText: '0.00',
+                readOnly: true,
+                keyboardType: TextInputType.number,
+                prefixIcon: const Icon(Icons.attach_money, size: 18),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -1568,11 +1576,88 @@ class _CreateAppointmentScreenState
             }
           }
         });
+
+        if (materials.isNotEmpty) {
+          _calculateTreatmentCost(treatmentId, areaId);
+        }
       }
     } catch (_) {
       if (mounted) {
         setState(() {
           _fetchingSessionMaterialsMap[key] = false;
+        });
+      }
+    }
+  }
+
+  double get _calculatedTotalTreatmentCost {
+    double total = 0.0;
+    for (final tx in _selectedTreatments) {
+      if (tx.sideAreas != null && tx.sideAreas!.isNotEmpty) {
+        for (final area in tx.sideAreas!) {
+          final key = '${tx.id}-${area.id}';
+          final cost = _treatmentCostMap[key];
+          if (cost != null) {
+            total += cost.toDouble();
+          } else if (tx.price != null) {
+            total += tx.price!.toDouble();
+          }
+        }
+      } else if (tx.price != null) {
+        total += tx.price!.toDouble();
+      }
+    }
+    return total;
+  }
+
+  void _updateTotalAmount() {
+    final total = _calculatedTotalTreatmentCost;
+    _amountController.text = total.toStringAsFixed(2);
+  }
+
+  Future<void> _calculateTreatmentCost(int treatmentId, int areaId) async {
+    final key = '$treatmentId-$areaId';
+    final selectedSession = _selectedSessionMap[key];
+    if (selectedSession == null) return;
+
+    final selectedMat = _selectedMaterialMap[key];
+    final selectedQty =
+        _selectedMaterialQtyMap[key] ?? selectedMat?.maxQty ?? 1;
+
+    final materialReq = [
+      TreatmentCostMaterialRequest(
+        id: selectedMat?.id ?? 0,
+        selectedQuantity: selectedQty,
+      ),
+    ];
+
+    final request = TreatmentCostRequest(
+      treatmentId: treatmentId,
+      areaId: areaId,
+      sessionId: selectedSession.sessionId,
+      material: materialReq,
+    );
+
+    setState(() {
+      _fetchingTreatmentCostMap[key] = true;
+    });
+
+    try {
+      final cost = await ref
+          .read(areaViewModelProvider.notifier)
+          .calculateTreatmentCost(request: request, showLoading: false);
+
+      if (mounted) {
+        setState(() {
+          _treatmentCostMap[key] = cost;
+          _fetchingTreatmentCostMap[key] = false;
+        });
+        _updateTotalAmount();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _fetchingTreatmentCostMap[key] = false;
         });
       }
     }
@@ -1656,6 +1741,14 @@ class _CreateAppointmentScreenState
                       _selectedMaterialMap[key] = material;
                       _selectedMaterialQtyMap[key] = currentQty;
                     });
+                    final parts = key.split('-');
+                    if (parts.length == 2) {
+                      final tId = int.tryParse(parts[0]);
+                      final aId = int.tryParse(parts[1]);
+                      if (tId != null && aId != null) {
+                        _calculateTreatmentCost(tId, aId);
+                      }
+                    }
                     Navigator.pop(dialogContext);
                   },
                   child: const Text(
@@ -1696,17 +1789,46 @@ class _CreateAppointmentScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.inventory_2_outlined,
-                size: context.sp(16),
-                color: CustomColors.purple,
+              Row(
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: context.sp(16),
+                    color: CustomColors.purple,
+                  ),
+                  SizedBox(width: context.w(8)),
+                  Text(
+                    'Sessions & Materials for ${area.name ?? ''}',
+                    style: context.fonts.black14w600,
+                  ),
+                ],
               ),
-              SizedBox(width: context.w(8)),
-              Text(
-                'Sessions & Materials for ${area.name ?? ''}',
-                style: context.fonts.black14w600,
-              ),
+              if (_fetchingTreatmentCostMap[key] == true) ...[
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ] else if (_treatmentCostMap[key] != null) ...[
+                Container(
+                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(context.r(8)),
+                    border: Border.all(
+                      color: CustomColors.purple.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    'Cost: \$${_treatmentCostMap[key]}',
+                    style: context.fonts.black14w600.copyWith(
+                      color: CustomColors.purple,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           SizedBox(height: context.h(8)),
@@ -1775,6 +1897,7 @@ class _CreateAppointmentScreenState
                           _selectedMaterialQtyMap[key] = 0;
                         }
                       });
+                      _calculateTreatmentCost(treatmentId, areaId);
                     }
                   },
                 );
@@ -1825,6 +1948,8 @@ class _CreateAppointmentScreenState
                           _selectedMaterialQtyMap[key] = mat.maxQty;
                         }
                       });
+
+                      _calculateTreatmentCost(treatmentId, areaId);
 
                       if (hasRange) {
                         _showQuantitySliderDialog(key: key, material: mat);

@@ -2,6 +2,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/requests/add_area_request.dart';
+import '../models/requests/treatment_cost_request.dart';
 import '../models/responses/area_list_response.dart';
 import '../models/responses/session_materials_response.dart';
 import '../repositories/area_repository.dart';
@@ -94,6 +95,19 @@ class AreaViewModel extends BaseViewModel<AreaState> {
       );
     });
     return result;
+  }
+
+  Future<num?> calculateTreatmentCost({
+    required TreatmentCostRequest request,
+    bool showLoading = false,
+  }) async {
+    num? cost;
+    await runSafely(showLoading: showLoading, () async {
+      cost = await _areaRepository.calculateTreatmentCost(
+        request: request,
+      );
+    });
+    return cost;
   }
 
 Future<void> addAreas() async {

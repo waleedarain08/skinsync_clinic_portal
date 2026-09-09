@@ -1,7 +1,9 @@
 import '../models/requests/add_area_request.dart';
+import '../models/requests/treatment_cost_request.dart';
 import '../models/responses/area_list_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/session_materials_response.dart';
+import '../models/responses/treatment_cost_response.dart';
 import '../repositories/area_repository.dart';
 import '../utils/enums.dart';
 import '../utils/exception.dart';
@@ -58,6 +60,23 @@ class AreaServices implements AreaRepository {
       throw BadRequestException(response.message);
     }
     return response.data ?? [];
+  }
+
+  @override
+  Future<num?> calculateTreatmentCost({
+    required TreatmentCostRequest request,
+  }) async {
+    final jsonResponse = await locator<ApiBaseService>().httpRequest(
+      requestType: RequestType.post,
+      endPoint: Endpoint.treatmentCost,
+      requestBody: request,
+    );
+    final response = TreatmentCostResponse.fromJson(jsonResponse);
+
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response.data?.treatmentCost;
   }
    @override
  Future<BaseResponse> addAreas({required AddAreaRequest request,required int treatmentId}) async {
