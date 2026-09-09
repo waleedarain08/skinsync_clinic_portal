@@ -766,75 +766,93 @@ class _CreateAppointmentScreenState
         Text('Selected Treatments & Anatomical Areas',
             style: context.fonts.grey11w600ls12),
         SizedBox(height: context.h(12)),
-        if (_selectedTreatments.isEmpty)
-          Text('No treatments selected yet.', style: context.fonts.grey14w400)
-        else
-          SizedBox(
-            height: context.h(220),
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: _selectedTreatments.length,
-              separatorBuilder: (context, index) =>
-                  SizedBox(width: context.w(16)),
-              itemBuilder: (context, index) {
-                final treatment = _selectedTreatments[index];
-                final areaNames = treatment.sideAreas != null &&
-                        treatment.sideAreas!.isNotEmpty
-                    ? treatment.sideAreas!
-                        .map((a) => a.name ?? '')
-                        .where((n) => n.isNotEmpty)
-                        .join(', ')
-                    : '';
-                final shortDesc = areaNames.isNotEmpty
-                    ? 'Areas: $areaNames'
-                    : (treatment.shortDescription ??
-                        treatment.description ??
-                        '');
+        Builder(
+          builder: (context) {
+            final List<({TreatmentModel treatment, SideAreaModel? area})>
+                flattenedItems = [];
+            for (final tx in _selectedTreatments) {
+              if (tx.sideAreas != null && tx.sideAreas!.isNotEmpty) {
+                for (final area in tx.sideAreas!) {
+                  flattenedItems.add((treatment: tx, area: area));
+                }
+              } else {
+                flattenedItems.add((treatment: tx, area: null));
+              }
+            }
 
-                final dashboardTreatment = DashboardTreatmentModel(
-                  id: treatment.id,
-                  name: treatment.name,
-                  shortDescription: shortDesc,
-                  image: treatment.image,
-                  icon: treatment.icon,
-                  sku: treatment.globalSku,
-                );
+            if (flattenedItems.isEmpty) {
+              return Text('No treatments selected yet.',
+                  style: context.fonts.grey14w400);
+            }
 
-                return Stack(
-                  children: [
-                    TreatmentContainer(
-                      treatment: dashboardTreatment,
-                      width: context.w(280),
-                      imageHeight: context.h(220),
+            return Wrap(
+              spacing: context.w(12),
+              runSpacing: context.h(12),
+              children: flattenedItems.map((item) {
+                final tx = item.treatment;
+                final area = item.area;
+                final displayText = area != null
+                    ? '${tx.name} - ${area.name}'
+                    : '${tx.name}';
+
+                return Container(
+                  padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: CustomColors.lightPurple,
+                    borderRadius: BorderRadius.circular(context.r(12)),
+                    border: Border.all(
+                      color: CustomColors.purple.withValues(alpha: 0.3),
                     ),
-                    Positioned(
-                      top: context.h(8),
-                      right: context.w(8),
-                      child: InkWell(
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.medical_services_outlined,
+                        size: context.sp(16),
+                        color: CustomColors.purple,
+                      ),
+                      context.horizontalSpace(8),
+                      Text(
+                        displayText,
+                        style: context.fonts.purple13w700,
+                      ),
+                      context.horizontalSpace(8),
+                      InkWell(
                         onTap: () {
                           setState(() {
-                            _selectedTreatments.removeAt(index);
+                            if (area != null) {
+                              final txIndex = _selectedTreatments
+                                  .indexWhere((t) => t.id == tx.id);
+                              if (txIndex != -1) {
+                                final updatedAreas = List<SideAreaModel>.from(
+                                  _selectedTreatments[txIndex].sideAreas ?? [],
+                                );
+                                updatedAreas.removeWhere((a) => a.id == area.id);
+                                _selectedTreatments[txIndex] =
+                                    _selectedTreatments[txIndex].copyWith(
+                                  sideAreas: updatedAreas,
+                                );
+                              }
+                            } else {
+                              _selectedTreatments
+                                  .removeWhere((t) => t.id == tx.id);
+                            }
                           });
                         },
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Colors.white,
-                          ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: CustomColors.purple,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
-              },
-            ),
-          ),
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -1532,18 +1550,39 @@ class _CreateAppointmentScreenState
         leftImageBefore: _leftImageBeforeController.text.trim(),
         leftImageAfter: _leftImageAfterController.text.trim(),
       ),
-      treatment: _selectedTreatments.map((t) {
-        return AppointmentTreatmentItemRequest(
-          treatmentId: t.id ?? 3,
-          areaId:
-              t.sideAreas?.isNotEmpty == true ? t.sideAreas!.first.id ?? 7 : 7,
-          treatmentCost: (t.price ?? 250).toDouble(),
-          material: AppointmentMaterialItemRequest(
-            id: 10,
-            selectedQuantity: 2,
-          ),
-        );
-      }).toList(),
+      treatment: () {
+        final List<AppointmentTreatmentItemRequest> items = [];
+        for (final t in _selectedTreatments) {
+          final cost = (t.price ?? totalCost).toDouble();
+          final defaultMaterial = AppointmentMaterialItemRequest(
+            id: 0,
+            selectedQuantity: 1,
+          );
+
+          if (t.sideAreas != null && t.sideAreas!.isNotEmpty) {
+            for (final area in t.sideAreas!) {
+              items.add(
+                AppointmentTreatmentItemRequest(
+                  treatmentId: t.id,
+                  areaId: area.id,
+                  treatmentCost: cost,
+                  material: defaultMaterial,
+                ),
+              );
+            }
+          } else {
+            items.add(
+              AppointmentTreatmentItemRequest(
+                treatmentId: t.id,
+                areaId: 0,
+                treatmentCost: cost,
+                material: defaultMaterial,
+              ),
+            );
+          }
+        }
+        return items;
+      }(),
       treatmentTotal: totalCost,
       paymentType: AppointmentPaymentTypeRequest(
         type: _paymentType,
