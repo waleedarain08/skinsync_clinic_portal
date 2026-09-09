@@ -20,8 +20,8 @@ import '../widgets/borderd_container_widget.dart';
 import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
-import '../widgets/dialog_box/register_patient_dialog.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/phone_widget.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
   const CreateAppointmentScreen({super.key});
@@ -38,7 +38,9 @@ class _CreateAppointmentScreenState
   final _formKey = GlobalKey<FormState>();
 
   // Section 1: Patient Search / Info
-  final _searchController = TextEditingController();
+  final _patientNameController = TextEditingController();
+  final _patientEmailController = TextEditingController();
+  final _patientPhoneController = TextEditingController();
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
@@ -103,7 +105,9 @@ class _CreateAppointmentScreenState
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _patientNameController.dispose();
+    _patientEmailController.dispose();
+    _patientPhoneController.dispose();
     _practitionerSearchController.dispose();
     _dateController.dispose();
     _amountController.dispose();
@@ -267,30 +271,60 @@ class _CreateAppointmentScreenState
     );
   }
 
-  // Section 1: Patient Selection
+  // Section 1: Patient Selection & Registration
   Widget _buildPatientSection(
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
   ) {
     return _buildSection(
       title: 'Patient Selection',
-      trailing: CustomPrimaryButton(
-        onTap: () => RegisterPatientDialog.show(context),
-        label: 'Register New Patient',
-        icon: Icons.person_add_alt_1_outlined,
-        height: context.h(36),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
       children: [
         BuildTextField(
-          controller: _searchController,
-          label: 'Search Existing Patient',
-          hintText: 'Search by patient name, email, or phone number...',
-          prefixIcon: const Icon(Icons.search, color: CustomColors.grey),
+          controller: _patientNameController,
+          label: 'Full Name',
+          hintText: 'Enter patient full name',
+          prefixIcon: const Icon(Icons.person_outline, color: CustomColors.grey),
           onChanged: (val) => viewModel.searchPatients(val ?? ''),
         ),
         SizedBox(height: context.h(16)),
+        BuildTextField(
+          controller: _patientEmailController,
+          label: 'Email Address',
+          hintText: 'Enter patient email address',
+          prefixIcon: const Icon(Icons.email_outlined, color: CustomColors.grey),
+        ),
+        SizedBox(height: context.h(16)),
+        Text('Phone Number', style: context.fonts.black14w600),
+        SizedBox(height: context.h(8)),
+        PhoneWidget(
+          allowCountrySelection: false,
+          controller: _patientPhoneController,
+          filled: false,
+        ),
+        SizedBox(height: context.h(16)),
+        Align(
+          alignment: Alignment.centerRight,
+          child: CustomPrimaryButton(
+            onTap: () {
+              final name = _patientNameController.text.trim();
+              final email = _patientEmailController.text.trim();
+              final phone = _patientPhoneController.text.trim();
+              if (name.isNotEmpty || email.isNotEmpty || phone.isNotEmpty) {
+                viewModel.registerNewPatient(
+                  name: name.isEmpty ? 'New Patient' : name,
+                  email: email,
+                  phone: phone,
+                );
+              }
+            },
+            label: 'Register or Fetch Detail',
+            icon: Icons.person_add_alt_1_outlined,
+            height: context.h(40),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+        ),
         if (state.selectedPatient != null) ...[
+          SizedBox(height: context.h(16)),
           Text('Selected Patient', style: context.fonts.grey11w600ls12),
           SizedBox(height: context.h(10)),
           _buildPatientCard(state.selectedPatient!, true, viewModel),
@@ -315,7 +349,12 @@ class _CreateAppointmentScreenState
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => viewModel.selectPatient(patient),
+        onTap: () {
+          viewModel.selectPatient(patient);
+          _patientNameController.text = patient.name;
+          _patientEmailController.text = patient.email;
+          _patientPhoneController.text = patient.phone;
+        },
         borderRadius: BorderRadius.circular(context.r(12)),
         child: BorderdContainerWidget(
           padding: context.appEdgeInsets(all: 14),
