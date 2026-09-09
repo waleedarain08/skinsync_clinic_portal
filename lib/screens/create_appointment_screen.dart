@@ -818,11 +818,19 @@ class _CreateAppointmentScreenState
                 final area = item.area;
                 final key = area != null ? '${tx.id}-${area.id}' : '';
                 final selectedSession = _selectedSessionMap[key];
-                final displayText = area != null
-                    ? (selectedSession != null
-                        ? '${tx.name} - ${area.name} (${selectedSession.sessionName})'
-                        : '${tx.name} - ${area.name}')
-                    : '${tx.name}';
+                final selectedMat = _selectedMaterialMap[key];
+                final selectedQty = _selectedMaterialQtyMap[key];
+
+                String displayText = tx.name ?? '';
+                if (area != null) {
+                  displayText += ' - ${area.name}';
+                  if (selectedSession != null) {
+                    displayText += ' (${selectedSession.sessionName})';
+                  }
+                  if (selectedMat != null && selectedQty != null && selectedQty > 0) {
+                    displayText += ' [${selectedMat.unitType}: $selectedQty]';
+                  }
+                }
 
                 return Container(
                   padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
@@ -1548,11 +1556,15 @@ class _CreateAppointmentScreenState
           _sessionMaterialsMap[key] = materials;
           _fetchingSessionMaterialsMap[key] = false;
           if (materials.isNotEmpty) {
-            _selectedSessionMap[key] = materials.first;
-            if (materials.first.material.isNotEmpty) {
-              _selectedMaterialMap[key] = materials.first.material.first;
-              _selectedMaterialQtyMap[key] =
-                  materials.first.material.first.minQty;
+            final firstSession = materials.first;
+            _selectedSessionMap[key] = firstSession;
+            if (firstSession.material.isNotEmpty) {
+              final firstMat = firstSession.material.first;
+              _selectedMaterialMap[key] = firstMat;
+              _selectedMaterialQtyMap[key] = firstMat.maxQty;
+            } else {
+              _selectedMaterialMap[key] = null;
+              _selectedMaterialQtyMap[key] = 0;
             }
           }
         });
@@ -1564,6 +1576,99 @@ class _CreateAppointmentScreenState
         });
       }
     }
+  }
+
+  Future<void> _showQuantitySliderDialog({
+    required String key,
+    required MaterialItem material,
+  }) async {
+    int currentQty = _selectedMaterialQtyMap[key] ?? material.maxQty;
+    if (currentQty < material.minQty) currentQty = material.minQty;
+    if (currentQty > material.maxQty) currentQty = material.maxQty;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final int min = material.minQty;
+            final int max = material.maxQty;
+            final int divisions = (max - min) > 0 ? (max - min) : 1;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              title: Text(
+                'Select Quantity for ${material.unitType}',
+                style: context.fonts.black16w600,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Quantity: $currentQty',
+                    style: context.fonts.black18w600.copyWith(
+                      color: CustomColors.purple,
+                    ),
+                  ),
+                  SizedBox(height: context.h(16)),
+                  Slider(
+                    value: currentQty.toDouble(),
+                    min: min.toDouble(),
+                    max: max.toDouble(),
+                    divisions: divisions,
+                    activeColor: CustomColors.purple,
+                    inactiveColor: CustomColors.lightPurple,
+                    label: '$currentQty',
+                    onChanged: (val) {
+                      setDialogState(() {
+                        currentQty = val.round();
+                      });
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: context.w(12)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Min: $min', style: context.fonts.grey12w400),
+                        Text('Max: $max', style: context.fonts.grey12w400),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text('Cancel', style: context.fonts.grey14w400),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.purple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _selectedMaterialMap[key] = material;
+                      _selectedMaterialQtyMap[key] = currentQty;
+                    });
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text(
+                    'Confirm',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildSessionsAndMaterialsSection(
@@ -1662,9 +1767,9 @@ class _CreateAppointmentScreenState
                       setState(() {
                         _selectedSessionMap[key] = session;
                         if (session.material.isNotEmpty) {
-                          _selectedMaterialMap[key] = session.material.first;
-                          _selectedMaterialQtyMap[key] =
-                              session.material.first.minQty;
+                          final firstMat = session.material.first;
+                          _selectedMaterialMap[key] = firstMat;
+                          _selectedMaterialQtyMap[key] = firstMat.maxQty;
                         } else {
                           _selectedMaterialMap[key] = null;
                           _selectedMaterialQtyMap[key] = 0;
@@ -1688,6 +1793,8 @@ class _CreateAppointmentScreenState
                 runSpacing: 8.h,
                 children: selectedSession.material.map((mat) {
                   final isMatSelected = selectedMaterial?.id == mat.id;
+                  final bool hasRange = mat.minQty < mat.maxQty;
+
                   return ChoiceChip(
                     label: Text(
                       '${mat.unitType} (Min: ${mat.minQty}, Max: ${mat.maxQty})',
@@ -1710,17 +1817,107 @@ class _CreateAppointmentScreenState
                             : CustomColors.border,
                       ),
                     ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedMaterialMap[key] = mat;
-                          _selectedMaterialQtyMap[key] = mat.minQty;
-                        });
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedMaterialMap[key] = mat;
+                        if (_selectedMaterialQtyMap[key] == null ||
+                            _selectedMaterialMap[key]?.id != mat.id) {
+                          _selectedMaterialQtyMap[key] = mat.maxQty;
+                        }
+                      });
+
+                      if (hasRange) {
+                        _showQuantitySliderDialog(key: key, material: mat);
                       }
                     },
                   );
                 }).toList(),
               ),
+              if (selectedMaterial != null) ...[
+                SizedBox(height: context.h(10)),
+                Builder(
+                  builder: (context) {
+                    final bool hasRange =
+                        selectedMaterial.minQty < selectedMaterial.maxQty;
+                    final currentQty =
+                        _selectedMaterialQtyMap[key] ?? selectedMaterial.maxQty;
+
+                    return Container(
+                      padding: context.appEdgeInsets(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: CustomColors.white,
+                        borderRadius: BorderRadius.circular(context.r(8)),
+                        border: Border.all(
+                          color: CustomColors.border,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Selected Quantity: ',
+                                style: context.fonts.grey12w400,
+                              ),
+                              Text(
+                                '$currentQty ${selectedMaterial.unitType}',
+                                style: context.fonts.black14w600.copyWith(
+                                  color: CustomColors.purple,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (hasRange) ...[
+                            InkWell(
+                              onTap: () {
+                                _showQuantitySliderDialog(
+                                  key: key,
+                                  material: selectedMaterial,
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: context.w(12),
+                                  vertical: context.h(6),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: CustomColors.purple,
+                                  borderRadius: BorderRadius.circular(
+                                    context.r(6),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.tune,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: context.w(4)),
+                                    Text(
+                                      'Select Quantity',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ],
           ],
         ],
