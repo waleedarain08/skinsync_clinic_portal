@@ -24,6 +24,8 @@ import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/phone_widget.dart';
+import '../widgets/treatment_container.dart';
+import '../models/responses/login_response_model.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
   const CreateAppointmentScreen({super.key});
@@ -227,15 +229,15 @@ class _CreateAppointmentScreenState
                     CustomOutlinedButton(
                       onTap: () => context.pop(),
                       label: 'Cancel',
-                      width: context.w(100),
                       height: context.h(40),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                     context.horizontalSpace(12),
                     CustomPrimaryButton(
                       onTap: () => _submitForm(state, viewModel),
                       label: 'Save Appointment',
-                      width: context.w(180),
                       height: context.h(40),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       icon: Icons.check_circle_outline,
                     ),
                   ],
@@ -290,24 +292,38 @@ class _CreateAppointmentScreenState
           onChanged: (val) => viewModel.searchPatients(val ?? ''),
         ),
         SizedBox(height: context.h(16)),
-        BuildTextField(
-          controller: _patientEmailController,
-          label: 'Email Address',
-          hintText: 'Enter patient email address',
-          prefixIcon: const Icon(Icons.email_outlined, color: CustomColors.grey),
-        ),
-        SizedBox(height: context.h(16)),
-        Text('Phone Number', style: context.fonts.black14w600),
-        SizedBox(height: context.h(8)),
-        PhoneWidget(
-          allowCountrySelection: true,
-          controller: _patientPhoneController,
-          filled: false,
-          onCountryChanged: (code) {
-            setState(() {
-              _selectedCountryCode = code.dialCode ?? '+1';
-            });
-          },
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: BuildTextField(
+                controller: _patientEmailController,
+                label: 'Email Address',
+                hintText: 'Enter patient email address',
+                prefixIcon: const Icon(Icons.email_outlined, color: CustomColors.grey),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Phone Number', style: context.fonts.black14w600),
+                  context.verticalSpace(8),
+                  PhoneWidget(
+                    allowCountrySelection: true,
+                    controller: _patientPhoneController,
+                    filled: false,
+                    onCountryChanged: (code) {
+                      setState(() {
+                        _selectedCountryCode = code.dialCode ?? '+1';
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         SizedBox(height: context.h(16)),
         Align(
@@ -349,31 +365,7 @@ class _CreateAppointmentScreenState
         ),
         if (state.selectedPatient != null) ...[
           SizedBox(height: context.h(16)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Selected Patient', style: context.fonts.grey11w600ls12),
-              if (state.registeredPatientData != null &&
-                  state.registeredPatientData!.detailAvailable == true)
-                CustomOutlinedButton(
-                  onTap: () async {
-                    final patientId = state.registeredPatientData!.id;
-                    final success = await ref
-                        .read(patientProvider.notifier)
-                        .getPatientDetail(patientId: patientId);
-                    if (success && context.mounted) {
-                      context.push(
-                        PatientManagementDetailScreen.routeName,
-                        extra: patientId,
-                      );
-                    }
-                  },
-                  label: 'View Detail',
-                  height: context.h(32),
-                  width: context.w(110),
-                ),
-            ],
-          ),
+          Text('Selected Patient', style: context.fonts.grey11w600ls12),
           SizedBox(height: context.h(10)),
           _buildPatientCard(state.selectedPatient!, true, viewModel, state),
         ],
@@ -476,8 +468,8 @@ class _CreateAppointmentScreenState
                     }
                   },
                   label: 'View Detail',
-                  height: context.h(32),
-                  width: context.w(110),
+                  height: context.h(36),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                 ),
                 context.horizontalSpace(10),
               ],
@@ -610,8 +602,7 @@ class _CreateAppointmentScreenState
             label: 'Add Treatment',
             icon: Icons.add,
             height: context.h(36),
-            width: context.w(150),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
         ),
         SizedBox(height: context.h(20)),
@@ -655,55 +646,71 @@ class _CreateAppointmentScreenState
         if (_selectedTreatments.isEmpty)
           Text('No treatments selected yet.', style: context.fonts.grey14w400)
         else
-          Wrap(
-            spacing: context.w(12),
-            runSpacing: context.h(12),
-            children: _selectedTreatments.map((treatment) {
-              final areaText = treatment.sideAreas != null &&
-                      treatment.sideAreas!.isNotEmpty
-                  ? ' (${treatment.sideAreas!.map((a) => a.name).join(', ')})'
-                  : '';
-              return Container(
-                padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: CustomColors.lightPurple,
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                  border: Border.all(
-                    color: CustomColors.purple.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          SizedBox(
+            height: context.h(220),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _selectedTreatments.length,
+              separatorBuilder: (context, index) =>
+                  SizedBox(width: context.w(16)),
+              itemBuilder: (context, index) {
+                final treatment = _selectedTreatments[index];
+                final areaNames = treatment.sideAreas != null &&
+                        treatment.sideAreas!.isNotEmpty
+                    ? treatment.sideAreas!
+                        .map((a) => a.name ?? '')
+                        .where((n) => n.isNotEmpty)
+                        .join(', ')
+                    : '';
+                final shortDesc = areaNames.isNotEmpty
+                    ? 'Areas: $areaNames'
+                    : (treatment.shortDescription ??
+                        treatment.description ??
+                        '');
+
+                final dashboardTreatment = DashboardTreatmentModel(
+                  id: treatment.id,
+                  name: treatment.name,
+                  shortDescription: shortDesc,
+                  image: treatment.image,
+                  icon: treatment.icon,
+                  sku: treatment.globalSku,
+                );
+
+                return Stack(
                   children: [
-                    Icon(
-                      Icons.medical_services_outlined,
-                      size: context.sp(16),
-                      color: CustomColors.purple,
+                    TreatmentContainer(
+                      treatment: dashboardTreatment,
+                      width: context.w(280),
+                      imageHeight: context.h(220),
                     ),
-                    context.horizontalSpace(8),
-                    Text(
-                      '${treatment.name}$areaText',
-                      style: context.fonts.purple13w700,
-                    ),
-                    context.horizontalSpace(8),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTreatments.removeWhere(
-                            (t) => t.id == treatment.id,
-                          );
-                        });
-                      },
-                      child: const Icon(
-                        Icons.close,
-                        size: 16,
-                        color: CustomColors.purple,
+                    Positioned(
+                      top: context.h(8),
+                      right: context.w(8),
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedTreatments.removeAt(index);
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                ),
-              );
-            }).toList(),
+                );
+              },
+            ),
           ),
       ],
     );
@@ -770,7 +777,7 @@ class _CreateAppointmentScreenState
         label: 'Add Practitioner',
         icon: Icons.person_add_alt_outlined,
         height: context.h(36),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
       ),
       children: [
         Row(

@@ -95,6 +95,7 @@ class _CustomPrimaryButtonState extends State<CustomPrimaryButton> {
                 padding:
                     widget.padding ?? context.appEdgeInsets(horizontal: 16),
                 child: Center(
+                  widthFactor: 1.0,
                   child: widget.isLoading
                       ? AppLoader(
                           size: context.w(20),

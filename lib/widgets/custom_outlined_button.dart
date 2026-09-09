@@ -70,6 +70,7 @@ class _CustomOutlinedButtonState extends State<CustomOutlinedButton> {
                 padding:
                     widget.padding ?? context.appEdgeInsets(horizontal: 16),
                 child: Center(
+                  widthFactor: 1.0,
                   child: widget.isLoading
                       ? AppLoader(size: context.w(20))
                       : Row(
