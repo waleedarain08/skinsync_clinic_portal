@@ -2,6 +2,7 @@ import '../models/requests/create_appointment_request.dart';
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
 import '../models/responses/base_response_model.dart';
+import '../models/responses/booking_methods_response.dart';
 import '../models/responses/filters_response.dart';
 import '../repositories/appointment_repository.dart';
 import '../utils/enums.dart' hide AppointmentStatus;
@@ -78,6 +79,19 @@ class AppointmentService extends AppointmentRepository {
       throw Exception(model.message);
     }
     return model;
+  }
+
+  @override
+  Future<List<BookingMethodItem>> getBookingMethods() async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.bookingMethods,
+      requestType: RequestType.get,
+    );
+    final model = BookingMethodsResponse.fromJson(response);
+    if (!model.isSuccess) {
+      throw Exception(model.message);
+    }
+    return model.data ?? [];
   }
 
   @override

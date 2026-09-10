@@ -16,8 +16,10 @@ import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
 import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
+import '../view_models/provider_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../models/responses/area_list_response.dart';
+import '../models/responses/booking_methods_response.dart';
 import '../models/responses/session_materials_response.dart';
 import '../models/requests/treatment_cost_request.dart';
 import '../view_models/area_view_model.dart';
@@ -54,6 +56,9 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
+  static final Filters _allRoleFilter =
+      Filters(id: 0, name: 'All');
+  Filters? _selectedRoleFilter = _allRoleFilter;
   TreatmentModel? _selectedDropdownTreatment;
 
   final List<TreatmentModel> _selectedTreatments = [];
@@ -77,22 +82,21 @@ class _CreateAppointmentScreenState
 
   final List<_AssignedPractitioner> _assignedPractitioners = [];
 
-  final _dateController = TextEditingController(
-    text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-  );
-  String _selectedTimeSlot = '10:00 AM';
+  final _dateController = TextEditingController();
+  String? _selectedTimeSlot;
   final List<String> _timeSlots = [
-    '09:00 AM',
-    '10:00 AM',
-    '11:30 AM',
-    '01:30 PM',
-    '03:00 PM',
-    '04:30 PM',
+    '09:00',
+    '10:00',
+    '11:30',
+    '13:00',
+    '14:30',
+    '16:00',
+    '17:30',
+    '19:00',
   ];
 
   // Section 4: Notes & Booking Config
   String _bookingMethod = 'online';
-  final List<String> _bookingMethods = ['online', 'walk_in', 'manual'];
   final _notesController = TextEditingController();
 
   // Section 5: Financials & Payment Details
@@ -122,6 +126,8 @@ class _CreateAppointmentScreenState
       ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+      ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
   }
 
@@ -905,276 +911,436 @@ class _CreateAppointmentScreenState
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
     final practitionerState = ref.watch(practitionerProvider);
+    final providerRoleState = ref.watch(providerRoleViewModelProvider);
+    final apiRoles = providerRoleState.providerRoles ?? [];
+    final List<Filters> providerRoles = [
+      _allRoleFilter,
+      ...apiRoles.where((r) => r.name?.toLowerCase() != 'all'),
+    ];
+
     final rawDoctors = practitionerState.doctors;
     final uniqueDoctorsMap = <int, PractitionerListItem>{};
     for (final d in rawDoctors) {
       uniqueDoctorsMap[d.id] = d;
     }
-    final doctors = uniqueDoctorsMap.values.toList();
+    final allDoctors = uniqueDoctorsMap.values.toList();
 
-    PractitionerListItem? selectedDoctor;
-    if (doctors.isNotEmpty) {
-      if (_selectedPractitionerItem != null) {
-        selectedDoctor = doctors.firstWhere(
-          (doc) => doc.id == _selectedPractitionerItem!.id,
-          orElse: () => doctors.first,
-        );
-      } else {
-        selectedDoctor = doctors.first;
+    // Filter doctors by selected role if applicable (and not "All")
+    final doctors = allDoctors.where((d) {
+      if (_selectedRoleFilter != null &&
+          _selectedRoleFilter!.id != 0 &&
+          _selectedRoleFilter!.name != null &&
+          _selectedRoleFilter!.name!.toLowerCase() != 'all') {
+        final selectedRoleName = _selectedRoleFilter!.name!.toLowerCase();
+        if (d.role != null && d.role!.toLowerCase() != selectedRoleName) {
+          return false;
+        }
       }
-    }
+      return true;
+    }).toList();
 
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
-      trailing: CustomPrimaryButton(
-        onTap: () {
-          final targetDoc = selectedDoctor ?? _selectedPractitionerItem;
-          if (targetDoc == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please select a practitioner first.'),
-              ),
-            );
-            return;
-          }
-          final exists = _assignedPractitioners.any(
-            (p) => p.id == targetDoc.id,
-          );
-          if (!exists) {
-            setState(() {
-              _assignedPractitioners.add(
-                _AssignedPractitioner(
-                  id: targetDoc.id,
-                  name: targetDoc.name,
-                  role: targetDoc.role?.isNotEmpty == true
-                      ? targetDoc.role!
-                      : 'doctor',
-                ),
-              );
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Practitioner already assigned to this appointment.'),
-              ),
-            );
-          }
-        },
-        label: 'Add Practitioner',
-        icon: Icons.person_add_alt_outlined,
-        height: context.h(36),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-      ),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildSearchableDropdownField<PractitionerListItem>(
-                label: 'Assigned Practitioner',
-                hintText: 'Search or Select Practitioner',
-                value: selectedDoctor,
-                items: doctors,
-                searchController: _practitionerSearchController,
-                onSearchChanged: (query) {
-                  ref.read(practitionerProvider.notifier).setSearchQuery(query);
-                },
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _selectedPractitionerItem = val;
-                    });
-                  }
-                },
-                builder: (val) => Text(
-                  val.name.isNotEmpty
-                      ? '${val.name} (${val.email})'
-                      : 'Practitioner ID: ${val.id}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: context.fonts.black14w400,
-                ),
-              ),
-            ),
-            SizedBox(width: context.w(16)),
-            Expanded(
-              child: InkWell(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    _dateController.text =
-                        DateFormat('yyyy-MM-dd').format(picked);
-                  }
-                },
-                child: IgnorePointer(
-                  child: BuildTextField(
-                    controller: _dateController,
-                    label: 'Appointment Date',
-                    hintText: 'YYYY-MM-DD',
-                    readOnly: true,
-                    prefixIcon:
-                        const Icon(Icons.calendar_today_outlined, size: 18),
+        // Top controls: Search Practitioner, Select Date, Select Role
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isWide = constraints.maxWidth > 700;
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: BuildTextField(
+                      controller: _practitionerSearchController,
+                      label: 'Search Practitioner',
+                      hintText: 'Search by name or email...',
+                      prefixIcon: const Icon(Icons.search, size: 18),
+                      onChanged: (val) {
+                        ref
+                            .read(practitionerProvider.notifier)
+                            .setSearchQuery(val ?? '');
+                      },
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: context.h(12)),
-        // Pagination & Search Controls
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Page ${practitionerState.currentPage} of ${practitionerState.totalPages}',
-              style: context.fonts.grey12w400,
-            ),
-            Row(
-              children: [
-                if (practitionerState.currentPage > 1)
-                  TextButton.icon(
-                    onPressed: () {
-                      ref.read(practitionerProvider.notifier).getPractitioner(
-                            page: practitionerState.currentPage - 1,
-                          );
+                  SizedBox(width: context.w(16)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _dateController.text =
+                                DateFormat('yyyy-MM-dd').format(picked);
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: BuildTextField(
+                          controller: _dateController,
+                          label: 'Select Date',
+                          hintText: 'YYYY-MM-DD',
+                          readOnly: true,
+                          prefixIcon: const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 18,
+                            color: CustomColors.purple,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.w(16)),
+                  Expanded(
+                    child: _buildDropdownField<Filters>(
+                      label: 'Select Role',
+                      hintText: 'Select Role',
+                      value: _selectedRoleFilter,
+                      items: providerRoles,
+                      onTap: () {
+                        ref
+                            .read(providerRoleViewModelProvider.notifier)
+                            .fetchProviderRoles();
+                      },
+                      onChanged: (val) {
+                        setState(() => _selectedRoleFilter = val);
+                      },
+                      builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BuildTextField(
+                    controller: _practitionerSearchController,
+                    label: 'Search Practitioner',
+                    hintText: 'Search by name or email...',
+                    prefixIcon: const Icon(Icons.search, size: 18),
+                    onChanged: (val) {
+                      ref
+                          .read(practitionerProvider.notifier)
+                          .setSearchQuery(val ?? '');
                     },
-                    icon: const Icon(Icons.arrow_back_ios, size: 12),
-                    label: const Text('Prev Page'),
                   ),
-                if (practitionerState.currentPage < practitionerState.totalPages)
-                  TextButton.icon(
-                    onPressed: () {
-                      ref.read(practitionerProvider.notifier).getPractitioner(
-                            page: practitionerState.currentPage + 1,
-                          );
-                    },
-                    icon: const Icon(Icons.arrow_forward_ios, size: 12),
-                    label: const Text('Next Page'),
+                  SizedBox(height: context.h(16)),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate:
+                                  DateTime.now().add(const Duration(days: 365)),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                _dateController.text =
+                                    DateFormat('yyyy-MM-dd').format(picked);
+                              });
+                            }
+                          },
+                          child: IgnorePointer(
+                            child: BuildTextField(
+                              controller: _dateController,
+                              label: 'Select Date',
+                              hintText: 'YYYY-MM-DD',
+                              readOnly: true,
+                              prefixIcon: const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 18,
+                                color: CustomColors.purple,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: context.w(16)),
+                      Expanded(
+                        child: _buildDropdownField<Filters>(
+                          label: 'Select Role',
+                          hintText: 'Select Role',
+                          value: _selectedRoleFilter,
+                          items: providerRoles,
+                          onTap: () {
+                            ref
+                                .read(providerRoleViewModelProvider.notifier)
+                                .fetchProviderRoles();
+                          },
+                          onChanged: (val) {
+                            setState(() => _selectedRoleFilter = val);
+                          },
+                          builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                        ),
+                      ),
+                    ],
                   ),
-              ],
-            ),
-          ],
+                ],
+              );
+            }
+          },
         ),
         SizedBox(height: context.h(20)),
-        Text('Assigned Practitioners (${_assignedPractitioners.length})',
-            style: context.fonts.grey11w600ls12),
-        SizedBox(height: context.h(12)),
-        if (_assignedPractitioners.isEmpty)
-          Text('No practitioners assigned yet.',
-              style: context.fonts.grey14w400)
+        Text('Select Practitioner', style: context.fonts.black14w600),
+        SizedBox(height: context.h(10)),
+        if (practitionerState.loading && doctors.isEmpty)
+          const Center(child: AppLoader())
+        else if (doctors.isEmpty)
+          Text('No practitioners available.', style: context.fonts.grey14w400)
         else
+          SizedBox(
+            height: context.h(130),
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: doctors.length,
+              separatorBuilder: (context, index) =>
+                  SizedBox(width: context.w(16)),
+              itemBuilder: (context, index) {
+                final doctor = doctors[index];
+                final bool isSelected =
+                    _selectedPractitionerItem?.id == doctor.id;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        _selectedPractitionerItem = null;
+                        _assignedPractitioners.clear();
+                      } else {
+                        _selectedPractitionerItem = doctor;
+                        _assignedPractitioners.clear();
+                        _assignedPractitioners.add(
+                          _AssignedPractitioner(
+                            id: doctor.id,
+                            name: doctor.name,
+                            role: doctor.role?.isNotEmpty == true
+                                ? doctor.role!
+                                : 'doctor',
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: context.w(240),
+                    padding: context.appEdgeInsets(all: 12),
+                    decoration: BoxDecoration(
+                      color: CustomColors.white,
+                      borderRadius: BorderRadius.circular(context.r(16)),
+                      border: Border.all(
+                        color: isSelected
+                            ? CustomColors.purple
+                            : CustomColors.border,
+                        width: isSelected ? 2 : 1,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color:
+                                    CustomColors.purple.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: CustomColors.black.withValues(alpha: 0.03),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: context.r(26),
+                              backgroundColor:
+                                  CustomColors.purple.withValues(alpha: 0.1),
+                              backgroundImage: doctor.image.isNotEmpty
+                                  ? NetworkImage(doctor.image)
+                                  : null,
+                              child: doctor.image.isEmpty
+                                  ? Icon(
+                                      Icons.person_outline,
+                                      color: CustomColors.purple,
+                                      size: context.sp(24),
+                                    )
+                                  : null,
+                            ),
+                            if (isSelected)
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: CustomColors.purple,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(width: context.w(12)),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                doctor.name.isNotEmpty
+                                    ? doctor.name
+                                    : 'Practitioner ID: ${doctor.id}',
+                                style: context.fonts.black14w600,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: context.h(4)),
+                              Text(
+                                doctor.specialization.isNotEmpty
+                                    ? doctor.specialization
+                                    : (doctor.role?.capitalize ?? 'Doctor'),
+                                style: context.fonts.grey12w400,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (doctor.email.isNotEmpty) ...[
+                                SizedBox(height: context.h(2)),
+                                Text(
+                                  doctor.email,
+                                  style: context.fonts.grey12w400.copyWith(
+                                    fontSize: 11.sp,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+        // Available Time Slots (Appears when Date is selected)
+        if (_dateController.text.isNotEmpty) ...[
+          SizedBox(height: context.h(20)),
+          Text('Available Time Slots', style: context.fonts.grey11w600ls12),
+          SizedBox(height: context.h(12)),
           Wrap(
             spacing: context.w(12),
             runSpacing: context.h(12),
-            children: _assignedPractitioners.map((practitioner) {
-              return Container(
-                padding: context.appEdgeInsets(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: CustomColors.lightPurple,
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                  border: Border.all(
-                    color: CustomColors.purple.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.person_outline_rounded,
-                      size: context.sp(16),
-                      color: CustomColors.purple,
-                    ),
-                    context.horizontalSpace(8),
-                    Text(
-                      '${practitioner.name} (${practitioner.role.capitalize})',
-                      style: context.fonts.purple13w700,
-                    ),
-                    context.horizontalSpace(8),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          _assignedPractitioners.removeWhere(
-                            (p) => p.id == practitioner.id,
-                          );
-                        });
-                      },
-                      child: const Icon(
-                        Icons.close,
-                        size: 16,
-                        color: CustomColors.purple,
+            children: _timeSlots.map((slot) {
+              final isSelected = _selectedTimeSlot == slot;
+              return FilterChip(
+                label: Text(slot),
+                selected: isSelected,
+                onSelected: (val) {
+                  if (val) {
+                    setState(() => _selectedTimeSlot = slot);
+                  }
+                },
+                selectedColor: CustomColors.purple,
+                labelStyle: isSelected
+                    ? context.fonts.black14w500.copyWith(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                      )
+                    : context.fonts.black14w500.copyWith(
+                        color: Colors.black,
+                        fontSize: 12.sp,
                       ),
-                    ),
-                  ],
+                checkmarkColor: Colors.white,
+                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.r(20)),
+                  side: BorderSide(
+                    color: isSelected
+                        ? CustomColors.purple
+                        : CustomColors.border,
+                  ),
                 ),
               );
             }).toList(),
           ),
-        SizedBox(height: context.h(20)),
-        Text('Available Time Slots', style: context.fonts.grey11w600ls12),
-        SizedBox(height: context.h(12)),
-        Wrap(
-          spacing: context.w(12),
-          runSpacing: context.h(12),
-          children: _timeSlots.map((slot) {
-            final isSelected = _selectedTimeSlot == slot;
-            return FilterChip(
-              label: Text(slot),
-              selected: isSelected,
-              onSelected: (val) {
-                if (val) {
-                  setState(() => _selectedTimeSlot = slot);
-                }
-              },
-              selectedColor: CustomColors.purple,
-              labelStyle: isSelected
-                  ? context.fonts.white12w700
-                  : context.fonts.black12w600,
-              checkmarkColor: Colors.white,
-              padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.r(20)),
-                side: BorderSide(
-                  color: isSelected
-                      ? CustomColors.purple
-                      : CustomColors.border,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
+        ],
       ],
     );
   }
 
   // Section 4: Notes & Booking Config
   Widget _buildNotesFinancialsSection() {
+    final state = ref.watch(appointmentCreationProvider);
+    final bookingMethods = state.bookingMethods;
+
     return _buildSection(
       title: 'Booking Configuration & Clinical Notes',
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildDropdownField<String>(
-                label: 'Allowed Booking Method',
-                hintText: 'Select Method',
-                value: _bookingMethod,
-                items: _bookingMethods,
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _bookingMethod = val);
-                  }
-                },
-                builder: (val) => Text(val.capitalize),
+        Text('Allowed Booking Method', style: context.fonts.black14w600),
+        SizedBox(height: context.h(10)),
+        if (state.isFetchingBookingMethods && bookingMethods.isEmpty)
+          const Center(child: AppLoader())
+        else if (bookingMethods.isEmpty) ...[
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: [
+              _buildBookingMethodCard(
+                method: BookingMethodItem(
+                  id: 1,
+                  title: 'Online',
+                  key: 'online',
+                  description:
+                      'Allows customers to browse available time slots and book directly.',
+                  icon: '',
+                  status: 'active',
+                ),
               ),
-            ),
-            SizedBox(width: context.w(16)),
-            const Spacer(),
-          ],
-        ),
+              _buildBookingMethodCard(
+                method: BookingMethodItem(
+                  id: 2,
+                  title: 'Walk-in',
+                  key: 'walk_in',
+                  description:
+                      'Enables staff to manually register and schedule for in-person visitors.',
+                  icon: '',
+                  status: 'active',
+                ),
+              ),
+            ],
+          ),
+        ] else
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: bookingMethods.map((method) {
+              return _buildBookingMethodCard(method: method);
+            }).toList(),
+          ),
         SizedBox(height: context.h(20)),
         BuildTextField(
           controller: _notesController,
@@ -1184,6 +1350,117 @@ class _CreateAppointmentScreenState
           maxLines: 3,
         ),
       ],
+    );
+  }
+
+  Widget _buildBookingMethodCard({
+    required BookingMethodItem method,
+  }) {
+    final title = method.title;
+    final keyName = method.key;
+    final description = method.description;
+    final iconUrl = method.icon;
+    final isSelected = _bookingMethod == keyName;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _bookingMethod = keyName;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: context.w(280),
+        padding: context.appEdgeInsets(all: 12),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(16)),
+          border: Border.all(
+            color: isSelected ? CustomColors.purple : CustomColors.border,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: CustomColors.purple.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: CustomColors.black.withValues(alpha: 0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (iconUrl.isNotEmpty) ...[
+                      Image.network(
+                        iconUrl,
+                        width: context.w(22),
+                        height: context.h(22),
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          keyName == 'online'
+                              ? Icons.language
+                              : Icons.directions_walk,
+                          size: context.sp(20),
+                          color: CustomColors.purple,
+                        ),
+                      ),
+                      SizedBox(width: context.w(8)),
+                    ] else ...[
+                      Icon(
+                        keyName == 'online'
+                            ? Icons.language
+                            : Icons.directions_walk,
+                        size: context.sp(20),
+                        color: CustomColors.purple,
+                      ),
+                      SizedBox(width: context.w(8)),
+                    ],
+                    Text(
+                      title,
+                      style: context.fonts.black14w600,
+                    ),
+                  ],
+                ),
+                if (isSelected)
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: CustomColors.purple,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+              ],
+            ),
+            if (description.isNotEmpty) ...[
+              SizedBox(height: context.h(8)),
+              Text(
+                description,
+                style: context.fonts.grey12w400,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -1392,16 +1669,24 @@ class _CreateAppointmentScreenState
     );
   }
 
-  Widget _buildSearchableDropdownField<T>({
+  Widget _buildDropdownField<T>({
     required String label,
     required String hintText,
     required T? value,
     required List<T> items,
-    required TextEditingController searchController,
-    required ValueChanged<String> onSearchChanged,
     required Function(T?) onChanged,
     Widget Function(T)? builder,
+    VoidCallback? onTap,
   }) {
+    T? validValue;
+    if (value != null && items.isNotEmpty) {
+      try {
+        validValue = items.firstWhere((item) => item == value);
+      } catch (_) {
+        validValue = null;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1416,7 +1701,12 @@ class _CreateAppointmentScreenState
                 color: CustomColors.lightGrey,
               ),
             ),
-            value: value,
+            value: validValue,
+            onMenuStateChange: (isOpen) {
+              if (isOpen && onTap != null) {
+                onTap();
+              }
+            },
             items: items
                 .map(
                   (item) => DropdownMenuItem<T>(
@@ -1425,16 +1715,6 @@ class _CreateAppointmentScreenState
                   ),
                 )
                 .toList(),
-            selectedItemBuilder: builder != null
-                ? (context) => items
-                    .map(
-                      (item) => Align(
-                        alignment: Alignment.centerLeft,
-                        child: builder(item),
-                      ),
-                    )
-                    .toList()
-                : null,
             onChanged: onChanged,
             buttonStyleData: ButtonStyleData(
               height: context.h(52),
@@ -1442,95 +1722,6 @@ class _CreateAppointmentScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(context.r(12)),
                 border: Border.all(color: CustomColors.border),
-              ),
-            ),
-            dropdownSearchData: DropdownSearchData(
-              searchController: searchController,
-              searchInnerWidgetHeight: 50,
-              searchInnerWidget: Container(
-                height: 50,
-                padding: const EdgeInsets.all(8),
-                child: TextFormField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    hintText: 'Type to search practitioner...',
-                    hintStyle: context.fonts.grey12w400,
-                    prefixIcon: const Icon(Icons.search, size: 18),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onChanged: onSearchChanged,
-                ),
-              ),
-              searchMatchFn: (item, searchValue) {
-                if (item.value is PractitionerListItem) {
-                  final doc = item.value as PractitionerListItem;
-                  final query = searchValue.toLowerCase();
-                  return doc.name.toLowerCase().contains(query) ||
-                      doc.email.toLowerCase().contains(query) ||
-                      doc.specialization.toLowerCase().contains(query);
-                }
-                return item.value
-                        ?.toString()
-                        .toLowerCase()
-                        .contains(searchValue.toLowerCase()) ??
-                    false;
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDropdownField<T>({
-    required String label,
-    required String hintText,
-    required T? value,
-    required List<T> items,
-    required Function(T?) onChanged,
-    Widget Function(T)? builder,
-    VoidCallback? onTap,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: context.fonts.black14w600),
-        SizedBox(height: context.h(8)),
-        InkWell(
-          onTap: onTap,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton2<T>(
-              isExpanded: true,
-              hint: Text(
-                hintText,
-                style: context.fonts.grey14w400.copyWith(
-                  color: CustomColors.lightGrey,
-                ),
-              ),
-              value: value,
-              items: items
-                  .map(
-                    (item) => DropdownMenuItem<T>(
-                      value: item,
-                      child: builder?.call(item) ?? Text(item.toString()),
-                    ),
-                  )
-                  .toList(),
-              onChanged: onChanged,
-              buttonStyleData: ButtonStyleData(
-                height: context.h(52),
-                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                  border: Border.all(color: CustomColors.border),
-                ),
               ),
             ),
           ),
@@ -2064,19 +2255,67 @@ class _CreateAppointmentScreenState
     }
 
     if (_assignedPractitioners.isEmpty) {
+      if (_selectedPractitionerItem != null) {
+        _assignedPractitioners.add(
+          _AssignedPractitioner(
+            id: _selectedPractitionerItem!.id,
+            name: _selectedPractitionerItem!.name,
+            role: _selectedPractitionerItem!.role?.isNotEmpty == true
+                ? _selectedPractitionerItem!.role!
+                : 'doctor',
+          ),
+        );
+      }
+    }
+
+    if (_assignedPractitioners.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please assign at least one practitioner.')),
+        const SnackBar(content: Text('Please select a practitioner.')),
+      );
+      return;
+    }
+
+    if (_dateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an appointment date.')),
+      );
+      return;
+    }
+
+    if (_selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an available time slot.')),
       );
       return;
     }
 
     final selectedDate =
         DateTime.tryParse(_dateController.text) ?? DateTime.now();
-    final dateTimestamp = selectedDate.millisecondsSinceEpoch ~/ 1000;
-    final startTimeStamp =
-        selectedDate.add(const Duration(hours: 10)).millisecondsSinceEpoch ~/ 1000;
-    final endTimeStamp =
-        selectedDate.add(const Duration(hours: 11)).millisecondsSinceEpoch ~/ 1000;
+    int hour = 10;
+    int minute = 0;
+    if (_selectedTimeSlot != null) {
+      try {
+        final parts = _selectedTimeSlot!.split(':');
+        if (parts.length == 2) {
+          hour = int.parse(parts[0]);
+          minute = int.parse(parts[1]);
+        }
+      } catch (_) {}
+    }
+    final startDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      hour,
+      minute,
+    );
+    final endDateTime = startDateTime.add(const Duration(hours: 1));
+    final int dateTimestamp =
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+                .millisecondsSinceEpoch ~/
+            1000;
+    final int startTimeStamp = startDateTime.millisecondsSinceEpoch ~/ 1000;
+    final int endTimeStamp = endDateTime.millisecondsSinceEpoch ~/ 1000;
 
     final double totalCost = double.tryParse(_amountController.text) ?? 250.0;
     final double discountVal =
