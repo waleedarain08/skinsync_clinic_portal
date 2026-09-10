@@ -603,6 +603,7 @@ class _CreateAppointmentScreenState
                           _selectedDropdownTreatment = newTx;
                         }
                         _updateTotalAmount();
+                        _fetchFilteredPractitioners();
                       });
 
                       if (willBeSelected && treatment.id != null) {
@@ -908,6 +909,32 @@ class _CreateAppointmentScreenState
     );
   }
 
+  void _fetchFilteredPractitioners({
+    String? searchOverride,
+    Filters? roleOverride,
+    String? dateOverride,
+  }) {
+    final search = searchOverride ?? _practitionerSearchController.text.trim();
+    final selectedRole = roleOverride ?? _selectedRoleFilter;
+    final role = (selectedRole == null || selectedRole.id == 0)
+        ? ''
+        : (selectedRole.name ?? '');
+    final dateStr = dateOverride ?? _dateController.text.trim();
+    final parsedDate = dateStr.isNotEmpty ? DateTime.tryParse(dateStr) : null;
+    final dateTs =
+        parsedDate != null ? (parsedDate.millisecondsSinceEpoch ~/ 1000) : null;
+    final treatmentId = _selectedDropdownTreatment?.id ??
+        (_selectedTreatments.isNotEmpty ? _selectedTreatments.first.id : null);
+
+    ref.read(practitionerProvider.notifier).getPractitioner(
+          page: 1,
+          search: search,
+          role: role,
+          treatmentId: treatmentId,
+          date: dateTs,
+        );
+  }
+
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
     final practitionerState = ref.watch(practitionerProvider);
@@ -923,21 +950,7 @@ class _CreateAppointmentScreenState
     for (final d in rawDoctors) {
       uniqueDoctorsMap[d.id] = d;
     }
-    final allDoctors = uniqueDoctorsMap.values.toList();
-
-    // Filter doctors by selected role if applicable (and not "All")
-    final doctors = allDoctors.where((d) {
-      if (_selectedRoleFilter != null &&
-          _selectedRoleFilter!.id != 0 &&
-          _selectedRoleFilter!.name != null &&
-          _selectedRoleFilter!.name!.toLowerCase() != 'all') {
-        final selectedRoleName = _selectedRoleFilter!.name!.toLowerCase();
-        if (d.role != null && d.role!.toLowerCase() != selectedRoleName) {
-          return false;
-        }
-      }
-      return true;
-    }).toList();
+    final doctors = uniqueDoctorsMap.values.toList();
 
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
@@ -957,9 +970,7 @@ class _CreateAppointmentScreenState
                       hintText: 'Search by name or email...',
                       prefixIcon: const Icon(Icons.search, size: 18),
                       onChanged: (val) {
-                        ref
-                            .read(practitionerProvider.notifier)
-                            .setSearchQuery(val ?? '');
+                        _fetchFilteredPractitioners(searchOverride: val ?? '');
                       },
                     ),
                   ),
@@ -974,10 +985,12 @@ class _CreateAppointmentScreenState
                           lastDate: DateTime.now().add(const Duration(days: 365)),
                         );
                         if (picked != null) {
+                          final newDateStr =
+                              DateFormat('yyyy-MM-dd').format(picked);
                           setState(() {
-                            _dateController.text =
-                                DateFormat('yyyy-MM-dd').format(picked);
+                            _dateController.text = newDateStr;
                           });
+                          _fetchFilteredPractitioners(dateOverride: newDateStr);
                         }
                       },
                       child: IgnorePointer(
@@ -1009,6 +1022,7 @@ class _CreateAppointmentScreenState
                       },
                       onChanged: (val) {
                         setState(() => _selectedRoleFilter = val);
+                        _fetchFilteredPractitioners(roleOverride: val);
                       },
                       builder: (val) => Text(val.name ?? 'Role ${val.id}'),
                     ),
@@ -1025,9 +1039,7 @@ class _CreateAppointmentScreenState
                     hintText: 'Search by name or email...',
                     prefixIcon: const Icon(Icons.search, size: 18),
                     onChanged: (val) {
-                      ref
-                          .read(practitionerProvider.notifier)
-                          .setSearchQuery(val ?? '');
+                      _fetchFilteredPractitioners(searchOverride: val ?? '');
                     },
                   ),
                   SizedBox(height: context.h(16)),
@@ -1045,10 +1057,13 @@ class _CreateAppointmentScreenState
                                   DateTime.now().add(const Duration(days: 365)),
                             );
                             if (picked != null) {
+                              final newDateStr =
+                                  DateFormat('yyyy-MM-dd').format(picked);
                               setState(() {
-                                _dateController.text =
-                                    DateFormat('yyyy-MM-dd').format(picked);
+                                _dateController.text = newDateStr;
                               });
+                              _fetchFilteredPractitioners(
+                                  dateOverride: newDateStr);
                             }
                           },
                           child: IgnorePointer(

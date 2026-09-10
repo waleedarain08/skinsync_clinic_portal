@@ -161,7 +161,12 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
 
   Future<void> getPractitioner({
     int page = 1,
+    int limit = 10,
+    String? status,
     String? search,
+    String? role,
+    int? treatmentId,
+    int? date,
     bool showLoading = true,
   }) async {
     return await runSafely(() async {
@@ -171,7 +176,12 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       );
       final data = await locator<PractitionerService>().fetchPractitioner(
         page: page,
-        search: state.searchQuery,
+        limit: limit,
+        status: status,
+        search: search ?? state.searchQuery,
+        role: role,
+        treatmentId: treatmentId,
+        date: date,
       );
 
       if (data != null) {
