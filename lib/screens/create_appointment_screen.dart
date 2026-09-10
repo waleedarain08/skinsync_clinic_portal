@@ -77,9 +77,18 @@ class _CreateAppointmentScreenState
 
   final List<_AssignedPractitioner> _assignedPractitioners = [];
 
-  final _dateController = TextEditingController(
-    text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-  );
+  final _dateController = TextEditingController();
+  String? _selectedTimeSlot;
+  final List<String> _timeSlots = [
+    '09:00',
+    '10:00',
+    '11:30',
+    '13:00',
+    '14:30',
+    '16:00',
+    '17:30',
+    '19:00',
+  ];
 
   // Section 4: Notes & Booking Config
   String _bookingMethod = 'online';
@@ -1059,6 +1068,84 @@ class _CreateAppointmentScreenState
               },
             ),
           ),
+
+        // Step 1: Appointment Date Selection (Appears when doctor is selected)
+        if (_selectedPractitionerItem != null) ...[
+          SizedBox(height: context.h(20)),
+          InkWell(
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
+              );
+              if (picked != null) {
+                setState(() {
+                  _dateController.text =
+                      DateFormat('yyyy-MM-dd').format(picked);
+                });
+              }
+            },
+            child: IgnorePointer(
+              child: BuildTextField(
+                controller: _dateController,
+                label: 'Appointment Date',
+                hintText: 'Select Date (YYYY-MM-DD)',
+                readOnly: true,
+                prefixIcon: const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18,
+                  color: CustomColors.purple,
+                ),
+              ),
+            ),
+          ),
+        ],
+
+        // Step 2: Available Time Slots (Appears when Date is selected)
+        if (_selectedPractitionerItem != null &&
+            _dateController.text.isNotEmpty) ...[
+          SizedBox(height: context.h(20)),
+          Text('Available Time Slots', style: context.fonts.grey11w600ls12),
+          SizedBox(height: context.h(12)),
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: _timeSlots.map((slot) {
+              final isSelected = _selectedTimeSlot == slot;
+              return FilterChip(
+                label: Text(slot),
+                selected: isSelected,
+                onSelected: (val) {
+                  if (val) {
+                    setState(() => _selectedTimeSlot = slot);
+                  }
+                },
+                selectedColor: CustomColors.purple,
+                labelStyle: isSelected
+                    ? context.fonts.black14w500.copyWith(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                      )
+                    : context.fonts.black14w500.copyWith(
+                        color: Colors.black,
+                        fontSize: 12.sp,
+                      ),
+                checkmarkColor: Colors.white,
+                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.r(20)),
+                  side: BorderSide(
+                    color: isSelected
+                        ? CustomColors.purple
+                        : CustomColors.border,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ],
     );
   }
@@ -1909,13 +1996,47 @@ class _CreateAppointmentScreenState
       return;
     }
 
+    if (_dateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an appointment date.')),
+      );
+      return;
+    }
+
+    if (_selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an available time slot.')),
+      );
+      return;
+    }
+
     final selectedDate =
         DateTime.tryParse(_dateController.text) ?? DateTime.now();
-    final dateTimestamp = selectedDate.millisecondsSinceEpoch ~/ 1000;
-    final startTimeStamp =
-        selectedDate.add(const Duration(hours: 10)).millisecondsSinceEpoch ~/ 1000;
-    final endTimeStamp =
-        selectedDate.add(const Duration(hours: 11)).millisecondsSinceEpoch ~/ 1000;
+    int hour = 10;
+    int minute = 0;
+    if (_selectedTimeSlot != null) {
+      try {
+        final parts = _selectedTimeSlot!.split(':');
+        if (parts.length == 2) {
+          hour = int.parse(parts[0]);
+          minute = int.parse(parts[1]);
+        }
+      } catch (_) {}
+    }
+    final startDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      hour,
+      minute,
+    );
+    final endDateTime = startDateTime.add(const Duration(hours: 1));
+    final int dateTimestamp =
+        DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
+                .millisecondsSinceEpoch ~/
+            1000;
+    final int startTimeStamp = startDateTime.millisecondsSinceEpoch ~/ 1000;
+    final int endTimeStamp = endDateTime.millisecondsSinceEpoch ~/ 1000;
 
     final double totalCost = double.tryParse(_amountController.text) ?? 250.0;
     final double discountVal =
