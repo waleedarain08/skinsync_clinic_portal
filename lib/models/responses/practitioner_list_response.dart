@@ -96,4 +96,14 @@ class PractitionerListItem {
         treatmentCount: json["treatment_count"] ?? 0,
         appointmentCount: json["appointment_count"] ?? 0,
       );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PractitionerListItem &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
