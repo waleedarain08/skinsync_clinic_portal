@@ -9,6 +9,7 @@ import '../models/responses/session_materials_response.dart';
 abstract class AreaRepository {
   Future<List<AreaModel>> getAvailableAreas({required int treatmentId});
   Future<List<AreaModel>> getClinicAreas({required int treatmentId});
+   Future<List<AreaModel>> getAdminAreas({required int treatmentId});
   Future<List<SessionMaterialData>> getSessionMaterials({
     required int treatmentId,
     required int areaId,
