@@ -16,6 +16,7 @@ import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
 import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
+import '../view_models/provider_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../models/responses/area_list_response.dart';
 import '../models/responses/booking_methods_response.dart';
@@ -55,6 +56,9 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
+  static final Filters _allRoleFilter =
+      Filters(id: 0, name: 'All');
+  Filters? _selectedRoleFilter = _allRoleFilter;
   TreatmentModel? _selectedDropdownTreatment;
 
   final List<TreatmentModel> _selectedTreatments = [];
@@ -123,6 +127,7 @@ class _CreateAppointmentScreenState
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
   }
 
@@ -906,16 +911,187 @@ class _CreateAppointmentScreenState
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
     final practitionerState = ref.watch(practitionerProvider);
+    final providerRoleState = ref.watch(providerRoleViewModelProvider);
+    final apiRoles = providerRoleState.providerRoles ?? [];
+    final List<Filters> providerRoles = [
+      _allRoleFilter,
+      ...apiRoles.where((r) => r.name?.toLowerCase() != 'all'),
+    ];
+
     final rawDoctors = practitionerState.doctors;
     final uniqueDoctorsMap = <int, PractitionerListItem>{};
     for (final d in rawDoctors) {
       uniqueDoctorsMap[d.id] = d;
     }
-    final doctors = uniqueDoctorsMap.values.toList();
+    final allDoctors = uniqueDoctorsMap.values.toList();
+
+    // Filter doctors by selected role if applicable (and not "All")
+    final doctors = allDoctors.where((d) {
+      if (_selectedRoleFilter != null &&
+          _selectedRoleFilter!.id != 0 &&
+          _selectedRoleFilter!.name != null &&
+          _selectedRoleFilter!.name!.toLowerCase() != 'all') {
+        final selectedRoleName = _selectedRoleFilter!.name!.toLowerCase();
+        if (d.role != null && d.role!.toLowerCase() != selectedRoleName) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
 
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
       children: [
+        // Top controls: Search Practitioner, Select Date, Select Role
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isWide = constraints.maxWidth > 700;
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: BuildTextField(
+                      controller: _practitionerSearchController,
+                      label: 'Search Practitioner',
+                      hintText: 'Search by name or email...',
+                      prefixIcon: const Icon(Icons.search, size: 18),
+                      onChanged: (val) {
+                        ref
+                            .read(practitionerProvider.notifier)
+                            .setSearchQuery(val ?? '');
+                      },
+                    ),
+                  ),
+                  SizedBox(width: context.w(16)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _dateController.text =
+                                DateFormat('yyyy-MM-dd').format(picked);
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: BuildTextField(
+                          controller: _dateController,
+                          label: 'Select Date',
+                          hintText: 'YYYY-MM-DD',
+                          readOnly: true,
+                          prefixIcon: const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 18,
+                            color: CustomColors.purple,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: context.w(16)),
+                  Expanded(
+                    child: _buildDropdownField<Filters>(
+                      label: 'Select Role',
+                      hintText: 'Select Role',
+                      value: _selectedRoleFilter,
+                      items: providerRoles,
+                      onTap: () {
+                        ref
+                            .read(providerRoleViewModelProvider.notifier)
+                            .fetchProviderRoles();
+                      },
+                      onChanged: (val) {
+                        setState(() => _selectedRoleFilter = val);
+                      },
+                      builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BuildTextField(
+                    controller: _practitionerSearchController,
+                    label: 'Search Practitioner',
+                    hintText: 'Search by name or email...',
+                    prefixIcon: const Icon(Icons.search, size: 18),
+                    onChanged: (val) {
+                      ref
+                          .read(practitionerProvider.notifier)
+                          .setSearchQuery(val ?? '');
+                    },
+                  ),
+                  SizedBox(height: context.h(16)),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate:
+                                  DateTime.now().add(const Duration(days: 365)),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                _dateController.text =
+                                    DateFormat('yyyy-MM-dd').format(picked);
+                              });
+                            }
+                          },
+                          child: IgnorePointer(
+                            child: BuildTextField(
+                              controller: _dateController,
+                              label: 'Select Date',
+                              hintText: 'YYYY-MM-DD',
+                              readOnly: true,
+                              prefixIcon: const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 18,
+                                color: CustomColors.purple,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: context.w(16)),
+                      Expanded(
+                        child: _buildDropdownField<Filters>(
+                          label: 'Select Role',
+                          hintText: 'Select Role',
+                          value: _selectedRoleFilter,
+                          items: providerRoles,
+                          onTap: () {
+                            ref
+                                .read(providerRoleViewModelProvider.notifier)
+                                .fetchProviderRoles();
+                          },
+                          onChanged: (val) {
+                            setState(() => _selectedRoleFilter = val);
+                          },
+                          builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+          },
+        ),
+        SizedBox(height: context.h(20)),
         Text('Select Practitioner', style: context.fonts.black14w600),
         SizedBox(height: context.h(10)),
         if (practitionerState.loading && doctors.isEmpty)
@@ -1070,43 +1246,8 @@ class _CreateAppointmentScreenState
             ),
           ),
 
-        // Step 1: Appointment Date Selection (Appears when doctor is selected)
-        if (_selectedPractitionerItem != null) ...[
-          SizedBox(height: context.h(20)),
-          InkWell(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-              );
-              if (picked != null) {
-                setState(() {
-                  _dateController.text =
-                      DateFormat('yyyy-MM-dd').format(picked);
-                });
-              }
-            },
-            child: IgnorePointer(
-              child: BuildTextField(
-                controller: _dateController,
-                label: 'Appointment Date',
-                hintText: 'Select Date (YYYY-MM-DD)',
-                readOnly: true,
-                prefixIcon: const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 18,
-                  color: CustomColors.purple,
-                ),
-              ),
-            ),
-          ),
-        ],
-
-        // Step 2: Available Time Slots (Appears when Date is selected)
-        if (_selectedPractitionerItem != null &&
-            _dateController.text.isNotEmpty) ...[
+        // Available Time Slots (Appears when Date is selected)
+        if (_dateController.text.isNotEmpty) ...[
           SizedBox(height: context.h(20)),
           Text('Available Time Slots', style: context.fonts.grey11w600ls12),
           SizedBox(height: context.h(12)),
@@ -1551,34 +1692,36 @@ class _CreateAppointmentScreenState
       children: [
         Text(label, style: context.fonts.black14w600),
         SizedBox(height: context.h(8)),
-        InkWell(
-          onTap: onTap,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton2<T>(
-              isExpanded: true,
-              hint: Text(
-                hintText,
-                style: context.fonts.grey14w400.copyWith(
-                  color: CustomColors.lightGrey,
-                ),
+        DropdownButtonHideUnderline(
+          child: DropdownButton2<T>(
+            isExpanded: true,
+            hint: Text(
+              hintText,
+              style: context.fonts.grey14w400.copyWith(
+                color: CustomColors.lightGrey,
               ),
-              value: validValue,
-              items: items
-                  .map(
-                    (item) => DropdownMenuItem<T>(
-                      value: item,
-                      child: builder?.call(item) ?? Text(item.toString()),
-                    ),
-                  )
-                  .toList(),
-              onChanged: onChanged,
-              buttonStyleData: ButtonStyleData(
-                height: context.h(52),
-                padding: EdgeInsets.symmetric(horizontal: context.w(16)),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                  border: Border.all(color: CustomColors.border),
-                ),
+            ),
+            value: validValue,
+            onMenuStateChange: (isOpen) {
+              if (isOpen && onTap != null) {
+                onTap();
+              }
+            },
+            items: items
+                .map(
+                  (item) => DropdownMenuItem<T>(
+                    value: item,
+                    child: builder?.call(item) ?? Text(item.toString()),
+                  ),
+                )
+                .toList(),
+            onChanged: onChanged,
+            buttonStyleData: ButtonStyleData(
+              height: context.h(52),
+              padding: EdgeInsets.symmetric(horizontal: context.w(16)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(context.r(12)),
+                border: Border.all(color: CustomColors.border),
               ),
             ),
           ),
