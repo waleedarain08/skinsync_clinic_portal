@@ -71,6 +71,7 @@ enum Endpoint {
   treatmentAreas('clinic/treatments/{treatmentId}/session-areas'),
   sessionMaterials('clinic/session-materials/{treatmentId}/{areaId}'),
   treatmentCost('clinic/treatment-cost'),
+  bookingMethods('clinic/booking-methods'),
   adminAreas('admin/treatments/{treatmentId}/areas'),
   explorerReels('clinic/reels'),
   updateReel('clinic/reels/{id}'),

@@ -18,6 +18,7 @@ import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/treatment_view_model.dart';
 import '../models/responses/area_list_response.dart';
+import '../models/responses/booking_methods_response.dart';
 import '../models/responses/session_materials_response.dart';
 import '../models/requests/treatment_cost_request.dart';
 import '../view_models/area_view_model.dart';
@@ -92,7 +93,6 @@ class _CreateAppointmentScreenState
 
   // Section 4: Notes & Booking Config
   String _bookingMethod = 'online';
-  final List<String> _bookingMethods = ['online', 'walk_in', 'manual'];
   final _notesController = TextEditingController();
 
   // Section 5: Financials & Payment Details
@@ -122,6 +122,7 @@ class _CreateAppointmentScreenState
       ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+      ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
     });
   }
 
@@ -1152,29 +1153,53 @@ class _CreateAppointmentScreenState
 
   // Section 4: Notes & Booking Config
   Widget _buildNotesFinancialsSection() {
+    final state = ref.watch(appointmentCreationProvider);
+    final bookingMethods = state.bookingMethods;
+
     return _buildSection(
       title: 'Booking Configuration & Clinical Notes',
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildDropdownField<String>(
-                label: 'Allowed Booking Method',
-                hintText: 'Select Method',
-                value: _bookingMethod,
-                items: _bookingMethods,
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _bookingMethod = val);
-                  }
-                },
-                builder: (val) => Text(val.capitalize),
+        Text('Allowed Booking Method', style: context.fonts.black14w600),
+        SizedBox(height: context.h(10)),
+        if (state.isFetchingBookingMethods && bookingMethods.isEmpty)
+          const Center(child: AppLoader())
+        else if (bookingMethods.isEmpty) ...[
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: [
+              _buildBookingMethodCard(
+                method: BookingMethodItem(
+                  id: 1,
+                  title: 'Online',
+                  key: 'online',
+                  description:
+                      'Allows customers to browse available time slots and book directly.',
+                  icon: '',
+                  status: 'active',
+                ),
               ),
-            ),
-            SizedBox(width: context.w(16)),
-            const Spacer(),
-          ],
-        ),
+              _buildBookingMethodCard(
+                method: BookingMethodItem(
+                  id: 2,
+                  title: 'Walk-in',
+                  key: 'walk_in',
+                  description:
+                      'Enables staff to manually register and schedule for in-person visitors.',
+                  icon: '',
+                  status: 'active',
+                ),
+              ),
+            ],
+          ),
+        ] else
+          Wrap(
+            spacing: context.w(12),
+            runSpacing: context.h(12),
+            children: bookingMethods.map((method) {
+              return _buildBookingMethodCard(method: method);
+            }).toList(),
+          ),
         SizedBox(height: context.h(20)),
         BuildTextField(
           controller: _notesController,
@@ -1184,6 +1209,117 @@ class _CreateAppointmentScreenState
           maxLines: 3,
         ),
       ],
+    );
+  }
+
+  Widget _buildBookingMethodCard({
+    required BookingMethodItem method,
+  }) {
+    final title = method.title;
+    final keyName = method.key;
+    final description = method.description;
+    final iconUrl = method.icon;
+    final isSelected = _bookingMethod == keyName;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _bookingMethod = keyName;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: context.w(280),
+        padding: context.appEdgeInsets(all: 12),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.circular(context.r(16)),
+          border: Border.all(
+            color: isSelected ? CustomColors.purple : CustomColors.border,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: CustomColors.purple.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: CustomColors.black.withValues(alpha: 0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (iconUrl.isNotEmpty) ...[
+                      Image.network(
+                        iconUrl,
+                        width: context.w(22),
+                        height: context.h(22),
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          keyName == 'online'
+                              ? Icons.language
+                              : Icons.directions_walk,
+                          size: context.sp(20),
+                          color: CustomColors.purple,
+                        ),
+                      ),
+                      SizedBox(width: context.w(8)),
+                    ] else ...[
+                      Icon(
+                        keyName == 'online'
+                            ? Icons.language
+                            : Icons.directions_walk,
+                        size: context.sp(20),
+                        color: CustomColors.purple,
+                      ),
+                      SizedBox(width: context.w(8)),
+                    ],
+                    Text(
+                      title,
+                      style: context.fonts.black14w600,
+                    ),
+                  ],
+                ),
+                if (isSelected)
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: CustomColors.purple,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+              ],
+            ),
+            if (description.isNotEmpty) ...[
+              SizedBox(height: context.h(8)),
+              Text(
+                description,
+                style: context.fonts.grey12w400,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 

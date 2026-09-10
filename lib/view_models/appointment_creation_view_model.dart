@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/requests/register_patient_request.dart';
+import '../models/responses/booking_methods_response.dart';
 import '../models/responses/register_patient_response.dart';
 import '../repositories/appointment_repository.dart';
 import '../repositories/patient_repository.dart';
@@ -18,6 +19,8 @@ class AppointmentCreationState {
   final bool isLoading;
   final String searchQuery;
   final RegisterPatientData? registeredPatientData;
+  final List<BookingMethodItem> bookingMethods;
+  final bool isFetchingBookingMethods;
 
   AppointmentCreationState({
     this.selectedPatient,
@@ -25,6 +28,8 @@ class AppointmentCreationState {
     this.isLoading = false,
     this.searchQuery = '',
     this.registeredPatientData,
+    this.bookingMethods = const [],
+    this.isFetchingBookingMethods = false,
   });
 
   AppointmentCreationState copyWith({
@@ -33,6 +38,8 @@ class AppointmentCreationState {
     bool? isLoading,
     String? searchQuery,
     RegisterPatientData? registeredPatientData,
+    List<BookingMethodItem>? bookingMethods,
+    bool? isFetchingBookingMethods,
   }) {
     return AppointmentCreationState(
       selectedPatient: selectedPatient ?? this.selectedPatient,
@@ -41,6 +48,9 @@ class AppointmentCreationState {
       searchQuery: searchQuery ?? this.searchQuery,
       registeredPatientData:
           registeredPatientData ?? this.registeredPatientData,
+      bookingMethods: bookingMethods ?? this.bookingMethods,
+      isFetchingBookingMethods:
+          isFetchingBookingMethods ?? this.isFetchingBookingMethods,
     );
   }
 }
@@ -166,6 +176,21 @@ class AppointmentCreationViewModel
 
   void clearSelection() {
     state = state.copyWith(selectedPatient: null);
+  }
+
+  Future<List<BookingMethodItem>> fetchBookingMethods() async {
+    List<BookingMethodItem> methods = [];
+    await runSafely(showLoading: false, () async {
+      state = state.copyWith(isFetchingBookingMethods: true);
+      final repository = locator<AppointmentRepository>();
+      methods = await repository.getBookingMethods();
+      state = state.copyWith(
+        bookingMethods: methods,
+        isFetchingBookingMethods: false,
+      );
+    });
+    state = state.copyWith(isFetchingBookingMethods: false);
+    return methods;
   }
 
   Future<bool> createAppointment({
