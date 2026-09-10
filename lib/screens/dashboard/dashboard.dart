@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -37,12 +38,16 @@ class _DashboardState extends ConsumerState<Dashboard> {
       _wsInstance.connect(
         onEvent: (event) {
           try {
+            log('NEW MESSAGE RECIEVED OF TYPE: ${event.type}');
             switch (event.type) {
               case EventType.chat:
                 final message = Message.fromJson(event.data);
                 if (ref.exists(chatProvider)) {
                   ref.read(chatProvider.notifier).addMessage(message);
                 }
+                break;
+              case .appointment:
+                log('DATA: ${jsonEncode(event.data)}');
                 break;
               case EventType.subscription:
                 // TODO: Handle this case.

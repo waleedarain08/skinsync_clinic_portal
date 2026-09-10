@@ -341,6 +341,7 @@ enum AiChatMessageType {
 
 enum EventType {
   chat('chat'),
+  appointment('appointment'),
   subscription('subscription');
 
   final String value;
