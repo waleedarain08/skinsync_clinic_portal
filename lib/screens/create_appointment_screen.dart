@@ -1297,6 +1297,17 @@ class _CreateAppointmentScreenState
     final state = ref.watch(appointmentCreationProvider);
     final bookingMethods = state.bookingMethods;
 
+    if (bookingMethods.isNotEmpty &&
+        !bookingMethods.any((m) => m.key == _bookingMethod)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _bookingMethod = bookingMethods.first.key;
+          });
+        }
+      });
+    }
+
     return _buildSection(
       title: 'Booking Configuration & Clinical Notes',
       children: [
@@ -1304,36 +1315,9 @@ class _CreateAppointmentScreenState
         SizedBox(height: context.h(10)),
         if (state.isFetchingBookingMethods && bookingMethods.isEmpty)
           const Center(child: AppLoader())
-        else if (bookingMethods.isEmpty) ...[
-          Wrap(
-            spacing: context.w(12),
-            runSpacing: context.h(12),
-            children: [
-              _buildBookingMethodCard(
-                method: BookingMethodItem(
-                  id: 1,
-                  title: 'Online',
-                  key: 'online',
-                  description:
-                      'Allows customers to browse available time slots and book directly.',
-                  icon: '',
-                  status: 'active',
-                ),
-              ),
-              _buildBookingMethodCard(
-                method: BookingMethodItem(
-                  id: 2,
-                  title: 'Walk-in',
-                  key: 'walk_in',
-                  description:
-                      'Enables staff to manually register and schedule for in-person visitors.',
-                  icon: '',
-                  status: 'active',
-                ),
-              ),
-            ],
-          ),
-        ] else
+        else if (bookingMethods.isEmpty)
+          Text('No booking methods available.', style: context.fonts.grey14w400)
+        else
           Wrap(
             spacing: context.w(12),
             runSpacing: context.h(12),
