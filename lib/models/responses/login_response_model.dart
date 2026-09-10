@@ -13,16 +13,14 @@ class LoginResponseModel extends BaseResponse<AuthData> {
       LoginResponseModel(
         success: json["is_success"] ?? false,
         message: json["message"] ?? "",
-        data: json["data"] == null
-            ? null
-            : AuthData.fromJson(json["data"]),
+        data: json["data"] == null ? null : AuthData.fromJson(json["data"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "is_success": success,
-        "message": message,
-        "data": data?.toJson(),
-      };
+    "is_success": success,
+    "message": message,
+    "data": data?.toJson(),
+  };
 }
 
 class AuthData {
@@ -45,35 +43,36 @@ class AuthData {
   });
 
   factory AuthData.fromJson(Map<String, dynamic> json) => AuthData(
-        accessToken: json["access_token"],
-        refreshToken: json["refresh_token"],
-        accessExpiresAt: json["access_expires_at"],
-        refreshExpiresAt: json["refresh_expires_at"],
-        isCompleted: json["is_completed"] ?? false,
-        clinicUser: json["clinic_user"] == null
-            ? null
-            : UserModel.fromJson(json["clinic_user"]),
-        dashboard: json["dashboard"] == null
-            ? null
-            : DashboardModel.fromJson(json["dashboard"]),
-      );
+    accessToken: json["access_token"],
+    refreshToken: json["refresh_token"],
+    accessExpiresAt: json["access_expires_at"],
+    refreshExpiresAt: json["refresh_expires_at"],
+    isCompleted: json["is_completed"] ?? false,
+    clinicUser: json["clinic_user"] == null
+        ? null
+        : UserModel.fromJson(json["clinic_user"]),
+    dashboard: json["dashboard"] == null
+        ? null
+        : DashboardModel.fromJson(json["dashboard"]),
+  );
 
   Map<String, dynamic> toJson() => {
-        "access_token": accessToken,
-        "refresh_token": refreshToken,
-        "access_expires_at": accessExpiresAt,
-        "refresh_expires_at": refreshExpiresAt,
-        "clinic_user": clinicUser?.toJson(),
-        "is_completed": isCompleted,
-        "dashboard": dashboard?.toJson(),
-      };
+    "access_token": accessToken,
+    "refresh_token": refreshToken,
+    "access_expires_at": accessExpiresAt,
+    "refresh_expires_at": refreshExpiresAt,
+    "clinic_user": clinicUser?.toJson(),
+    "is_completed": isCompleted,
+    "dashboard": dashboard?.toJson(),
+  };
 }
 
 class DashboardModel {
   final int? totalTreatment;
   final int? totalPractitioner;
   final int? totalTreatmentRequest;
-  final List<DashboardTreatmentModel>? treatments;
+  final List<FrequentlyTreatmentModel>? treatments;
+  final List<FrequentlyConversion>? frequentlyConversions;
   final List<RequestClinicTreatmentModel>? todayTreatmentRequest;
   final List<TodaysCheckinModel>? todaysCheckin;
   final List<DashboardAppointmentModel>? todaysAppointment;
@@ -83,6 +82,7 @@ class DashboardModel {
     this.totalPractitioner,
     this.totalTreatmentRequest,
     this.treatments,
+    this.frequentlyConversions,
     this.todayTreatmentRequest,
     this.todaysCheckin,
     this.todaysAppointment,
@@ -93,57 +93,111 @@ class DashboardModel {
       totalTreatment: json["total_treatment"],
       totalPractitioner: json["total_practitioner"],
       totalTreatmentRequest: json["total_treatment_request"],
+      frequentlyConversions: json["frequently_conversions"] != null
+          ? (json["frequently_conversions"] as List)
+                .map(
+                  (e) =>
+                      FrequentlyConversion.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+          : null,
       treatments: json["treatments"] != null
           ? (json["treatments"] as List)
-              .map(
-                (e) => DashboardTreatmentModel.fromJson(
-                  e as Map<String, dynamic>,
-                ),
-              )
-              .toList()
+                .map(
+                  (e) => FrequentlyTreatmentModel.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
           : null,
+
       todayTreatmentRequest: json["today_treatment_request"] != null
           ? (json["today_treatment_request"] as List)
-              .map(
-                (e) => RequestClinicTreatmentModel.fromJson(
-                  e as Map<String, dynamic>,
-                ),
-              )
-              .toList()
+                .map(
+                  (e) => RequestClinicTreatmentModel.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
           : null,
       todaysCheckin: json["todays_checkin"] != null
           ? (json["todays_checkin"] as List)
-              .map(
-                (e) => TodaysCheckinModel.fromJson(
-                  e as Map<String, dynamic>,
-                ),
-              )
-              .toList()
+                .map(
+                  (e) => TodaysCheckinModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
           : null,
       todaysAppointment: json["todays_appointment"] != null
           ? (json["todays_appointment"] as List)
-              .map(
-                (e) => DashboardAppointmentModel.fromJson(
-                  e as Map<String, dynamic>,
-                ),
-              )
-              .toList()
+                .map(
+                  (e) => DashboardAppointmentModel.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
           : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "total_treatment": totalTreatment,
-        "total_practitioner": totalPractitioner,
-        "total_treatment_request": totalTreatmentRequest,
-        "treatments": treatments?.map((e) => e.toJson()).toList(),
-        "today_treatment_request":
-            todayTreatmentRequest?.map((e) => e.toJson()).toList(),
-        "todays_checkin":
-            todaysCheckin?.map((e) => e.toJson()).toList(),
-        "todays_appointment":
-            todaysAppointment?.map((e) => e.toJson()).toList(),
-      };
+    "total_treatment": totalTreatment,
+    "total_practitioner": totalPractitioner,
+    "total_treatment_request": totalTreatmentRequest,
+    "treatments": treatments?.map((e) => e.toJson()).toList(),
+    "today_treatment_request": todayTreatmentRequest
+        ?.map((e) => e.toJson())
+        .toList(),
+    "todays_checkin": todaysCheckin?.map((e) => e.toJson()).toList(),
+    "todays_appointment": todaysAppointment?.map((e) => e.toJson()).toList(),
+  };
+}
+
+class FrequentlyConversion {
+  final int patientId;
+  final String patientImage;
+  final String name;
+  final String email;
+  final String phoneNumber;
+  final String appointmentRef;
+  final int appointmentId;
+  final int conversionCount;
+
+  FrequentlyConversion({
+    required this.patientId,
+    required this.patientImage,
+    required this.name,
+    required this.email,
+    required this.phoneNumber,
+    required this.appointmentRef,
+    required this.appointmentId,
+    required this.conversionCount,
+  });
+
+  factory FrequentlyConversion.fromJson(Map<String, dynamic> json) {
+    return FrequentlyConversion(
+      patientId: json['patient_id'] ?? 0,
+      patientImage: json['patientImage'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      appointmentRef: json['appointmentRef'] ?? '',
+      appointmentId: json['appointmentId'] ?? 0,
+      conversionCount: json['conversionCount'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'patient_id': patientId,
+      'patientImage': patientImage,
+      'name': name,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'appointmentRef': appointmentRef,
+      'appointmentId': appointmentId,
+      'conversionCount': conversionCount,
+    };
+  }
 }
 
 class DashboardAppointmentModel {
@@ -179,30 +233,18 @@ class DashboardAppointmentModel {
     this.slot,
   });
 
-  factory DashboardAppointmentModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory DashboardAppointmentModel.fromJson(Map<String, dynamic> json) {
     List<TreatmentDetail>? parsedTreatments;
 
     if (json["treatments"] != null && json["treatments"] is List) {
       parsedTreatments = (json["treatments"] as List)
-          .map(
-            (e) => TreatmentDetail.fromJson(
-              e as Map<String, dynamic>,
-            ),
-          )
+          .map((e) => TreatmentDetail.fromJson(e as Map<String, dynamic>))
           .toList();
-    } else if (json["treatment"] != null ||
-        json["booking_type"] != null) {
-      final String raw =
-          (json["treatment"] ?? json["booking_type"]).toString();
+    } else if (json["treatment"] != null || json["booking_type"] != null) {
+      final String raw = (json["treatment"] ?? json["booking_type"]).toString();
 
       if (raw.isNotEmpty) {
-        parsedTreatments = [
-          TreatmentDetail(
-            treatmentName: raw,
-          ),
-        ];
+        parsedTreatments = [TreatmentDetail(treatmentName: raw)];
       }
     }
 
@@ -221,9 +263,7 @@ class DashboardAppointmentModel {
       bookingType: json["booking_type"],
       date: json["date"],
       slot: json["slot"] != null
-          ? AppointmentSlotModel.fromJson(
-              json["slot"] as Map<String, dynamic>,
-            )
+          ? AppointmentSlotModel.fromJson(json["slot"] as Map<String, dynamic>)
           : null,
     );
   }
@@ -244,35 +284,30 @@ class DashboardAppointmentModel {
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "appointment_key": appointmentKey,
-        "patient_name": patientName,
-        "patient_image": patientImage,
-        "appointment_type": appointmentType,
-        "treatments": treatments?.map((e) => e.toJson()).toList(),
-        "doctor_name": doctorName,
-        "doctor_image": doctorImage,
-        "payment_status": paymentStatus,
-        "status": status,
-        "treatment_count": treatmentCount,
-        "booking_type": bookingType,
-        "date": date,
-        "slot": slot?.toJson(),
-      };
+    "id": id,
+    "appointment_key": appointmentKey,
+    "patient_name": patientName,
+    "patient_image": patientImage,
+    "appointment_type": appointmentType,
+    "treatments": treatments?.map((e) => e.toJson()).toList(),
+    "doctor_name": doctorName,
+    "doctor_image": doctorImage,
+    "payment_status": paymentStatus,
+    "status": status,
+    "treatment_count": treatmentCount,
+    "booking_type": bookingType,
+    "date": date,
+    "slot": slot?.toJson(),
+  };
 }
 
 class AppointmentSlotModel {
   final int? startTime;
   final int? endTime;
 
-  AppointmentSlotModel({
-    this.startTime,
-    this.endTime,
-  });
+  AppointmentSlotModel({this.startTime, this.endTime});
 
-  factory AppointmentSlotModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory AppointmentSlotModel.fromJson(Map<String, dynamic> json) {
     return AppointmentSlotModel(
       startTime: json["start_time"],
       endTime: json["end_time"],
@@ -280,9 +315,49 @@ class AppointmentSlotModel {
   }
 
   Map<String, dynamic> toJson() => {
-        "start_time": startTime,
-        "end_time": endTime,
-      };
+    "start_time": startTime,
+    "end_time": endTime,
+  };
+}
+
+class FrequentlyTreatmentModel {
+  final int treatmentId;
+  final int areaId;
+  final String treatmentName;
+  final String areaName;
+  final String treatmentImage;
+  final String icon;
+
+  FrequentlyTreatmentModel({
+    required this.treatmentId,
+    required this.areaId,
+    required this.treatmentName,
+    required this.areaName,
+    required this.treatmentImage,
+    required this.icon,
+  });
+
+  factory FrequentlyTreatmentModel.fromJson(Map<String, dynamic> json) {
+    return FrequentlyTreatmentModel(
+      treatmentId: json['treatment_id'] ?? 0,
+      areaId: json['area_id'] ?? 0,
+      treatmentName: json['treatment_name'] ?? '',
+      areaName: json['area_name'] ?? '',
+      treatmentImage: json['treatment_image'] ?? '',
+      icon: json['icon'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'treatment_id': treatmentId,
+      'area_id': areaId,
+      'treatment_name': treatmentName,
+      'area_name': areaName,
+      'treatment_image': treatmentImage,
+      'icon': icon,
+    };
+  }
 }
 
 class TodaysCheckinModel {
@@ -302,9 +377,7 @@ class TodaysCheckinModel {
     this.patientId,
   });
 
-  factory TodaysCheckinModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory TodaysCheckinModel.fromJson(Map<String, dynamic> json) {
     return TodaysCheckinModel(
       patientImage: json["patient_image"],
       patientName: json["patient_name"],
@@ -316,13 +389,13 @@ class TodaysCheckinModel {
   }
 
   Map<String, dynamic> toJson() => {
-        "patient_image": patientImage,
-        "patient_name": patientName,
-        "patient_email": patientEmail,
-        "appointment_reference": appointmentReference,
-        "appointment_id": appointmentId,
-        "patient_id": patientId,
-      };
+    "patient_image": patientImage,
+    "patient_name": patientName,
+    "patient_email": patientEmail,
+    "appointment_reference": appointmentReference,
+    "appointment_id": appointmentId,
+    "patient_id": patientId,
+  };
 }
 
 class DashboardTreatmentModel {
@@ -342,9 +415,7 @@ class DashboardTreatmentModel {
     this.sku,
   });
 
-  factory DashboardTreatmentModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory DashboardTreatmentModel.fromJson(Map<String, dynamic> json) {
     return DashboardTreatmentModel(
       id: json["id"],
       name: json["name"],
@@ -356,13 +427,13 @@ class DashboardTreatmentModel {
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "short_description": shortDescription,
-        "image": image,
-        "icon": icon,
-        "sku": sku,
-      };
+    "id": id,
+    "name": name,
+    "short_description": shortDescription,
+    "image": image,
+    "icon": icon,
+    "sku": sku,
+  };
 }
 
 class RequestClinicTreatmentModel {
@@ -380,9 +451,7 @@ class RequestClinicTreatmentModel {
     this.totalTreatmentCount,
   });
 
-  factory RequestClinicTreatmentModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory RequestClinicTreatmentModel.fromJson(Map<String, dynamic> json) {
     return RequestClinicTreatmentModel(
       id: json["id"],
       patientName: json["patient_name"],
@@ -393,10 +462,10 @@ class RequestClinicTreatmentModel {
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "patient_name": patientName,
-        "patient_email": patientEmail,
-        "image": image,
-        "total_treatment_count": totalTreatmentCount,
-      };
+    "id": id,
+    "patient_name": patientName,
+    "patient_email": patientEmail,
+    "image": image,
+    "total_treatment_count": totalTreatmentCount,
+  };
 }

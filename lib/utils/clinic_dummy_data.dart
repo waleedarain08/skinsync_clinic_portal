@@ -1,7 +1,6 @@
 import '../models/ai_chat_message_model.dart';
 import '../models/responses/treatment_products_response.dart';
 import '../models/responses/login_response_model.dart';
-import '../widgets/treatment_list_widget.dart';
 import '../widgets/revenue_generated_chart_widget.dart';
 import 'enums.dart';
 
@@ -745,29 +744,7 @@ class ClinicDummyData {
     totalTreatment: 24,
     totalPractitioner: 8,
     totalTreatmentRequest: 12,
-    treatments: [
-      DashboardTreatmentModel(
-        id: 1,
-        name: 'Dermal Fillers',
-        shortDescription: 'Chin Shadow Area & Jawline Volume Restoration',
-        image:
-            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
-        icon:
-            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
-        sku: 'SKU-FILLER-01',
-      ),
-      DashboardTreatmentModel(
-        id: 2,
-        name: 'Neurotoxin (Botox)',
-        shortDescription: 'Bunny Lines & Gummy Smile Correction',
-        image:
-            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
-        icon:
-            'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
-        sku: 'SKU-BOTOX-02',
-      ),
-    ],
-    todayTreatmentRequest: [
+   todayTreatmentRequest: [
       RequestClinicTreatmentModel(
         id: 201,
         patientName: 'Sophia Martinez',
@@ -908,83 +885,7 @@ class ClinicDummyData {
     ],
   );
 
-  static final List<Map<String, dynamic>> dummyFrequentlyConversions = [
-    {
-      'patientImage':
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      'name': 'James Anderson',
-      'email': 'james.anderson@example.com',
-      'phoneNumber': '+1 (555) 234-5678',
-      'appointmentRef': 'APT-1001',
-      'appointmentId': 101,
-      'conversionCount': 12,
-    },
-    {
-      'patientImage':
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      'name': 'Sarah Wilson',
-      'email': 'sarah.wilson@example.com',
-      'phoneNumber': '+1 (555) 876-5432',
-      'appointmentRef': 'APT-1002',
-      'appointmentId': 102,
-      'conversionCount': 8,
-    },
-    {
-      'patientImage':
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
-      'name': 'Michael Smith',
-      'email': 'michael.smith@example.com',
-      'phoneNumber': '+1 (555) 345-6789',
-      'appointmentRef': 'APT-1003',
-      'appointmentId': 103,
-      'conversionCount': 15,
-    },
-    {
-      'patientImage':
-          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150',
-      'name': 'Emily Johnson',
-      'email': 'emily.johnson@example.com',
-      'phoneNumber': '+1 (555) 987-6543',
-      'appointmentRef': 'APT-1004',
-      'appointmentId': 104,
-      'conversionCount': 6,
-    },
-  ];
 
-  static final List<FrequentlyTreatmentModel> dummyFrequentlyTreatmentsList = [
-    const FrequentlyTreatmentModel(
-      treatmentName: 'Dermal Fillers',
-      areaName: 'Chin Shadow Area',
-      treatmentImage:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
-      icon:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
-    ),
-    const FrequentlyTreatmentModel(
-      treatmentName: 'Neurotoxin (Botox)',
-      areaName: 'Bunny Lines',
-      treatmentImage:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
-      icon:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
-    ),
-    const FrequentlyTreatmentModel(
-      treatmentName: 'Dermal Fillers',
-      areaName: 'Jawline',
-      treatmentImage:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fdermal-filler.jpeg?alt=media&token=65ad2ad5-190f-40b3-a137-7b36d05e626e',
-      icon:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=abcc5e18-f100-45a4-8bb5-1c1f37f8ef0c',
-    ),
-    const FrequentlyTreatmentModel(
-      treatmentName: 'Neurotoxin (Botox)',
-      areaName: 'Gummy Smile',
-      treatmentImage:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Fimage%2Fneurotoxins.jpeg?alt=media&token=8071d85e-856c-4a90-b8e4-897a32c13952',
-      icon:
-          'https://firebasestorage.googleapis.com/v0/b/skinsync-2aa8e.firebasestorage.app/o/treatment%2Ficon%2Flogoskin.png?alt=media&token=8be9faa5-0af3-49fd-a9fe-682a9832031e',
-    ),
-  ];
 
   static final List<RevenueChartData> dummyWeeklyRevenue = [
     RevenueChartData('Mon', 1200),

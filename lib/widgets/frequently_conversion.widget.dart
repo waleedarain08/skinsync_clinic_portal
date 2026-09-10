@@ -2,29 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../models/responses/login_response_model.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../screens/dashboard/patient_management_detail.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/patient_view_model.dart';
 
 class FrequentlyConversionTile extends StatelessWidget {
-  final String patientImage;
-  final String name;
-  final String email;
-  final int appointmentId;
-  final String appointmentRef;
-  final int conversionCount;
-  final String phoneNumber;
+  final FrequentlyConversion data;
+  
 
   const FrequentlyConversionTile({
     super.key,
-    required this.patientImage,
-    required this.name,
-    required this.appointmentId,
-    required this.email,
-    required this.appointmentRef,
-    required this.conversionCount,
-    required this.phoneNumber,
+    required this.data,
+    
   });
 
   @override
@@ -36,11 +28,11 @@ class FrequentlyConversionTile extends StatelessWidget {
             context.push(PatientManagementDetailScreen.routeName);
             ref.read(patientProvider.notifier).setPatientDetail(
                   PatientDetailData(
-                    id: appointmentId,
-                    patientName: name,
-                    email: email,
-                    image: patientImage,
-                    phoneNumber: phoneNumber,
+                    id: data.appointmentId,
+                    patientName: data.name,
+                    email: data.email,
+                    image: data.patientImage,
+                    phoneNumber: data.phoneNumber,
                   ),
                 );
           }
@@ -58,7 +50,7 @@ class FrequentlyConversionTile extends StatelessWidget {
               // Patient Avatar
               ClipOval(
                 child: Image.network(
-                  patientImage,
+                  data.patientImage,
                   width: context.r(44),
                   height: context.r(44),
                   fit: BoxFit.cover,
@@ -86,7 +78,7 @@ class FrequentlyConversionTile extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            name,
+                            data.name.capitalize,
                             style: context.fonts.black16w700,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -95,14 +87,14 @@ class FrequentlyConversionTile extends StatelessWidget {
                       ),
                       SizedBox(height: context.h(2)),
                       Text(
-                        email,
+                        data.email,
                         style: context.fonts.grey13w500,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: context.h(2)),
                       Text(
-                        "conversion Count: $conversionCount",
+                        "conversion Count: ${data.conversionCount}",
                         style: context.fonts.grey13w500,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -118,7 +110,7 @@ class FrequentlyConversionTile extends StatelessWidget {
                           borderRadius: BorderRadius.circular(context.r(6)),
                         ),
                         child: Text(
-                          'Ref: $appointmentRef',
+                          'Ref: ${data.appointmentRef}',
                           style: TextStyle(
                             color: CustomColors.purple,
                             fontWeight: FontWeight.w600,

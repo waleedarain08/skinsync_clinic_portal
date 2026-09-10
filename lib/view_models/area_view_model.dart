@@ -90,9 +90,10 @@ class AreaViewModel extends BaseViewModel<AreaState> {
 
     await runSafely(showLoading: false, () async {
       final fetched =
-          await _areaRepository.getClinicAreas(treatmentId: treatmentId);
+          await _areaRepository.getAdminAreas(treatmentId: treatmentId);
 
       state = state.copyWith(areas: fetched, loading: false);
+      ref.read(treatmentViewModelProvider.notifier).getTreatments();
     });
     return state.areas;
   }

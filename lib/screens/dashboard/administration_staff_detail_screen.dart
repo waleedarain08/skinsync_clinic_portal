@@ -9,6 +9,7 @@ import '../../view_models/administration_staff_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
+import '../../widgets/provider_leave_calendar_widget.dart'; // Adjust path according to your project structure
 
 class AdministrationStaffDetailScreen extends ConsumerWidget {
   const AdministrationStaffDetailScreen({super.key});
@@ -46,6 +47,9 @@ class AdministrationStaffDetailScreen extends ConsumerWidget {
                   _buildProfileHeader(context, staff),
                   context.verticalSpace(24),
                   _buildInfoSection(context, staff),
+                  context.verticalSpace(24),
+                  // Render leave calendar widget passing staff id
+                  ProviderLeaveCalendarWidget(practitionerId: staff.id),
                 ],
               ),
             ),

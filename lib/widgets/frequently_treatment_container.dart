@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
+import '../models/responses/login_response_model.dart';
 import '../utils/color_constant.dart';
 import '../utils/custom_fonts.dart';
 import 'app_network_image.dart';
-import 'treatment_list_widget.dart';
 
 class FrequentlyTreatmentContainer extends StatelessWidget {
   final double? imageHeight;
@@ -48,7 +48,7 @@ Widget _buildLeftIcon(BuildContext context, String imageUrl) {
     final treatmentName = treatment?.treatmentName ?? '';
     final areaName = treatment?.areaName ?? '';
     final treatmentImage = treatment?.treatmentImage ?? '';
-    final areaImage = treatment?.icon ?? '';
+    final icon = treatment?.icon ?? '';
 
     final displayTitle = areaName.isNotEmpty
         ? '$treatmentName / $areaName'
@@ -114,13 +114,13 @@ Widget _buildLeftIcon(BuildContext context, String imageUrl) {
               ),
 
               // Area Image / Icon
-              if (areaImage.isNotEmpty)
+              if (icon.isNotEmpty)
                 Positioned(
                   top: context.h(10),
                   left: context.w(10),
                   child: _buildLeftIcon(
                     context,
-                    areaImage,
+                    icon,
                   ),
                 ),
 

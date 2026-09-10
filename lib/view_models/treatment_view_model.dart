@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/requests/session_status_request.dart';
 import '../models/requests/status_request.dart';
 import '../models/responses/admin_treatment_response.dart';
@@ -178,16 +180,16 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     }
   }
 
-  Future<bool> deleteTreatment({required int treatmentId}) async {
-    state = state.copyWith(loading: true);
-    try {
-      await locator<TreatmentRepository>().deleteTreatment(treatmentId);
-      await getTreatments(isRefresh: true);
-      return true;
-    } catch (e) {
-      state = state.copyWith(loading: false);
-      return false;
-    }
+  Future<void> deleteTreatment({required int treatmentId}) async {
+    
+    await runSafely(() async {
+      final response = await locator<TreatmentRepository>().deleteTreatment(
+        treatmentId,
+      );
+      if (response) {
+        await getTreatments(isRefresh: true);
+      }
+    });
   }
 
   void setTreatment(int treatmentId) {
@@ -198,7 +200,8 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
     state = state.copyWith(page: page, hasMore: true);
     getTreatments(isRefresh: true);
   }
- Future<bool?> changeSessionStatus({
+
+  Future<bool?> changeSessionStatus({
     required SessionStatusRequest request,
   }) async {
     return await runSafely<bool>(() async {
@@ -210,14 +213,11 @@ class TreamententViewModel extends BaseViewModel<TreatmentState> {
         if (treatmentId != null) {
           await fetchTreatmentDetail(treatmentId, loading: false);
         }
-       
       }
 
       return true;
     });
   }
-
-
 }
 
 class TreatmentState {
