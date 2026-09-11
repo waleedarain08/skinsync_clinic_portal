@@ -36,7 +36,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     ref.read(authViewModelProvider.notifier).callGetMe();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final isCompleted = ref.read(authViewModelProvider).isCompletedProfile;
 

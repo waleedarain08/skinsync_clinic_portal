@@ -15,6 +15,7 @@ import '../models/requests/reset_password_request.dart';
 import '../models/requests/verify_otp_request.dart';
 import '../models/responses/clinic_model.dart';
 import '../models/responses/login_response_model.dart';
+import '../models/responses/revenue_response.dart';
 import '../models/user_model.dart';
 import '../repositories/auth_repository.dart';
 import '../services/encryption_service.dart';
@@ -35,10 +36,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   AuthState build() {
     init();
     ref.onDispose(dispose);
-    return AuthState(
-      country: CountryCode.fromCountryCode('US'),
-     
-    );
+    return AuthState(country: CountryCode.fromCountryCode('US'));
   }
 
   @override
@@ -95,9 +93,19 @@ class AuthViewModel extends BaseViewModel<AuthState> {
       final response = await _authRepository.getMe();
       state = state.copyWith(
         user: response.data!.clinicUser,
-        dashboard:response.data?.dashboard,
+        dashboard: response.data?.dashboard,
         isCompletedProfile: response.data?.isCompleted,
       );
+      return true;
+    });
+  }
+
+  Future<bool?> callGetRevenue({required String filter}) async {
+    return await runSafely<bool?>(showLoading: false, () async {
+      final response = await _authRepository.getRevenue(filter: filter);
+      if (response.isSuccess) {
+        state = state.copyWith(revenueDto: response.data);
+      }
       return true;
     });
   }
@@ -113,7 +121,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
           final response = await _authRepository.login(req: request);
           state = state.copyWith(
             user: response.clinicUser,
-            dashboard:response.dashboard,
+            dashboard: response.dashboard,
             isCompletedProfile: response.isCompleted,
           );
           return true;
@@ -282,6 +290,7 @@ class AuthState {
   final ui.Image? signature;
   final int navigateDailogIndex;
   final CountryCode? country;
+  final RevenueDto? revenueDto;
 
   AuthState({
     this.loading = false,
@@ -299,6 +308,7 @@ class AuthState {
     this.signature,
     this.navigateDailogIndex = 0,
     this.country,
+    this.revenueDto,
   });
 
   AuthState copyWith({
@@ -317,6 +327,7 @@ class AuthState {
     ui.Image? signature,
     int? navigateDailogIndex,
     CountryCode? country,
+    RevenueDto? revenueDto,
   }) {
     return AuthState(
       loading: loading ?? this.loading,
@@ -334,6 +345,7 @@ class AuthState {
       navigateDailogIndex: navigateDailogIndex ?? this.navigateDailogIndex,
       country: country ?? this.country,
       dashboard: dashboard ?? this.dashboard,
+      revenueDto: revenueDto ?? this.revenueDto,
     );
   }
 }

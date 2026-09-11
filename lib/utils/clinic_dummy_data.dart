@@ -1,7 +1,6 @@
 import '../models/ai_chat_message_model.dart';
 import '../models/responses/treatment_products_response.dart';
 import '../models/responses/login_response_model.dart';
-import '../widgets/revenue_generated_chart_widget.dart';
 import 'enums.dart';
 
 class ClinicDummyProduct {
@@ -887,22 +886,7 @@ class ClinicDummyData {
 
 
 
-  static final List<RevenueChartData> dummyWeeklyRevenue = [
-    RevenueChartData('Mon', 1200),
-    RevenueChartData('Tue', 2400),
-    RevenueChartData('Wed', 1800),
-    RevenueChartData('Thu', 3200),
-    RevenueChartData('Fri', 4500),
-    RevenueChartData('Sat', 5100),
-    RevenueChartData('Sun', 3800),
-  ];
 
-  static final List<RevenueChartData> dummyMonthlyRevenue = [
-    RevenueChartData('Week 1', 14200),
-    RevenueChartData('Week 2', 18500),
-    RevenueChartData('Week 3', 21000),
-    RevenueChartData('Week 4', 26400),
-  ];
 }
 
 class ClinicDummySessionConfig {

@@ -8,6 +8,7 @@ import '../models/requests/verify_otp_request.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/clinic_model.dart';
 import '../models/responses/login_response_model.dart';
+import '../models/responses/revenue_response.dart';
 import '../models/responses/verify_otp_response.dart';
 import '../repositories/auth_repository.dart';
 import '../utils/enums.dart';
@@ -101,6 +102,22 @@ class AuthService implements AuthRepository {
       requestType: RequestType.get,
     );
     final response = LoginResponseModel.fromJson(jsonResponse);
+
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+
+    return response;
+  }
+
+   @override
+  Future<RevenueResponse> getRevenue({required String filter}) async {
+    final jsonResponse = await _api.httpRequest(
+      endPoint: Endpoint.revenue,
+      requestType: RequestType.get,
+      queryParams: {'filter' : filter}
+    );
+    final response = RevenueResponse.fromJson(jsonResponse);
 
     if (!response.success) {
       throw BadRequestException(response.message);

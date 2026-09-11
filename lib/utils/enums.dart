@@ -94,6 +94,7 @@ enum Endpoint {
   protocolFields('clinic/protocol_fields'),
   staffRole('clinic/staff-roles'),
   createStaff('clinic/register-staff'),
+  revenue('clinic/revenue'),
   staff('clinic/staff'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 

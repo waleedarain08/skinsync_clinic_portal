@@ -6,6 +6,7 @@ import '../models/requests/verify_otp_request.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/clinic_model.dart';
 import '../models/responses/login_response_model.dart';
+import '../models/responses/revenue_response.dart';
 import '../models/responses/verify_otp_response.dart';
 
 abstract class AuthRepository {
@@ -26,4 +27,5 @@ abstract class AuthRepository {
   Future<BaseResponse<Clinic>> updateClinicProfile({required Clinic req});
 
   Future<Clinic> getClinicDetail();
+  Future<RevenueResponse> getRevenue({required String filter});
 }

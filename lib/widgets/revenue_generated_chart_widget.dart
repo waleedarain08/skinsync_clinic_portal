@@ -3,15 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../models/responses/revenue_response.dart';
 import '../utils/theme.dart';
+import '../view_models/auth_view_model.dart';
 import 'borderd_container_widget.dart';
-
-class RevenueChartData {
-  final String period;
-  final double revenue;
-
-  RevenueChartData(this.period, this.revenue);
-}
 
 class RevenueGeneratedChartWidget extends ConsumerStatefulWidget {
   const RevenueGeneratedChartWidget({super.key});
@@ -35,30 +30,36 @@ class _RevenueGeneratedChartWidgetState
       format: 'point.x : \$point.y',
       textStyle: const TextStyle(color: Colors.white, fontSize: 12),
     );
+    // Fire the initial fetch with the API's lowercase filter value.
+    ref
+        .read(authViewModelProvider.notifier)
+        .callGetRevenue(filter: _selectedFilter.toLowerCase());
+  }
+
+  void _onFilterChanged(String filter) {
+    if (filter == _selectedFilter) return;
+    setState(() => _selectedFilter = filter);
+    ref
+        .read(authViewModelProvider.notifier)
+        .callGetRevenue(filter: filter.toLowerCase());
   }
 
   @override
   Widget build(BuildContext context) {
-    // Dummy data based on selected filter
-    final List<RevenueChartData> chartData = _selectedFilter == 'Weekly'
-        ? [
-            RevenueChartData('Mon', 1200),
-            RevenueChartData('Tue', 2400),
-            RevenueChartData('Wed', 1800),
-            RevenueChartData('Thu', 3200),
-            RevenueChartData('Fri', 4500),
-            RevenueChartData('Sat', 5100),
-            RevenueChartData('Sun', 3800),
-          ]
-        : [
-            RevenueChartData('Week 1', 14200),
-            RevenueChartData('Week 2', 18500),
-            RevenueChartData('Week 3', 21000),
-            RevenueChartData('Week 4', 26400),
-          ];
+    final RevenueDto? revenueDto = ref.watch(
+      authViewModelProvider.select((s) => s.revenueDto),
+    );
 
-    final double totalRevenue =
-        chartData.fold(0, (sum, item) => sum + item.revenue);
+    // Only trust API data once it matches the currently selected filter -
+    // avoids a stale/mismatched chart flashing while the new filter loads.
+    final bool hasData =
+        revenueDto != null &&
+        revenueDto.filter.toLowerCase() == _selectedFilter.toLowerCase();
+
+    final List<RevenueItemDto> chartData = hasData ? revenueDto.revenue : [];
+    final double totalRevenue = hasData ? revenueDto.totalRevenue : 0;
+    final double growthPercentage = hasData ? revenueDto.growthPercentage : 0;
+    final bool isPositiveGrowth = growthPercentage >= 0;
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 24),
@@ -87,21 +88,30 @@ class _RevenueGeneratedChartWidgetState
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: CustomColors.green.withValues(alpha: 0.1),
+                            color: (isPositiveGrowth
+                                    ? CustomColors.green
+                                    : CustomColors.red)
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(context.r(12)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.trending_up_rounded,
+                                isPositiveGrowth
+                                    ? Icons.trending_up_rounded
+                                    : Icons.trending_down_rounded,
                                 size: context.sp(14),
-                                color: CustomColors.green,
+                                color: isPositiveGrowth
+                                    ? CustomColors.green
+                                    : CustomColors.red,
                               ),
                               context.horizontalSpace(4),
                               Text(
-                                "+18.4%",
-                                style: context.fonts.green10w600,
+                                "${isPositiveGrowth ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%",
+                                style: isPositiveGrowth
+                                    ? context.fonts.green10w600
+                                    : context.fonts.red10w600,
                               ),
                             ],
                           ),
@@ -127,11 +137,7 @@ class _RevenueGeneratedChartWidgetState
                   children: ['Weekly', 'Monthly'].map((filter) {
                     final isSelected = _selectedFilter == filter;
                     return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedFilter = filter;
-                        });
-                      },
+                      onTap: () => _onFilterChanged(filter),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: context.w(12),
@@ -164,50 +170,53 @@ class _RevenueGeneratedChartWidgetState
           // Chart
           SizedBox(
             height: context.h(220),
-            child: SfCartesianChart(
-              tooltipBehavior: _tooltipBehavior,
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                axisLine: const AxisLine(width: 1, color: Colors.grey),
-                labelStyle: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: context.sp(11),
-                ),
-              ),
-              primaryYAxis: NumericAxis(
-                majorGridLines: MajorGridLines(
-                  width: 1,
-                  color: Colors.grey.shade200,
-                  dashArray: const <double>[5, 5],
-                ),
-                axisLine: const AxisLine(width: 0),
-                labelStyle: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: context.sp(11),
-                ),
-                numberFormat: NumberFormat.compactCurrency(
-                  symbol: '\$',
-                  decimalDigits: 0,
-                ),
-              ),
-              series: <CartesianSeries<RevenueChartData, String>>[
-                SplineAreaSeries<RevenueChartData, String>(
-                  dataSource: chartData,
-                  xValueMapper: (RevenueChartData data, _) => data.period,
-                  yValueMapper: (RevenueChartData data, _) => data.revenue,
-                  name: 'Revenue',
-                  color: CustomColors.purple.withValues(alpha: 0.2),
-                  borderColor: CustomColors.purple,
-                  borderWidth: 2.5,
-                  markerSettings: const MarkerSettings(
-                    isVisible: true,
-                    height: 6,
-                    width: 6,
-                    color: CustomColors.purple,
+            child: !hasData
+                ? const Center(child: CircularProgressIndicator())
+                : SfCartesianChart(
+                    tooltipBehavior: _tooltipBehavior,
+                    primaryXAxis: CategoryAxis(
+                      majorGridLines: const MajorGridLines(width: 0),
+                      axisLine: const AxisLine(width: 1, color: Colors.grey),
+                      labelStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: context.sp(11),
+                      ),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      majorGridLines: MajorGridLines(
+                        width: 1,
+                        color: Colors.grey.shade200,
+                        dashArray: const <double>[5, 5],
+                      ),
+                      axisLine: const AxisLine(width: 0),
+                      labelStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: context.sp(11),
+                      ),
+                      numberFormat: NumberFormat.compactCurrency(
+                        symbol: '\$',
+                        decimalDigits: 0,
+                      ),
+                    ),
+                    series: <CartesianSeries<RevenueItemDto, String>>[
+                      SplineAreaSeries<RevenueItemDto, String>(
+                        dataSource: chartData,
+                        xValueMapper: (RevenueItemDto data, _) => data.period,
+                        yValueMapper: (RevenueItemDto data, _) =>
+                            data.revenue,
+                        name: 'Revenue',
+                        color: CustomColors.purple.withValues(alpha: 0.2),
+                        borderColor: CustomColors.purple,
+                        borderWidth: 2.5,
+                        markerSettings: const MarkerSettings(
+                          isVisible: true,
+                          height: 6,
+                          width: 6,
+                          color: CustomColors.purple,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
