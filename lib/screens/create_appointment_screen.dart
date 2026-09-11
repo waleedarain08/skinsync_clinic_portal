@@ -188,6 +188,26 @@ class _CreateAppointmentScreenState
                     _buildPaymentSection(),
                     SizedBox(height: context.h(24)),
                     _buildSimulationsSection(),
+                    SizedBox(height: context.h(32)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomOutlinedButton(
+                          onTap: () => context.pop(),
+                          label: 'Cancel',
+                          height: context.h(42),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                        ),
+                        context.horizontalSpace(16),
+                        CustomPrimaryButton(
+                          onTap: () => _submitForm(state, viewModel),
+                          label: 'Save Appointment',
+                          height: context.h(42),
+                          width: context.w(200),
+                          icon: Icons.check_circle_outline,
+                        ),
+                      ],
+                    ),
                     SizedBox(height: context.h(40)),
                   ],
                 ),
@@ -2358,6 +2378,7 @@ class _CreateAppointmentScreenState
           if (t.sideAreas != null && t.sideAreas!.isNotEmpty) {
             for (final area in t.sideAreas!) {
               final key = '${t.id}-${area.id}';
+              final selectedSession = _selectedSessionMap[key];
               final selectedMat = _selectedMaterialMap[key];
               final selectedQty =
                   _selectedMaterialQtyMap[key] ?? selectedMat?.minQty ?? 1;
@@ -2371,6 +2392,7 @@ class _CreateAppointmentScreenState
                 AppointmentTreatmentItemRequest(
                   treatmentId: t.id,
                   areaId: area.id,
+                  sessionId: selectedSession?.sessionId ?? 0,
                   treatmentCost: cost,
                   material: materialReq,
                 ),
@@ -2385,6 +2407,7 @@ class _CreateAppointmentScreenState
               AppointmentTreatmentItemRequest(
                 treatmentId: t.id,
                 areaId: 0,
+                sessionId: 0,
                 treatmentCost: cost,
                 material: defaultMaterial,
               ),
