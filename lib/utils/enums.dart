@@ -42,6 +42,7 @@ enum Endpoint {
   roles("clinic/roles"),
   catalog('clinic/products/catalog'),
   clinicProducts('clinic/products'),
+  createAppointment('clinic/appointments'),
   getAppointment('clinic/new-appointments'),
   appointmentId('clinic/new-appointments/{id}'),
   treatmentDetail('clinic/treatments/{id}'),
@@ -90,13 +91,14 @@ enum Endpoint {
   clinicDetail('clinic/detail'),
   chats('clinic/chats'),
   messages('clinic/chats/messages'),
-   protocolFields('clinic/protocol_fields'),
-   staffRole('clinic/staff-roles'),
-   createStaff('clinic/register-staff'),
-   staff('clinic/staff'),
+  protocolFields('clinic/protocol_fields'),
+  staffRole('clinic/staff-roles'),
+  createStaff('clinic/register-staff'),
+  staff('clinic/staff'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;
+
   const Endpoint(this.path);
 
   String withParams(Map<String, String> params) {
@@ -296,6 +298,7 @@ enum RequestType {
   multipartPatch('MULTIPART-PATCH');
 
   final String label;
+
   const RequestType(this.label);
 }
 
@@ -348,6 +351,7 @@ enum EventType {
   subscription('subscription');
 
   final String value;
+
   const EventType(this.value);
 
   static EventType fromValue(String? value) {

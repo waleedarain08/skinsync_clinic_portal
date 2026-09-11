@@ -4,11 +4,20 @@ import 'package:timetable/timetable.dart';
 
 import 'base_response_model.dart';
 
-class AppointmentListResponse extends BaseResponse<Data> {
+class AppointmentListResponse extends BaseResponse<List<AppointmentData>> {
+  final int page;
+  final int limit;
+  final int totalPages;
+  final int total;
+
   AppointmentListResponse({
     required super.success,
     required super.message,
     super.data,
+    required this.page,
+    required this.limit,
+    required this.totalPages,
+    required this.total,
   });
 
   factory AppointmentListResponse.fromRawJson(String str) =>
@@ -16,54 +25,48 @@ class AppointmentListResponse extends BaseResponse<Data> {
 
   String toRawJson() => json.encode(toJson());
 
-  factory AppointmentListResponse.fromJson(Map<String, dynamic> json) =>
-      AppointmentListResponse(
-        success: json["is_success"],
-        message: json["message"],
-        data: json["data"] == null ? null : Data.fromJson(json["data"]),
-      );
+  factory AppointmentListResponse.fromJson(Map<String, dynamic> json) {
+    final rawData = json['data'];
+    List<AppointmentData> items = [];
+
+    if (rawData is List) {
+      items = rawData
+          .map((e) => AppointmentData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (rawData is Map<String, dynamic> && rawData['items'] is List) {
+      items = (rawData['items'] as List)
+          .map((e) => AppointmentData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (json['items'] is List) {
+      items = (json['items'] as List)
+          .map((e) => AppointmentData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    final dataMap = rawData is Map<String, dynamic> ? rawData : json;
+
+    return AppointmentListResponse(
+      success: json['is_success'] ?? json['success'] ?? true,
+      message: json['message'] ?? '',
+      data: items,
+      page: json['page'] ?? dataMap['page'] ?? 1,
+      limit: json['limit'] ?? dataMap['limit'] ?? 10,
+      totalPages: json['total_pages'] ?? dataMap['total_pages'] ?? 0,
+      total: json['total'] ?? dataMap['total'] ?? 0,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "is_success": success,
         "message": message,
-        "data": data?.toJson(),
-      };
-}
-
-class Data {
-  final List<AppointmentData>? items;
-  final int? limit;
-  final int? page;
-  final int? total;
-  final int? totalPages;
-
-  Data({this.items, this.limit, this.page, this.total, this.totalPages});
-
-  factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        items: json["items"] == null
-            ? []
-            : List<AppointmentData>.from(
-                json["items"]!.map((x) => AppointmentData.fromJson(x)),
-              ),
-        limit: json["limit"],
-        page: json["page"],
-        total: json["total"],
-        totalPages: json["total_pages"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "items": items == null
-            ? []
-            : List<dynamic>.from(items!.map((x) => x.toJson())),
-        "limit": limit,
+        "data": data?.map((x) => x.toJson()).toList(),
         "page": page,
-        "total": total,
+        "limit": limit,
         "total_pages": totalPages,
+        "total": total,
       };
+
+  List<AppointmentData> get items => data ?? [];
 }
 
 class AppointmentData extends Event {
@@ -114,12 +117,16 @@ class AppointmentData extends Event {
       date: json["date"] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000)
           : null,
-      start: slot != null
-          ? DateTime.fromMillisecondsSinceEpoch(slot["start_time"] * 1000)
-          : DateTime.now(),
-      end: slot != null
-          ? DateTime.fromMillisecondsSinceEpoch(slot["end_time"] * 1000)
-          : DateTime.now(),
+      start: slot != null && slot["start_time"] != null
+          ? DateTime.fromMillisecondsSinceEpoch((slot["start_time"] as int) * 1000)
+          : (json["start_time"] != null
+              ? DateTime.fromMillisecondsSinceEpoch((json["start_time"] as int) * 1000)
+              : DateTime.now()),
+      end: slot != null && slot["end_time"] != null
+          ? DateTime.fromMillisecondsSinceEpoch((slot["end_time"] as int) * 1000)
+          : (json["end_time"] != null
+              ? DateTime.fromMillisecondsSinceEpoch((json["end_time"] as int) * 1000)
+              : DateTime.now()),
     );
   }
 
