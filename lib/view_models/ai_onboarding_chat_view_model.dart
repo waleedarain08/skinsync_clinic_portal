@@ -20,27 +20,43 @@ class AiOnboardingChatState {
   final bool loading;
   final String userName;
 
+  final String? currentField;
+  final String? inputType;
+  final List<String> inputOptions;
+  final bool completed;
+
   const AiOnboardingChatState({
     this.messages = const [],
     this.loading = false,
     this.userName = 'Doctor',
+    this.currentField,
+    this.inputType,
+    this.inputOptions = const [],
+    this.completed = false,
   });
 
   AiOnboardingChatState copyWith({
     List<AiChatMessageModel>? messages,
     bool? loading,
     String? userName,
+    String? currentField,
+    String? inputType,
+    List<String>? inputOptions,
+    bool? completed,
   }) {
     return AiOnboardingChatState(
       messages: messages ?? this.messages,
       loading: loading ?? this.loading,
       userName: userName ?? this.userName,
+      currentField: currentField ?? this.currentField,
+      inputType: inputType ?? this.inputType,
+      inputOptions: inputOptions ?? this.inputOptions,
+      completed: completed ?? this.completed,
     );
   }
 }
 
-class AiOnboardingChatViewModel
-    extends BaseViewModel<AiOnboardingChatState> {
+class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
   AiOnboardingChatViewModel._();
 
   final AiOnboardingChatRepository _repository =
@@ -59,10 +75,9 @@ class AiOnboardingChatViewModel
 
   Future<void> _initChat() async {
     try {
-      final user =
-          await locator<SecureStorageService>().getUser();
+      final user = await locator<SecureStorageService>().getUser();
 
-      final name = user?.name ?? 'Doctor';
+      final name = user?.name ?? '';
 
       state = state.copyWith(userName: name);
 
@@ -76,20 +91,13 @@ class AiOnboardingChatViewModel
     state = state.copyWith(loading: true);
 
     try {
-      final response =
-          await _repository.getAiOnboardingMessages();
+      final response = await _repository.getAiOnboardingMessages();
 
-      final list =
-          List<AiChatMessageModel>.from(
-        response.data?.items ?? [],
-      );
+      final list = List<AiChatMessageModel>.from(response.data?.items ?? []);
 
       if (list.isEmpty) {
         // No dummy listing here.
-        state = state.copyWith(
-          loading: false,
-          messages: [],
-        );
+        state = state.copyWith(loading: false, messages: []);
         return;
       }
 
@@ -112,21 +120,15 @@ class AiOnboardingChatViewModel
         );
       }
 
-      state = state.copyWith(
-        loading: false,
-        messages: list,
-      );
+      state = state.copyWith(loading: false, messages: list);
     } catch (e) {
       // IMPORTANT:
       // Always stop the loader if API fails.
-      state = state.copyWith(
-        loading: false,
-        messages: [],
-      );
+      state = state.copyWith(loading: false, messages: []);
     }
   }
 
-  Future<void> sendMessage(String text,{bool showLoading = false}) async {
+  Future<void> sendMessage(String text, {bool showLoading = false}) async {
     final message = text.trim();
 
     if (message.isEmpty) return;
@@ -154,14 +156,11 @@ class AiOnboardingChatViewModel
         text: message,
       );
 
-      final updated =
-          List<AiChatMessageModel>.from(state.messages)
-            ..add(userMsg);
+      final updated = List<AiChatMessageModel>.from(state.messages)
+        ..add(userMsg);
 
       // Add user's message.
-      state = state.copyWith(
-        messages: updated,
-      );
+      state = state.copyWith(messages: updated);
 
       // Add actual AI response from API.
       final aiMessage = AiChatMessageModel(
@@ -174,30 +173,29 @@ class AiOnboardingChatViewModel
         text: aiReply.reply ?? '',
       );
 
-      final messagesWithReply =
-          List<AiChatMessageModel>.from(state.messages)
-            ..add(aiMessage);
+      final messagesWithReply = List<AiChatMessageModel>.from(state.messages)
+        ..add(aiMessage);
 
       state = state.copyWith(
         messages: messagesWithReply,
+        currentField: aiReply.currentField,
+        inputType: aiReply.input?.type,
+        inputOptions: aiReply.input?.options ?? [],
+        completed: aiReply.completed ?? false,
       );
     } catch (e) {
       // Do not leave anything loading.
-      state = state.copyWith(
-        loading: false,
-      );
+      state = state.copyWith(loading: false);
     }
   }
 
   Future<AiOnboardingChatMessageResponse?> sendAIMessage(
-    String message,
-    {bool showLoading = true}
-  ) async {
-    return await runSafely(showLoading: showLoading,() async {
+    String message, {
+    bool showLoading = true,
+  }) async {
+    return await runSafely(showLoading: showLoading, () async {
       final response = await _repository.sendMessage(
-        request: MessageRequest(
-          message: message,
-        ),
+        request: MessageRequest(message: message),
       );
 
       return response;

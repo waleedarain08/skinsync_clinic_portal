@@ -493,46 +493,41 @@ class SessionViewModel extends BaseViewModel<SessionState> {
 
             // Set Session ID
             setSessionId(detail.id);
-             // Restore protocol selections and their saved notes when opening
-              // an existing session.
+            // Restore protocol selections and their saved notes when opening
+            // an existing session.
             final selectedProtocolIds = detail.protocols
-                  .where((protocol) => protocol.fieldId != null)
-                  .map((protocol) => protocol.fieldId.toString())
-                  .toList();
-              final selectedProtocolNotes = detail.protocols.map((protocol) {
-                final note = protocol.note?.trim() ?? '';
-                return TreatmentProtocolNote(
-                  protocolName: protocol.title ?? '',
-                  notes: note.isEmpty
-                      ? const []
-                      : [
-                          TreatmentProtocolNoteItem(
-                            description: note,
-                            order: 1,
-                          ),
-                        ],
-                );
-              }).toList();
-              final standaloneNotes = detail.instructions
-                  .map(
-                    (instruction) => TreatmentProtocolNoteItem(
-                      title: instruction.title,
-                      description: instruction.note ?? '',
-                      order: 1,
-                    ),
-                  )
-                  .toList();
-
-              state = state.copyWith(
-                selectedProtocolIds: selectedProtocolIds,
-                selectedProtocolNotes: selectedProtocolNotes,
-                standaloneNotes: standaloneNotes,
+                .where((protocol) => protocol.fieldId != null)
+                .map((protocol) => protocol.fieldId.toString())
+                .toList();
+            final selectedProtocolNotes = detail.protocols.map((protocol) {
+              final note = protocol.note?.trim() ?? '';
+              return TreatmentProtocolNote(
+                protocolName: protocol.title ?? '',
+                notes: note.isEmpty
+                    ? const []
+                    : [TreatmentProtocolNoteItem(description: note, order: 1)],
               );
+            }).toList();
+            final standaloneNotes = detail.instructions
+                .map(
+                  (instruction) => TreatmentProtocolNoteItem(
+                    title: instruction.title,
+                    description: instruction.note ?? '',
+                    order: 1,
+                  ),
+                )
+                .toList();
+
+            state = state.copyWith(
+              selectedProtocolIds: selectedProtocolIds,
+              selectedProtocolNotes: selectedProtocolNotes,
+              standaloneNotes: standaloneNotes,
+            );
 
             minUnitsController.text = (detail.minimumUnits ?? 0.0)
-              .toStringAsFixed(0);
+                .toStringAsFixed(0);
             maxUnitsController.text = (detail.maximumUnits ?? 0.0)
-              .toStringAsFixed(0);
+                .toStringAsFixed(0);
 
             // 1. Materials Step
             final mappedUsages = detail.productUsages.map((e) {
@@ -611,16 +606,34 @@ class SessionViewModel extends BaseViewModel<SessionState> {
             fixedPriceController.text = detail.fixedPrice.toString();
             state = state.copyWith(isFixedPrice: detail.isFixedPrice);
 
-            unitPriceControllers.forEach((_, c) => c.dispose());
-            unitPriceControllers.clear();
-
             for (final override in detail.unitPriceOverrides) {
               final entry = mappedUsages.firstWhereOrNull(
                 (e) => e.productId == override.productId,
               );
               if (entry != null) {
-                final controller = getControllerForUnit(entry.unit);
-                controller.text = override.pricePerUnit.toString();
+                final maxQty = getProductMaxQuantity(entry).ceil();
+                final effectiveMaxQty = maxQty < 1 ? 1 : maxQty;
+                final isDifferentPrice =
+                    detail.isDiffPrice || override.pricePerUnitList.isNotEmpty;
+
+                entry.useDifferentPricingPerUnit = isDifferentPrice;
+                entry.syncUnitPriceControllers(effectiveMaxQty);
+
+                if (isDifferentPrice && override.pricePerUnitList.isNotEmpty) {
+                  for (
+                    var index = 0;
+                    index < override.pricePerUnitList.length &&
+                        index < entry.unitPriceControllers.length;
+                    index++
+                  ) {
+                    entry.unitPriceControllers[index].text = override
+                        .pricePerUnitList[index]
+                        .toString();
+                  }
+                } else if (entry.unitPriceControllers.isNotEmpty) {
+                  entry.unitPriceControllers.first.text = override.pricePerUnit
+                      .toString();
+                }
               }
             }
 
@@ -712,16 +725,16 @@ class SessionViewModel extends BaseViewModel<SessionState> {
             state = state.copyWith(
               downtimeLevel: detail.downtimeLevel,
               selectedRoles: detail.allowedRoles,
-              materialsRoles: detail.allowedRoles,
-              materialsRolesSource: detail.allowedRoles.isNotEmpty
+                materialsRoles: detail.inventoryProductsRoles,
+                materialsRolesSource: detail.inventoryProductsRoles.isNotEmpty
                   ? 'custom'
                   : 'category',
-              schedulingRoles: detail.allowedRoles,
-              schedulingRolesSource: detail.allowedRoles.isNotEmpty
+              schedulingRoles: detail.schedulingRoles,
+              schedulingRolesSource: detail.schedulingRoles.isNotEmpty
                   ? 'custom'
                   : 'category',
-              pricingRoles: detail.allowedRoles,
-              pricingRolesSource: detail.allowedRoles.isNotEmpty
+              pricingRoles: detail.pricingRoles,
+              pricingRolesSource: detail.pricingRoles.isNotEmpty
                   ? 'custom'
                   : 'category',
             );
@@ -1335,8 +1348,8 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       );
       final noteText =
           matchingNoteEntry != null && matchingNoteEntry.notes.isNotEmpty
-              ? matchingNoteEntry.notes.map((e) => e.description).join('\n')
-              : '';
+          ? matchingNoteEntry.notes.map((e) => e.description).join('\n')
+          : '';
 
       protocolItems.add(
         ProtocolRequestItem(
@@ -1347,13 +1360,14 @@ class SessionViewModel extends BaseViewModel<SessionState> {
       );
     }
 
-    final List<ProtocolInstructionItem> instructionItems =
-        state.standaloneNotes.map((note) {
+    final List<ProtocolInstructionItem> instructionItems = state.standaloneNotes
+        .map((note) {
           return ProtocolInstructionItem(
             title: note.title ?? '',
             note: note.description,
           );
-        }).toList();
+        })
+        .toList();
 
     final request = ProtocolRequest(
       stepNumber: stepNumber,
@@ -1368,18 +1382,15 @@ Body    : ${request.toJson()}
 ========================================
 ''');
 
-    return await runSafely<bool>(
-      
-      () async {
-        final response = await locator<SessionRepository>().protocol(
-          request: request,
-          id: state.sessionId!,
-        );
+    return await runSafely<bool>(() async {
+      final response = await locator<SessionRepository>().protocol(
+        request: request,
+        id: state.sessionId!,
+      );
 
-        log('Protocol Step Saved for Session ID: ${state.sessionId!}');
-        return response.success;
-      },
-    );
+      log('Protocol Step Saved for Session ID: ${state.sessionId!}');
+      return response.success;
+    });
   }
 
   Future<void> fetchDownTimeLevelByTreatment({required int id}) async {

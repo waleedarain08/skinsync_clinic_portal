@@ -36,6 +36,7 @@ final dummyTreatmentRequests = [
           PatientTreatmentAreaData(
             areaId: 1,
             areaName: "Forehead",
+            sessionId: 175,
             materials: [
               PatientTreatmentMaterialData(
                 id: 1,
@@ -47,6 +48,7 @@ final dummyTreatmentRequests = [
           PatientTreatmentAreaData(
             areaId: 2,
             areaName: "Crow's Feet",
+             sessionId: 174,
             materials: [
               PatientTreatmentMaterialData(
                 id: 1,
@@ -76,6 +78,7 @@ final dummyTreatmentRequests = [
           PatientTreatmentAreaData(
             areaId: 3,
             areaName: "Upper Lip",
+             sessionId: 173,
             materials: [
               PatientTreatmentMaterialData(
                 id: 2,
