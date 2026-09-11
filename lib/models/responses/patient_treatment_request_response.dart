@@ -180,8 +180,8 @@ class PreferredSlotData {
 
   factory PreferredSlotData.fromJson(Map<String, dynamic> json) =>
       PreferredSlotData(
-        date: DateTime.fromMillisecondsSinceEpoch((json['date'] as int) * 1000),
-        time: DateTime.fromMillisecondsSinceEpoch((json['time'] as int) * 1000),
+        date: DateTime.fromMillisecondsSinceEpoch((json['date']) * 1000),
+        time: DateTime.fromMillisecondsSinceEpoch((json['time']) * 1000),
       );
 
   Map<String, dynamic> toJson() => {'date': date, 'time': time};
@@ -283,6 +283,7 @@ class PatientTreatmentData {
 
 class PatientTreatmentAreaData {
   final int areaId;
+  final int sessionId;
   final String areaName;
   final String? image;
   final String? icon;
@@ -292,6 +293,7 @@ class PatientTreatmentAreaData {
   PatientTreatmentAreaData({
     required this.areaId,
     required this.areaName,
+    required this.sessionId,
     this.image,
     this.icon,
     this.price,
@@ -301,6 +303,7 @@ class PatientTreatmentAreaData {
   factory PatientTreatmentAreaData.fromJson(Map<String, dynamic> json) {
     return PatientTreatmentAreaData(
       areaId: json['area_id'] ?? 0,
+      sessionId: json['session_id'],
       areaName: json['area_name'] ?? '',
       image: json['area_image'],
       icon: json['area_icon'],
@@ -319,6 +322,7 @@ class PatientTreatmentAreaData {
 
   Map<String, dynamic> toJson() => {
     'area_id': areaId,
+    'session_id': sessionId,
     'area_name': areaName,
     'area_image': image,
     'area_icon': icon,

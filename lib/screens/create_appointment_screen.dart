@@ -34,12 +34,18 @@ import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
 import '../models/responses/login_response_model.dart';
+import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
-  const CreateAppointmentScreen({super.key});
+  const CreateAppointmentScreen({
+    super.key,
+    this.treatmentRequestData,
+  });
 
   static const String routeName = '/create-appointment';
+
+  final PatientTreatmentRequestData? treatmentRequestData;
 
   @override
   ConsumerState<CreateAppointmentScreen> createState() =>
@@ -124,12 +130,38 @@ class _CreateAppointmentScreenState
   @override
   void initState() {
     super.initState();
+   
     WidgetsBinding.instance.addPostFrameCallback((_) {
+       _initializeChatPatient();
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
       ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
+  }
+
+  void _initializeChatPatient() {
+    final request = widget.treatmentRequestData;
+    if (request == null) return;
+
+    final patient = PatientModel(
+      id: request.userId,
+      name: request.patientName?.trim().isNotEmpty == true
+          ? request.patientName!.trim()
+          : request.name,
+      email: request.patientEmail?.trim() ?? '',
+      phone: '',
+    );
+
+    ref.read(appointmentCreationProvider.notifier).selectPatient(patient);
+    _patientNameController.text = patient.name;
+    _patientEmailController.text = patient.email;
+    _frontImageBeforeController.text = request.frontImageBefore ?? '';
+    _frontImageAfterController.text = request.frontImageAfter ?? '';
+    _rightImageBeforeController.text = request.rightImageBefore ?? '';
+    _rightImageAfterController.text = request.rightImageAfter ?? '';
+    _leftImageBeforeController.text = request.leftImageBefore ?? '';
+    _leftImageAfterController.text = request.leftImageAfter ?? '';
   }
 
   @override
@@ -169,6 +201,7 @@ class _CreateAppointmentScreenState
       ),
       body: Column(
         children: [
+         
           _buildHeaderPanel(state, viewModel),
           Expanded(
             child: SingleChildScrollView(
@@ -178,6 +211,7 @@ class _CreateAppointmentScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                   
                     _buildPatientSection(state, viewModel),
                     SizedBox(height: context.h(24)),
                     _buildTreatmentSection(),
@@ -325,6 +359,21 @@ class _CreateAppointmentScreenState
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
   ) {
+    if (widget.treatmentRequestData != null) {
+      final request = widget.treatmentRequestData!;
+      final patient = state.selectedPatient ??
+          PatientModel(
+            id: request.userId,
+            name: request.patientName?.trim().isNotEmpty == true
+                ? request.patientName!.trim()
+                : request.name,
+            email: request.patientEmail?.trim() ?? '',
+            phone: '',
+          );
+
+      return _buildPatientCard(patient, true, viewModel, state);
+    }
+
     return _buildSection(
       title: 'Patient Selection',
       children: [

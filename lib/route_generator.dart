@@ -300,7 +300,13 @@ class RouteGenerator {
           GoRoute(
             name: CreateAppointmentScreen.routeName,
             path: CreateAppointmentScreen.routeName,
-            builder: (_, _) => const CreateAppointmentScreen(),
+            builder: (_, state) {
+              final treatmentRequestData =
+                  state.extra as PatientTreatmentRequestData?;
+              return CreateAppointmentScreen(
+                treatmentRequestData: treatmentRequestData,
+              );
+            },
           ),
           GoRoute(
             name: TreatmentDetailScreen.routeName,

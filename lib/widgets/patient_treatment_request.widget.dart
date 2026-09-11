@@ -190,7 +190,7 @@ class _SimulationTreatmentRequestCardState
                     icon: Icon(
                       Iconsax.message,
                       color: CustomColors.purple,
-                      size: context.r(20),
+                      size: context.r(24),
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
