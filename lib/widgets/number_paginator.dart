@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../utils/responsive.dart';
 
 import '../utils/theme.dart';
 
@@ -29,7 +28,7 @@ class NumberPaginator extends StatelessWidget {
               : null,
         ),
         SizedBox(width: context.w(4)),
-        if (context.isLandscape) ..._buildPageNumbers(context),
+        ..._buildPageNumbers(context),
         SizedBox(width: context.w(4)),
         _buildArrowButton(
           context: context,

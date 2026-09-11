@@ -99,7 +99,7 @@ class AppointmentService extends AppointmentRepository {
     required CreateAppointmentRequest request,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
-      endPoint: Endpoint.getAppointment,
+      endPoint: Endpoint.createAppointment,
       requestType: RequestType.post,
       requestBody: request,
     );

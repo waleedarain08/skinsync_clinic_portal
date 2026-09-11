@@ -33,7 +33,7 @@ class PractitionerService extends PractitionerRepository {
   }
 
   @override
-  Future<PractitionerListData?> fetchPractitioner({
+  Future<PractitionerListResponse?> fetchPractitioner({
     int page = 1,
     int limit = 10,
     String? status,
@@ -60,7 +60,7 @@ class PractitionerService extends PractitionerRepository {
     if (!model.success) {
       throw Exception(model.message);
     }
-    return model.data;
+    return model;
   }
 
   @override

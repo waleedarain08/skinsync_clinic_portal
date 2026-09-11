@@ -11,7 +11,7 @@ import '../models/responses/register_practitioner_response.dart';
 abstract class PractitionerRepository {
   Future<Practitioner> register({required RegisterPractitionerRequest request});
 
-  Future<PractitionerListData?> fetchPractitioner({
+  Future<PractitionerListResponse?> fetchPractitioner({
     int page = 1,
     int limit = 10,
     String? status,

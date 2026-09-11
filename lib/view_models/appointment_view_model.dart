@@ -60,8 +60,8 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
       if (appointment.success) {
         state = state.copyWith(
           loading: false,
-          appointmentList: appointment.data?.items ?? [],
-          totalPage: appointment.data?.totalPages ?? 0,
+          appointmentList: appointment.data ?? appointment.items,
+          totalPage: appointment.totalPages,
         );
       } else {
         state = state.copyWith(appointmentList: [], totalPage: 0);

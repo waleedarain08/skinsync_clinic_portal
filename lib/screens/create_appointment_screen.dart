@@ -30,6 +30,7 @@ import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
 import '../models/responses/login_response_model.dart';
@@ -187,6 +188,26 @@ class _CreateAppointmentScreenState
                     _buildPaymentSection(),
                     SizedBox(height: context.h(24)),
                     _buildSimulationsSection(),
+                    SizedBox(height: context.h(32)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomOutlinedButton(
+                          onTap: () => context.pop(),
+                          label: 'Cancel',
+                          height: context.h(42),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                        ),
+                        context.horizontalSpace(16),
+                        CustomPrimaryButton(
+                          onTap: () => _submitForm(state, viewModel),
+                          label: 'Save Appointment',
+                          height: context.h(42),
+                          width: context.w(200),
+                          icon: Icons.check_circle_outline,
+                        ),
+                      ],
+                    ),
                     SizedBox(height: context.h(40)),
                   ],
                 ),
@@ -336,6 +357,7 @@ class _CreateAppointmentScreenState
                     allowCountrySelection: true,
                     controller: _patientPhoneController,
                     filled: false,
+                    removeValidation: state.selectedPatient != null,
                     onCountryChanged: (code) {
                       setState(() {
                         _selectedCountryCode = code.dialCode ?? '+1';
@@ -909,6 +931,7 @@ class _CreateAppointmentScreenState
   }
 
   void _fetchFilteredPractitioners({
+    int page = 1,
     String? searchOverride,
     Filters? roleOverride,
     String? dateOverride,
@@ -926,7 +949,7 @@ class _CreateAppointmentScreenState
         (_selectedTreatments.isNotEmpty ? _selectedTreatments.first.id : null);
 
     ref.read(practitionerProvider.notifier).getPractitioner(
-          page: 1,
+          page: page,
           search: search,
           role: role,
           treatmentId: treatmentId,
@@ -1092,7 +1115,25 @@ class _CreateAppointmentScreenState
           },
         ),
         SizedBox(height: context.h(20)),
-        Text('Select Practitioner', style: context.fonts.black14w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Select Practitioner', style: context.fonts.black14w600),
+            if (practitionerState.totalPages > 0)
+              NumberPaginator(
+                totalPages: practitionerState.totalPages,
+                currentPage: (practitionerState.currentPage - 1).clamp(
+                  0,
+                  practitionerState.totalPages > 0
+                      ? practitionerState.totalPages - 1
+                      : 0,
+                ),
+                onPageChanged: (pageIndex) {
+                  _fetchFilteredPractitioners(page: pageIndex + 1);
+                },
+              ),
+          ],
+        ),
         SizedBox(height: context.h(10)),
         if (practitionerState.loading && doctors.isEmpty)
           const Center(child: AppLoader())
@@ -2338,6 +2379,7 @@ class _CreateAppointmentScreenState
           if (t.sideAreas != null && t.sideAreas!.isNotEmpty) {
             for (final area in t.sideAreas!) {
               final key = '${t.id}-${area.id}';
+              final selectedSession = _selectedSessionMap[key];
               final selectedMat = _selectedMaterialMap[key];
               final selectedQty =
                   _selectedMaterialQtyMap[key] ?? selectedMat?.minQty ?? 1;
@@ -2351,6 +2393,7 @@ class _CreateAppointmentScreenState
                 AppointmentTreatmentItemRequest(
                   treatmentId: t.id,
                   areaId: area.id,
+                  sessionId: selectedSession?.sessionId ?? 0,
                   treatmentCost: cost,
                   material: materialReq,
                 ),
@@ -2365,6 +2408,7 @@ class _CreateAppointmentScreenState
               AppointmentTreatmentItemRequest(
                 treatmentId: t.id,
                 areaId: 0,
+                sessionId: 0,
                 treatmentCost: cost,
                 material: defaultMaterial,
               ),

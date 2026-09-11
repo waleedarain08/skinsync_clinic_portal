@@ -1,49 +1,61 @@
 import 'base_response_model.dart';
 
-class PractitionerListResponse extends BaseResponse<PractitionerListData> {
-  const PractitionerListResponse({
+typedef PractitionerListData = PractitionerListResponse;
+
+class PractitionerListResponse extends BaseResponse<List<PractitionerListItem>> {
+  final int page;
+  final int limit;
+  final int totalPages;
+  final int total;
+  final int activeProviders;
+  final int totalProviders;
+
+  PractitionerListResponse({
     required super.success,
     required super.message,
     super.data,
-  });
-
-  factory PractitionerListResponse.fromJson(Map<String, dynamic> json) =>
-      PractitionerListResponse(
-        data: json["data"] == null
-            ? null
-            : PractitionerListData.fromJson(json["data"]),
-        success: json["is_success"] ?? false,
-        message: json["message"] ?? "",
-      );
-}
-
-class PractitionerListData {
-  final List<PractitionerListItem> items;
-  final int limit;
-  final int page;
-  final int total;
-  final int totalPages;
-
-  PractitionerListData({
-    required this.items,
-    required this.limit,
     required this.page,
-    required this.total,
+    required this.limit,
     required this.totalPages,
+    required this.total,
+    required this.activeProviders,
+    required this.totalProviders,
   });
 
-  factory PractitionerListData.fromJson(Map<String, dynamic> json) =>
-      PractitionerListData(
-        items: json["items"] == null
-            ? []
-            : List<PractitionerListItem>.from(
-                json["items"].map((x) => PractitionerListItem.fromJson(x)),
-              ),
-        limit: json["limit"] ?? 0,
-        page: json["page"] ?? 0,
-        total: json["total"] ?? 0,
-        totalPages: json["total_pages"] ?? 0,
-      );
+  factory PractitionerListResponse.fromJson(Map<String, dynamic> json) {
+    final rawList = json['data'] ?? json['items'];
+    final List<dynamic>? itemsList = rawList is List<dynamic>
+        ? rawList
+        : (json['data'] is Map<String, dynamic> &&
+                (json['data'] as Map<String, dynamic>)['items'] is List<dynamic>
+            ? (json['data'] as Map<String, dynamic>)['items'] as List<dynamic>
+            : null);
+
+    final dataMap = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
+
+    return PractitionerListResponse(
+      success: json['is_success'] ?? json['success'] ?? true,
+      message: json['message'] ?? '',
+      data: itemsList
+              ?.map(
+                (e) => PractitionerListItem.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
+          [],
+      page: json['page'] ?? dataMap['page'] ?? 1,
+      limit: json['limit'] ?? dataMap['limit'] ?? 10,
+      totalPages: json['total_pages'] ?? dataMap['total_pages'] ?? 0,
+      total: json['total'] ?? dataMap['total'] ?? 0,
+      activeProviders:
+          json['active_providers'] ?? dataMap['active_providers'] ?? 0,
+      totalProviders:
+          json['total_providers'] ?? dataMap['total_providers'] ?? 0,
+    );
+  }
 }
 
 class PractitionerListItem {
@@ -64,19 +76,19 @@ class PractitionerListItem {
 
   PractitionerListItem({
     required this.id,
-    required this.status,
+    this.status = '',
     required this.name,
-    required this.title,
-    required this.image,
-    required this.specialization,
+    this.title = '',
+    this.image = '',
+    this.specialization = '',
     this.role,
-    required this.email,
-    required this.phone,
-    required this.cc,
-    required this.country,
-    required this.licenseExpiryDate,
-    required this.treatmentCount,
-    required this.appointmentCount,
+    this.email = '',
+    this.phone = '',
+    this.cc = '',
+    this.country = '',
+    this.licenseExpiryDate = '',
+    this.treatmentCount = 0,
+    this.appointmentCount = 0,
   });
 
   factory PractitionerListItem.fromJson(Map<String, dynamic> json) =>
@@ -93,9 +105,28 @@ class PractitionerListItem {
         cc: json["cc"] ?? "",
         country: json["country"] ?? "",
         licenseExpiryDate: json["license_expiry_date"] ?? "",
-        treatmentCount: json["treatment_count"] ?? 0,
-        appointmentCount: json["appointment_count"] ?? 0,
+        treatmentCount:
+            json["treatment_counts"] ?? json["treatment_count"] ?? 0,
+        appointmentCount:
+            json["appointment_count"] ?? json["appointment_counts"] ?? 0,
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "status": status,
+        "name": name,
+        "title": title,
+        "image": image,
+        "specialization": specialization,
+        "email": email,
+        "phone": phone,
+        "role": role,
+        "cc": cc,
+        "country": country,
+        "license_expiry_date": licenseExpiryDate,
+        "treatment_counts": treatmentCount,
+        "appointment_count": appointmentCount,
+      };
 
   @override
   bool operator ==(Object other) =>

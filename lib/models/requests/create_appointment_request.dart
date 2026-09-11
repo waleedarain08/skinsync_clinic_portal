@@ -157,12 +157,14 @@ class AppointmentSimulationsRequest {
 class AppointmentTreatmentItemRequest {
   final int? treatmentId;
   final int? areaId;
+  final int? sessionId;
   final double? treatmentCost;
   final AppointmentMaterialItemRequest? material;
 
   AppointmentTreatmentItemRequest({
     this.treatmentId,
     this.areaId,
+    this.sessionId,
     this.treatmentCost,
     this.material,
   });
@@ -170,6 +172,7 @@ class AppointmentTreatmentItemRequest {
   Map<String, dynamic> toJson() => {
         if (treatmentId != null) 'treatment_id': treatmentId,
         if (areaId != null) 'area_id': areaId,
+        if (sessionId != null) 'session_id': sessionId,
         if (treatmentCost != null) 'treatment_cost': treatmentCost,
         if (material != null) 'material': material!.toJson(),
       };
@@ -179,6 +182,7 @@ class AppointmentTreatmentItemRequest {
     return AppointmentTreatmentItemRequest(
       treatmentId: json['treatment_id'],
       areaId: json['area_id'],
+      sessionId: json['session_id'],
       treatmentCost: json['treatment_cost']?.toDouble(),
       material: json['material'] != null
           ? AppointmentMaterialItemRequest.fromJson(json['material'])
