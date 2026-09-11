@@ -2,7 +2,6 @@ import 'package:get_it/get_it.dart';
 
 import '../repositories/ai_onboarding_chat_repository.dart';
 import '../repositories/appointment_repository.dart';
-import '../repositories/appointment_repository.dart';
 import '../repositories/auth_repository.dart';
 import '../repositories/chat_repository.dart';
 import '../repositories/explore_repository.dart';
@@ -11,6 +10,7 @@ import '../repositories/patient_repository.dart';
 import '../repositories/product_repository.dart';
 import '../repositories/provider_role_repository.dart';
 import '../repositories/session_repository.dart';
+import '../repositories/staff_repository.dart';
 import '../repositories/treatment_repository.dart';
 import '../view_models/forms_controller.dart';
 import 'ai_onboarding_chat_service.dart';
@@ -29,6 +29,7 @@ import 'product_services.dart';
 import 'provider_roles_service.dart';
 import 'role_service.dart';
 import 'session_service.dart';
+import 'staff_service.dart';
 import 'storage_service.dart';
 import 'treatment_services.dart';
 
@@ -61,6 +62,9 @@ Future<void> initializeServices() async {
   );
   locator.registerLazySingleton<ProviderRoleRepository>(
     () => ProviderRolesService(api: apiBaseHelper),
+  );
+  locator.registerLazySingleton<StaffRepository>(
+    () => StaffService(api: apiBaseHelper),
   );
   locator.registerLazySingleton<ExploreRepository>(() => ExploreService());
   locator.registerLazySingleton<NotificationRepository>(

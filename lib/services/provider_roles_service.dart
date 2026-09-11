@@ -22,4 +22,15 @@ class ProviderRolesService implements ProviderRoleRepository {
     }
     return response;
   }
+   @override
+  Future<FiltersResponse> providerStaffRoles() async {
+    final jsonResponse = await _api.httpRequest(
+      requestType: RequestType.get,
+      endPoint:  Endpoint.staffRole);
+    final response = FiltersResponse.fromJson(jsonResponse);
+    if (!response.success) {
+      throw BadRequestException(response.message);
+    }
+    return response;
+  }
 }

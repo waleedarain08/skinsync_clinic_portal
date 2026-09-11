@@ -1,15 +1,23 @@
+
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../models/requests/create_staff_request.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 import '../../utils/validators.dart';
+import '../../view_models/auth_view_model.dart';
+import '../../view_models/provider_view_model.dart';
+import '../../view_models/staff_view_model.dart';
+import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/build_textfield.dart';
 import '../../widgets/custom_outlined_button.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/borderd_container_widget.dart';
+import '../../widgets/phone_widget.dart';
 
 class AddAdministrationStaffScreen extends ConsumerStatefulWidget {
   const AddAdministrationStaffScreen({super.key});
@@ -26,14 +34,16 @@ class _AddAdministrationStaffScreenState
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  CountryCode? _selectedCountryCode;
   String? _selectedRole;
 
-  final List<String> _roles = [
-    'Receptionist',
-    'Manager',
-    'Accountant',
-    'Admin',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderStaffRoles();
+    });
+  }
 
   @override
   void dispose() {
@@ -82,6 +92,8 @@ class _AddAdministrationStaffScreenState
   }
 
   Widget _buildHeaderPanel() {
+    
+
     return Padding(
       padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
       child: BorderdContainerWidget(
@@ -130,7 +142,7 @@ class _AddAdministrationStaffScreenState
                 ),
                 context.horizontalSpace(12),
                 CustomPrimaryButton(
-                  onTap: _submitForm,
+                  onTap:_submitForm,
                   label: 'Save Staff',
                   width: context.w(180),
                   height: context.h(40),
@@ -173,12 +185,28 @@ class _AddAdministrationStaffScreenState
               ),
               context.horizontalSpace(16),
               Expanded(
-                child: BuildTextField(
-                  controller: _phoneController,
-                  label: 'Phone Number',
-                  hintText: 'Enter phone number',
-                  keyboardType: TextInputType.phone,
-                  validator: Validators.empty,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Phone Number', style: context.fonts.black14w600),
+                    context.verticalSpace(8),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        _selectedCountryCode =
+                            ref.read(authViewModelProvider).country;
+                        return PhoneWidget(
+                          allowCountrySelection: false,
+                          controller: _phoneController,
+                          filled: false,
+                          onCountryChanged: (code) {
+                            setState(() {
+                              _selectedCountryCode = code;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -191,6 +219,9 @@ class _AddAdministrationStaffScreenState
   }
 
   Widget _buildRoleDropdown() {
+    final roleState = ref.watch(providerRoleViewModelProvider);
+    final roles = roleState.providerStaffRoles ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -206,10 +237,13 @@ class _AddAdministrationStaffScreenState
               ),
             ),
             value: _selectedRole,
-            items: _roles
+            items: roles
+                .where((role) => role.name != null && role.name!.isNotEmpty)
                 .map(
-                  (role) =>
-                      DropdownMenuItem<String>(value: role, child: Text(role)),
+                  (role) => DropdownMenuItem<String>(
+                    value: role.name,
+                    child: Text(role.name!),
+                  ),
                 )
                 .toList(),
             onChanged: (val) => setState(() => _selectedRole = val),
@@ -227,20 +261,30 @@ class _AddAdministrationStaffScreenState
     );
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedRole == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a role')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a role')),
+      );
       return;
     }
 
-    // In a real app, we would call the view model to save the staff member.
-    // For now, we'll just show a success message and go back.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Administration staff added successfully!')),
+    final request = CreateStaffRequest(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      role: _selectedRole!,
+      cc: _selectedCountryCode?.dialCode ?? '',
+      country: _selectedCountryCode?.name ?? '',
     );
-    context.pop();
+
+    final success = await ref
+        .read(staffViewModelProvider.notifier)
+        .createStaff(request: request);
+
+    if (mounted && success == true) {
+      context.pop();
+    }
   }
 }
