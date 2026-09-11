@@ -17,8 +17,8 @@ class BuildTextField extends StatelessWidget {
   final double? width;
   final String? tooltip;
   final bool enabled;
+  final VoidCallback? onTap;
   final List<TextInputFormatter>? inputFormatters;
-
 
   const BuildTextField({
     super.key,
@@ -29,6 +29,7 @@ class BuildTextField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.enabled = true,
+    this.onTap,
     this.onChanged,
     this.prefixIcon,
     this.suffixIcon,
@@ -37,7 +38,6 @@ class BuildTextField extends StatelessWidget {
     this.width,
     this.tooltip,
     this.inputFormatters,
-  
   });
 
   @override
@@ -64,7 +64,6 @@ class BuildTextField extends StatelessWidget {
           ),
           context.verticalSpace(8),
           TextFormField(
-            
             controller: controller,
             maxLines: maxLines,
             obscureText: obscureText,
@@ -73,6 +72,7 @@ class BuildTextField extends StatelessWidget {
             validator: validator,
             readOnly: readOnly,
             enabled: enabled,
+            onTap: onTap,
             inputFormatters: inputFormatters ?? [
               if (keyboardType == TextInputType.phone || keyboardType == TextInputType.number)
                 FilteringTextInputFormatter.digitsOnly,

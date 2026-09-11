@@ -934,6 +934,53 @@ class _CreateAppointmentScreenState
         );
   }
 
+  Widget _buildDateField() {
+    final bool hasDate = _dateController.text.isNotEmpty;
+
+    return BuildTextField(
+      controller: _dateController,
+      label: 'Select Date',
+      hintText: 'YYYY-MM-DD',
+      readOnly: true,
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+        );
+        if (picked != null) {
+          final newDateStr = DateFormat('yyyy-MM-dd').format(picked);
+          setState(() {
+            _dateController.text = newDateStr;
+          });
+          _fetchFilteredPractitioners(dateOverride: newDateStr);
+        }
+      },
+      prefixIcon: const Icon(
+        Icons.calendar_today_outlined,
+        size: 18,
+        color: CustomColors.purple,
+      ),
+      suffixIcon: hasDate
+          ? IconButton(
+              icon: const Icon(
+                Icons.clear,
+                size: 18,
+                color: CustomColors.purple,
+              ),
+              onPressed: () {
+                setState(() {
+                  _dateController.clear();
+                  _selectedTimeSlot = null;
+                });
+                _fetchFilteredPractitioners(dateOverride: '');
+              },
+            )
+          : null,
+    );
+  }
+
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
     final practitionerState = ref.watch(practitionerProvider);
@@ -975,37 +1022,7 @@ class _CreateAppointmentScreenState
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (picked != null) {
-                          final newDateStr =
-                              DateFormat('yyyy-MM-dd').format(picked);
-                          setState(() {
-                            _dateController.text = newDateStr;
-                          });
-                          _fetchFilteredPractitioners(dateOverride: newDateStr);
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: BuildTextField(
-                          controller: _dateController,
-                          label: 'Select Date',
-                          hintText: 'YYYY-MM-DD',
-                          readOnly: true,
-                          prefixIcon: const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 18,
-                            color: CustomColors.purple,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: _buildDateField(),
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
@@ -1046,39 +1063,7 @@ class _CreateAppointmentScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: InkWell(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate:
-                                  DateTime.now().add(const Duration(days: 365)),
-                            );
-                            if (picked != null) {
-                              final newDateStr =
-                                  DateFormat('yyyy-MM-dd').format(picked);
-                              setState(() {
-                                _dateController.text = newDateStr;
-                              });
-                              _fetchFilteredPractitioners(
-                                  dateOverride: newDateStr);
-                            }
-                          },
-                          child: IgnorePointer(
-                            child: BuildTextField(
-                              controller: _dateController,
-                              label: 'Select Date',
-                              hintText: 'YYYY-MM-DD',
-                              readOnly: true,
-                              prefixIcon: const Icon(
-                                Icons.calendar_today_outlined,
-                                size: 18,
-                                color: CustomColors.purple,
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: _buildDateField(),
                       ),
                       SizedBox(width: context.w(16)),
                       Expanded(
@@ -1094,6 +1079,7 @@ class _CreateAppointmentScreenState
                           },
                           onChanged: (val) {
                             setState(() => _selectedRoleFilter = val);
+                            _fetchFilteredPractitioners(roleOverride: val);
                           },
                           builder: (val) => Text(val.name ?? 'Role ${val.id}'),
                         ),
