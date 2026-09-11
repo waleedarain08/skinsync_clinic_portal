@@ -107,7 +107,9 @@ class _ManagePractitionerScreenState
   }
 
   Widget _buildQuickInsights(PractitionerState state) {
-    final totalPractitioners = state.doctors.length;
+    final totalPractitioners = state.totalProviders > 0
+        ? state.totalProviders
+        : (state.total > 0 ? state.total : state.doctors.length);
     final activeInjectors = state.doctors
         .where((d) => d.specialization.toLowerCase().contains('injector'))
         .length;

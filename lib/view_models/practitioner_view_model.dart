@@ -174,7 +174,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
         loading: showLoading,
         searchQuery: search ?? state.searchQuery,
       );
-      final data = await locator<PractitionerService>().fetchPractitioner(
+      final response = await locator<PractitionerService>().fetchPractitioner(
         page: page,
         limit: limit,
         status: status,
@@ -184,12 +184,15 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
         date: date,
       );
 
-      if (data != null) {
+      if (response != null) {
         state = state.copyWith(
           loading: false,
-          totalPages: data.totalPages,
-          currentPage: data.page,
-          doctors: data.items,
+          totalPages: response.totalPages,
+          currentPage: response.page,
+          doctors: response.data ?? [],
+          activeProviders: response.activeProviders,
+          totalProviders: response.totalProviders,
+          total: response.total,
         );
       }
     }, showLoading: false);
@@ -358,6 +361,9 @@ class PractitionerState {
   final int totalPages;
   final int currentPage;
   final String searchQuery;
+  final int activeProviders;
+  final int totalProviders;
+  final int total;
 
   const PractitionerState({
     this.role,
@@ -376,6 +382,9 @@ class PractitionerState {
     this.totalPages = 1,
     this.currentPage = 1,
     this.searchQuery = "",
+    this.activeProviders = 0,
+    this.totalProviders = 0,
+    this.total = 0,
   });
 
   PractitionerState copyWith({
@@ -395,6 +404,9 @@ class PractitionerState {
     int? totalPages,
     int? currentPage,
     String? searchQuery,
+    int? activeProviders,
+    int? totalProviders,
+    int? total,
   }) {
     return PractitionerState(
       loading: loading ?? this.loading,
@@ -413,6 +425,9 @@ class PractitionerState {
       totalPages: totalPages ?? this.totalPages,
       currentPage: currentPage ?? this.currentPage,
       searchQuery: searchQuery ?? this.searchQuery,
+      activeProviders: activeProviders ?? this.activeProviders,
+      totalProviders: totalProviders ?? this.totalProviders,
+      total: total ?? this.total,
     );
   }
 
@@ -439,6 +454,9 @@ class PractitionerState {
       totalPages: totalPages,
       currentPage: currentPage,
       searchQuery: searchQuery,
+      activeProviders: activeProviders,
+      totalProviders: totalProviders,
+      total: total,
     );
   }
 }
