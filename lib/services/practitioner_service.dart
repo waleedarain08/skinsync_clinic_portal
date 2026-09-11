@@ -36,15 +36,21 @@ class PractitionerService extends PractitionerRepository {
   Future<PractitionerListData?> fetchPractitioner({
     int page = 1,
     int limit = 10,
+    String? status,
     String? search,
+    String? role,
+    int? treatmentId,
+    int? date,
   }) async {
     final Map<String, String?> queryParams = {
       'page': page.toString(),
       'limit': limit.toString(),
+      'status': status ?? '',
+      'search': search ?? '',
+      'role': role ?? '',
+      'treatment_id': treatmentId != null ? treatmentId.toString() : '',
+      'date': date != null ? date.toString() : '',
     };
-    if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
-    }
     final response = await locator<ApiBaseService>().httpRequest(
       endPoint: Endpoint.getPractitioners,
       requestType: RequestType.get,

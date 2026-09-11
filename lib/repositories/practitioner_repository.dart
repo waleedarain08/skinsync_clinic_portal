@@ -14,7 +14,11 @@ abstract class PractitionerRepository {
   Future<PractitionerListData?> fetchPractitioner({
     int page = 1,
     int limit = 10,
+    String? status,
     String? search,
+    String? role,
+    int? treatmentId,
+    int? date,
   });
 
   Future<PractitionerDetailResponse> fetchPractitionerDetail({required int id});

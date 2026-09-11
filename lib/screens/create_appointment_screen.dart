@@ -123,7 +123,6 @@ class _CreateAppointmentScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
@@ -603,6 +602,7 @@ class _CreateAppointmentScreenState
                           _selectedDropdownTreatment = newTx;
                         }
                         _updateTotalAmount();
+                        _fetchFilteredPractitioners();
                       });
 
                       if (willBeSelected && treatment.id != null) {
@@ -908,6 +908,79 @@ class _CreateAppointmentScreenState
     );
   }
 
+  void _fetchFilteredPractitioners({
+    String? searchOverride,
+    Filters? roleOverride,
+    String? dateOverride,
+  }) {
+    final search = searchOverride ?? _practitionerSearchController.text.trim();
+    final selectedRole = roleOverride ?? _selectedRoleFilter;
+    final role = (selectedRole == null || selectedRole.id == 0)
+        ? ''
+        : (selectedRole.name ?? '');
+    final dateStr = dateOverride ?? _dateController.text.trim();
+    final parsedDate = dateStr.isNotEmpty ? DateTime.tryParse(dateStr) : null;
+    final dateTs =
+        parsedDate != null ? (parsedDate.millisecondsSinceEpoch ~/ 1000) : null;
+    final treatmentId = _selectedDropdownTreatment?.id ??
+        (_selectedTreatments.isNotEmpty ? _selectedTreatments.first.id : null);
+
+    ref.read(practitionerProvider.notifier).getPractitioner(
+          page: 1,
+          search: search,
+          role: role,
+          treatmentId: treatmentId,
+          date: dateTs,
+        );
+  }
+
+  Widget _buildDateField() {
+    final bool hasDate = _dateController.text.isNotEmpty;
+
+    return BuildTextField(
+      controller: _dateController,
+      label: 'Select Date',
+      hintText: 'YYYY-MM-DD',
+      readOnly: true,
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+        );
+        if (picked != null) {
+          final newDateStr = DateFormat('yyyy-MM-dd').format(picked);
+          setState(() {
+            _dateController.text = newDateStr;
+          });
+          _fetchFilteredPractitioners(dateOverride: newDateStr);
+        }
+      },
+      prefixIcon: const Icon(
+        Icons.calendar_today_outlined,
+        size: 18,
+        color: CustomColors.purple,
+      ),
+      suffixIcon: hasDate
+          ? IconButton(
+              icon: const Icon(
+                Icons.clear,
+                size: 18,
+                color: CustomColors.purple,
+              ),
+              onPressed: () {
+                setState(() {
+                  _dateController.clear();
+                  _selectedTimeSlot = null;
+                });
+                _fetchFilteredPractitioners(dateOverride: '');
+              },
+            )
+          : null,
+    );
+  }
+
   // Section 3: Practitioners & Clinical Schedule (Paginated & Searchable via fetchPractitioner API)
   Widget _buildPractitionerScheduleSection() {
     final practitionerState = ref.watch(practitionerProvider);
@@ -923,21 +996,7 @@ class _CreateAppointmentScreenState
     for (final d in rawDoctors) {
       uniqueDoctorsMap[d.id] = d;
     }
-    final allDoctors = uniqueDoctorsMap.values.toList();
-
-    // Filter doctors by selected role if applicable (and not "All")
-    final doctors = allDoctors.where((d) {
-      if (_selectedRoleFilter != null &&
-          _selectedRoleFilter!.id != 0 &&
-          _selectedRoleFilter!.name != null &&
-          _selectedRoleFilter!.name!.toLowerCase() != 'all') {
-        final selectedRoleName = _selectedRoleFilter!.name!.toLowerCase();
-        if (d.role != null && d.role!.toLowerCase() != selectedRoleName) {
-          return false;
-        }
-      }
-      return true;
-    }).toList();
+    final doctors = uniqueDoctorsMap.values.toList();
 
     return _buildSection(
       title: 'Practitioners & Clinical Schedule',
@@ -957,43 +1016,13 @@ class _CreateAppointmentScreenState
                       hintText: 'Search by name or email...',
                       prefixIcon: const Icon(Icons.search, size: 18),
                       onChanged: (val) {
-                        ref
-                            .read(practitionerProvider.notifier)
-                            .setSearchQuery(val ?? '');
+                        _fetchFilteredPractitioners(searchOverride: val ?? '');
                       },
                     ),
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
-                    child: InkWell(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _dateController.text =
-                                DateFormat('yyyy-MM-dd').format(picked);
-                          });
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: BuildTextField(
-                          controller: _dateController,
-                          label: 'Select Date',
-                          hintText: 'YYYY-MM-DD',
-                          readOnly: true,
-                          prefixIcon: const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 18,
-                            color: CustomColors.purple,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: _buildDateField(),
                   ),
                   SizedBox(width: context.w(16)),
                   Expanded(
@@ -1009,6 +1038,7 @@ class _CreateAppointmentScreenState
                       },
                       onChanged: (val) {
                         setState(() => _selectedRoleFilter = val);
+                        _fetchFilteredPractitioners(roleOverride: val);
                       },
                       builder: (val) => Text(val.name ?? 'Role ${val.id}'),
                     ),
@@ -1025,9 +1055,7 @@ class _CreateAppointmentScreenState
                     hintText: 'Search by name or email...',
                     prefixIcon: const Icon(Icons.search, size: 18),
                     onChanged: (val) {
-                      ref
-                          .read(practitionerProvider.notifier)
-                          .setSearchQuery(val ?? '');
+                      _fetchFilteredPractitioners(searchOverride: val ?? '');
                     },
                   ),
                   SizedBox(height: context.h(16)),
@@ -1035,36 +1063,7 @@ class _CreateAppointmentScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: InkWell(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate:
-                                  DateTime.now().add(const Duration(days: 365)),
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                _dateController.text =
-                                    DateFormat('yyyy-MM-dd').format(picked);
-                              });
-                            }
-                          },
-                          child: IgnorePointer(
-                            child: BuildTextField(
-                              controller: _dateController,
-                              label: 'Select Date',
-                              hintText: 'YYYY-MM-DD',
-                              readOnly: true,
-                              prefixIcon: const Icon(
-                                Icons.calendar_today_outlined,
-                                size: 18,
-                                color: CustomColors.purple,
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: _buildDateField(),
                       ),
                       SizedBox(width: context.w(16)),
                       Expanded(
@@ -1080,6 +1079,7 @@ class _CreateAppointmentScreenState
                           },
                           onChanged: (val) {
                             setState(() => _selectedRoleFilter = val);
+                            _fetchFilteredPractitioners(roleOverride: val);
                           },
                           builder: (val) => Text(val.name ?? 'Role ${val.id}'),
                         ),
@@ -1097,7 +1097,8 @@ class _CreateAppointmentScreenState
         if (practitionerState.loading && doctors.isEmpty)
           const Center(child: AppLoader())
         else if (doctors.isEmpty)
-          Text('No practitioners available.', style: context.fonts.grey14w400)
+          Text('No practitioners available. Search, select a date or role to view practitioners.',
+              style: context.fonts.grey14w400)
         else
           SizedBox(
             height: context.h(130),
@@ -1297,6 +1298,17 @@ class _CreateAppointmentScreenState
     final state = ref.watch(appointmentCreationProvider);
     final bookingMethods = state.bookingMethods;
 
+    if (bookingMethods.isNotEmpty &&
+        !bookingMethods.any((m) => m.key == _bookingMethod)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _bookingMethod = bookingMethods.first.key;
+          });
+        }
+      });
+    }
+
     return _buildSection(
       title: 'Booking Configuration & Clinical Notes',
       children: [
@@ -1304,36 +1316,9 @@ class _CreateAppointmentScreenState
         SizedBox(height: context.h(10)),
         if (state.isFetchingBookingMethods && bookingMethods.isEmpty)
           const Center(child: AppLoader())
-        else if (bookingMethods.isEmpty) ...[
-          Wrap(
-            spacing: context.w(12),
-            runSpacing: context.h(12),
-            children: [
-              _buildBookingMethodCard(
-                method: BookingMethodItem(
-                  id: 1,
-                  title: 'Online',
-                  key: 'online',
-                  description:
-                      'Allows customers to browse available time slots and book directly.',
-                  icon: '',
-                  status: 'active',
-                ),
-              ),
-              _buildBookingMethodCard(
-                method: BookingMethodItem(
-                  id: 2,
-                  title: 'Walk-in',
-                  key: 'walk_in',
-                  description:
-                      'Enables staff to manually register and schedule for in-person visitors.',
-                  icon: '',
-                  status: 'active',
-                ),
-              ),
-            ],
-          ),
-        ] else
+        else if (bookingMethods.isEmpty)
+          Text('No booking methods available.', style: context.fonts.grey14w400)
+        else
           Wrap(
             spacing: context.w(12),
             runSpacing: context.h(12),
