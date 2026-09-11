@@ -123,7 +123,6 @@ class _CreateAppointmentScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(practitionerProvider.notifier).getPractitioner(page: 1);
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
@@ -1112,7 +1111,8 @@ class _CreateAppointmentScreenState
         if (practitionerState.loading && doctors.isEmpty)
           const Center(child: AppLoader())
         else if (doctors.isEmpty)
-          Text('No practitioners available.', style: context.fonts.grey14w400)
+          Text('No practitioners available. Search, select a date or role to view practitioners.',
+              style: context.fonts.grey14w400)
         else
           SizedBox(
             height: context.h(130),
