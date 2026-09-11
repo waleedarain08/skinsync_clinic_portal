@@ -1098,7 +1098,7 @@ class _CreateAppointmentScreenState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Select Practitioner', style: context.fonts.black14w600),
-            if (practitionerState.totalPages > 1)
+            if (practitionerState.totalPages > 0)
               NumberPaginator(
                 totalPages: practitionerState.totalPages,
                 currentPage: (practitionerState.currentPage - 1).clamp(
