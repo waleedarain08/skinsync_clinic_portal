@@ -530,26 +530,6 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Widget _buildTreatmentSection() {
-    final appointmentState = ref.watch(appointmentProvider);
-    final rawAppointmentTypes = appointmentState.appointmentTypes ?? [];
-    final uniqueFiltersMap = <int, Filters>{};
-    for (final f in rawAppointmentTypes) {
-      if (f.id != null) uniqueFiltersMap[f.id!] = f;
-    }
-    final appointmentTypes = uniqueFiltersMap.values.toList();
-
-    Filters? selectedAppointmentType;
-    if (appointmentTypes.isNotEmpty) {
-      if (_selectedAppointmentTypeFilter != null) {
-        selectedAppointmentType = appointmentTypes.firstWhere(
-          (f) => f.id == _selectedAppointmentTypeFilter!.id,
-          orElse: () => appointmentTypes.first,
-        );
-      } else {
-        selectedAppointmentType = appointmentTypes.first;
-      }
-    }
-
     final treatmentState = ref.watch(treatmentViewModelProvider);
     final treatments = treatmentState.treatments;
 
@@ -892,39 +872,30 @@ class _CreateAppointmentScreenState
           },
         ),
         SizedBox(height: context.h(20)),
-        Row(
-          children: [
-            Expanded(
-              child: _buildDropdownField<Filters>(
-                label: 'Appointment Type',
-                hintText: 'Select Type',
-                value: selectedAppointmentType,
-                items: appointmentTypes,
-                onTap: () {
-                  ref
-                      .read(appointmentProvider.notifier)
-                      .getAppointmentsTypes();
-                },
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => _selectedAppointmentTypeFilter = val);
-                  }
-                },
-                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
-              ),
-            ),
-            SizedBox(width: context.w(16)),
-            Expanded(
-              child: BuildTextField(
-                controller: _amountController,
-                label: 'Treatment Total (\$)',
-                hintText: '0.00',
-                readOnly: true,
-                keyboardType: TextInputType.number,
-                prefixIcon: const Icon(Icons.attach_money, size: 18),
-              ),
-            ),
-          ],
+        Align(
+          alignment: Alignment.centerRight,
+          child: Builder(
+            builder: (context) {
+              final totalCost = double.tryParse(_amountController.text) ?? 0.0;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    'Treatment Total: ',
+                    style: context.fonts.black14w600,
+                  ),
+                  Text(
+                    '\$${totalCost.toStringAsFixed(2)}',
+                    style: context.fonts.purple16w700.copyWith(
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ],
     );
@@ -945,14 +916,22 @@ class _CreateAppointmentScreenState
     final parsedDate = dateStr.isNotEmpty ? DateTime.tryParse(dateStr) : null;
     final dateTs =
         parsedDate != null ? (parsedDate.millisecondsSinceEpoch ~/ 1000) : null;
-    final treatmentId = _selectedDropdownTreatment?.id ??
-        (_selectedTreatments.isNotEmpty ? _selectedTreatments.first.id : null);
+    final List<int> treatmentIds = [];
+    if (_selectedDropdownTreatment?.id != null) {
+      treatmentIds.add(_selectedDropdownTreatment!.id!);
+    }
+    for (final t in _selectedTreatments) {
+      if (t.id != null && !treatmentIds.contains(t.id)) {
+        treatmentIds.add(t.id!);
+      }
+    }
 
     ref.read(practitionerProvider.notifier).getPractitioner(
           page: page,
           search: search,
           role: role,
-          treatmentId: treatmentId,
+          treatmentIds: treatmentIds.isNotEmpty ? treatmentIds : null,
+          treatmentId: treatmentIds.isNotEmpty ? treatmentIds.first : null,
           date: dateTs,
         );
   }
@@ -1140,7 +1119,7 @@ class _CreateAppointmentScreenState
         else if (doctors.isEmpty)
           Text('No practitioners available. Search, select a date or role to view practitioners.',
               style: context.fonts.grey14w400)
-        else
+        else ...[
           SizedBox(
             height: context.h(130),
             child: ListView.separated(
@@ -1151,17 +1130,15 @@ class _CreateAppointmentScreenState
               itemBuilder: (context, index) {
                 final doctor = doctors[index];
                 final bool isSelected =
-                    _selectedPractitionerItem?.id == doctor.id;
+                    _assignedPractitioners.any((p) => p.id == doctor.id);
 
                 return GestureDetector(
                   onTap: () {
                     setState(() {
                       if (isSelected) {
-                        _selectedPractitionerItem = null;
-                        _assignedPractitioners.clear();
+                        _assignedPractitioners
+                            .removeWhere((p) => p.id == doctor.id);
                       } else {
-                        _selectedPractitionerItem = doctor;
-                        _assignedPractitioners.clear();
                         _assignedPractitioners.add(
                           _AssignedPractitioner(
                             id: doctor.id,
@@ -1172,6 +1149,13 @@ class _CreateAppointmentScreenState
                           ),
                         );
                       }
+                      _selectedPractitionerItem =
+                          _assignedPractitioners.isNotEmpty
+                              ? doctors.firstWhere(
+                                  (d) => d.id == _assignedPractitioners.last.id,
+                                  orElse: () => doctor,
+                                )
+                              : null;
                     });
                   },
                   child: AnimatedContainer(
@@ -1287,6 +1271,46 @@ class _CreateAppointmentScreenState
               },
             ),
           ),
+          if (_assignedPractitioners.isNotEmpty) ...[
+            SizedBox(height: context.h(12)),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _assignedPractitioners.map((p) {
+                return Chip(
+                  avatar: const Icon(
+                    Icons.person,
+                    size: 16,
+                    color: CustomColors.purple,
+                  ),
+                  label: Text(
+                    '${p.name} (${p.role})',
+                    style: context.fonts.black14w500,
+                  ),
+                  deleteIcon: const Icon(
+                    Icons.close,
+                    size: 16,
+                    color: CustomColors.grey,
+                  ),
+                  onDeleted: () {
+                    setState(() {
+                      _assignedPractitioners
+                          .removeWhere((item) => item.id == p.id);
+                    });
+                  },
+                  backgroundColor: CustomColors.purple.withValues(alpha: 0.08),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(context.r(20)),
+                    side: const BorderSide(
+                      color: CustomColors.purple,
+                      width: 0.5,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
 
         // Available Time Slots (Appears when Date is selected)
         if (_dateController.text.isNotEmpty) ...[
@@ -1492,11 +1516,51 @@ class _CreateAppointmentScreenState
 
   // Section 5: Payment & Financial Details
   Widget _buildPaymentSection() {
+    final appointmentState = ref.watch(appointmentProvider);
+    final rawAppointmentTypes = appointmentState.appointmentTypes ?? [];
+    final uniqueFiltersMap = <int, Filters>{};
+    for (final f in rawAppointmentTypes) {
+      if (f.id != null) uniqueFiltersMap[f.id!] = f;
+    }
+    final appointmentTypes = uniqueFiltersMap.values.toList();
+
+    Filters? selectedAppointmentType;
+    if (appointmentTypes.isNotEmpty) {
+      if (_selectedAppointmentTypeFilter != null) {
+        selectedAppointmentType = appointmentTypes.firstWhere(
+          (f) => f.id == _selectedAppointmentTypeFilter!.id,
+          orElse: () => appointmentTypes.first,
+        );
+      } else {
+        selectedAppointmentType = appointmentTypes.first;
+      }
+    }
+
     return _buildSection(
       title: 'Payment & Financial Details',
       children: [
         Row(
           children: [
+            Expanded(
+              child: _buildDropdownField<Filters>(
+                label: 'Appointment Type',
+                hintText: 'Select Type',
+                value: selectedAppointmentType,
+                items: appointmentTypes,
+                onTap: () {
+                  ref
+                      .read(appointmentProvider.notifier)
+                      .getAppointmentsTypes();
+                },
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _selectedAppointmentTypeFilter = val);
+                  }
+                },
+                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
+              ),
+            ),
+            SizedBox(width: context.w(16)),
             Expanded(
               child: _buildDropdownField<String>(
                 label: 'Payment Method',
