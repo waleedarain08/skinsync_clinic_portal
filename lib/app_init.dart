@@ -25,7 +25,7 @@ class AppInit extends StatelessWidget {
       ..textColor = CustomColors.black
       ..maskColor = Colors.transparent
       ..indicatorWidget = const AppLoader(size: 40)
-      ..userInteractions = true
+      ..userInteractions = false
       ..dismissOnTap = false;
   }
 

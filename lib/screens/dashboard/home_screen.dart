@@ -496,6 +496,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Consumer(
                     builder: (context, ref, child) {
                    final frequentlyConversions =    ref.watch(authViewModelProvider).dashboard?.frequentlyConversions?? [];
+
+                     if (frequentlyConversions.isEmpty) {
+                        return Center(
+                          child: Container(
+                            height: context.h(101),
+                            width: context.w(400),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                context.r(24),
+                              ),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  CustomColors.lightPurple,
+                                  CustomColors.purpleColor,
+                                ],
+                              ),
+                              border: Border.all(
+                                color: CustomColors.lightPurple.withValues(
+                                  alpha: 0.4,
+                                ),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                context.r(22),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: Container(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: context.w(16),
+                                      vertical: context.h(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          height: context.w(44),
+                                          width: context.w(44),
+                                          decoration: BoxDecoration(
+                                            color: CustomColors.purpleColor
+                                                .withValues(alpha: 0.12),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: CustomColors.purpleColor
+                                                  .withValues(alpha: 0.15),
+                                              width: context.w(1),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.login_outlined,
+                                              color: CustomColors.purpleColor,
+                                              size: context.sp(20),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: context.w(12)),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "No Frequently Conversions",
+                                                style: CustomFonts.black14w700,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              SizedBox(height: context.h(2)),
+                                              Text(
+                                                "There are no Frequently Conversions",
+                                                style: CustomFonts.grey12w400,  
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       return SizedBox(
                         height: context.h(160),
                         child: ListView.separated(
