@@ -173,13 +173,16 @@ class PatientTreatmentRequestData {
 }
 
 class PreferredSlotData {
-  final String? date;
-  final String? time;
+  final DateTime? date;
+  final DateTime? time;
 
   PreferredSlotData({this.date, this.time});
 
   factory PreferredSlotData.fromJson(Map<String, dynamic> json) =>
-      PreferredSlotData(date: json['date'], time: json['time']);
+      PreferredSlotData(
+        date: DateTime.fromMillisecondsSinceEpoch((json['date'] as int) * 1000),
+        time: DateTime.fromMillisecondsSinceEpoch((json['time'] as int) * 1000),
+      );
 
   Map<String, dynamic> toJson() => {'date': date, 'time': time};
 }

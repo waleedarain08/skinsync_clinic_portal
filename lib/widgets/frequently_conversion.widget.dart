@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/responses/login_response_model.dart';
-import '../models/responses/patient_detail_response.dart';
 import '../screens/dashboard/patient_management_detail.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -25,16 +24,18 @@ class FrequentlyConversionTile extends StatelessWidget {
       builder: (context, ref, _) => GestureDetector(
         onTap: () async {
           if (context.mounted) {
-            context.push(PatientManagementDetailScreen.routeName);
-            ref.read(patientProvider.notifier).setPatientDetail(
-                  PatientDetailData(
-                    id: data.appointmentId,
-                    patientName: data.name,
-                    email: data.email,
-                    image: data.patientImage,
-                    phoneNumber: data.phoneNumber,
-                  ),
-                );
+          
+
+                      final success = await ref
+                          .read(patientProvider.notifier)
+                          .getPatientDetail(patientId: data.patientId);
+
+                      if (success && context.mounted) {
+                        context.push(
+                          PatientManagementDetailScreen.routeName,
+                          extra:  data.patientId,
+                        );
+                      }
           }
         },
         child: Container(

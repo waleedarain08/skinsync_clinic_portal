@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../main.dart';
-import '../../models/responses/administration_staff_response.dart';
-import '../../view_models/administration_staff_view_model.dart';
+import '../../models/responses/staff__list_response.dart';
+import '../../utils/theme.dart';
+import '../../view_models/staff_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
-import '../../widgets/status_toggle_switch.dart';
-import '../../utils/theme.dart';
 import '../../widgets/custom_primary_button.dart';
 import '../../widgets/gradient_scaffold.dart';
 import 'add_administration_staff_screen.dart';
@@ -25,11 +24,20 @@ class ManageStaffScreen extends ConsumerStatefulWidget {
 }
 
 class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
-  bool isSchedule = true;
   int _selectedMainTab = 0; // 0 for Provider, 1 for Administration
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Defer the read so it runs after the first frame attaches ref.watch,
+    // avoiding "modify provider during build" / autoDispose teardown races.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(staffViewModelProvider.notifier).getStaff();
+    });
+  }
 
   @override
   void dispose() {
@@ -53,7 +61,6 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
                 children: [
                   _mainTabItem("Providers", 0),
                   SizedBox(width: context.w(32)),
-
                   _mainTabItem("Administration Staff", 1),
                 ],
               ),
@@ -96,7 +103,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
   }
 
   Widget _buildAdministrationStaffContent() {
-    final state = ref.watch(administrationStaffProvider);
+    final state = ref.watch(staffViewModelProvider);
 
     final filteredStaff = state.staff.where((s) {
       final query = _searchQuery.toLowerCase();
@@ -188,10 +195,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
     );
   }
 
-  Widget _buildStaffTable(
-    List<AdministrationStaffListItem> staff,
-    bool isLoading,
-  ) {
+  Widget _buildStaffTable(List<StaffModel> staff, bool isLoading) {
     if (isLoading) {
       return const Center(child: AppLoader());
     }
@@ -216,7 +220,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
           columnWidths: const {
             0: FlexColumnWidth(4), // Staff Name / Details
             1: FlexColumnWidth(3), // Role
-            2: FlexColumnWidth(2), // Status
+            2: FlexColumnWidth(3), // Phone
             3: FlexColumnWidth(1.5), // Actions
           },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
@@ -230,7 +234,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               children: [
                 _tableHeaderCell('STAFF NAME'),
                 _tableHeaderCell('ROLE'),
-                _tableHeaderCell('STATUS'),
+                _tableHeaderCell('PHONE'),
                 _tableHeaderCell('ACTIONS'),
               ],
             ),
@@ -245,7 +249,10 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
                 children: [
                   _staffNameCell(s),
                   _tableTextCell(s.role, style: context.fonts.black14w600),
-                  _statusBadgeCell(s),
+                  _tableTextCell(
+                    s.cc.isNotEmpty ? '${s.cc} ${s.phone}' : s.phone,
+                    style: context.fonts.black14w600,
+                  ),
                   _actionsCell(s),
                 ],
               );
@@ -266,7 +273,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
     );
   }
 
-  Widget _staffNameCell(AdministrationStaffListItem s) {
+  Widget _staffNameCell(StaffModel s) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
@@ -318,29 +325,13 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
     );
   }
 
-  Widget _statusBadgeCell(AdministrationStaffListItem s) {
-    return Padding(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
-      child: StatusToggleSwitch(
-        status: s.status,
-        width: context.w(110),
-        height: context.h(32),
-        onChanged: (newStatus) {
-          ref
-              .read(administrationStaffProvider.notifier)
-              .updateStaffStatus(s.id, newStatus);
-        },
-      ),
-    );
-  }
-
-  Widget _actionsCell(AdministrationStaffListItem s) {
+  Widget _actionsCell(StaffModel s) {
     return Padding(
       padding: context.appEdgeInsets(horizontal: 16, vertical: 16),
       child: Row(
         children: [
           IconButton(
-            visualDensity: .compact,
+            visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             tooltip: 'View Details',
             icon: const Icon(
@@ -348,26 +339,11 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               color: CustomColors.grey,
               size: 20,
             ),
-            onPressed: () async {
-              await ref
-                  .read(administrationStaffProvider.notifier)
-                  .getStaffDetail(s.id);
-              if (context.mounted) {
-                context.push(AdministrationStaffDetailScreen.routeName);
-              }
-            },
-          ),
-          IconButton(
-            visualDensity: .compact,
-            padding: EdgeInsets.zero,
-            tooltip: 'Delete Staff',
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: CustomColors.red,
-              size: 20,
-            ),
             onPressed: () {
-              ref.read(administrationStaffProvider.notifier).deleteStaff(s.id);
+              context.push(
+                AdministrationStaffDetailScreen.routeName,
+               
+              );
             },
           ),
         ],

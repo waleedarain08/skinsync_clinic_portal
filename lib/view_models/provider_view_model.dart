@@ -14,16 +14,22 @@ final providerRoleViewModelProvider =
 class ProviderRoleState {
   final List<Filters>? providerRoles;
   final List<String>? selectedProviderRoles;
-  ProviderRoleState({this.providerRoles, this.selectedProviderRoles});
+  final List<Filters>? providerStaffRoles;
+  final List<String>? selectedProviderStaffRoles;
+  ProviderRoleState({this.providerRoles, this.selectedProviderRoles,this.providerStaffRoles,this.selectedProviderStaffRoles});
 
   ProviderRoleState copyWith({
     List<Filters>? providerRoles,
     List<String>? selectedProviderRoles,
+    List<Filters>? providerStaffRoles,
+    List<String>? selectedProviderStaffRoles,
   }) {
     return ProviderRoleState(
       providerRoles: providerRoles ?? this.providerRoles,
       selectedProviderRoles:
           selectedProviderRoles ?? this.selectedProviderRoles,
+          providerStaffRoles : providerStaffRoles ?? this.providerStaffRoles,
+          selectedProviderStaffRoles: selectedProviderStaffRoles?? this.selectedProviderStaffRoles
     );
   }
 }
@@ -58,6 +64,12 @@ class ProviderRoleViewModel extends BaseViewModel<ProviderRoleState> {
     await runSafely(() async {
       final response = await _providerRolesRepository.providerRoles();
       state = state.copyWith(providerRoles: response.data);
+    });
+  }
+   Future<void> fetchProviderStaffRoles() async {
+    await runSafely(() async {
+      final response = await _providerRolesRepository.providerStaffRoles();
+      state = state.copyWith(providerStaffRoles: response.data);
     });
   }
 }
