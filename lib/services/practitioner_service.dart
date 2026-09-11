@@ -40,15 +40,23 @@ class PractitionerService extends PractitionerRepository {
     String? search,
     String? role,
     int? treatmentId,
+    List<int>? treatmentIds,
     int? date,
   }) async {
+    String treatmentIdParam = '';
+    if (treatmentIds != null && treatmentIds.isNotEmpty) {
+      treatmentIdParam = treatmentIds.join(',');
+    } else if (treatmentId != null) {
+      treatmentIdParam = treatmentId.toString();
+    }
+
     final Map<String, String?> queryParams = {
       'page': page.toString(),
       'limit': limit.toString(),
       'status': status ?? '',
       'search': search ?? '',
       'role': role ?? '',
-      'treatment_id': treatmentId != null ? treatmentId.toString() : '',
+      'treatment_id': treatmentIdParam,
       'date': date != null ? date.toString() : '',
     };
     final response = await locator<ApiBaseService>().httpRequest(

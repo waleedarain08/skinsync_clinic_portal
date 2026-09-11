@@ -18,6 +18,7 @@ abstract class PractitionerRepository {
     String? search,
     String? role,
     int? treatmentId,
+    List<int>? treatmentIds,
     int? date,
   });
 

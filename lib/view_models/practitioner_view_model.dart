@@ -171,6 +171,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
     String? search,
     String? role,
     int? treatmentId,
+    List<int>? treatmentIds,
     int? date,
     bool showLoading = true,
   }) async {
@@ -186,6 +187,7 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
         search: search ?? state.searchQuery,
         role: role,
         treatmentId: treatmentId,
+        treatmentIds: treatmentIds,
         date: date,
       );
 
