@@ -357,6 +357,7 @@ class _CreateAppointmentScreenState
                     allowCountrySelection: true,
                     controller: _patientPhoneController,
                     filled: false,
+                    removeValidation: state.selectedPatient != null,
                     onCountryChanged: (code) {
                       setState(() {
                         _selectedCountryCode = code.dialCode ?? '+1';

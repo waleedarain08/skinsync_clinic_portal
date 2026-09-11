@@ -49,6 +49,7 @@ class PhoneWidget extends ConsumerWidget {
             FilteringTextInputFormatter.digitsOnly,
           ],
           validator: (value) {
+            if (removeValidation) return null;
             if (value == null || value.isEmpty) {
               return 'Please enter your phone number';
             } else if (value.length < 10) {
