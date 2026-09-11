@@ -30,6 +30,7 @@ import '../widgets/build_textfield.dart';
 import '../widgets/custom_outlined_button.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
 import '../models/responses/login_response_model.dart';
@@ -909,6 +910,7 @@ class _CreateAppointmentScreenState
   }
 
   void _fetchFilteredPractitioners({
+    int page = 1,
     String? searchOverride,
     Filters? roleOverride,
     String? dateOverride,
@@ -926,7 +928,7 @@ class _CreateAppointmentScreenState
         (_selectedTreatments.isNotEmpty ? _selectedTreatments.first.id : null);
 
     ref.read(practitionerProvider.notifier).getPractitioner(
-          page: 1,
+          page: page,
           search: search,
           role: role,
           treatmentId: treatmentId,
@@ -1092,7 +1094,25 @@ class _CreateAppointmentScreenState
           },
         ),
         SizedBox(height: context.h(20)),
-        Text('Select Practitioner', style: context.fonts.black14w600),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Select Practitioner', style: context.fonts.black14w600),
+            if (practitionerState.totalPages > 1)
+              NumberPaginator(
+                totalPages: practitionerState.totalPages,
+                currentPage: (practitionerState.currentPage - 1).clamp(
+                  0,
+                  practitionerState.totalPages > 0
+                      ? practitionerState.totalPages - 1
+                      : 0,
+                ),
+                onPageChanged: (pageIndex) {
+                  _fetchFilteredPractitioners(page: pageIndex + 1);
+                },
+              ),
+          ],
+        ),
         SizedBox(height: context.h(10)),
         if (practitionerState.loading && doctors.isEmpty)
           const Center(child: AppLoader())
