@@ -82,6 +82,22 @@ class AreaViewModel extends BaseViewModel<AreaState> {
     return state.areas;
   }
 
+   Future<List<AreaModel>> getAdminAreas({
+    bool showLoading = true,
+    required int treatmentId,
+  }) async {
+    state = state.copyWith(loading: showLoading);
+
+    await runSafely(showLoading: false, () async {
+      final fetched =
+          await _areaRepository.getAdminAreas(treatmentId: treatmentId);
+
+      state = state.copyWith(areas: fetched, loading: false);
+      ref.read(treatmentViewModelProvider.notifier).getTreatments();
+    });
+    return state.areas;
+  }
+
   Future<List<SessionMaterialData>> fetchSessionMaterials({
     required int treatmentId,
     required int areaId,

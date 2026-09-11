@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../utils/clinic_dummy_data.dart';
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
+import '../view_models/auth_view_model.dart';
 import 'frequently_treatment_container.dart';
 
 class TreatmentListWidget extends ConsumerWidget {
@@ -11,7 +11,7 @@ class TreatmentListWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final treatmentList = ClinicDummyData.dummyFrequentlyTreatmentsList;
+    final treatmentList = ref.watch(authViewModelProvider).dashboard?.treatments ?? [];
 
     if (treatmentList.isEmpty) {
       return Center(
@@ -133,34 +133,3 @@ class TreatmentListWidget extends ConsumerWidget {
   }
 }
 
-class FrequentlyTreatmentModel {
-  final String treatmentName;
-  final String areaName;
-  final String treatmentImage;
-  final String icon;
-
-  const FrequentlyTreatmentModel({
-    required this.treatmentName,
-    required this.areaName,
-    required this.treatmentImage,
-    required this.icon,
-  });
-
-  factory FrequentlyTreatmentModel.fromJson(Map<String, dynamic> json) {
-    return FrequentlyTreatmentModel(
-      treatmentName: json['treatment_name'] ?? '',
-      areaName: json['area_name'] ?? '',
-      treatmentImage: json['treatment_image'] ?? '',
-      icon: json['area_image'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'treatment_name': treatmentName,
-      'area_name': areaName,
-      'treatment_image': treatmentImage,
-      'area_image': icon,
-    };
-  }
-}

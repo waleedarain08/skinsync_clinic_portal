@@ -130,7 +130,7 @@ class _AddTreatmentScreenState extends ConsumerState<AddTreatmentScreen> {
     try {
       await ref
           .read(areaViewModelProvider.notifier)
-          .fetchAvailableAreas(treatmentId: template.id, showLoading: false);
+          .getAdminAreas(treatmentId: template.id, showLoading: false);
     } finally {
       if (mounted) {
         setState(() => _loadingAreasForId = null);

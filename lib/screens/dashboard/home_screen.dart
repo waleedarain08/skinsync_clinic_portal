@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../utils/responsive.dart';
 import '../../utils/theme.dart';
 
-import '../../utils/clinic_dummy_data.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../widgets/frequently_conversion.widget.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -496,32 +495,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   context.verticalSpace(24),
                   Consumer(
                     builder: (context, ref, child) {
-                      final dummyConversions =
-                          ClinicDummyData.dummyFrequentlyConversions;
+                   final frequentlyConversions =    ref.watch(authViewModelProvider).dashboard?.frequentlyConversions?? [];
                       return SizedBox(
                         height: context.h(160),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: dummyConversions.length,
+                          itemCount: frequentlyConversions.length,
                           separatorBuilder: (context, index) =>
                               context.horizontalSpace(12),
                           itemBuilder: (context, index) {
-                            final conversion = dummyConversions[index];
+                            final conversion = frequentlyConversions[index];
 
                             return SizedBox(
                               width: context.w(300),
                               child: FrequentlyConversionTile(
-                                patientImage:
-                                    conversion['patientImage'] as String,
-                                name: conversion['name'] as String,
-                                email: conversion['email'] as String,
-                                appointmentRef:
-                                    conversion['appointmentRef'] as String,
-                                appointmentId:
-                                    conversion['appointmentId'] as int,
-                                conversionCount:
-                                    conversion['conversionCount'] as int,
-                                    phoneNumber:  conversion['phoneNumber'] as String, 
+                                data: conversion
+                                 
                               ),
                             );
                           },

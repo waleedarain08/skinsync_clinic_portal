@@ -40,7 +40,20 @@ class AreaServices implements AreaRepository {
     }
     return response.data ?? [];
   }
+ @override
+ Future<List<AreaModel>> getAdminAreas({required int treatmentId}) async {
+    final jsonResponse = await locator<ApiBaseService>().httpRequest(
+      requestType: RequestType.get,
+      endPoint: Endpoint.getAdminTreatmentsSideAreas,
+      pathParams: {'treatmentId': treatmentId.toString()},
+    );
+    final response = AreaListResponse.fromJson(jsonResponse);
 
+    if (!response.isSuccess) {
+      throw BadRequestException(response.message);
+    }
+    return response.data ?? [];
+  }
   @override
   Future<List<SessionMaterialData>> getSessionMaterials({
     required int treatmentId,

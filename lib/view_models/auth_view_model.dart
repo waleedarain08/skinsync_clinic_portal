@@ -22,7 +22,6 @@ import '../services/firebase_notification_service.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 import '../services/storage_service.dart';
-import '../utils/clinic_dummy_data.dart';
 import 'base_view_model.dart';
 
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
@@ -38,7 +37,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     ref.onDispose(dispose);
     return AuthState(
       country: CountryCode.fromCountryCode('US'),
-      dashboard: ClinicDummyData.dummyDashboard,
+     
     );
   }
 
@@ -91,32 +90,12 @@ class AuthViewModel extends BaseViewModel<AuthState> {
     confirmPasswordController.clear();
   }
 
-  DashboardModel _mergeWithDummyDashboard(DashboardModel? fetchedDashboard) {
-    return DashboardModel(
-      totalTreatment: fetchedDashboard?.totalTreatment ?? ClinicDummyData.dummyDashboard.totalTreatment,
-      totalPractitioner: fetchedDashboard?.totalPractitioner ?? ClinicDummyData.dummyDashboard.totalPractitioner,
-      totalTreatmentRequest: fetchedDashboard?.totalTreatmentRequest ?? ClinicDummyData.dummyDashboard.totalTreatmentRequest,
-      treatments: (fetchedDashboard?.treatments == null || fetchedDashboard!.treatments!.isEmpty)
-          ? ClinicDummyData.dummyDashboard.treatments
-          : fetchedDashboard.treatments,
-      todayTreatmentRequest: (fetchedDashboard?.todayTreatmentRequest == null || fetchedDashboard!.todayTreatmentRequest!.isEmpty)
-          ? ClinicDummyData.dummyDashboard.todayTreatmentRequest
-          : fetchedDashboard.todayTreatmentRequest,
-      todaysCheckin: (fetchedDashboard?.todaysCheckin == null || fetchedDashboard!.todaysCheckin!.isEmpty)
-          ? ClinicDummyData.dummyDashboard.todaysCheckin
-          : fetchedDashboard.todaysCheckin,
-      todaysAppointment: (fetchedDashboard?.todaysAppointment == null || fetchedDashboard!.todaysAppointment!.isEmpty)
-          ? ClinicDummyData.dummyDashboard.todaysAppointment
-          : fetchedDashboard.todaysAppointment,
-    );
-  }
-
   Future<bool?> callGetMe({bool showLoading = true}) async {
     return await runSafely<bool?>(showLoading: showLoading, () async {
       final response = await _authRepository.getMe();
       state = state.copyWith(
         user: response.data!.clinicUser,
-        dashboard: _mergeWithDummyDashboard(response.data?.dashboard),
+        dashboard:response.data?.dashboard,
         isCompletedProfile: response.data?.isCompleted,
       );
       return true;
@@ -134,7 +113,7 @@ class AuthViewModel extends BaseViewModel<AuthState> {
           final response = await _authRepository.login(req: request);
           state = state.copyWith(
             user: response.clinicUser,
-            dashboard: _mergeWithDummyDashboard(response.dashboard),
+            dashboard:response.dashboard,
             isCompletedProfile: response.isCompleted,
           );
           return true;
