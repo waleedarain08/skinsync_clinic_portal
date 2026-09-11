@@ -8,12 +8,17 @@ class RegisterPractitionerResponse extends BaseResponse<Practitioner> {
     super.data,
   });
 
-  factory RegisterPractitionerResponse.fromJson(Map<String, dynamic> json) =>
-      RegisterPractitionerResponse(
-        success: json["is_success"] ?? false,
-        message: json["message"] ?? "",
-        data: json["data"] == null ? null : Practitioner.fromJson(json["data"]),
-      );
+  factory RegisterPractitionerResponse.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return RegisterPractitionerResponse(
+      success: json["is_success"] ?? false,
+      message: json["message"] ?? "",
+      data: json["data"] == null
+          ? null
+          : Practitioner.fromJson(json["data"]),
+    );
+  }
 }
 
 class Practitioner {
@@ -27,6 +32,7 @@ class Practitioner {
   final AvailabilityInfo? availabilityInfo;
   final FinancialInfo? financialInfo;
   final int? treatmentCount;
+  final List<Treatment> treatments;
   final DateTime? createdAt;
 
   Practitioner({
@@ -40,44 +46,67 @@ class Practitioner {
     this.availabilityInfo,
     this.financialInfo,
     this.treatmentCount,
+    this.treatments = const [],
     this.createdAt,
   });
 
-  factory Practitioner.fromJson(Map<String, dynamic> json) => Practitioner(
-    id: json["id"],
-    clinicId: json["clinic_id"],
-    status: json["status"],
-    basicInfo: json["basic_info"] == null
-        ? null
-        : BasicInfo.fromJson(json["basic_info"]),
-    contactInfo: json["contact_info"] == null
-        ? null
-        : ContactInfo.fromJson(json["contact_info"]),
-    licenseInfo: json["license_info"] == null
-        ? null
-        : LicenseInfo.fromJson(json["license_info"]),
-    clinicAccess: json["clinic_access"] == null
-        ? null
-        : ClinicAccess.fromJson(json["clinic_access"]),
-    availabilityInfo: json["availability_info"] == null
-        ? null
-        : AvailabilityInfo.fromJson(json["availability_info"]),
-    financialInfo: json["financial_info"] == null
-        ? null
-        : FinancialInfo.fromJson(json["financial_info"]),
-    treatmentCount: json["treatment_count"],
-    createdAt: json["created_at"] == null
-        ? null
-        : DateTime.parse(json["created_at"]),
-  );
+  factory Practitioner.fromJson(Map<String, dynamic> json) {
+    return Practitioner(
+      id: json["id"],
+      clinicId: json["clinic_id"],
+      status: json["status"],
+
+      basicInfo: json["basic_info"] is Map<String, dynamic>
+          ? BasicInfo.fromJson(json["basic_info"])
+          : null,
+
+      contactInfo: json["contact_info"] is Map<String, dynamic>
+          ? ContactInfo.fromJson(json["contact_info"])
+          : null,
+
+      licenseInfo: json["license_info"] is Map<String, dynamic>
+          ? LicenseInfo.fromJson(json["license_info"])
+          : null,
+
+      clinicAccess: json["clinic_access"] is Map<String, dynamic>
+          ? ClinicAccess.fromJson(json["clinic_access"])
+          : null,
+
+      availabilityInfo: json["availability_info"] is Map<String, dynamic>
+          ? AvailabilityInfo.fromJson(json["availability_info"])
+          : null,
+
+      financialInfo: json["financial_info"] is Map<String, dynamic>
+          ? FinancialInfo.fromJson(json["financial_info"])
+          : null,
+
+      treatmentCount: json["treatment_count"],
+
+      treatments: json["treatments"] == null
+          ? []
+          : List<Treatment>.from(
+              (json["treatments"] as List).map(
+                (x) => Treatment.fromJson(x),
+              ),
+            ),
+
+      createdAt: json["created_at"] == null
+          ? null
+          : DateTime.tryParse(json["created_at"]),
+    );
+  }
 }
 
 class Treatment {
   final int? treatmentId;
   final String? treatmentName;
-  final List<SideArea>? sideAreas;
+  final List<SideArea> sideAreas;
 
-  Treatment({this.treatmentId, this.treatmentName, this.sideAreas});
+  Treatment({
+    this.treatmentId,
+    this.treatmentName,
+    this.sideAreas = const [],
+  });
 
   factory Treatment.fromJson(Map<String, dynamic> json) {
     return Treatment(
@@ -86,12 +115,13 @@ class Treatment {
       sideAreas: json["side_areas"] == null
           ? []
           : List<SideArea>.from(
-              (json["side_areas"] as List).map((x) => SideArea.fromJson(x)),
+              (json["side_areas"] as List).map(
+                (x) => SideArea.fromJson(x),
+              ),
             ),
     );
   }
 }
-
 class BasicInfo {
   final String name;
   final String role;
@@ -104,18 +134,19 @@ class BasicInfo {
   final List<String> qualifications;
 
   BasicInfo({
-    required this.name,
-    required this.role,
-    required this.title,
+    this.name = "",
+    this.role = "",
+    this.title = "",
     this.image,
-    required this.gender,
-    required this.dateOfBirth,
-    required this.specialization,
-    required this.yearsOfExperience,
-    required this.qualifications,
+    this.gender = "",
+    this.dateOfBirth = "",
+    this.specialization = "",
+    this.yearsOfExperience = 0,
+    this.qualifications = const [],
   });
 
-  factory BasicInfo.fromJson(Map<String, dynamic> json) => BasicInfo(
+  factory BasicInfo.fromJson(Map<String, dynamic> json) {
+    return BasicInfo(
       name: json["name"] ?? "",
       role: json["role"] ?? "",
       title: json["title"] ?? "",
@@ -128,6 +159,7 @@ class BasicInfo {
           ? []
           : List<String>.from(json["qualifications"]),
     );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -144,6 +176,7 @@ class BasicInfo {
   }
 }
 
+
 class ContactInfo {
   final String email;
   final String phone;
@@ -152,28 +185,25 @@ class ContactInfo {
   final EmergencyContact emergencyContact;
 
   ContactInfo({
-    required this.email,
-    required this.phone,
-    required this.cc,
-    required this.country,
-    required this.emergencyContact,
-  });
+    this.email = "",
+    this.phone = "",
+    this.cc = "",
+    this.country = "",
+    EmergencyContact? emergencyContact,
+  }) : emergencyContact = emergencyContact ??
+            EmergencyContact();
 
-  factory ContactInfo.fromJson(Map<String, dynamic> json) => ContactInfo(
+  factory ContactInfo.fromJson(Map<String, dynamic> json) {
+    return ContactInfo(
       email: json["email"] ?? "",
       phone: json["phone"] ?? "",
       cc: json["cc"] ?? "",
       country: json["country"] ?? "",
       emergencyContact: json["emergency_contact"] != null
           ? EmergencyContact.fromJson(json["emergency_contact"])
-          : EmergencyContact(
-              name: "",
-              phone: "",
-              cc: "",
-              country: "",
-              relationship: "",
-            ),
+          : EmergencyContact(),
     );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -185,7 +215,6 @@ class ContactInfo {
     };
   }
 }
-
 class EmergencyContact {
   final String name;
   final String phone;
@@ -194,21 +223,22 @@ class EmergencyContact {
   final String relationship;
 
   EmergencyContact({
-    required this.name,
-    required this.phone,
-    required this.cc,
-    required this.country,
-    required this.relationship,
+    this.name = "",
+    this.phone = "",
+    this.cc = "",
+    this.country = "",
+    this.relationship = "",
   });
 
-  factory EmergencyContact.fromJson(Map<String, dynamic> json) =>
-    EmergencyContact(
+  factory EmergencyContact.fromJson(Map<String, dynamic> json) {
+    return EmergencyContact(
       name: json["name"] ?? "",
       phone: json["phone"] ?? "",
       cc: json["cc"] ?? "",
       country: json["country"] ?? "",
       relationship: json["relationship"] ?? "",
-    ); 
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -220,7 +250,6 @@ class EmergencyContact {
     };
   }
 }
-
 class LicenseInfo {
   final String licenseNumber;
   final String licenseExpiryDate;
@@ -230,25 +259,28 @@ class LicenseInfo {
   final List<String> documents;
 
   LicenseInfo({
-    required this.licenseNumber,
-    required this.licenseExpiryDate,
-    required this.issuingAuthority,
-    required this.indemnityInsuranceNumber,
-    required this.indemnityExpiryDate,
-    required this.documents,
+    this.licenseNumber = "",
+    this.licenseExpiryDate = "",
+    this.issuingAuthority = "",
+    this.indemnityInsuranceNumber = "",
+    this.indemnityExpiryDate = "",
+    this.documents = const [],
   });
 
-  factory LicenseInfo.fromJson(Map<String, dynamic> json) => LicenseInfo(
+  factory LicenseInfo.fromJson(Map<String, dynamic> json) {
+    return LicenseInfo(
       licenseNumber: json["license_number"] ?? "",
       licenseExpiryDate: json["license_expiry_date"] ?? "",
       issuingAuthority: json["issuing_authority"] ?? "",
       indemnityInsuranceNumber:
           json["indemnity_insurance_number"] ?? "",
-      indemnityExpiryDate: json["indemnity_expiry_date"] ?? "",
+      indemnityExpiryDate:
+          json["indemnity_expiry_date"] ?? "",
       documents: json["documents"] == null
           ? []
           : List<String>.from(json["documents"]),
     );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -261,13 +293,14 @@ class LicenseInfo {
     };
   }
 }
-
-
 class SideArea {
   final int? sideAreaId;
   final String? sideAreaName;
 
-  SideArea({this.sideAreaId, this.sideAreaName});
+  SideArea({
+    this.sideAreaId,
+    this.sideAreaName,
+  });
 
   factory SideArea.fromJson(Map<String, dynamic> json) {
     return SideArea(

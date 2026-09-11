@@ -61,7 +61,6 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
   }
 
   void toggleSelectedTreatment(TreatmentModel treatment) {
-    // If treatment with same id exists, update/replace it instead of removing.
     final index = state.treatments.indexWhere((t) => t.id == treatment.id);
     if (index != -1) {
       final newList = List<TreatmentModel>.from(state.treatments);
@@ -75,6 +74,12 @@ class PractitionerViewModel extends BaseViewModel<PractitionerState> {
       return;
     }
     state = state.copyWith(treatments: [treatment, ...state.treatments]);
+  }
+
+  void removeSelectedTreatment(TreatmentModel treatment) {
+    state = state.copyWith(
+      treatments: state.treatments.where((t) => t.id != treatment.id).toList(),
+    );
   }
 
   void removeDocument(String url) {
