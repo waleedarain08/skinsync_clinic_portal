@@ -34,6 +34,7 @@ import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
 import '../models/responses/login_response_model.dart';
+import '../widgets/dialog_box/appointment_receipt_dialog.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
   const CreateAppointmentScreen({super.key});
@@ -2544,8 +2545,85 @@ class _CreateAppointmentScreenState
       payable: calculatedPayable,
     );
 
-    viewModel.createAppointment(request: request).then((success) {
-      if (mounted && success) {
+    // Build summary items for receipt dialog
+    final String patientName =
+        state.selectedPatient?.name ?? _patientNameController.text.trim();
+    final String patientEmail =
+        state.selectedPatient?.email ?? _patientEmailController.text.trim();
+    final String patientPhone =
+        state.selectedPatient?.phone ?? _patientPhoneController.text.trim();
+
+    final practitionersList = _assignedPractitioners
+        .map((p) => {'name': p.name, 'role': p.role})
+        .toList();
+
+    final List<TreatmentSummaryItem> treatmentSummaryItems = [];
+    for (final t in _selectedTreatments) {
+      final cost = (t.price ?? 0.0).toDouble();
+      if (t.sideAreas != null && t.sideAreas!.isNotEmpty) {
+        for (final area in t.sideAreas!) {
+          final key = '${t.id}-${area.id}';
+          final selectedSession = _selectedSessionMap[key];
+          final selectedMat = _selectedMaterialMap[key];
+          final selectedQty =
+              _selectedMaterialQtyMap[key] ?? selectedMat?.minQty;
+          final itemCost = _treatmentCostMap[key]?.toDouble() ?? cost;
+
+          treatmentSummaryItems.add(
+            TreatmentSummaryItem(
+              treatmentName: t.name ?? 'Treatment',
+              treatmentCost: itemCost,
+              areaName: area.name,
+              sessionName: selectedSession?.sessionName,
+              materialName: selectedMat?.unitType,
+              materialQty: selectedQty,
+            ),
+          );
+        }
+      } else {
+        treatmentSummaryItems.add(
+          TreatmentSummaryItem(
+            treatmentName: t.name ?? 'Treatment',
+            treatmentCost: cost,
+          ),
+        );
+      }
+    }
+
+    final simulationsMap = {
+      'Front Before': _frontImageBeforeController.text.trim(),
+      'Front After': _frontImageAfterController.text.trim(),
+      'Right Before': _rightImageBeforeController.text.trim(),
+      'Right After': _rightImageAfterController.text.trim(),
+      'Left Before': _leftImageBeforeController.text.trim(),
+      'Left After': _leftImageAfterController.text.trim(),
+    };
+
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AppointmentReceiptDialog(
+        patientName: patientName,
+        patientEmail: patientEmail,
+        patientPhone: patientPhone,
+        practitioners: practitionersList,
+        dateStr: _dateController.text.trim(),
+        timeSlot: _selectedTimeSlot ?? '',
+        appointmentType: _selectedAppointmentTypeFilter?.name ?? 'Standard',
+        bookingMethod: _bookingMethod,
+        treatments: treatmentSummaryItems,
+        treatmentTotal: totalCost,
+        discountType: _discountType,
+        discountVal: discountVal,
+        discountAmount: discountAmount,
+        amountPaid: paidVal,
+        remainingPayable: calculatedPayable,
+        paymentType: _paymentType,
+        paymentStatus: _paymentStatus,
+        simulations: simulationsMap,
+        onConfirm: () => viewModel.createAppointment(request: request),
+      ),
+    ).then((success) {
+      if (mounted && success == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Appointment created successfully!'),
