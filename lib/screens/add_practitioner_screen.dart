@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../models/requests/register_practitioner_request.dart';
 import '../models/responses/fetch_practitioner_by_email_response.dart';
 import '../models/responses/register_practitioner_response.dart';
+import '../models/treatment_model.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -101,6 +102,25 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
   }
 
   void _populateExistingData(Practitioner practitioner) {
+    ref.read(practitionerProvider.notifier).setInitialTreatments(
+          practitioner.treatments
+              .where((treatment) => treatment.treatmentId != null)
+              .map(
+                (treatment) => TreatmentModel(
+                  id: treatment.treatmentId,
+                  name: treatment.treatmentName,
+                  sideAreas: treatment.sideAreas
+                      .map(
+                        (sideArea) => SideAreaModel(
+                          id: sideArea.sideAreaId,
+                          name: sideArea.sideAreaName,
+                        ),
+                      )
+                      .toList(),
+                ),
+              )
+              .toList(),
+        );
     _nameController.text = practitioner.basicInfo?.name ?? '';
     _specializationController.text =
         practitioner.basicInfo?.specialization ?? '';
@@ -852,9 +872,9 @@ class _AddPractitionerScreenState extends ConsumerState<AddPractitionerScreen> {
                     t.name?.capitalize ?? 'N/A',
                     style: context.fonts.purple11w600,
                   ),
-                  onDeleted: () => ref
+                    onDeleted: () => ref
                       .read(practitionerProvider.notifier)
-                      .toggleSelectedTreatment(t),
+                      .removeSelectedTreatment(t),
                   deleteIcon: const Icon(
                     Icons.close,
                     size: 14,

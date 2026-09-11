@@ -23,29 +23,18 @@ class SelectTreatmentDialog extends ConsumerStatefulWidget {
 class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(treatmentViewModelProvider.notifier)
-          .getTreatments(isRefresh: true)
-          .then((_) {
-            final treatments = ref.read(treatmentViewModelProvider).treatments;
-            setState(() {
-              _loadingTreatments = false;
-              _treatments = treatments;
-            });
-          });
-    });
     super.initState();
   }
 
-  bool _loadingTreatments = true;
   TreatmentModel? _selectedTreatment;
-  late List<TreatmentModel> _treatments;
   List<SideAreaModel> _sideAreas = [];
   List<SideAreaModel> _selectedAreas = [];
 
   @override
   Widget build(BuildContext context) {
+    final treatmentState = ref.watch(treatmentViewModelProvider);
+    final treatments = treatmentState.treatments;
+
     return StandardDialog(
       title: "Add Provider Treatment",
       width: 600.w,
@@ -56,7 +45,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
           children: [
             Text("Select Treatment", style: context.fonts.black14w600),
             context.verticalSpace(8),
-            _loadingTreatments
+            treatmentState.loading
                 ? Container(
                     height: 48.h,
                     decoration: BoxDecoration(
@@ -72,7 +61,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
                         style: context.fonts.grey14w400,
                       ),
                       value: _selectedTreatment,
-                      items: _treatments
+                      items: treatments
                           .map(
                             (item) => DropdownMenuItem(
                               value: item,
@@ -155,7 +144,7 @@ class _SelectTreatmentDialogState extends ConsumerState<SelectTreatmentDialog> {
         ),
         CustomPrimaryButton(
           onTap: () {
-            if (_loadingTreatments) {
+            if (treatmentState.loading) {
               EasyLoading.showError('Please wait while we load');
               return;
             }
