@@ -554,9 +554,8 @@ class SessionUnitPriceOverrideDto {
                     if (e is num) {
                       return e.toInt();
                     }
-                    return 0;
+                    return int.tryParse(e.toString()) ?? 0;
                   })
-                  .where((e) => e != 0)
                   .toList() ??
               [],
     );

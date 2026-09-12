@@ -636,6 +636,7 @@ class SessionViewModel extends BaseViewModel<SessionState> {
                 }
               }
             }
+            _triggerRebuild();
 
             // 5. Pre-Treatment Instructions
             preTreatmentInstructionsController.text =
