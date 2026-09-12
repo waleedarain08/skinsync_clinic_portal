@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -6,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../models/responses/login_response_model.dart';
 import '../../models/responses/messages_response.dart';
 import '../../services/websocket_service.dart';
 import '../../utils/enums.dart';
 import '../../utils/responsive.dart';
+import '../../view_models/auth_view_model.dart';
 import '../../view_models/chat_view_model.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -47,7 +48,11 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 }
                 break;
               case .appointment:
-                log('DATA: ${jsonEncode(event.data)}');
+                log('New check-in appointment received');
+                final checkIn = TodaysCheckinModel.fromJson(event.data);
+                ref.read(authViewModelProvider.notifier).addNewCheckIn(checkIn);
+                break;
+              case .newAppointment:
                 break;
               case EventType.subscription:
                 // TODO: Handle this case.

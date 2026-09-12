@@ -272,6 +272,14 @@ class AuthViewModel extends BaseViewModel<AuthState> {
   void setCountry(CountryCode? country) {
     state = state.copyWith(country: country);
   }
+
+  void addNewCheckIn(TodaysCheckinModel checkIn) {
+    state = state.copyWith(
+      dashboard: state.dashboard?.copyWith(
+        todaysCheckin: [checkIn, ...?state.dashboard!.todaysCheckin],
+      ),
+    );
+  }
 }
 
 class AuthState {

@@ -113,9 +113,9 @@ enum Endpoint {
 
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
-  apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('https://api-dev.skinsyncai.com/api/');
 
-  // apiQa('http://localhost:8084/api/');
+  apiQa('http://localhost:8084/api/');
 
   final String url;
 
@@ -349,6 +349,7 @@ enum AiChatMessageType {
 enum EventType {
   chat('chat'),
   appointment('appointment'),
+  newAppointment('new_appointment'),
   subscription('subscription');
 
   final String value;

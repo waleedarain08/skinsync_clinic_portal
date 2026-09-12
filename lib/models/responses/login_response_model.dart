@@ -150,6 +150,31 @@ class DashboardModel {
     "todays_checkin": todaysCheckin?.map((e) => e.toJson()).toList(),
     "todays_appointment": todaysAppointment?.map((e) => e.toJson()).toList(),
   };
+
+  DashboardModel copyWith({
+    int? totalTreatment,
+    int? totalPractitioner,
+    int? totalTreatmentRequest,
+    List<FrequentlyTreatmentModel>? treatments,
+    List<FrequentlyConversion>? frequentlyConversions,
+    List<RequestClinicTreatmentModel>? todayTreatmentRequest,
+    List<TodaysCheckinModel>? todaysCheckin,
+    List<DashboardAppointmentModel>? todaysAppointment,
+  }) {
+    return DashboardModel(
+      totalTreatment: totalTreatment ?? this.totalTreatment,
+      totalPractitioner: totalPractitioner ?? this.totalPractitioner,
+      totalTreatmentRequest:
+          totalTreatmentRequest ?? this.totalTreatmentRequest,
+      treatments: treatments ?? this.treatments,
+      frequentlyConversions:
+          frequentlyConversions ?? this.frequentlyConversions,
+      todayTreatmentRequest:
+          todayTreatmentRequest ?? this.todayTreatmentRequest,
+      todaysCheckin: todaysCheckin ?? this.todaysCheckin,
+      todaysAppointment: todaysAppointment ?? this.todaysAppointment,
+    );
+  }
 }
 
 class FrequentlyConversion {
