@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,10 +39,7 @@ import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
-  const CreateAppointmentScreen({
-    super.key,
-    this.treatmentRequestData,
-  });
+  const CreateAppointmentScreen({super.key, this.treatmentRequestData});
 
   static const String routeName = '/create-appointment';
 
@@ -64,8 +62,7 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
-  static final Filters _allRoleFilter =
-      Filters(id: 0, name: 'All');
+  static final Filters _allRoleFilter = Filters(id: 0, name: 'All');
   Filters? _selectedRoleFilter = _allRoleFilter;
   TreatmentModel? _selectedDropdownTreatment;
 
@@ -89,6 +86,7 @@ class _CreateAppointmentScreenState
   PractitionerListItem? _selectedPractitionerItem;
 
   final List<_AssignedPractitioner> _assignedPractitioners = [];
+  bool _hasInitializedRequestPrefill = false;
 
   final _dateController = TextEditingController();
   String? _selectedTimeSlot;
@@ -130,11 +128,13 @@ class _CreateAppointmentScreenState
   @override
   void initState() {
     super.initState();
-   
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-       _initializeChatPatient();
+      _initializeChatPatient();
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
-      ref.read(treatmentViewModelProvider.notifier).getTreatments(isRefresh: true);
+      ref
+          .read(treatmentViewModelProvider.notifier)
+          .getTreatments(isRefresh: true);
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
       ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
@@ -142,7 +142,9 @@ class _CreateAppointmentScreenState
 
   void _initializeChatPatient() {
     final request = widget.treatmentRequestData;
-    if (request == null) return;
+    if (request == null || _hasInitializedRequestPrefill) return;
+
+    _hasInitializedRequestPrefill = true;
 
     final patient = PatientModel(
       id: request.userId,
@@ -162,6 +164,185 @@ class _CreateAppointmentScreenState
     _rightImageAfterController.text = request.rightImageAfter ?? '';
     _leftImageBeforeController.text = request.leftImageBefore ?? '';
     _leftImageAfterController.text = request.leftImageAfter ?? '';
+
+    if (request.preferredSlots != null && request.preferredSlots!.isNotEmpty) {
+      final firstSlot = request.preferredSlots!.first;
+      final chosenDate = firstSlot.date ?? DateTime.now();
+      final chosenTime = firstSlot.time;
+      final dateText = DateFormat('yyyy-MM-dd').format(chosenDate);
+      setState(() {
+        _dateController.text = dateText;
+        if (chosenTime != null) {
+          final timeText = DateFormat('HH:mm').format(chosenTime);
+          _selectedTimeSlot = timeText;
+        }
+      });
+    }
+
+    final medicalSummaryParts = <String>[];
+    final medicalHistory = request.medicalHistory;
+    if (medicalHistory != null) {
+      if (medicalHistory.allergies.isNotEmpty) {
+        medicalSummaryParts.add(
+          'Allergies: ${medicalHistory.allergies.join(', ')}',
+        );
+      }
+      if (medicalHistory.medicalConditions.isNotEmpty) {
+        medicalSummaryParts.add(
+          'Conditions: ${medicalHistory.medicalConditions.join(', ')}',
+        );
+      }
+      if (medicalHistory.currentMedications.isNotEmpty) {
+        medicalSummaryParts.add(
+          'Medications: ${medicalHistory.currentMedications.join(', ')}',
+        );
+      }
+    }
+    if (medicalSummaryParts.isNotEmpty) {
+      _notesController.text = medicalSummaryParts.join(' • ');
+    }
+
+    final availableTreatments = ref.read(treatmentViewModelProvider).treatments;
+    final List<TreatmentModel> prefilledTreatments = [];
+
+    for (final requestTreatment in request.treatments) {
+      final matchedTreatment = availableTreatments.firstWhere(
+        (t) =>
+            t.id == requestTreatment.treatmentId ||
+            t.name == requestTreatment.treatmentName,
+        orElse: () => TreatmentModel(
+          id: requestTreatment.treatmentId,
+          name: requestTreatment.treatmentName,
+          description: requestTreatment.description,
+          shortDescription: requestTreatment.description,
+          image: requestTreatment.image,
+          icon: requestTreatment.icon,
+          price: 0,
+        ),
+      );
+
+      final treatment = matchedTreatment.copyWith(
+        id: matchedTreatment.id ?? requestTreatment.treatmentId,
+        name: matchedTreatment.name ?? requestTreatment.treatmentName,
+        description:
+            matchedTreatment.description ?? requestTreatment.description,
+        shortDescription:
+            matchedTreatment.shortDescription ?? requestTreatment.description,
+        image: matchedTreatment.image ?? requestTreatment.image,
+        icon: matchedTreatment.icon ?? requestTreatment.icon,
+        sideAreas: const [],
+      );
+
+      prefilledTreatments.add(treatment);
+    }
+
+    if (prefilledTreatments.isNotEmpty) {
+      setState(() {
+        _selectedTreatments
+          ..clear()
+          ..addAll(prefilledTreatments);
+        _selectedDropdownTreatment = prefilledTreatments.first;
+        _updateTotalAmount();
+      });
+
+      for (final tx in prefilledTreatments) {
+        if (tx.id == null) continue;
+
+        final treatmentRequest = request.treatments.firstWhere(
+          (item) => item.treatmentId == tx.id || item.treatmentName == tx.name,
+          orElse: () => request.treatments.first,
+        );
+
+        _loadPrefilledTreatmentAreas(
+          treatment: tx,
+          requestTreatment: treatmentRequest,
+        );
+      }
+
+      _fetchFilteredPractitioners();
+    }
+  }
+
+  Future<void> _loadPrefilledTreatmentAreas({
+    required TreatmentModel treatment,
+    required PatientTreatmentData requestTreatment,
+  }) async {
+    if (treatment.id == null) return;
+
+    final fetchedAreas = await ref
+        .read(areaViewModelProvider.notifier)
+        .fetchClinicAreas(treatmentId: treatment.id!, showLoading: false);
+
+    if (!mounted) return;
+
+    final matchedAreas = fetchedAreas.where((area) {
+      return requestTreatment.areas.any(
+        (requestArea) => requestArea.areaId == area.id,
+      );
+    }).toList();
+
+    final selectedAreaModels = matchedAreas
+        .map((area) => SideAreaModel(id: area.id, name: area.name))
+        .toList();
+
+    setState(() {
+      _fetchedAreasMap[treatment.id!] = fetchedAreas;
+      final txIndex = _selectedTreatments.indexWhere(
+        (t) => t.id == treatment.id,
+      );
+      if (txIndex != -1) {
+        _selectedTreatments[txIndex] = _selectedTreatments[txIndex].copyWith(
+          sideAreas: selectedAreaModels,
+        );
+        _selectedDropdownTreatment = _selectedTreatments[txIndex];
+      }
+      _updateTotalAmount();
+    });
+
+    for (final area in selectedAreaModels) {
+      if (area.id != null) {
+        final requestArea = requestTreatment.areas.firstWhere(
+          (item) => item.areaId == area.id,
+          orElse: () => requestTreatment.areas.first,
+        );
+
+        if (requestArea.areaId == area.id) {
+          await _fetchSessionMaterials(treatment.id!, area.id!);
+          final key = '${treatment.id}-${area.id}';
+          final matchedSession = _sessionMaterialsMap[key]?.firstWhere(
+            (session) => session.sessionId == requestArea.sessionId,
+            orElse: () =>
+                _sessionMaterialsMap[key]?.first ??
+                SessionMaterialData(
+                  sessionId: requestArea.sessionId,
+                  sessionName: '',
+                  material: const [],
+                ),
+          );
+          if (matchedSession != null) {
+            setState(() {
+              _selectedSessionMap[key] = matchedSession;
+              if (matchedSession.material.isNotEmpty) {
+                final matchedMaterial = matchedSession.material.firstWhere(
+                  (material) => requestArea.materials.any(
+                    (item) => item.id == material.id,
+                  ),
+                  orElse: () => matchedSession.material.first,
+                );
+                _selectedMaterialMap[key] = matchedMaterial;
+                final selectedQty = requestArea.materials
+                    .firstWhere(
+                      (item) => item.id == matchedMaterial.id,
+                      orElse: () => requestArea.materials.first,
+                    )
+                    .selectedQuantity;
+                _selectedMaterialQtyMap[key] = selectedQty;
+              }
+            });
+          }
+        }
+      }
+    }
   }
 
   @override
@@ -201,7 +382,6 @@ class _CreateAppointmentScreenState
       ),
       body: Column(
         children: [
-         
           _buildHeaderPanel(state, viewModel),
           Expanded(
             child: SingleChildScrollView(
@@ -211,7 +391,6 @@ class _CreateAppointmentScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                   
                     _buildPatientSection(state, viewModel),
                     SizedBox(height: context.h(24)),
                     _buildTreatmentSection(),
@@ -361,7 +540,8 @@ class _CreateAppointmentScreenState
   ) {
     if (widget.treatmentRequestData != null) {
       final request = widget.treatmentRequestData!;
-      final patient = state.selectedPatient ??
+      final patient =
+          state.selectedPatient ??
           PatientModel(
             id: request.userId,
             name: request.patientName?.trim().isNotEmpty == true
@@ -381,7 +561,10 @@ class _CreateAppointmentScreenState
           controller: _patientNameController,
           label: 'Full Name',
           hintText: 'Enter patient full name',
-          prefixIcon: const Icon(Icons.person_outline, color: CustomColors.grey),
+          prefixIcon: const Icon(
+            Icons.person_outline,
+            color: CustomColors.grey,
+          ),
           onChanged: (val) => viewModel.searchPatients(val ?? ''),
         ),
         SizedBox(height: context.h(16)),
@@ -393,7 +576,10 @@ class _CreateAppointmentScreenState
                 controller: _patientEmailController,
                 label: 'Email Address',
                 hintText: 'Enter patient email address',
-                prefixIcon: const Icon(Icons.email_outlined, color: CustomColors.grey),
+                prefixIcon: const Icon(
+                  Icons.email_outlined,
+                  color: CustomColors.grey,
+                ),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -444,9 +630,7 @@ class _CreateAppointmentScreenState
               if (data != null && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      'Patient details fetched successfully!',
-                    ),
+                    content: Text('Patient details fetched successfully!'),
                   ),
                 );
               }
@@ -481,7 +665,8 @@ class _CreateAppointmentScreenState
     AppointmentCreationViewModel viewModel,
     AppointmentCreationState state,
   ) {
-    final bool showViewDetail = isSelected &&
+    final bool showViewDetail =
+        isSelected &&
         state.registeredPatientData != null &&
         state.registeredPatientData!.id == patient.id &&
         state.registeredPatientData!.detailAvailable == true;
@@ -509,9 +694,7 @@ class _CreateAppointmentScreenState
                 radius: context.r(20),
                 backgroundColor: CustomColors.palePurple,
                 child: Text(
-                  patient.name.isNotEmpty
-                      ? patient.name[0].toUpperCase()
-                      : 'P',
+                  patient.name.isNotEmpty ? patient.name[0].toUpperCase() : 'P',
                   style: context.fonts.purple16w700,
                 ),
               ),
@@ -568,7 +751,10 @@ class _CreateAppointmentScreenState
                 context.horizontalSpace(10),
               ],
               if (isSelected)
-                const Icon(Icons.check_circle_rounded, color: CustomColors.purple)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: CustomColors.purple,
+                )
               else
                 Text('Select', style: context.fonts.purple12w700),
             ],
@@ -603,15 +789,15 @@ class _CreateAppointmentScreenState
                   SizedBox(width: context.w(16)),
               itemBuilder: (context, index) {
                 final treatment = treatments[index];
-                final bool isSelected =
-                    _selectedTreatments.any((t) => t.id == treatment.id);
+                final bool isSelected = _selectedTreatments.any(
+                  (t) => t.id == treatment.id,
+                );
 
                 final dashboardTreatment = DashboardTreatmentModel(
                   id: treatment.id,
                   name: treatment.name,
-                  shortDescription: treatment.shortDescription ??
-                      treatment.description ??
-                      '',
+                  shortDescription:
+                      treatment.shortDescription ?? treatment.description ?? '',
                   image: treatment.image,
                   icon: treatment.icon,
                   sku: treatment.globalSku,
@@ -693,7 +879,8 @@ class _CreateAppointmentScreenState
               },
             ),
           ),
-        if (_selectedDropdownTreatment != null && _selectedDropdownTreatment!.id != null) ...[
+        if (_selectedDropdownTreatment != null &&
+            _selectedDropdownTreatment!.id != null) ...[
           SizedBox(height: context.h(16)),
           Text(
             'Select Areas for ${_selectedDropdownTreatment!.name ?? ''}',
@@ -701,7 +888,9 @@ class _CreateAppointmentScreenState
           ),
           SizedBox(height: context.h(8)),
           if (_isFetchingAreas &&
-              !_fetchedAreasMap.containsKey(_selectedDropdownTreatment!.id)) ...[
+              !_fetchedAreasMap.containsKey(
+                _selectedDropdownTreatment!.id,
+              )) ...[
             Row(
               children: [
                 const SizedBox(
@@ -710,28 +899,36 @@ class _CreateAppointmentScreenState
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 SizedBox(width: context.w(10)),
-                Text('Fetching treatment areas...', style: context.fonts.grey12w400),
+                Text(
+                  'Fetching treatment areas...',
+                  style: context.fonts.grey12w400,
+                ),
               ],
             ),
           ] else ...[
             Builder(
               builder: (context) {
                 final currentTreatmentId = _selectedDropdownTreatment!.id!;
-                final areasList = _fetchedAreasMap[currentTreatmentId] ??
+                final areasList =
+                    _fetchedAreasMap[currentTreatmentId] ??
                     (_selectedDropdownTreatment!.sideAreas
-                            ?.map((sa) => AreaModel(
-                                  id: sa.id ?? 0,
-                                  name: sa.name ?? '',
-                                  globalSku: '',
-                                  icon: '',
-                                  image: '',
-                                ))
+                            ?.map(
+                              (sa) => AreaModel(
+                                id: sa.id ?? 0,
+                                name: sa.name ?? '',
+                                globalSku: '',
+                                icon: '',
+                                image: '',
+                              ),
+                            )
                             .toList() ??
                         []);
 
                 if (areasList.isEmpty) {
-                  return Text('No specific areas found for this treatment.',
-                      style: context.fonts.grey12w400);
+                  return Text(
+                    'No specific areas found for this treatment.',
+                    style: context.fonts.grey12w400,
+                  );
                 }
 
                 final currentTxIndex = _selectedTreatments.indexWhere(
@@ -748,9 +945,8 @@ class _CreateAppointmentScreenState
                       spacing: 8.w,
                       runSpacing: 8.h,
                       children: areasList.map((area) {
-                        final isAreaSelected = currentTx?.sideAreas?.any(
-                              (a) => a.id == area.id,
-                            ) ??
+                        final isAreaSelected =
+                            currentTx?.sideAreas?.any((a) => a.id == area.id) ??
                             false;
 
                         return ChoiceChip(
@@ -776,7 +972,8 @@ class _CreateAppointmentScreenState
                             if (currentTxIndex == -1) return;
                             setState(() {
                               final currentAreas = List<SideAreaModel>.from(
-                                _selectedTreatments[currentTxIndex].sideAreas ?? [],
+                                _selectedTreatments[currentTxIndex].sideAreas ??
+                                    [],
                               );
                               if (selected) {
                                 if (!currentAreas.any((a) => a.id == area.id)) {
@@ -785,16 +982,21 @@ class _CreateAppointmentScreenState
                                   );
                                 }
                               } else {
-                                currentAreas.removeWhere((a) => a.id == area.id);
+                                currentAreas.removeWhere(
+                                  (a) => a.id == area.id,
+                                );
                               }
                               _selectedTreatments[currentTxIndex] =
                                   _selectedTreatments[currentTxIndex].copyWith(
-                                sideAreas: currentAreas,
-                              );
+                                    sideAreas: currentAreas,
+                                  );
                             });
 
                             if (selected) {
-                              _fetchSessionMaterials(currentTreatmentId, area.id);
+                              _fetchSessionMaterials(
+                                currentTreatmentId,
+                                area.id,
+                              );
                             }
                           },
                         );
@@ -818,13 +1020,15 @@ class _CreateAppointmentScreenState
           ],
         ],
         SizedBox(height: context.h(20)),
-        Text('Selected Treatments & Anatomical Areas',
-            style: context.fonts.grey11w600ls12),
+        Text(
+          'Selected Treatments & Anatomical Areas',
+          style: context.fonts.grey11w600ls12,
+        ),
         SizedBox(height: context.h(12)),
         Builder(
           builder: (context) {
             final List<({TreatmentModel treatment, SideAreaModel? area})>
-                flattenedItems = [];
+            flattenedItems = [];
             for (final tx in _selectedTreatments) {
               if (tx.sideAreas != null && tx.sideAreas!.isNotEmpty) {
                 for (final area in tx.sideAreas!) {
@@ -836,8 +1040,10 @@ class _CreateAppointmentScreenState
             }
 
             if (flattenedItems.isEmpty) {
-              return Text('No treatments selected yet.',
-                  style: context.fonts.grey14w400);
+              return Text(
+                'No treatments selected yet.',
+                style: context.fonts.grey14w400,
+              );
             }
 
             return Wrap(
@@ -857,7 +1063,9 @@ class _CreateAppointmentScreenState
                   if (selectedSession != null) {
                     displayText += ' (${selectedSession.sessionName})';
                   }
-                  if (selectedMat != null && selectedQty != null && selectedQty > 0) {
+                  if (selectedMat != null &&
+                      selectedQty != null &&
+                      selectedQty > 0) {
                     displayText += ' [${selectedMat.unitType}: $selectedQty]';
                   }
                 }
@@ -880,30 +1088,31 @@ class _CreateAppointmentScreenState
                         color: CustomColors.purple,
                       ),
                       context.horizontalSpace(8),
-                      Text(
-                        displayText,
-                        style: context.fonts.purple13w700,
-                      ),
+                      Text(displayText, style: context.fonts.purple13w700),
                       context.horizontalSpace(8),
                       InkWell(
                         onTap: () {
                           setState(() {
                             if (area != null) {
-                              final txIndex = _selectedTreatments
-                                  .indexWhere((t) => t.id == tx.id);
+                              final txIndex = _selectedTreatments.indexWhere(
+                                (t) => t.id == tx.id,
+                              );
                               if (txIndex != -1) {
                                 final updatedAreas = List<SideAreaModel>.from(
                                   _selectedTreatments[txIndex].sideAreas ?? [],
                                 );
-                                updatedAreas.removeWhere((a) => a.id == area.id);
+                                updatedAreas.removeWhere(
+                                  (a) => a.id == area.id,
+                                );
                                 _selectedTreatments[txIndex] =
                                     _selectedTreatments[txIndex].copyWith(
-                                  sideAreas: updatedAreas,
-                                );
+                                      sideAreas: updatedAreas,
+                                    );
                               }
                             } else {
-                              _selectedTreatments
-                                  .removeWhere((t) => t.id == tx.id);
+                              _selectedTreatments.removeWhere(
+                                (t) => t.id == tx.id,
+                              );
                             }
                             _updateTotalAmount();
                           });
@@ -932,15 +1141,10 @@ class _CreateAppointmentScreenState
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    'Treatment Total: ',
-                    style: context.fonts.black14w600,
-                  ),
+                  Text('Treatment Total: ', style: context.fonts.black14w600),
                   Text(
                     '\$${totalCost.toStringAsFixed(2)}',
-                    style: context.fonts.purple16w700.copyWith(
-                      fontSize: 18.sp,
-                    ),
+                    style: context.fonts.purple16w700.copyWith(fontSize: 18.sp),
                   ),
                 ],
               );
@@ -964,8 +1168,9 @@ class _CreateAppointmentScreenState
         : (selectedRole.name ?? '');
     final dateStr = dateOverride ?? _dateController.text.trim();
     final parsedDate = dateStr.isNotEmpty ? DateTime.tryParse(dateStr) : null;
-    final dateTs =
-        parsedDate != null ? (parsedDate.millisecondsSinceEpoch ~/ 1000) : null;
+    final dateTs = parsedDate != null
+        ? (parsedDate.millisecondsSinceEpoch ~/ 1000)
+        : null;
     final List<int> treatmentIds = [];
     if (_selectedDropdownTreatment?.id != null) {
       treatmentIds.add(_selectedDropdownTreatment!.id!);
@@ -976,7 +1181,9 @@ class _CreateAppointmentScreenState
       }
     }
 
-    ref.read(practitionerProvider.notifier).getPractitioner(
+    ref
+        .read(practitionerProvider.notifier)
+        .getPractitioner(
           page: page,
           search: search,
           role: role,
@@ -1073,9 +1280,7 @@ class _CreateAppointmentScreenState
                     ),
                   ),
                   SizedBox(width: context.w(16)),
-                  Expanded(
-                    child: _buildDateField(),
-                  ),
+                  Expanded(child: _buildDateField()),
                   SizedBox(width: context.w(16)),
                   Expanded(
                     child: _buildDropdownField<Filters>(
@@ -1114,9 +1319,7 @@ class _CreateAppointmentScreenState
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: _buildDateField(),
-                      ),
+                      Expanded(child: _buildDateField()),
                       SizedBox(width: context.w(16)),
                       Expanded(
                         child: _buildDropdownField<Filters>(
@@ -1167,8 +1370,10 @@ class _CreateAppointmentScreenState
         if (practitionerState.loading && doctors.isEmpty)
           const Center(child: AppLoader())
         else if (doctors.isEmpty)
-          Text('No practitioners available. Search, select a date or role to view practitioners.',
-              style: context.fonts.grey14w400)
+          Text(
+            'No practitioners available. Search, select a date or role to view practitioners.',
+            style: context.fonts.grey14w400,
+          )
         else ...[
           SizedBox(
             height: context.h(130),
@@ -1179,15 +1384,17 @@ class _CreateAppointmentScreenState
                   SizedBox(width: context.w(16)),
               itemBuilder: (context, index) {
                 final doctor = doctors[index];
-                final bool isSelected =
-                    _assignedPractitioners.any((p) => p.id == doctor.id);
+                final bool isSelected = _assignedPractitioners.any(
+                  (p) => p.id == doctor.id,
+                );
 
                 return GestureDetector(
                   onTap: () {
                     setState(() {
                       if (isSelected) {
-                        _assignedPractitioners
-                            .removeWhere((p) => p.id == doctor.id);
+                        _assignedPractitioners.removeWhere(
+                          (p) => p.id == doctor.id,
+                        );
                       } else {
                         _assignedPractitioners.add(
                           _AssignedPractitioner(
@@ -1201,11 +1408,11 @@ class _CreateAppointmentScreenState
                       }
                       _selectedPractitionerItem =
                           _assignedPractitioners.isNotEmpty
-                              ? doctors.firstWhere(
-                                  (d) => d.id == _assignedPractitioners.last.id,
-                                  orElse: () => doctor,
-                                )
-                              : null;
+                          ? doctors.firstWhere(
+                              (d) => d.id == _assignedPractitioners.last.id,
+                              orElse: () => doctor,
+                            )
+                          : null;
                     });
                   },
                   child: AnimatedContainer(
@@ -1224,15 +1431,18 @@ class _CreateAppointmentScreenState
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color:
-                                    CustomColors.purple.withValues(alpha: 0.2),
+                                color: CustomColors.purple.withValues(
+                                  alpha: 0.2,
+                                ),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                               ),
                             ]
                           : [
                               BoxShadow(
-                                color: CustomColors.black.withValues(alpha: 0.03),
+                                color: CustomColors.black.withValues(
+                                  alpha: 0.03,
+                                ),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -1245,8 +1455,9 @@ class _CreateAppointmentScreenState
                           children: [
                             CircleAvatar(
                               radius: context.r(26),
-                              backgroundColor:
-                                  CustomColors.purple.withValues(alpha: 0.1),
+                              backgroundColor: CustomColors.purple.withValues(
+                                alpha: 0.1,
+                              ),
                               backgroundImage: doctor.image.isNotEmpty
                                   ? NetworkImage(doctor.image)
                                   : null,
@@ -1344,8 +1555,9 @@ class _CreateAppointmentScreenState
                   ),
                   onDeleted: () {
                     setState(() {
-                      _assignedPractitioners
-                          .removeWhere((item) => item.id == p.id);
+                      _assignedPractitioners.removeWhere(
+                        (item) => item.id == p.id,
+                      );
                     });
                   },
                   backgroundColor: CustomColors.purple.withValues(alpha: 0.08),
@@ -1445,17 +1657,14 @@ class _CreateAppointmentScreenState
         BuildTextField(
           controller: _notesController,
           label: 'Special Clinical Notes & Instructions',
-          hintText:
-              'Enter patient instructions, contraindications, or preparation notes...',
+          hintText: 'Enter patient instructions, contraindications, or preparation notes...',
           maxLines: 3,
         ),
       ],
     );
   }
 
-  Widget _buildBookingMethodCard({
-    required BookingMethodItem method,
-  }) {
+  Widget _buildBookingMethodCard({required BookingMethodItem method}) {
     final title = method.title;
     final keyName = method.key;
     final description = method.description;
@@ -1528,10 +1737,7 @@ class _CreateAppointmentScreenState
                       ),
                       SizedBox(width: context.w(8)),
                     ],
-                    Text(
-                      title,
-                      style: context.fonts.black14w600,
-                    ),
+                    Text(title, style: context.fonts.black14w600),
                   ],
                 ),
                 if (isSelected)
@@ -1598,9 +1804,7 @@ class _CreateAppointmentScreenState
                 value: selectedAppointmentType,
                 items: appointmentTypes,
                 onTap: () {
-                  ref
-                      .read(appointmentProvider.notifier)
-                      .getAppointmentsTypes();
+                  ref.read(appointmentProvider.notifier).getAppointmentsTypes();
                 },
                 onChanged: (val) {
                   if (val != null) {
@@ -1738,12 +1942,16 @@ class _CreateAppointmentScreenState
 
                         double discAmount = discVal;
                         if (_discountType == 'percentage') {
-                          discAmount =
-                              (total * (discVal / 100)).clamp(0.0, total);
+                          discAmount = (total * (discVal / 100)).clamp(
+                            0.0,
+                            total,
+                          );
                         }
 
-                        final payable =
-                            (total - discAmount - paid).clamp(0.0, double.infinity);
+                        final payable = (total - discAmount - paid).clamp(
+                          0.0,
+                          double.infinity,
+                        );
                         return Text(
                           '\$${payable.toStringAsFixed(2)}',
                           style: context.fonts.purple14w700,
@@ -1777,7 +1985,7 @@ class _CreateAppointmentScreenState
           color: CustomColors.purple,
         ),
         label: Text(
-          _showSimulationsSection ? 'Hide Images' : 'Attach Image URLs',
+          _showSimulationsSection ? 'Hide Images' : 'Attach Image ',
           style: context.fonts.purple12w700,
         ),
       ),
@@ -1788,25 +1996,77 @@ class _CreateAppointmentScreenState
             style: context.fonts.grey14w400,
           )
         else ...[
-          Row(
-            children: [
-              Expanded(
-                child: BuildTextField(
-                  controller: _frontImageBeforeController,
-                  label: 'Front Image Before URL',
-                  hintText: 'https://...',
+          if (_hasInitializedRequestPrefill) ...[
+            Row(
+              children: [
+                if (_frontImageBeforeController.text != '')
+                  _buildSimulationThumbnail(
+                    context,
+                    'Front Before',
+                    _frontImageBeforeController.text,
+                  ),
+                if (_frontImageAfterController.text != '') ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Front After',
+                    _frontImageAfterController.text,
+                  ),
+                ],
+                if (_rightImageBeforeController.text != '') ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Right Before',
+                    _rightImageBeforeController.text,
+                  ),
+                ],
+                if (_rightImageAfterController.text != '') ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Right After',
+                    _rightImageAfterController.text,
+                  ),
+                ],
+                if (_leftImageBeforeController.text != '') ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Left Before',
+                    _leftImageBeforeController.text,
+                  ),
+                ],
+                if (_leftImageAfterController.text != '') ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Left After',
+                    _leftImageAfterController.text,
+                  ),
+                ],
+              ],
+            ),
+          ] else
+            Row(
+              children: [
+                Expanded(
+                  child: BuildTextField(
+                    controller: _frontImageBeforeController,
+                    label: 'Front Image Before URL',
+                    hintText: 'https://...',
+                  ),
                 ),
-              ),
-              SizedBox(width: context.w(16)),
-              Expanded(
-                child: BuildTextField(
-                  controller: _frontImageAfterController,
-                  label: 'Front Image After URL',
-                  hintText: 'https://...',
+                SizedBox(width: context.w(16)),
+                Expanded(
+                  child: BuildTextField(
+                    controller: _frontImageAfterController,
+                    label: 'Front Image After URL',
+                    hintText: 'https://...',
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           SizedBox(height: context.h(16)),
           Row(
             children: [
@@ -1849,6 +2109,61 @@ class _CreateAppointmentScreenState
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildSimulationThumbnail(
+    BuildContext context,
+    String label,
+    String url,
+  ) {
+    return Container(
+      width: context.w(90), // Increased from 60 to 90
+      padding: EdgeInsets.all(context.r(4)), // Optional padding for neat layout
+      decoration: BoxDecoration(
+        color: CustomColors.white,
+        borderRadius: BorderRadius.circular(context.r(8)),
+        border: Border.all(color: CustomColors.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Image Container with larger height
+          ClipRRect(
+            borderRadius: BorderRadius.circular(context.r(6)),
+            child: SizedBox(
+              width: double.infinity,
+              height: context.h(75), // Increased from 50 to 75
+              child: url.startsWith('http')
+                  ? CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.broken_image, size: 20),
+                    )
+                  : Image.asset(
+                      url,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image, size: 20),
+                    ),
+            ),
+          ),
+          SizedBox(height: context.h(6)),
+          // Label Text
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: context.r(12),
+              fontWeight: FontWeight.w500,
+              color: CustomColors.purple, // Replace with your color token
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2142,7 +2457,9 @@ class _CreateAppointmentScreenState
   }
 
   Widget _buildSessionsAndMaterialsSection(
-      int treatmentId, SideAreaModel area) {
+    int treatmentId,
+    SideAreaModel area,
+  ) {
     final areaId = area.id;
     if (areaId == null) return const SizedBox.shrink();
     final key = '$treatmentId-$areaId';
@@ -2158,9 +2475,7 @@ class _CreateAppointmentScreenState
       decoration: BoxDecoration(
         color: CustomColors.lightPurple.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(context.r(12)),
-        border: Border.all(
-          color: CustomColors.purple.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: CustomColors.purple.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2230,10 +2545,7 @@ class _CreateAppointmentScreenState
               style: context.fonts.grey12w400,
             ),
           ] else ...[
-            Text(
-              'Select Session:',
-              style: context.fonts.grey12w600,
-            ),
+            Text('Select Session:', style: context.fonts.grey12w600),
             SizedBox(height: context.h(6)),
             Wrap(
               spacing: 8.w,
@@ -2283,10 +2595,7 @@ class _CreateAppointmentScreenState
             if (selectedSession != null &&
                 selectedSession.material.isNotEmpty) ...[
               SizedBox(height: context.h(10)),
-              Text(
-                'Session Materials:',
-                style: context.fonts.grey12w600,
-              ),
+              Text('Session Materials:', style: context.fonts.grey12w600),
               SizedBox(height: context.h(6)),
               Wrap(
                 spacing: 8.w,
@@ -2352,9 +2661,7 @@ class _CreateAppointmentScreenState
                       decoration: BoxDecoration(
                         color: CustomColors.white,
                         borderRadius: BorderRadius.circular(context.r(8)),
-                        border: Border.all(
-                          color: CustomColors.border,
-                        ),
+                        border: Border.all(color: CustomColors.border),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2434,9 +2741,9 @@ class _CreateAppointmentScreenState
     if (!_formKey.currentState!.validate()) return;
 
     if (state.selectedPatient == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a patient.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a patient.')));
       return;
     }
 
@@ -2497,15 +2804,17 @@ class _CreateAppointmentScreenState
     );
     final endDateTime = startDateTime.add(const Duration(hours: 1));
     final int dateTimestamp =
-        DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-                .millisecondsSinceEpoch ~/
-            1000;
+        DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+        ).millisecondsSinceEpoch ~/
+        1000;
     final int startTimeStamp = startDateTime.millisecondsSinceEpoch ~/ 1000;
     final int endTimeStamp = endDateTime.millisecondsSinceEpoch ~/ 1000;
 
     final double totalCost = double.tryParse(_amountController.text) ?? 0.0;
-    final double discountVal =
-        double.tryParse(_discountController.text) ?? 0.0;
+    final double discountVal = double.tryParse(_discountController.text) ?? 0.0;
     final double paidVal = double.tryParse(_amountPaidController.text) ?? 0.0;
 
     double discountAmount = discountVal;
@@ -2513,15 +2822,12 @@ class _CreateAppointmentScreenState
       discountAmount = (totalCost * (discountVal / 100)).clamp(0.0, totalCost);
     }
 
-    final double calculatedPayable =
-        (totalCost - discountAmount - paidVal).clamp(0.0, double.infinity);
+    final double calculatedPayable = (totalCost - discountAmount - paidVal)
+        .clamp(0.0, double.infinity);
 
     final request = CreateAppointmentRequest(
       practitioners: _assignedPractitioners.map((p) {
-        return AppointmentPractitionerRequest(
-          id: p.id,
-          role: p.role,
-        );
+        return AppointmentPractitionerRequest(id: p.id, role: p.role);
       }).toList(),
       patientId: state.selectedPatient?.id ?? 12,
       date: dateTimestamp,

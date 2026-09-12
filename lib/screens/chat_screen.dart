@@ -14,6 +14,7 @@ import '../models/chat_treatment_request_model.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../services/media_service.dart';
+import '../utils/date_time_utills.dart';
 import '../utils/enums.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -631,7 +632,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                       context.horizontalSpace(4),
                       Text(
-                        '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'
+                        '${slot.date?.formattedDate ?? ''} ${slot.time != null ? 'at ${slot.time?.formattedTime}' : ''}'
                             .trim(),
                         style: context.fonts.black11w600,
                       ),
@@ -707,6 +708,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     req.rightImageAfter!,
                   ),
                 ],
+                 if (req.leftImageBefore != null) ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Left Before',
+                    req.rightImageBefore!,
+                  ),
+                ],
+                if (req.leftImageAfter != null) ...[
+                  context.horizontalSpace(8),
+                  _buildSimulationThumbnail(
+                    context,
+                    'Left After',
+                    req.rightImageAfter!,
+                  ),
+                ],
+             
               ],
             ),
           ],

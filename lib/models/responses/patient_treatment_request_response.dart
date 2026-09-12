@@ -176,17 +176,60 @@ class PreferredSlotData {
   final DateTime? date;
   final DateTime? time;
 
-  PreferredSlotData({this.date, this.time});
+  PreferredSlotData({
+    this.date,
+    this.time,
+  });
 
-  factory PreferredSlotData.fromJson(Map<String, dynamic> json) =>
-      PreferredSlotData(
-        date: DateTime.fromMillisecondsSinceEpoch((json['date']) * 1000),
-        time: DateTime.fromMillisecondsSinceEpoch((json['time']) * 1000),
-      );
+  factory PreferredSlotData.fromJson(Map<String, dynamic> json) {
+    return PreferredSlotData(
+      date: _parseDateTime(json['date']),
+      time: _parseDateTime(json['time']),
+    );
+  }
 
-  Map<String, dynamic> toJson() => {'date': date, 'time': time};
+  Map<String, dynamic> toJson() => {
+        'date': date?.toIso8601String(),
+        'time': time?.toIso8601String(),
+      };
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+
+    // Unix timestamp
+    if (value is int) {
+      // If API timestamp is in seconds
+      return DateTime.fromMillisecondsSinceEpoch(value * 1000);
+    }
+
+    if (value is double) {
+      return DateTime.fromMillisecondsSinceEpoch((value * 1000).toInt());
+    }
+
+    if (value is String) {
+      // Numeric string timestamp
+      final timestamp = int.tryParse(value);
+      if (timestamp != null) {
+        return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+      }
+
+      // ISO date/time string
+      final parsed = DateTime.tryParse(value);
+      if (parsed != null) {
+        return parsed;
+      }
+
+      // Non-ISO strings such as:
+      // "19 Sep 2026"
+      // "12:25 AM"
+      //
+      // These require custom DateFormat parsing.
+      return null;
+    }
+
+    return null;
+  }
 }
-
 class PatientMedicalHistoryData {
   final int? id;
   final int? patientId;
