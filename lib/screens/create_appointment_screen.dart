@@ -400,8 +400,11 @@ class _CreateAppointmentScreenState
                     _buildNotesFinancialsSection(),
                     SizedBox(height: context.h(24)),
                     _buildPaymentSection(),
+                    if (_hasInitializedRequestPrefill)
                     SizedBox(height: context.h(24)),
+                      if (_hasInitializedRequestPrefill)
                     _buildSimulationsSection(),
+                    
                     SizedBox(height: context.h(32)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -1996,7 +1999,7 @@ class _CreateAppointmentScreenState
             style: context.fonts.grey14w400,
           )
         else ...[
-          if (_hasInitializedRequestPrefill) ...[
+         
             Row(
               children: [
                 if (_frontImageBeforeController.text != '')
@@ -2047,66 +2050,67 @@ class _CreateAppointmentScreenState
                 ],
               ],
             ),
-          ] else
-            Row(
-              children: [
-                Expanded(
-                  child: BuildTextField(
-                    controller: _frontImageBeforeController,
-                    label: 'Front Image Before URL',
-                    hintText: 'https://...',
-                  ),
-                ),
-                SizedBox(width: context.w(16)),
-                Expanded(
-                  child: BuildTextField(
-                    controller: _frontImageAfterController,
-                    label: 'Front Image After URL',
-                    hintText: 'https://...',
-                  ),
-                ),
-              ],
-            ),
-          SizedBox(height: context.h(16)),
-          Row(
-            children: [
-              Expanded(
-                child: BuildTextField(
-                  controller: _rightImageBeforeController,
-                  label: 'Right Image Before URL',
-                  hintText: 'https://...',
-                ),
-              ),
-              SizedBox(width: context.w(16)),
-              Expanded(
-                child: BuildTextField(
-                  controller: _rightImageAfterController,
-                  label: 'Right Image After URL',
-                  hintText: 'https://...',
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: context.h(16)),
-          Row(
-            children: [
-              Expanded(
-                child: BuildTextField(
-                  controller: _leftImageBeforeController,
-                  label: 'Left Image Before URL',
-                  hintText: 'https://...',
-                ),
-              ),
-              SizedBox(width: context.w(16)),
-              Expanded(
-                child: BuildTextField(
-                  controller: _leftImageAfterController,
-                  label: 'Left Image After URL',
-                  hintText: 'https://...',
-                ),
-              ),
-            ],
-          ),
+         
+          //   Row(
+          //     children: [
+          //       Expanded(
+          //         child: BuildTextField(
+          //           controller: _frontImageBeforeController,
+          //           label: 'Front Image Before URL',
+          //           hintText: 'https://...',
+          //         ),
+          //       ),
+          //       SizedBox(width: context.w(16)),
+          //       Expanded(
+          //         child: BuildTextField(
+          //           controller: _frontImageAfterController,
+          //           label: 'Front Image After URL',
+          //           hintText: 'https://...',
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // SizedBox(height: context.h(16)),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: BuildTextField(
+          //         controller: _rightImageBeforeController,
+          //         label: 'Right Image Before URL',
+          //         hintText: 'https://...',
+          //       ),
+          //     ),
+          //     SizedBox(width: context.w(16)),
+          //     Expanded(
+          //       child: BuildTextField(
+          //         controller: _rightImageAfterController,
+          //         label: 'Right Image After URL',
+          //         hintText: 'https://...',
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // SizedBox(height: context.h(16)),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: BuildTextField(
+          //         controller: _leftImageBeforeController,
+          //         label: 'Left Image Before URL',
+          //         hintText: 'https://...',
+          //       ),
+          //     ),
+          //     SizedBox(width: context.w(16)),
+          //     Expanded(
+          //       child: BuildTextField(
+          //         controller: _leftImageAfterController,
+          //         label: 'Left Image After URL',
+          //         hintText: 'https://...',
+          //       ),
+          //     ),
+          //   ],
+          // ),
+        
         ],
       ],
     );
