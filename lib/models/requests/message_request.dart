@@ -1,16 +1,20 @@
-
 import 'base_request.dart';
 
-class MessageRequest extends BaseRequest  {
-    final String? message;
+class SendAiMessageRequest extends BaseRequest {
+  final String? threadId;
+  final String? message;
+  final String? clinicToken;
 
-    MessageRequest({
-        this.message,
-    });
-   
-    Map<String, dynamic> toJson() => {
+  SendAiMessageRequest({
+    this.threadId,
+    this.message,
+    this.clinicToken,
+  });
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "thread_id": threadId,
         "message": message,
-    };
+        "clinic_token": clinicToken,
+      };
 }
-
-

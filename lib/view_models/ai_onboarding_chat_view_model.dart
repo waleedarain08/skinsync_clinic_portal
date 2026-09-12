@@ -193,9 +193,15 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
     String message, {
     bool showLoading = true,
   }) async {
+    final user = await locator<SecureStorageService>().getUser();
+    final clinicToken = await locator<SecureStorageService>().getToken();
     return await runSafely(showLoading: showLoading, () async {
       final response = await _repository.sendMessage(
-        request: MessageRequest(message: message),
+        request: SendAiMessageRequest(
+          threadId: user?.clinicId.toString(),
+          message: message,
+          clinicToken: clinicToken,
+        ),
       );
 
       return response;

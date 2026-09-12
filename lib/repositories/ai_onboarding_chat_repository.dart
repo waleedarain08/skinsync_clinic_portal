@@ -10,6 +10,6 @@ abstract class AiOnboardingChatRepository {
   });
 
    Future<AiOnboardingChatMessageResponse> sendMessage({
-    required MessageRequest request
+    required SendAiMessageRequest request
   });
 }

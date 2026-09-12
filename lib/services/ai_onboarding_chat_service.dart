@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -112,8 +113,11 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
 
   @override
   Future<AiOnboardingChatMessageResponse> sendMessage({
-    required MessageRequest request,
+    required SendAiMessageRequest request,
   }) async {
+    final body = request.toJson();
+
+    log('[log] BODY: ${jsonEncode(body)}');
     try {
       final uri = Uri.parse(
         'https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message',
@@ -127,7 +131,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
         },
         body: jsonEncode(request.toJson()),
       );
-
+      log('[log] RESPONSE: ${jsonEncode(response)}');
       final jsonResponse = jsonDecode(response.body);
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
