@@ -27,7 +27,7 @@ class ChatTreatmentRequestModel {
   final String? updatedAt;
 
   ChatTreatmentRequestModel({
-    required this.text,
+    this.text = '',
     required this.id,
     required this.userId,
     required this.groupId,
@@ -190,11 +190,11 @@ class ChatTreatmentData {
 
   factory ChatTreatmentData.fromJson(Map<String, dynamic> json) {
     return ChatTreatmentData(
-      treatmentId: json['treatment_id'] ?? 0,
-      treatmentName: json['treatment_name'] ?? '',
-      description: json['treatment_desc'],
-      image: json['treatment_image'],
-      icon: json['treatment_icon'],
+      treatmentId: json['treatment_id'] ?? json['id'] ?? 0,
+      treatmentName: json['treatment_name'] ?? json['name'] ?? '',
+      description: json['treatment_desc'] ?? json['description'],
+      image: json['treatment_image'] ?? json['image'],
+      icon: json['treatment_icon'] ?? json['icon'],
       areas:
           (json['areas'] as List<dynamic>?)
               ?.map(
@@ -221,6 +221,7 @@ class ChatTreatmentAreaData {
   final String areaName;
   final String? image;
   final String? icon;
+  final double? price;
   final List<ChatTreatmentMaterialData> materials;
 
   ChatTreatmentAreaData({
@@ -228,6 +229,7 @@ class ChatTreatmentAreaData {
     required this.areaName,
     this.image,
     this.icon,
+    this.price,
     required this.materials,
   });
 
@@ -239,6 +241,7 @@ class ChatTreatmentAreaData {
       areaName: data.areaName,
       image: data.image,
       icon: data.icon,
+      price: data.price,
       materials: data.materials
           .map(
             (m) =>
@@ -250,10 +253,11 @@ class ChatTreatmentAreaData {
 
   factory ChatTreatmentAreaData.fromJson(Map<String, dynamic> json) {
     return ChatTreatmentAreaData(
-      areaId: json['area_id'] ?? 0,
-      areaName: json['area_name'] ?? '',
-      image: json['area_image'],
-      icon: json['area_icon'],
+      areaId: json['area_id'] ?? json['id'] ?? 0,
+      areaName: json['area_name'] ?? json['name'] ?? '',
+      image: json['area_image'] ?? json['image'],
+      icon: json['area_icon'] ?? json['icon'],
+      price: json['price'] != null ? (json['price'] as num).toDouble() : null,
       materials:
           (json['materials'] as List<dynamic>?)
               ?.map(

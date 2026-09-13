@@ -48,8 +48,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import '../../utils/enums.dart';
+import '../chat_treatment_request_model.dart';
 import 'base_response_model.dart';
-import 'patient_treatment_request_response.dart';
 
 class MessagesResponse extends BaseResponse<MessagesData> {
   const MessagesResponse({
@@ -194,15 +194,15 @@ class Message {
     return userId == senderId;
   }
 
-  PatientTreatmentRequestData? get sharedRequestData {
+  ChatTreatmentRequestModel? get sharedRequestData {
     try {
-      if (type != .sharedRequest) {
+      if (type != MessageType.sharedRequest) {
         return null;
       }
       if (content == null) {
         return null;
       }
-      return .fromJson(jsonDecode(content!));
+      return ChatTreatmentRequestModel.fromJson(jsonDecode(content!));
     } catch (e, s) {
       log('Error: $e', stackTrace: s);
       return null;

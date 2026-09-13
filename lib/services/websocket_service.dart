@@ -28,11 +28,17 @@ class WebSocketService {
   WebSocket? _socket;
   StreamSubscription<dynamic>? _msgSub;
   StreamSubscription<dynamic>? _connSub;
+  ValueSetter<WsEvent>? _onEventCallback;
 
   bool get isConnected => _socket != null;
 
   Future<void> connect({required ValueSetter<WsEvent> onEvent}) async {
-    if (_socket != null) return;
+    _onEventCallback = onEvent;
+    if (_socket != null) {
+      print('[WebSocket Already Connected]');
+      log('WebSocket already connected');
+      return;
+    }
 
     final token = await locator<SecureStorageService>().getToken();
     final baseUrl = locator<ApiBaseService>().baseUrl;
@@ -41,6 +47,7 @@ class WebSocketService {
       queryParameters: {'token': token},
     );
 
+    print('[WebSocket Connecting]: $socketUri');
     log('WebSocket connecting to $socketUri');
 
     try {
@@ -51,34 +58,44 @@ class WebSocketService {
 
       _msgSub = _socket!.messages.listen(
         (event) {
+          final String rawText =
+              event is List<int> ? utf8.decode(event) : event.toString();
+          print('[WebSocket RX Raw]: $rawText');
+          log('[WebSocket RX Message]: $rawText');
           try {
-            if (event is String) {
-              final payload = jsonDecode(event) as Map<String, dynamic>;
-              final typeStr = payload['event_type'] as String?;
-              final eventType = EventType.fromValue(typeStr);
-              final data = payload['data'] as Map<String, dynamic>? ?? payload;
-              onEvent(WsEvent(type: eventType, data: data));
-            }
+            final payload = jsonDecode(rawText) as Map<String, dynamic>;
+            print('[WebSocket Parsed Payload]: $payload');
+            log('[WebSocket Parsed Payload]: $payload');
+            final typeStr = payload['event_type'] as String?;
+            final eventType = EventType.fromValue(typeStr);
+            final data = payload['data'] as Map<String, dynamic>? ?? payload;
+            _onEventCallback?.call(WsEvent(type: eventType, data: data));
           } catch (e, s) {
+            print('[WebSocket Parse Error]: $e');
             log('WebSocket parse error: $e', stackTrace: s);
           }
         },
         onDone: () {
+          print('[WebSocket Disconnected / Done]');
+          log('[WebSocket Disconnected / Done]');
           _cleanupSocket();
         },
         onError: (error) {
-          log('WebSocket error: $error');
+          print('[WebSocket Error]: $error');
+          log('[WebSocket Error]: $error');
           _cleanupSocket();
         },
       );
 
       _connSub = _socket!.connection.listen((connection) {
+        print('[WebSocket Connection State]: ${connection.runtimeType}');
         log('WebSocket connection state: ${connection.runtimeType}');
         if (connection is Disconnecting) {
           _cleanupSocket();
         }
       });
     } catch (e, s) {
+      print('[WebSocket Connect Failed]: $e');
       log('WebSocket connect failed: $e', stackTrace: s);
       _cleanupSocket();
     }
@@ -96,11 +113,14 @@ class WebSocketService {
       throw Exception('Websocket not connected');
     }
     String text = '';
-    if (type == .sharedRequest) {
-      if (treatmentRequest == null) {
+    if (type == MessageType.sharedRequest) {
+      if (treatmentRequest != null) {
+        text = jsonEncode(treatmentRequest.copyWith(text: content).toJson());
+      } else if (content.trim().isNotEmpty) {
+        text = content;
+      } else {
         throw const ApiHttpException(message: 'TreatmentRequest is required!');
       }
-      text = jsonEncode(treatmentRequest.copyWith(text: content).toJson());
     } else {
       text = content;
     }
@@ -114,8 +134,12 @@ class WebSocketService {
     };
 
     try {
-      _socket!.send(jsonEncode(payload));
+      final jsonPayload = jsonEncode(payload);
+      print('[WebSocket TX]: $jsonPayload');
+      log('[WebSocket TX Message]: $jsonPayload');
+      _socket!.send(jsonPayload);
     } catch (e) {
+      print('[WebSocket Send Error]: $e');
       log('WebSocket send error: $e');
       rethrow;
     }
