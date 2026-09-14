@@ -1,13 +1,12 @@
 import 'package:before_after/before_after.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../models/chat_treatment_request_model.dart';
 import '../../models/responses/messages_response.dart';
-import '../../models/responses/patient_treatment_request_response.dart';
-import '../../screens/dashboard/shared_treatment_request_screen.dart';
 import '../../utils/theme.dart';
+import '../dialog_box/chat_treatment_request_detail_dialog.dart';
 
 class SharedRequestChatBubble extends StatefulWidget {
   final Message message;
@@ -26,7 +25,8 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
   @override
   Widget build(BuildContext context) {
     final isMe = widget.message.isMe;
-    final request = widget.message.sharedRequestData;
+    final ChatTreatmentRequestModel? request =
+        widget.message.sharedRequestData;
 
     if (request == null) {
       return Container(
@@ -48,18 +48,20 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
       );
     }
 
-    final refId = request.referenceId != null
-        ? '#${request.referenceId}'
-        : '#${request.id}';
+    final refId = '#${request.id}';
     final patientName = request.patientName?.isNotEmpty == true
         ? request.patientName!
         : 'Patient';
     final patientEmail = request.patientEmail?.isNotEmpty == true
         ? request.patientEmail!
         : '';
-    final hasSlots =
-        request.preferredSlots != null && request.preferredSlots!.isNotEmpty;
-    final hasMedicalHistory = request.medicalHistory != null;
+
+    final hasSimulations = (request.frontImageBefore?.isNotEmpty == true ||
+        request.frontImageAfter?.isNotEmpty == true ||
+        request.rightImageBefore?.isNotEmpty == true ||
+        request.rightImageAfter?.isNotEmpty == true ||
+        request.leftImageBefore?.isNotEmpty == true ||
+        request.leftImageAfter?.isNotEmpty == true);
 
     return Container(
       constraints: BoxConstraints(maxWidth: context.w(540)),
@@ -176,8 +178,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
           context.verticalSpace(12),
 
           // Simulation Before & After Preview Slider (If Images Exist)
-          if (request.frontImageBefore != null ||
-              request.frontImageAfter != null) ...[
+          if (hasSimulations) ...[
             Text(
               'Simulation Before / After:',
               style: context.fonts.black13w600,
@@ -227,6 +228,10 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                           final priceText = area.price != null
                               ? ' (\$${area.price!.toStringAsFixed(0)})'
                               : '';
+                          final materialText = area.materials.isNotEmpty
+                              ? ' [${area.materials.map((m) => '${m.name} x${m.selectedQuantity}').join(', ')}]'
+                              : '';
+
                           return Container(
                             padding: context.appEdgeInsets(
                               horizontal: 8,
@@ -237,7 +242,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
                               borderRadius: BorderRadius.circular(context.r(6)),
                             ),
                             child: Text(
-                              '${area.areaName}$priceText',
+                              '${area.areaName}$priceText$materialText',
                               style: context.fonts.purple11w600,
                             ),
                           );
@@ -251,82 +256,16 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
             context.verticalSpace(12),
           ],
 
-          // Preferred Appointment Slots
-          if (hasSlots) ...[
-            Text('Preferred Slots:', style: context.fonts.black13w600),
-            context.verticalSpace(8),
-            Wrap(
-              spacing: context.w(6),
-              runSpacing: context.h(6),
-              children: request.preferredSlots!.map((slot) {
-                return Container(
-                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: CustomColors.softGrey,
-                    borderRadius: BorderRadius.circular(context.r(8)),
-                    border: Border.all(color: CustomColors.border),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_today_rounded,
-                        size: context.sp(12),
-                        color: CustomColors.purple,
-                      ),
-                      context.horizontalSpace(4),
-                      Text(
-                        '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'
-                            .trim(),
-                        style: context.fonts.black11w600,
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-            context.verticalSpace(12),
-          ],
-
-          // Patient Medical History
-          if (hasMedicalHistory) ...[
-            Text('Medical History:', style: context.fonts.black13w600),
-            context.verticalSpace(8),
-            Wrap(
-              spacing: context.w(6),
-              runSpacing: context.h(6),
-              children: [
-                if (request.medicalHistory!.allergies.isNotEmpty)
-                  _buildMedicalChip(
-                    context,
-                    'Allergies: ${request.medicalHistory!.allergies.join(", ")}',
-                    CustomColors.red,
-                  ),
-                if (request.medicalHistory!.medicalConditions.isNotEmpty)
-                  _buildMedicalChip(
-                    context,
-                    'Conditions: ${request.medicalHistory!.medicalConditions.join(", ")}',
-                    CustomColors.amber,
-                  ),
-                if (request.medicalHistory!.currentMedications.isNotEmpty)
-                  _buildMedicalChip(
-                    context,
-                    'Medications: ${request.medicalHistory!.currentMedications.join(", ")}',
-                    CustomColors.purple,
-                  ),
-              ],
-            ),
-            context.verticalSpace(12),
-          ],
-
           // View Full Request Action Button
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
-                context.pushNamed(
-                  SharedTreatmentRequestScreen.routeName,
-                  queryParameters: {'showBackButton': 'true'},
+                showDialog(
+                  context: context,
+                  builder: (_) => ChatTreatmentRequestDetailDialog(
+                    request: request,
+                  ),
                 );
               },
               icon: Icon(
@@ -354,7 +293,7 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
 
   Widget _buildSimulationViewer(
     BuildContext context,
-    PatientTreatmentRequestData request,
+    ChatTreatmentRequestModel request,
   ) {
     String? beforeUrl = request.frontImageBefore;
     String? afterUrl = request.frontImageAfter;
@@ -394,7 +333,10 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
         ),
         context.verticalSpace(8),
 
-        if (beforeUrl != null && afterUrl != null)
+        if (beforeUrl != null &&
+            beforeUrl.isNotEmpty &&
+            afterUrl != null &&
+            afterUrl.isNotEmpty)
           ClipRRect(
             borderRadius: BorderRadius.circular(context.r(12)),
             child: SizedBox(
@@ -442,21 +384,6 @@ class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget _buildMedicalChip(BuildContext context, String text, Color color) {
-    return Container(
-      padding: context.appEdgeInsets(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(context.r(6)),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Text(
-        text,
-        style: context.fonts.black11w600.copyWith(color: color),
-      ),
     );
   }
 }

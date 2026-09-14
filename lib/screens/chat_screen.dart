@@ -737,10 +737,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             alignment: Alignment.centerRight,
             child: CustomPrimaryButton(
               onTap: () {
-                final jsonStr = jsonEncode(req.toJson());
+                final model =
+                    ChatTreatmentRequestModel.fromPatientTreatmentRequestData(req);
+                final jsonStr = jsonEncode(model.toJson());
                 _sendMessage(
                   customText: jsonStr,
                   messageType: MessageType.sharedRequest,
+                  sharedRequestData: model,
                 );
               },
               label: 'Use This Request',

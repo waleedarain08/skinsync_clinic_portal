@@ -39,7 +39,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
       _wsInstance.connect(
         onEvent: (event) {
           try {
+            print('[Dashboard WS Event]: type=${event.type}, data=${event.data}');
             log('NEW MESSAGE RECIEVED OF TYPE: ${event.type}');
+            log('DATA: ${event.data}');
             switch (event.type) {
               case EventType.chat:
                 final message = Message.fromJson(event.data);
@@ -55,11 +57,11 @@ class _DashboardState extends ConsumerState<Dashboard> {
               case .newAppointment:
                 break;
               case EventType.subscription:
-                // TODO: Handle this case.
-                throw UnimplementedError();
+                break;
             }
-          } catch (_) {
-            log('Ignoring parsing errors');
+          } catch (e, s) {
+            print('[Dashboard WS Event Parse Error]: $e');
+            log('Error parsing WS event: $e', stackTrace: s);
           }
         },
       );

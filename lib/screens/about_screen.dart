@@ -1,6 +1,7 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/header__with_back_btn.dart';
 
@@ -39,7 +40,7 @@ class _AboutScreenState extends State<AboutScreen> {
     _viewsRegistered = true;
 
     ui_web.platformViewRegistry.registerViewFactory(_termsViewType, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
+      final iframe = html.IFrameElement()
         ..src = _termsUrl
         ..style.border = 'none'
         ..style.width = '100%'
@@ -51,7 +52,7 @@ class _AboutScreenState extends State<AboutScreen> {
     });
 
     ui_web.platformViewRegistry.registerViewFactory(_privacyViewType, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
+      final iframe = html.IFrameElement()
         ..src = _privacyUrl
         ..style.border = 'none'
         ..style.width = '100%'
