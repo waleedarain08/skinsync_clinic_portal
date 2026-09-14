@@ -78,7 +78,7 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     });
   }
    Future<void> getAppointmentsDetail({required int id}) async {
-    return await runSafely(() async {
+    return await runSafely(showLoading: false, () async {
       final appointment = await locator<AppointmentRepository>()
           .appointmentDetail(id:id);
           if(appointment.success){

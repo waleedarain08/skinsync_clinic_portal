@@ -526,12 +526,12 @@ class _CreateAppointmentFromChatDialogState
                       );
 
                       EasyLoading.show(status: 'Creating appointment...');
-                      final success = await ref
+                      final data = await ref
                           .read(appointmentCreationProvider.notifier)
                           .createAppointment(request: request);
                       EasyLoading.dismiss();
 
-                      if (success) {
+                      if (data != null) {
                         EasyLoading.showSuccess(
                           'Appointment created successfully',
                         );

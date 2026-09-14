@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
 import '../exceptions/app_exception.dart';
-import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../services/api_base_helper.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
@@ -157,7 +157,7 @@ class WebSocketService {
     String? mediaUrl,
     String? documentUrl,
     ChatTreatmentRequestModel? treatmentRequest,
-    ChatAppointmentModel? appointment,
+    AppointmentDetailData? appointment,
   }) async {
     if (_socket == null) {
       throw Exception('Websocket not connected');

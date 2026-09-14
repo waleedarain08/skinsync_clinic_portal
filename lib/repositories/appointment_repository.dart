@@ -19,7 +19,7 @@ abstract class AppointmentRepository {
   Future<FiltersResponse> getAppointmentTypes();
   Future<FiltersResponse> getAppointmentStatus();
   Future<List<BookingMethodItem>> getBookingMethods();
-  Future<BaseResponse> createAppointment({
+  Future<BaseResponse<AppointmentDetailData>> createAppointment({
     required CreateAppointmentRequest request,
   });
 }

@@ -4,9 +4,9 @@ import 'dart:developer';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/dummy/chat_dummy_model.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/messages_response.dart';
 import '../repositories/chat_repository.dart';
@@ -80,7 +80,7 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     String? mediaUrl,
     String? documentUrl,
     ChatTreatmentRequestModel? treatmentRequest,
-    ChatAppointmentModel? appointment,
+    AppointmentDetailData? appointment,
     int? chatIdOverride,
   }) async {
     return await runSafely(() async {

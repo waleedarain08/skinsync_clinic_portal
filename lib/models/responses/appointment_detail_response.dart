@@ -16,6 +16,12 @@ class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentDetailDa
             ? null
             : AppointmentDetailData.fromJson(json["data"]),
       );
+
+  Map<String, dynamic> toJson() => {
+        "is_success": success,
+        "message": message,
+        "data": data?.toJson(),
+      };
 }
 
 class AppointmentDetailData {
@@ -86,6 +92,30 @@ class AppointmentDetailData {
         status: json["status"],
         createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "appointment_key": appointmentKey,
+        // "clinic": clinic?.toJson(),
+        "doctor": doctor?.toJson(),
+        "patient": patient?.toJson(),
+        "appointment_type": appointmentType?.toJson(),
+        "date": date,
+        "start_time": startTime,
+        "end_time": endTime,
+        "is_invite_clinic": isInviteClinic,
+        "simulations": simulations?.toJson(),
+        "treatments": treatments == null
+            ? []
+            : List<dynamic>.from(treatments!.map((x) => x.toJson())),
+        "treatment_total": treatmentTotal,
+        "payment_type": paymentType?.toJson(),
+        "discount_type": discountType,
+        "discount": discount,
+        "booking_type": bookingType,
+        "status": status,
+        "created_at": createdAt?.toIso8601String(),
+      };
 }
 
 class AppointmentType {
@@ -127,61 +157,20 @@ class AppointmentType {
         image: json["image"],
         status: json["status"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "title": title,
+        "key": key,
+        "description": description,
+        "timing": timing,
+        "max_duration": maxDuration,
+        "appointment_modes": appointmentModes,
+        "icon": icon,
+        "image": image,
+        "status": status,
+      };
 }
-
-// class Clinic {
-//   final int? id;
-//   final String? name;
-//   final String? email;
-//   final String? phone;
-//   final String? address;
-//   final String? logo;
-//   final String? banner;
-//   final String? website;
-//   final String? description;
-//   final double? consultationFee;
-//   final double? initialDeposit;
-//   final String? cc;
-//   final String? country;
-//   final double? latitude;
-//   final double? longitude;
-
-//   Clinic({
-//     this.id,
-//     this.name,
-//     this.email,
-//     this.phone,
-//     this.address,
-//     this.logo,
-//     this.banner,
-//     this.website,
-//     this.description,
-//     this.consultationFee,
-//     this.initialDeposit,
-//     this.cc,
-//     this.country,
-//     this.latitude,
-//     this.longitude,
-//   });
-
-//   factory Clinic.fromJson(Map<String, dynamic> json) => Clinic(
-//         id: json["id"],
-//         name: json["name"],
-//         email: json["email"],
-//         phone: json["phone"],
-//         address: json["address"],
-//         logo: json["logo"],
-//         banner: json["banner"],
-//         website: json["website"],
-//         description: json["description"],
-//         consultationFee: json["consultation_fee"]?.toDouble(),
-//         initialDeposit: json["initial_deposit"]?.toDouble(),
-//         cc: json["cc"],
-//         country: json["country"],
-//         latitude: json["latitude"]?.toDouble(),
-//         longitude: json["longitude"]?.toDouble(),
-//       );
-// }
 
 class Doctor {
   final int? id;
@@ -229,6 +218,22 @@ class Doctor {
         country: json["country"],
         consultationFee: json["consultation_fee"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "email": email,
+        "image": image,
+        "title": title,
+        "gender": gender,
+        "specialization": specialization,
+        "years_of_experience": yearsOfExperience,
+        "qualifications": qualifications,
+        "phone": phone,
+        "cc": cc,
+        "country": country,
+        "consultation_fee": consultationFee,
+      };
 }
 
 class Patient {
@@ -265,6 +270,18 @@ class Patient {
         cc: json["cc"],
         country: json["country"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "email": email,
+        "phone_number": phoneNumber,
+        "profile_image_url": profileImageUrl,
+        "location": location,
+        "bio": bio,
+        "cc": cc,
+        "country": country,
+      };
 }
 
 class PaymentType {
@@ -280,6 +297,11 @@ class PaymentType {
         type: json["type"],
         status: json["status"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "status": status,
+      };
 }
 
 class Simulations {
@@ -307,4 +329,13 @@ class Simulations {
         leftImageBefore: json["left_image_before"],
         leftImageAfter: json["left_image_after"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "front_image_before": frontImageBefore,
+        "front_image_after": frontImageAfter,
+        "right_image_before": rightImageBefore,
+        "right_image_after": rightImageAfter,
+        "left_image_before": leftImageBefore,
+        "left_image_after": leftImageAfter,
+      };
 }
