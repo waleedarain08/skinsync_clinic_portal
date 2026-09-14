@@ -67,8 +67,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ref
             .read(chatProvider.notifier)
             .selectChat(Chat(id: widget.treatmentRequestData?.chatId));
-        ref.read(chatProvider.notifier).loadMessages();
       }
+      ref.read(chatProvider.notifier).loadMessages();
     });
   }
 

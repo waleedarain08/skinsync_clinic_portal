@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,6 +60,7 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     );
     final alreadyExists = existingMessages.any((m) => m.id == message.id);
     if (alreadyExists) return;
+    if (state.selectedChat?.id != message.chatId) return;
     final user = await SecureStorageService().getUser();
 
     final updatedMessages = [
@@ -69,6 +71,7 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     state = state.copyWith(
       messagesData: currentData.copyWith(messages: updatedMessages),
     );
+    log('New message added: ${message.content}');
   }
 
   Future<void> sendChatMessage({

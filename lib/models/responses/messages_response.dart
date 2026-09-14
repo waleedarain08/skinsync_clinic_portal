@@ -116,6 +116,7 @@ class MessagesData {
 
 class Message {
   final int? id;
+  final int? chatId;
   final MessageType? type;
   final String? senderType;
   final int? senderId;
@@ -130,6 +131,7 @@ class Message {
 
   Message({
     this.id,
+    this.chatId,
     this.type,
     this.senderType,
     this.senderId,
@@ -145,6 +147,7 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
     id: json["id"],
+    chatId: json['chat_id'],
     type: MessageType.fromValue(json["type"]),
     senderType: json["sender_type"],
     senderId: json["sender_id"],

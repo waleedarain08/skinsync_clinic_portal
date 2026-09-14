@@ -44,24 +44,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     super.dispose();
   }
 
-  // void _filterChats(String query) {
-  //   setState(() {
-  //     if (query.isEmpty) {
-  //       _filteredChats = List.from(_allChats);
-  //     } else {
-  //       _filteredChats = _allChats
-  //           .where(
-  //             (chat) =>
-  //                 chat.patientName.toLowerCase().contains(
-  //                   query.toLowerCase(),
-  //                 ) ||
-  //                 chat.lastMessage.toLowerCase().contains(query.toLowerCase()),
-  //           )
-  //           .toList();
-  //     }
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
