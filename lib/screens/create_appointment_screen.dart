@@ -140,7 +140,7 @@ class _CreateAppointmentScreenState
     });
   }
 
-  void _initializeChatPatient() {
+  Future<void> _initializeChatPatient() async {
     final request = widget.treatmentRequestData;
     if (request == null || _hasInitializedRequestPrefill) return;
 
@@ -164,6 +164,17 @@ class _CreateAppointmentScreenState
     _rightImageAfterController.text = request.rightImageAfter ?? '';
     _leftImageBeforeController.text = request.leftImageBefore ?? '';
     _leftImageAfterController.text = request.leftImageAfter ?? '';
+
+    if (request.frontImageBefore?.isNotEmpty == true ||
+        request.frontImageAfter?.isNotEmpty == true ||
+        request.rightImageBefore?.isNotEmpty == true ||
+        request.rightImageAfter?.isNotEmpty == true ||
+        request.leftImageBefore?.isNotEmpty == true ||
+        request.leftImageAfter?.isNotEmpty == true) {
+      setState(() {
+        _showSimulationsSection = true;
+      });
+    }
 
     if (request.preferredSlots != null && request.preferredSlots!.isNotEmpty) {
       final firstSlot = request.preferredSlots!.first;
@@ -201,6 +212,9 @@ class _CreateAppointmentScreenState
     if (medicalSummaryParts.isNotEmpty) {
       _notesController.text = medicalSummaryParts.join(' • ');
     }
+
+    await ref.read(treatmentViewModelProvider.notifier).getTreatments();
+    if (!mounted) return;
 
     final availableTreatments = ref.read(treatmentViewModelProvider).treatments;
     final List<TreatmentModel> prefilledTreatments = [];
@@ -242,7 +256,6 @@ class _CreateAppointmentScreenState
           ..clear()
           ..addAll(prefilledTreatments);
         _selectedDropdownTreatment = prefilledTreatments.first;
-        _updateTotalAmount();
       });
 
       for (final tx in prefilledTreatments) {
@@ -253,12 +266,13 @@ class _CreateAppointmentScreenState
           orElse: () => request.treatments.first,
         );
 
-        _loadPrefilledTreatmentAreas(
+        await _loadPrefilledTreatmentAreas(
           treatment: tx,
           requestTreatment: treatmentRequest,
         );
       }
 
+      _updateTotalAmount();
       _fetchFilteredPractitioners();
     }
   }
@@ -296,7 +310,6 @@ class _CreateAppointmentScreenState
         );
         _selectedDropdownTreatment = _selectedTreatments[txIndex];
       }
-      _updateTotalAmount();
     });
 
     for (final area in selectedAreaModels) {
@@ -339,6 +352,7 @@ class _CreateAppointmentScreenState
                 _selectedMaterialQtyMap[key] = selectedQty;
               }
             });
+            await _calculateTreatmentCost(treatment.id!, area.id!);
           }
         }
       }
@@ -828,25 +842,46 @@ class _CreateAppointmentScreenState
                   ),
                   child: TreatmentContainer(
                     onTap: () async {
-                      final bool willBeSelected = !isSelected;
+                      final existingIndex = _selectedTreatments.indexWhere(
+                        (t) => t.id == treatment.id,
+                      );
+                      final bool isSelected = existingIndex != -1;
+                      final existingTx =
+                          isSelected ? _selectedTreatments[existingIndex] : null;
+                      final bool hasSelectedAreas =
+                          existingTx?.sideAreas?.isNotEmpty == true;
+
+                      bool fetchAreasNeeded = false;
+
                       setState(() {
                         if (isSelected) {
-                          _selectedTreatments.removeWhere(
-                            (t) => t.id == treatment.id,
-                          );
-                          if (_selectedDropdownTreatment?.id == treatment.id) {
-                            _selectedDropdownTreatment = null;
+                          if (hasSelectedAreas) {
+                            // Do NOT deselect if areas are selected; focus this treatment
+                            _selectedDropdownTreatment = existingTx;
+                          } else {
+                            // Deselect if no area is selected
+                            _selectedTreatments.removeWhere(
+                              (t) => t.id == treatment.id,
+                            );
+                            if (_selectedDropdownTreatment?.id == treatment.id) {
+                              _selectedDropdownTreatment =
+                                  _selectedTreatments.isNotEmpty
+                                      ? _selectedTreatments.last
+                                      : null;
+                            }
                           }
                         } else {
                           final newTx = treatment.copyWith(sideAreas: []);
                           _selectedTreatments.add(newTx);
                           _selectedDropdownTreatment = newTx;
+                          fetchAreasNeeded = true;
                         }
                         _updateTotalAmount();
                         _fetchFilteredPractitioners();
                       });
 
-                      if (willBeSelected && treatment.id != null) {
+                      if ((fetchAreasNeeded || hasSelectedAreas) &&
+                          treatment.id != null) {
                         if (!_fetchedAreasMap.containsKey(treatment.id)) {
                           setState(() {
                             _isFetchingAreas = true;
