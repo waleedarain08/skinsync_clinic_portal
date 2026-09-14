@@ -38,6 +38,7 @@ import '../widgets/gradient_scaffold.dart';
 import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
+import '../widgets/dialog_box/quantity_slider_dialog.dart';
 import '../models/responses/login_response_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
@@ -2409,90 +2410,24 @@ class _CreateAppointmentScreenState
     await showDialog(
       context: context,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final int min = material.minQty;
-            final int max = material.maxQty;
-            final int divisions = (max - min) > 0 ? (max - min) : 1;
-
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              title: Text(
-                'Select Quantity for ${material.unitType}',
-                style: context.fonts.black16w600,
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Quantity: $currentQty',
-                    style: context.fonts.black18w600.copyWith(
-                      color: CustomColors.purple,
-                    ),
-                  ),
-                  SizedBox(height: context.h(16)),
-                  Slider(
-                    value: currentQty.toDouble(),
-                    min: min.toDouble(),
-                    max: max.toDouble(),
-                    divisions: divisions,
-                    activeColor: CustomColors.purple,
-                    inactiveColor: CustomColors.lightPurple,
-                    label: '$currentQty',
-                    onChanged: (val) {
-                      setDialogState(() {
-                        currentQty = val.round();
-                      });
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: context.w(12)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Min: $min', style: context.fonts.grey12w400),
-                        Text('Max: $max', style: context.fonts.grey12w400),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text('Cancel', style: context.fonts.grey14w400),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.purple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _selectedMaterialMap[key] = material;
-                      _selectedMaterialQtyMap[key] = currentQty;
-                    });
-                    final parts = key.split('-');
-                    if (parts.length == 2) {
-                      final tId = int.tryParse(parts[0]);
-                      final aId = int.tryParse(parts[1]);
-                      if (tId != null && aId != null) {
-                        _calculateTreatmentCost(tId, aId);
-                      }
-                    }
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text(
-                    'Confirm',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
+        return QuantitySliderDialog(
+          materialName: material.unitType,
+          minQty: material.minQty,
+          maxQty: material.maxQty,
+          initialQty: currentQty,
+          onConfirm: (newQty) {
+            setState(() {
+              _selectedMaterialMap[key] = material;
+              _selectedMaterialQtyMap[key] = newQty;
+            });
+            final parts = key.split('-');
+            if (parts.length == 2) {
+              final tId = int.tryParse(parts[0]);
+              final aId = int.tryParse(parts[1]);
+              if (tId != null && aId != null) {
+                _calculateTreatmentCost(tId, aId);
+              }
+            }
           },
         );
       },
