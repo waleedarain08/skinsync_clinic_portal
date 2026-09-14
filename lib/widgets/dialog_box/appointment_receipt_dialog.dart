@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/theme.dart';
@@ -374,7 +375,9 @@ class _AppointmentReceiptDialogState extends State<AppointmentReceiptDialog> {
 
   Widget _buildSimulationsSection(BuildContext context) {
     final nonNullSimulations = Map<String, String>.from(widget.simulations)
-      ..removeWhere((k, v) => v.isEmpty);
+      ..removeWhere((k, v) => v.trim().isEmpty);
+
+    if (nonNullSimulations.isEmpty) return const SizedBox.shrink();
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 14),
@@ -382,25 +385,84 @@ class _AppointmentReceiptDialogState extends State<AppointmentReceiptDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Attached Simulations', style: context.fonts.black14w600),
-          context.verticalSpace(8),
-          ...nonNullSimulations.entries.map((e) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  Text('${e.key}: ', style: context.fonts.grey12w500),
-                  Expanded(
-                    child: Text(
-                      e.value,
+          context.verticalSpace(10),
+          Wrap(
+            spacing: 12.w,
+            runSpacing: 12.h,
+            children: nonNullSimulations.entries.map((entry) {
+              final label = entry.key;
+              final url = entry.value.trim();
+
+              return Container(
+                width: context.w(110),
+                padding: context.appEdgeInsets(all: 6),
+                decoration: BoxDecoration(
+                  color: CustomColors.white,
+                  borderRadius: context.appBorderRadius(all: 8),
+                  border: Border.all(color: CustomColors.border),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: context.appBorderRadius(all: 6),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: context.h(80),
+                        child: url.startsWith('http')
+                            ? CachedNetworkImage(
+                                imageUrl: url,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: CustomColors.softGrey,
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: CustomColors.palePurple,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 22,
+                                    color: CustomColors.grey,
+                                  ),
+                                ),
+                              )
+                            : Image.asset(
+                                url,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  color: CustomColors.palePurple,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 22,
+                                    color: CustomColors.grey,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    context.verticalSpace(6),
+                    Text(
+                      label,
                       style: context.fonts.purple11w600,
+                      textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );
