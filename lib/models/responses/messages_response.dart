@@ -166,6 +166,7 @@ class Message {
 
   Message copyWith({
     int? id,
+    int? chatId,
     MessageType? type,
     String? senderType,
     int? senderId,
@@ -180,6 +181,7 @@ class Message {
   }) {
     return Message(
       id: id ?? this.id,
+      chatId: chatId ?? this.chatId,
       type: type ?? this.type,
       senderType: senderType ?? this.senderType,
       senderId: senderId ?? this.senderId,
