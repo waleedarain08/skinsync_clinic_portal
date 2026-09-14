@@ -131,7 +131,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
         },
         body: jsonEncode(request.toJson()),
       );
-      log('[log] RESPONSE: ${jsonEncode(response)}');
+      //alog('[log] RESPONSE: ${jsonEncode(response)}');
       final jsonResponse = jsonDecode(response.body);
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
