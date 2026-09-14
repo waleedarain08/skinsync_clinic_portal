@@ -1,12 +1,11 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:ui_web' as ui_web;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../widgets/gradient_scaffold.dart';
-import '../widgets/header__with_back_btn.dart';
 
 import '../utils/responsive.dart';
 import '../utils/theme.dart';
+import '../widgets/gradient_scaffold.dart';
+import '../widgets/header__with_back_btn.dart';
+import 'about_screen_helper.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -32,36 +31,27 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    _registerIframeViews();
+    _initIframeViews();
   }
 
-  void _registerIframeViews() {
+  void _initIframeViews() {
     if (_viewsRegistered) return;
     _viewsRegistered = true;
 
-    ui_web.platformViewRegistry.registerViewFactory(_termsViewType, (int viewId) {
-      final iframe = html.IFrameElement()
-        ..src = _termsUrl
-        ..style.border = 'none'
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..onLoad.listen((_) {
+    if (kIsWeb) {
+      registerIframeViews(
+        termsUrl: _termsUrl,
+        privacyUrl: _privacyUrl,
+        termsViewType: _termsViewType,
+        privacyViewType: _privacyViewType,
+        onTermsLoaded: () {
           if (mounted) setState(() => _termsLoaded = true);
-        });
-      return iframe;
-    });
-
-    ui_web.platformViewRegistry.registerViewFactory(_privacyViewType, (int viewId) {
-      final iframe = html.IFrameElement()
-        ..src = _privacyUrl
-        ..style.border = 'none'
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..onLoad.listen((_) {
+        },
+        onPrivacyLoaded: () {
           if (mounted) setState(() => _privacyLoaded = true);
-        });
-      return iframe;
-    });
+        },
+      );
+    }
   }
 
   @override
@@ -78,7 +68,6 @@ class _AboutScreenState extends State<AboutScreen> {
             children: [
               // Header with back button and title
               const BuildHeader(title: 'About'),
-              // Divider
               SizedBox(height: context.h(16)),
 
               const Divider(height: 1, thickness: 1, color: CustomColors.border),
@@ -128,11 +117,13 @@ class _AboutScreenState extends State<AboutScreen> {
                   child: IndexedStack(
                     index: selectedTab,
                     children: [
-                      _buildIframePane(
+                      _buildPane(
+                        url: _termsUrl,
                         viewType: _termsViewType,
                         loaded: _termsLoaded,
                       ),
-                      _buildIframePane(
+                      _buildPane(
+                        url: _privacyUrl,
                         viewType: _privacyViewType,
                         loaded: _privacyLoaded,
                       ),
@@ -147,7 +138,34 @@ class _AboutScreenState extends State<AboutScreen> {
     );
   }
 
-  Widget _buildIframePane({required String viewType, required bool loaded}) {
+  Widget _buildPane({
+    required String url,
+    required String viewType,
+    required bool loaded,
+  }) {
+    if (!kIsWeb) {
+      return Padding(
+        padding: context.appEdgeInsets(all: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.info_outline, size: 48, color: CustomColors.purple),
+            SizedBox(height: context.h(16)),
+            Text(
+              selectedTab == 0 ? 'Terms & Conditions' : 'Privacy Policy',
+              style: context.fonts.black18w600,
+            ),
+            SizedBox(height: context.h(8)),
+            Text(
+              url,
+              style: context.fonts.purple14w600,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
