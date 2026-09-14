@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -5,16 +7,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../models/chat_appointment_model.dart';
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/responses/filters_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
+import '../utils/enums.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
+import '../view_models/chat_view_model.dart';
 import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/provider_view_model.dart';
@@ -3016,15 +3021,53 @@ class _CreateAppointmentScreenState
         simulations: simulationsMap,
         onConfirm: () => viewModel.createAppointment(request: request),
       ),
-    ).then((success) {
+    ).then((success) async {
       if (mounted && success == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Appointment created successfully!'),
-            backgroundColor: CustomColors.purple,
-          ),
-        );
-        context.pop();
+        if (widget.treatmentRequestData != null) {
+          final chatId = widget.treatmentRequestData!.chatId;
+          final serviceNameStr = _selectedTreatments
+              .map((t) => t.name)
+              .where((name) => name != null && name.isNotEmpty)
+              .cast<String>()
+              .join(', ');
+
+          final practitionerNameStr = _assignedPractitioners
+              .map((p) => p.name)
+              .where((name) => name.isNotEmpty)
+              .join(', ');
+
+          final appointmentModel = ChatAppointmentModel(
+            appointmentId: 0,
+            patientName: patientName,
+            serviceName: serviceNameStr.isNotEmpty ? serviceNameStr : 'Treatment',
+            date: _dateController.text.trim(),
+            time: _selectedTimeSlot ?? '',
+            practitionerName: practitionerNameStr,
+            status: _paymentStatus.isNotEmpty ? _paymentStatus : 'scheduled',
+            appointmentKey: _selectedAppointmentTypeFilter?.name ?? 'Appointment',
+          );
+
+          try {
+            await ref.read(chatProvider.notifier).sendChatMessage(
+                  type: MessageType.appointment,
+                  content: '',
+                  appointment: appointmentModel,
+                  chatIdOverride: chatId,
+                );
+          } catch (e) {
+            log('Error sending appointment WebSocket message: $e');
+          }
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Appointment created successfully!'),
+              backgroundColor: CustomColors.purple,
+            ),
+          );
+          context.pop();
+        }
       }
     });
   }

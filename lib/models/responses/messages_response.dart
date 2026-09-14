@@ -48,6 +48,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import '../../utils/enums.dart';
+import '../chat_appointment_model.dart';
 import '../chat_treatment_request_model.dart';
 import 'base_response_model.dart';
 
@@ -205,6 +206,21 @@ class Message {
       return ChatTreatmentRequestModel.fromJson(jsonDecode(content!));
     } catch (e, s) {
       log('Error: $e', stackTrace: s);
+      return null;
+    }
+  }
+
+  ChatAppointmentModel? get appointmentData {
+    try {
+      if (type != MessageType.appointment) {
+        return null;
+      }
+      if (content == null) {
+        return null;
+      }
+      return ChatAppointmentModel.fromJson(jsonDecode(content!));
+    } catch (e, s) {
+      log('Error parsing ChatAppointmentModel: $e', stackTrace: s);
       return null;
     }
   }

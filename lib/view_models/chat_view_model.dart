@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../models/dummy/chat_dummy_model.dart';
 import '../models/responses/chats_response.dart';
@@ -76,9 +77,11 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     String? mediaUrl,
     String? documentUrl,
     ChatTreatmentRequestModel? treatmentRequest,
+    ChatAppointmentModel? appointment,
+    int? chatIdOverride,
   }) async {
     return await runSafely(() async {
-      final chatId = state.selectedChat?.id;
+      final chatId = chatIdOverride ?? state.selectedChat?.id;
       if (chatId == null) {
         throw const UnknownException('No chat selected');
       }
@@ -90,6 +93,7 @@ class ChatViewModel extends BaseViewModel<ChatState> {
         mediaUrl: mediaUrl,
         documentUrl: documentUrl,
         treatmentRequest: treatmentRequest,
+        appointment: appointment,
       );
     }, showLoading: false);
   }

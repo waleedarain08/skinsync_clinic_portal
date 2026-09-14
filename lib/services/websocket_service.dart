@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
 import '../exceptions/app_exception.dart';
+import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
 import '../services/api_base_helper.dart';
 import '../services/locator.dart';
@@ -156,6 +157,7 @@ class WebSocketService {
     String? mediaUrl,
     String? documentUrl,
     ChatTreatmentRequestModel? treatmentRequest,
+    ChatAppointmentModel? appointment,
   }) async {
     if (_socket == null) {
       throw Exception('Websocket not connected');
@@ -168,6 +170,14 @@ class WebSocketService {
         text = content;
       } else {
         throw const ApiHttpException(message: 'TreatmentRequest is required!');
+      }
+    } else if (type == MessageType.appointment) {
+      if (appointment != null) {
+        text = jsonEncode(appointment.toJson());
+      } else if (content.trim().isNotEmpty) {
+        text = content;
+      } else {
+        throw const ApiHttpException(message: 'Appointment data is required!');
       }
     } else {
       text = content;
