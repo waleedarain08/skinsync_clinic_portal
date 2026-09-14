@@ -190,39 +190,42 @@ class _AiOnboardingChatScreenState
   // DYNAMIC INPUT BAR
   // ---------------------------------------------------------------------------
 
-  Widget _buildInputBar(BuildContext context) {
-    final state = ref.watch(aiOnboardingChatViewModel);
+Widget _buildInputBar(BuildContext context) {
+  final state = ref.watch(aiOnboardingChatViewModel);
 
-    // Questionnaire completed.
-    if (state.completed) {
-      return const SizedBox.shrink();
-    }
+  // // Questionnaire completed.
+  // if (state.completed) {
+  //   return const SizedBox.shrink();
+  // }
 
-    switch (state.inputType) {
-      case 'text':
-        return _buildTextInput(context);
-
-      case 'number':
-        return _buildNumberInput(context);
-
-      case 'multi_select':
-        return _buildMultiSelectInput(
-          context,
-          state.inputOptions,
-        );
-
-      case 'time_picker':
-        return _buildTimePickerInput(context);
-
-      case 'date_picker':
-        return _buildDatePickerInput(context);
-
-      default:
-        // Before first AI response, show normal text input.
-        return _buildTextInput(context);
-    }
+  // No input type from API -> normal text field.
+  if (state.inputType == null || state.inputType!.isEmpty) {
+    return _buildTextInput(context);
   }
 
+  switch (state.inputType) {
+    case 'text':
+      return _buildTextInput(context);
+
+    case 'number':
+      return _buildNumberInput(context);
+
+    case 'multi_select':
+      return _buildMultiSelectInput(
+        context,
+        state.inputOptions,
+      );
+
+    case 'time_picker':
+      return _buildTimePickerInput(context);
+
+    case 'date_picker':
+      return _buildDatePickerInput(context);
+
+    default:
+      return _buildTextInput(context);
+  }
+}
   // ---------------------------------------------------------------------------
   // TEXT INPUT
   // ---------------------------------------------------------------------------
