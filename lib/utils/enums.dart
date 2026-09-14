@@ -350,6 +350,7 @@ enum EventType {
   chat('chat'),
   appointment('appointment'),
   newAppointment('new_appointment'),
+  error('error'),
   subscription('subscription');
 
   final String value;

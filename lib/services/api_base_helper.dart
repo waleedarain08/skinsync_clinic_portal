@@ -37,7 +37,7 @@ class ApiBaseService {
     List<MultiPartImageModel>? imagePath,
   }) async {
     try {
-      await _refreshToken();
+      await refreshToken();
       final params = queryParams?.entries
           .map((entry) {
             return '${entry.key}=${entry.value}';
@@ -201,7 +201,7 @@ class ApiBaseService {
     return data;
   }
 
-  Future<void> _refreshToken() async {
+  Future<void> refreshToken() async {
     if (_secureStorage.token == null) {
       return;
     }
