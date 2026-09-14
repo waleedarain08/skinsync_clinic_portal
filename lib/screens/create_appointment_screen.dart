@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/filters_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
@@ -2959,11 +2960,34 @@ class _CreateAppointmentScreenState
             if (widget.treatmentRequestData != null) {
               final chatId = widget.treatmentRequestData!.chatId;
 
+              final richTreatments = treatmentSummaryItems.map((item) {
+                return TreatmentDetail(
+                  treatmentName: item.treatmentName,
+                  areaName: item.areaName,
+                  sessionName: item.sessionName,
+                  treatmentCost: item.treatmentCost,
+                  material: item.materialName != null || item.materialQty != null
+                      ? MaterialDetail(
+                          materialName: item.materialName,
+                          selectedQuantity: item.materialQty,
+                        )
+                      : null,
+                );
+              }).toList();
+
+              final appointmentToSend =
+                  (data ?? AppointmentDetailData()).copyWith(
+                treatments:
+                    (data?.treatments != null && data!.treatments!.isNotEmpty)
+                        ? data.treatments
+                        : richTreatments,
+              );
+
               try {
                 await ref.read(chatProvider.notifier).sendChatMessage(
                   type: MessageType.appointment,
                   content: '',
-                  appointment: data,
+                  appointment: appointmentToSend,
                   chatIdOverride: chatId,
                 );
               } catch (e) {

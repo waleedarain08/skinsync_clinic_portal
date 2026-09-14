@@ -1,7 +1,8 @@
 import '../treatment_detail_model.dart';
 import 'base_response_model.dart';
 
-class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentDetailData> {
+class AppointmentDetailResponse
+    extends BaseApiResponseModel<AppointmentDetailData> {
   AppointmentDetailResponse({
     required super.success,
     required super.message,
@@ -27,7 +28,7 @@ class AppointmentDetailResponse extends BaseApiResponseModel<AppointmentDetailDa
 class AppointmentDetailData {
   final int? id;
   final String? appointmentKey;
- // final Clinic? clinic;
+  // final Clinic? clinic;
   final Doctor? doctor;
   final Patient? patient;
   final AppointmentType? appointmentType;
@@ -48,7 +49,7 @@ class AppointmentDetailData {
   AppointmentDetailData({
     this.id,
     this.appointmentKey,
-  //  this.clinic,
+    //  this.clinic,
     this.doctor,
     this.patient,
     this.appointmentType,
@@ -67,30 +68,58 @@ class AppointmentDetailData {
     this.createdAt,
   });
 
-  factory AppointmentDetailData.fromJson(Map<String, dynamic> json) => AppointmentDetailData(
+  factory AppointmentDetailData.fromJson(Map<String, dynamic> json) =>
+      AppointmentDetailData(
         id: json["id"],
         appointmentKey: json["appointment_key"],
-       // clinic: json["clinic"] == null ? null : Clinic.fromJson(json["clinic"]),
-        doctor: json["doctor"] == null ? null : Doctor.fromJson(json["doctor"]),
-        patient: json["patient"] == null ? null : Patient.fromJson(json["patient"]),
-        appointmentType: json["appointment_type"] == null
+        doctor: json["doctor"] == null
+            ? (json["practitioners"] != null &&
+                    (json["practitioners"] as List).isNotEmpty
+                ? Doctor.fromJson(
+                    (json["practitioners"] as List).first is Map
+                        ? (json["practitioners"] as List).first
+                        : {})
+                : null)
+            : Doctor.fromJson(
+                json["doctor"] is Map ? json["doctor"] : {}),
+        patient: json["patient"] == null
             ? null
-            : AppointmentType.fromJson(json["appointment_type"]),
+            : Patient.fromJson(json["patient"] is Map ? json["patient"] : {}),
+        appointmentType: json["appointment_type"] == null
+            ? (json["appointment_type_id"] != null
+                ? AppointmentType(id: json["appointment_type_id"])
+                : null)
+            : AppointmentType.fromJson(
+                json["appointment_type"] is Map ? json["appointment_type"] : {}),
         date: json["date"],
         startTime: json["start_time"],
         endTime: json["end_time"],
         isInviteClinic: json["is_invite_clinic"],
-        simulations: json["simulations"] == null ? null : Simulations.fromJson(json["simulations"]),
-        treatments: json["treatments"] == null
+        simulations: json["simulations"] == null
+            ? null
+            : Simulations.fromJson(
+                json["simulations"] is Map ? json["simulations"] : {}),
+        treatments: (json["treatments"] ?? json["treatment"]) == null
             ? []
-            : List<TreatmentDetail>.from(json["treatments"].map((x) => TreatmentDetail.fromJson(x))),
-        treatmentTotal: json["treatment_total"]?.toDouble(),
-        paymentType: json["payment_type"] == null ? null : PaymentType.fromJson(json["payment_type"]),
+            : List<TreatmentDetail>.from(
+                ((json["treatments"] ?? json["treatment"]) as List).map(
+                  (x) => TreatmentDetail.fromJson(
+                      x is Map ? x as Map<String, dynamic> : {}),
+                ),
+              ),
+        treatmentTotal:
+            (json["treatment_total"] ?? json["payable"])?.toDouble(),
+        paymentType: json["payment_type"] == null
+            ? null
+            : PaymentType.fromJson(
+                json["payment_type"] is Map ? json["payment_type"] : {}),
         discountType: json["discount_type"],
         discount: json["discount"]?.toDouble(),
         bookingType: json["booking_type"],
         status: json["status"],
-        createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.tryParse(json["created_at"].toString()),
       );
 
   Map<String, dynamic> toJson() => {
@@ -116,6 +145,48 @@ class AppointmentDetailData {
         "status": status,
         "created_at": createdAt?.toIso8601String(),
       };
+
+  AppointmentDetailData copyWith({
+    int? id,
+    String? appointmentKey,
+    Doctor? doctor,
+    Patient? patient,
+    AppointmentType? appointmentType,
+    int? date,
+    int? startTime,
+    int? endTime,
+    bool? isInviteClinic,
+    Simulations? simulations,
+    List<TreatmentDetail>? treatments,
+    double? treatmentTotal,
+    PaymentType? paymentType,
+    String? discountType,
+    double? discount,
+    String? bookingType,
+    String? status,
+    DateTime? createdAt,
+  }) {
+    return AppointmentDetailData(
+      id: id ?? this.id,
+      appointmentKey: appointmentKey ?? this.appointmentKey,
+      doctor: doctor ?? this.doctor,
+      patient: patient ?? this.patient,
+      appointmentType: appointmentType ?? this.appointmentType,
+      date: date ?? this.date,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      isInviteClinic: isInviteClinic ?? this.isInviteClinic,
+      simulations: simulations ?? this.simulations,
+      treatments: treatments ?? this.treatments,
+      treatmentTotal: treatmentTotal ?? this.treatmentTotal,
+      paymentType: paymentType ?? this.paymentType,
+      discountType: discountType ?? this.discountType,
+      discount: discount ?? this.discount,
+      bookingType: bookingType ?? this.bookingType,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 class AppointmentType {
@@ -143,7 +214,8 @@ class AppointmentType {
     this.status,
   });
 
-  factory AppointmentType.fromJson(Map<String, dynamic> json) => AppointmentType(
+  factory AppointmentType.fromJson(Map<String, dynamic> json) =>
+      AppointmentType(
         id: json["id"],
         title: json["title"],
         key: json["key"],

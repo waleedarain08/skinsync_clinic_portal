@@ -308,7 +308,18 @@ class AppointmentChatBubble extends StatelessWidget {
             final treatmentName = t.treatmentName ?? 'Treatment';
             final areaName = t.areaName;
             final cost = t.treatmentCost ?? 0.0;
+            final materialName = t.material?.materialName ?? t.material?.unitType;
             final materialQty = t.material?.selectedQuantity;
+            final sessionName = t.sessionName;
+
+            final details = [
+              if (sessionName != null && sessionName.isNotEmpty)
+                'Session: $sessionName',
+              if (materialName != null && materialName.isNotEmpty)
+                'Material: $materialName${materialQty != null ? ' [Qty: $materialQty]' : ''}'
+              else if (materialQty != null)
+                'Material Qty: $materialQty',
+            ].join(' | ');
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -326,10 +337,10 @@ class AppointmentChatBubble extends StatelessWidget {
                                   : ''),
                           style: context.fonts.black13w600,
                         ),
-                        if (materialQty != null) ...[
+                        if (details.isNotEmpty) ...[
                           context.verticalSpace(2),
                           Text(
-                            'Material Qty: $materialQty',
+                            details,
                             style: context.fonts.grey12w400,
                           ),
                         ],
