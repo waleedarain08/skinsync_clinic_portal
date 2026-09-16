@@ -120,7 +120,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
     log('[log] BODY: ${jsonEncode(body)}');
     try {
       final uri = Uri.parse(
-        'https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message',
+        'http://18.116.65.70:8003/api/v1/onboarding/message',
       );
 
       final response = await http.post(
