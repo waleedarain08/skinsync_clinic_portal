@@ -1,6 +1,8 @@
+import '../models/requests/appointments_availability_request.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
+import '../models/responses/appointments_availability_response.dart';
 import '../models/responses/base_response_model.dart';
 import '../models/responses/booking_methods_response.dart';
 import '../models/responses/filters_response.dart';
@@ -103,7 +105,26 @@ class AppointmentService extends AppointmentRepository {
       requestType: RequestType.post,
       requestBody: request,
     );
-    final model = BaseResponse<AppointmentDetailData>.fromJson(response, (json) => AppointmentDetailData.fromJson(json as Map<String, dynamic>));
+    final model = BaseResponse<AppointmentDetailData>.fromJson(
+      response,
+      (json) => AppointmentDetailData.fromJson(json as Map<String, dynamic>),
+    );
+    if (!model.success) {
+      throw Exception(model.message);
+    }
+    return model;
+  }
+
+  @override
+  Future<AvailabilityResponse> appointmentsAvailability({
+    required AvailabilityRequest request,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.appointmentsAvailability,
+      requestType: RequestType.post,
+      requestBody: request,
+    );
+    final model = AvailabilityResponse.fromJson(response);
     if (!model.success) {
       throw Exception(model.message);
     }

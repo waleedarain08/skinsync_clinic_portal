@@ -96,6 +96,7 @@ enum Endpoint {
   createStaff('clinic/register-staff'),
   revenue('clinic/revenue'),
   staff('clinic/staff'),
+  appointmentsAvailability('clinic/appointments/availability'),
   aiOnboardingChat('clinic/ai-onboarding/chat');
 
   final String path;

@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/patient_model.dart';
+import '../models/requests/appointments_availability_request.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/requests/register_patient_request.dart';
 import '../models/responses/appointment_detail_response.dart';
+import '../models/responses/appointments_availability_response.dart';
 import '../models/responses/booking_methods_response.dart';
 import '../models/responses/register_patient_response.dart';
 import '../repositories/appointment_repository.dart';
@@ -12,12 +15,15 @@ import 'base_view_model.dart';
 
 final appointmentCreationProvider =
     NotifierProvider<AppointmentCreationViewModel, AppointmentCreationState>(
-        AppointmentCreationViewModel.new);
+      AppointmentCreationViewModel.new,
+    );
 
 class AppointmentCreationState {
   final PatientModel? selectedPatient;
   final List<PatientModel> searchResults;
+  final List<AvailabilitySlot> slot;
   final bool isLoading;
+  final bool isSlotLoading;
   final String searchQuery;
   final RegisterPatientData? registeredPatientData;
   final List<BookingMethodItem> bookingMethods;
@@ -28,6 +34,8 @@ class AppointmentCreationState {
     this.searchResults = const [],
     this.isLoading = false,
     this.searchQuery = '',
+    this.slot = const [],
+    this.isSlotLoading = false,
     this.registeredPatientData,
     this.bookingMethods = const [],
     this.isFetchingBookingMethods = false,
@@ -37,7 +45,9 @@ class AppointmentCreationState {
     PatientModel? selectedPatient,
     List<PatientModel>? searchResults,
     bool? isLoading,
+    bool? isSlotLoading,
     String? searchQuery,
+    List<AvailabilitySlot>? slot,
     RegisterPatientData? registeredPatientData,
     List<BookingMethodItem>? bookingMethods,
     bool? isFetchingBookingMethods,
@@ -52,6 +62,8 @@ class AppointmentCreationState {
       bookingMethods: bookingMethods ?? this.bookingMethods,
       isFetchingBookingMethods:
           isFetchingBookingMethods ?? this.isFetchingBookingMethods,
+      slot: slot ?? this.slot,
+      isSlotLoading: isSlotLoading ?? this.isSlotLoading,
     );
   }
 }
@@ -204,5 +216,23 @@ class AppointmentCreationViewModel
       state = state.copyWith(isLoading: false);
       return response.data;
     });
+  }
+
+  Future<void> getAppointmentsAvailabilitySlot({
+    required AvailabilityRequest request,
+  }) async {
+    await runSafely(() async {
+      state = state.copyWith(isSlotLoading: true);
+      final repository = locator<AppointmentRepository>();
+      final response = await repository.appointmentsAvailability(
+        request: request,
+      );
+      state = state.copyWith(isSlotLoading: false, slot: response.slots);
+    });
+    state = state.copyWith(isSlotLoading: false);
+  }
+
+  void clearAvailabilitySlots() {
+    state = state.copyWith(slot: []);
   }
 }

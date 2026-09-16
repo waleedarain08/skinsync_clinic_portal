@@ -8,8 +8,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
+import '../models/requests/appointments_availability_request.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/responses/appointment_detail_response.dart';
+import '../models/responses/appointments_availability_response.dart';
 import '../models/responses/filters_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
@@ -94,19 +96,48 @@ class _CreateAppointmentScreenState
   final List<_AssignedPractitioner> _assignedPractitioners = [];
   bool _hasInitializedRequestPrefill = false;
 
-  final _dateController = TextEditingController();
-  String? _selectedTimeSlot;
-  final List<String> _timeSlots = [
-    '09:00',
-    '10:00',
-    '11:30',
-    '13:00',
-    '14:30',
-    '16:00',
-    '17:30',
-    '19:00',
-  ];
+final _dateController = TextEditingController();
+AvailabilitySlot? _selectedSlot;
 
+
+
+void _fetchAvailabilitySlots() {
+  final dateStr = _dateController.text.trim();
+  final doctorId = _assignedPractitioners.isNotEmpty
+      ? _assignedPractitioners.first.id
+      : _selectedPractitionerItem?.id;
+
+  setState(() => _selectedSlot = null);
+
+  if (dateStr.isEmpty || doctorId == null) {
+    ref.read(appointmentCreationProvider.notifier).clearAvailabilitySlots();
+    return;
+  }
+
+  final parsedDate = DateTime.tryParse(dateStr);
+  if (parsedDate == null) return;
+
+  final dateTs = DateTime(
+        parsedDate.year,
+        parsedDate.month,
+        parsedDate.day,
+      ).millisecondsSinceEpoch ~/
+      1000;
+
+  final sessionIds = _selectedSessionMap.values
+      .map((s) => s?.sessionId)
+      .whereType<int>()
+      .toSet()
+      .toList();
+
+  ref.read(appointmentCreationProvider.notifier).getAppointmentsAvailabilitySlot(
+        request: AvailabilityRequest(
+          doctorId: doctorId,
+          date: dateTs,
+          sessionIds: sessionIds,
+        ),
+      );
+}
   // Section 4: Notes & Booking Config
   String _bookingMethod = 'online';
   final _notesController = TextEditingController();
@@ -185,14 +216,9 @@ class _CreateAppointmentScreenState
     if (request.preferredSlots != null && request.preferredSlots!.isNotEmpty) {
       final firstSlot = request.preferredSlots!.first;
       final chosenDate = firstSlot.date ?? DateTime.now();
-      final chosenTime = firstSlot.time;
       final dateText = DateFormat('yyyy-MM-dd').format(chosenDate);
       setState(() {
         _dateController.text = dateText;
-        if (chosenTime != null) {
-          final timeText = DateFormat('HH:mm').format(chosenTime);
-          _selectedTimeSlot = timeText;
-        }
       });
     }
 
@@ -1258,6 +1284,7 @@ class _CreateAppointmentScreenState
             _dateController.text = newDateStr;
           });
           _fetchFilteredPractitioners(dateOverride: newDateStr);
+          _fetchAvailabilitySlots();
         }
       },
       prefixIcon: const Icon(
@@ -1275,9 +1302,9 @@ class _CreateAppointmentScreenState
               onPressed: () {
                 setState(() {
                   _dateController.clear();
-                  _selectedTimeSlot = null;
                 });
                 _fetchFilteredPractitioners(dateOverride: '');
+                _fetchAvailabilitySlots();
               },
             )
           : null,
@@ -1458,6 +1485,7 @@ class _CreateAppointmentScreenState
                             )
                           : null;
                     });
+                          _fetchAvailabilitySlots();
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -1602,7 +1630,16 @@ class _CreateAppointmentScreenState
                       _assignedPractitioners.removeWhere(
                         (item) => item.id == p.id,
                       );
+                      _selectedPractitionerItem =
+                          _assignedPractitioners.isNotEmpty
+                          ? doctors.firstWhere(
+                              (doctor) =>
+                                  doctor.id == _assignedPractitioners.last.id,
+                              orElse: () => doctors.first,
+                            )
+                          : null;
                     });
+                    _fetchAvailabilitySlots();
                   },
                   backgroundColor: CustomColors.purple.withValues(alpha: 0.08),
                   shape: RoundedRectangleBorder(
@@ -1619,48 +1656,66 @@ class _CreateAppointmentScreenState
         ],
 
         // Available Time Slots (Appears when Date is selected)
-        if (_dateController.text.isNotEmpty) ...[
-          SizedBox(height: context.h(20)),
-          Text('Available Time Slots', style: context.fonts.grey11w600ls12),
-          SizedBox(height: context.h(12)),
-          Wrap(
-            spacing: context.w(12),
-            runSpacing: context.h(12),
-            children: _timeSlots.map((slot) {
-              final isSelected = _selectedTimeSlot == slot;
-              return FilterChip(
-                label: Text(slot),
-                selected: isSelected,
-                onSelected: (val) {
-                  if (val) {
-                    setState(() => _selectedTimeSlot = slot);
-                  }
-                },
-                selectedColor: CustomColors.purple,
-                labelStyle: isSelected
-                    ? context.fonts.black14w500.copyWith(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                      )
-                    : context.fonts.black14w500.copyWith(
-                        color: Colors.black,
-                        fontSize: 12.sp,
-                      ),
-                checkmarkColor: Colors.white,
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(20)),
-                  side: BorderSide(
-                    color: isSelected
-                        ? CustomColors.purple
-                        : CustomColors.border,
+      if (_dateController.text.isNotEmpty) ...[
+  SizedBox(height: context.h(20)),
+  Text('Available Time Slots', style: context.fonts.grey11w600ls12),
+  SizedBox(height: context.h(12)),
+  Builder(
+    builder: (context) {
+      final creationState = ref.watch(appointmentCreationProvider);
+
+      if (creationState.isSlotLoading) {
+        return const Center(child: AppLoader());
+      }
+      if (creationState.slot.isEmpty) {
+        return Text(
+          'No available slots for the selected date.',
+          style: context.fonts.grey14w400,
+        );
+      }
+
+      return Wrap(
+        spacing: context.w(12),
+        runSpacing: context.h(12),
+        children: creationState.slot.map((slot) {
+          final isSelected = _selectedSlot?.startTime == slot.startTime;
+          final label = DateFormat('HH:mm').format(
+            DateTime.fromMillisecondsSinceEpoch(slot.startTime * 1000),
+          );
+
+          return FilterChip(
+            label: Text(label),
+            selected: isSelected,
+            onSelected: slot.isBooked
+                ? null
+                : (val) {
+                    if (val) setState(() => _selectedSlot = slot);
+                  },
+            backgroundColor: slot.isBooked ? CustomColors.softGrey : null,
+            selectedColor: CustomColors.purple,
+            labelStyle: isSelected
+                ? context.fonts.black14w500.copyWith(
+                    color: Colors.white, fontSize: 12.sp)
+                : context.fonts.black14w500.copyWith(
+                    color: slot.isBooked
+                        ? CustomColors.grey
+                        : Colors.black,
+                    fontSize: 12.sp,
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ],
+            checkmarkColor: Colors.white,
+            padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(context.r(20)),
+              side: BorderSide(
+                color: isSelected ? CustomColors.purple : CustomColors.border,
+              ),
+            ),
+          );
+        }).toList(),
+      );
+    },
+  ),
+], ],
     );
   }
 
@@ -2566,6 +2621,7 @@ class _CreateAppointmentScreenState
                         }
                       });
                       _calculateTreatmentCost(treatmentId, areaId);
+                      _fetchAvailabilitySlots();
                     }
                   },
                 );
@@ -2717,6 +2773,13 @@ class _CreateAppointmentScreenState
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
   ) {
+
+    if (_selectedSlot == null) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Please select an available time slot.')),
+  );
+  return;
+}
     if (!_formKey.currentState!.validate()) return;
 
     if (state.selectedPatient == null) {
@@ -2754,34 +2817,8 @@ class _CreateAppointmentScreenState
       return;
     }
 
-    if (_selectedTimeSlot == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an available time slot.')),
-      );
-      return;
-    }
-
     final selectedDate =
         DateTime.tryParse(_dateController.text) ?? DateTime.now();
-    int hour = 10;
-    int minute = 0;
-    if (_selectedTimeSlot != null) {
-      try {
-        final parts = _selectedTimeSlot!.split(':');
-        if (parts.length == 2) {
-          hour = int.parse(parts[0]);
-          minute = int.parse(parts[1]);
-        }
-      } catch (_) {}
-    }
-    final startDateTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      hour,
-      minute,
-    );
-    final endDateTime = startDateTime.add(const Duration(hours: 1));
     final int dateTimestamp =
         DateTime(
           selectedDate.year,
@@ -2789,8 +2826,8 @@ class _CreateAppointmentScreenState
           selectedDate.day,
         ).millisecondsSinceEpoch ~/
         1000;
-    final int startTimeStamp = startDateTime.millisecondsSinceEpoch ~/ 1000;
-    final int endTimeStamp = endDateTime.millisecondsSinceEpoch ~/ 1000;
+      final int startTimeStamp = _selectedSlot!.startTime;
+      final int endTimeStamp = _selectedSlot!.endTime;
 
     final double totalCost = double.tryParse(_amountController.text) ?? 0.0;
     final double discountVal = double.tryParse(_discountController.text) ?? 0.0;
@@ -2941,7 +2978,9 @@ class _CreateAppointmentScreenState
         patientPhone: patientPhone,
         practitioners: practitionersList,
         dateStr: _dateController.text.trim(),
-        timeSlot: _selectedTimeSlot ?? '',
+        timeSlot: DateFormat('HH:mm').format(
+          DateTime.fromMillisecondsSinceEpoch(_selectedSlot!.startTime * 1000),
+        ),
         appointmentType: _selectedAppointmentTypeFilter?.name ?? 'Standard',
         bookingMethod: _bookingMethod,
         treatments: treatmentSummaryItems,
