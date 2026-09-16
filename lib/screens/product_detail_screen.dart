@@ -473,7 +473,7 @@ class ProductDetailScreen extends ConsumerWidget {
                         ),
                         context.horizontalSpace(8),
                         Text(
-                          'Batches & Lots tracking (Paginated)',
+                          'Batches & Lots tracking',
                           style: context.fonts.black18w600,
                         ),
                       ],
