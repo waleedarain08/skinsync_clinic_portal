@@ -97,7 +97,10 @@ enum Endpoint {
   revenue('clinic/revenue'),
   staff('clinic/staff'),
   appointmentsAvailability('clinic/appointments/availability'),
-  aiOnboardingChat('clinic/ai-onboarding/chat');
+  aiOnboardingChat('clinic/ai-onboarding/chat'),
+  clinicCurrentPlan('clinic/clinic-current-plan'),
+  subscribe('clinic/subscribe');
+
 
   final String path;
 
@@ -114,9 +117,9 @@ enum Endpoint {
 
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
-  apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('https://api-dev.skinsyncai.com/api/');
 
- //apiQa('http://localhost:8084/api/');
+ apiQa('http://localhost:8084/api/');
 
   final String url;
 

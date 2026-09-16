@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/appointment_list_response.dart';
 import '../models/responses/filters_response.dart';
@@ -50,13 +51,14 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
     }
     await runSafely(showLoading: showEasyLoading, () async {
       state = state.copyWith(loading: !showEasyLoading);
-      final appointment = await locator<AppointmentRepository>().appointmentList(
-        page: state.page,
-        filter: state.filter,
-        status: state.status,
-        search: searchController.text,
-        practitionerId: state.practitionerId,
-      );
+      final appointment = await locator<AppointmentRepository>()
+          .appointmentList(
+            page: state.page,
+            filter: state.filter,
+            status: state.status,
+            search: searchController.text,
+            practitionerId: state.practitionerId,
+          );
       if (appointment.success) {
         state = state.copyWith(
           loading: false,
@@ -77,13 +79,14 @@ class AppointmentViewModel extends BaseViewModel<AppointmentState> {
       state = state.copyWith(appointmentStatus: appointment.data ?? []);
     });
   }
-   Future<void> getAppointmentsDetail({required int id}) async {
-    return await runSafely(showLoading: false, () async {
+
+  Future<void> getAppointmentsDetail({required int id}) async {
+    return await runSafely(() async {
       final appointment = await locator<AppointmentRepository>()
-          .appointmentDetail(id:id);
-          if(appointment.success){
-             state = state.copyWith(appointmentDetail: appointment.data);
-          }
+          .appointmentDetail(id: id);
+      if (appointment.success) {
+        state = state.copyWith(appointmentDetail: appointment.data);
+      }
     });
   }
 
@@ -150,4 +153,3 @@ class AppointmentState {
     );
   }
 }
-

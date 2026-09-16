@@ -12,6 +12,7 @@ import '../../utils/enums.dart';
 import '../../utils/responsive.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/chat_view_model.dart';
+import '../../view_models/subscription_view_model.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/gradient_scaffold.dart';
@@ -36,6 +37,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
     super.initState();
     _controller = SidebarXController(selectedIndex: 0, extended: true);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(subscriptionViewModelProvider.notifier).fetchCurrentPlan();
       _wsInstance.connect(
         onEvent: (event) {
           try {

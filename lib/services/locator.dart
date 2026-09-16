@@ -31,6 +31,8 @@ import 'role_service.dart';
 import 'session_service.dart';
 import 'staff_service.dart';
 import 'storage_service.dart';
+import '../repositories/subscription_repository.dart';
+import 'subscription_service.dart';
 import 'treatment_services.dart';
 
 final locator = GetIt.instance;
@@ -51,6 +53,10 @@ Future<void> initializeServices() async {
   locator.registerLazySingleton<AuthRepository>(
     () => AuthService(api: apiBaseHelper),
   );
+  locator.registerLazySingleton<SubscriptionRepository>(
+    () => SubscriptionService(api: apiBaseHelper),
+  );
+
   locator.registerLazySingleton<TreatmentRepository>(
     () => TreatmentServices(api: apiBaseHelper),
   );
