@@ -11,7 +11,7 @@ abstract class BaseViewModel<S> extends Notifier<S> {
   S build();
 
   Future<T?> runSafely<T>(
-    AsyncValueGetter<T> action, {
+    AsyncValueGetter<T?> action, {
     bool showLoading = true,
   }) async {
     try {

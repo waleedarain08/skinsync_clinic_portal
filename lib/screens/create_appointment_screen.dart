@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +9,17 @@ import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/filters_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
+import '../utils/enums.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
 import '../view_models/appointment_view_model.dart';
+import '../view_models/chat_view_model.dart';
 import '../view_models/patient_view_model.dart';
 import '../view_models/practitioner_view_model.dart';
 import '../view_models/provider_view_model.dart';
@@ -34,6 +39,7 @@ import '../widgets/gradient_scaffold.dart';
 import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
 import '../widgets/treatment_container.dart';
+import '../widgets/dialog_box/quantity_slider_dialog.dart';
 import '../models/responses/login_response_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
@@ -140,7 +146,7 @@ class _CreateAppointmentScreenState
     });
   }
 
-  void _initializeChatPatient() {
+  Future<void> _initializeChatPatient() async {
     final request = widget.treatmentRequestData;
     if (request == null || _hasInitializedRequestPrefill) return;
 
@@ -164,6 +170,17 @@ class _CreateAppointmentScreenState
     _rightImageAfterController.text = request.rightImageAfter ?? '';
     _leftImageBeforeController.text = request.leftImageBefore ?? '';
     _leftImageAfterController.text = request.leftImageAfter ?? '';
+
+    if (request.frontImageBefore?.isNotEmpty == true ||
+        request.frontImageAfter?.isNotEmpty == true ||
+        request.rightImageBefore?.isNotEmpty == true ||
+        request.rightImageAfter?.isNotEmpty == true ||
+        request.leftImageBefore?.isNotEmpty == true ||
+        request.leftImageAfter?.isNotEmpty == true) {
+      setState(() {
+        _showSimulationsSection = true;
+      });
+    }
 
     if (request.preferredSlots != null && request.preferredSlots!.isNotEmpty) {
       final firstSlot = request.preferredSlots!.first;
@@ -201,6 +218,9 @@ class _CreateAppointmentScreenState
     if (medicalSummaryParts.isNotEmpty) {
       _notesController.text = medicalSummaryParts.join(' • ');
     }
+
+    await ref.read(treatmentViewModelProvider.notifier).getTreatments();
+    if (!mounted) return;
 
     final availableTreatments = ref.read(treatmentViewModelProvider).treatments;
     final List<TreatmentModel> prefilledTreatments = [];
@@ -242,7 +262,6 @@ class _CreateAppointmentScreenState
           ..clear()
           ..addAll(prefilledTreatments);
         _selectedDropdownTreatment = prefilledTreatments.first;
-        _updateTotalAmount();
       });
 
       for (final tx in prefilledTreatments) {
@@ -253,12 +272,13 @@ class _CreateAppointmentScreenState
           orElse: () => request.treatments.first,
         );
 
-        _loadPrefilledTreatmentAreas(
+        await _loadPrefilledTreatmentAreas(
           treatment: tx,
           requestTreatment: treatmentRequest,
         );
       }
 
+      _updateTotalAmount();
       _fetchFilteredPractitioners();
     }
   }
@@ -296,7 +316,6 @@ class _CreateAppointmentScreenState
         );
         _selectedDropdownTreatment = _selectedTreatments[txIndex];
       }
-      _updateTotalAmount();
     });
 
     for (final area in selectedAreaModels) {
@@ -339,6 +358,7 @@ class _CreateAppointmentScreenState
                 _selectedMaterialQtyMap[key] = selectedQty;
               }
             });
+            await _calculateTreatmentCost(treatment.id!, area.id!);
           }
         }
       }
@@ -828,25 +848,46 @@ class _CreateAppointmentScreenState
                   ),
                   child: TreatmentContainer(
                     onTap: () async {
-                      final bool willBeSelected = !isSelected;
+                      final existingIndex = _selectedTreatments.indexWhere(
+                        (t) => t.id == treatment.id,
+                      );
+                      final bool isSelected = existingIndex != -1;
+                      final existingTx =
+                          isSelected ? _selectedTreatments[existingIndex] : null;
+                      final bool hasSelectedAreas =
+                          existingTx?.sideAreas?.isNotEmpty == true;
+
+                      bool fetchAreasNeeded = false;
+
                       setState(() {
                         if (isSelected) {
-                          _selectedTreatments.removeWhere(
-                            (t) => t.id == treatment.id,
-                          );
-                          if (_selectedDropdownTreatment?.id == treatment.id) {
-                            _selectedDropdownTreatment = null;
+                          if (hasSelectedAreas) {
+                            // Do NOT deselect if areas are selected; focus this treatment
+                            _selectedDropdownTreatment = existingTx;
+                          } else {
+                            // Deselect if no area is selected
+                            _selectedTreatments.removeWhere(
+                              (t) => t.id == treatment.id,
+                            );
+                            if (_selectedDropdownTreatment?.id == treatment.id) {
+                              _selectedDropdownTreatment =
+                                  _selectedTreatments.isNotEmpty
+                                      ? _selectedTreatments.last
+                                      : null;
+                            }
                           }
                         } else {
                           final newTx = treatment.copyWith(sideAreas: []);
                           _selectedTreatments.add(newTx);
                           _selectedDropdownTreatment = newTx;
+                          fetchAreasNeeded = true;
                         }
                         _updateTotalAmount();
                         _fetchFilteredPractitioners();
                       });
 
-                      if (willBeSelected && treatment.id != null) {
+                      if ((fetchAreasNeeded || hasSelectedAreas) &&
+                          treatment.id != null) {
                         if (!_fetchedAreasMap.containsKey(treatment.id)) {
                           setState(() {
                             _isFetchingAreas = true;
@@ -2370,90 +2411,24 @@ class _CreateAppointmentScreenState
     await showDialog(
       context: context,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final int min = material.minQty;
-            final int max = material.maxQty;
-            final int divisions = (max - min) > 0 ? (max - min) : 1;
-
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              title: Text(
-                'Select Quantity for ${material.unitType}',
-                style: context.fonts.black16w600,
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Quantity: $currentQty',
-                    style: context.fonts.black18w600.copyWith(
-                      color: CustomColors.purple,
-                    ),
-                  ),
-                  SizedBox(height: context.h(16)),
-                  Slider(
-                    value: currentQty.toDouble(),
-                    min: min.toDouble(),
-                    max: max.toDouble(),
-                    divisions: divisions,
-                    activeColor: CustomColors.purple,
-                    inactiveColor: CustomColors.lightPurple,
-                    label: '$currentQty',
-                    onChanged: (val) {
-                      setDialogState(() {
-                        currentQty = val.round();
-                      });
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: context.w(12)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Min: $min', style: context.fonts.grey12w400),
-                        Text('Max: $max', style: context.fonts.grey12w400),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text('Cancel', style: context.fonts.grey14w400),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CustomColors.purple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _selectedMaterialMap[key] = material;
-                      _selectedMaterialQtyMap[key] = currentQty;
-                    });
-                    final parts = key.split('-');
-                    if (parts.length == 2) {
-                      final tId = int.tryParse(parts[0]);
-                      final aId = int.tryParse(parts[1]);
-                      if (tId != null && aId != null) {
-                        _calculateTreatmentCost(tId, aId);
-                      }
-                    }
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text(
-                    'Confirm',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
+        return QuantitySliderDialog(
+          materialName: material.unitType,
+          minQty: material.minQty,
+          maxQty: material.maxQty,
+          initialQty: currentQty,
+          onConfirm: (newQty) {
+            setState(() {
+              _selectedMaterialMap[key] = material;
+              _selectedMaterialQtyMap[key] = newQty;
+            });
+            final parts = key.split('-');
+            if (parts.length == 2) {
+              final tId = int.tryParse(parts[0]);
+              final aId = int.tryParse(parts[1]);
+              if (tId != null && aId != null) {
+                _calculateTreatmentCost(tId, aId);
+              }
+            }
           },
         );
       },
@@ -2979,19 +2954,61 @@ class _CreateAppointmentScreenState
         paymentType: _paymentType,
         paymentStatus: _paymentStatus,
         simulations: simulationsMap,
-        onConfirm: () => viewModel.createAppointment(request: request),
+        onConfirm: () async {
+          final data = await viewModel.createAppointment(request: request);
+          if (mounted) {
+            if (widget.treatmentRequestData != null) {
+              final chatId = widget.treatmentRequestData!.chatId;
+
+              final richTreatments = treatmentSummaryItems.map((item) {
+                return TreatmentDetail(
+                  treatmentName: item.treatmentName,
+                  areaName: item.areaName,
+                  sessionName: item.sessionName,
+                  treatmentCost: item.treatmentCost,
+                  material: item.materialName != null || item.materialQty != null
+                      ? MaterialDetail(
+                          materialName: item.materialName,
+                          selectedQuantity: item.materialQty,
+                        )
+                      : null,
+                );
+              }).toList();
+
+              final appointmentToSend =
+                  (data ?? AppointmentDetailData()).copyWith(
+                treatments:
+                    (data?.treatments != null && data!.treatments!.isNotEmpty)
+                        ? data.treatments
+                        : richTreatments,
+              );
+
+              try {
+                await ref.read(chatProvider.notifier).sendChatMessage(
+                  type: MessageType.appointment,
+                  content: '',
+                  appointment: appointmentToSend,
+                  chatIdOverride: chatId,
+                );
+              } catch (e) {
+                log('Error sending appointment WebSocket message: $e');
+              }
+            }
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Appointment created successfully!'),
+                  backgroundColor: CustomColors.purple,
+                ),
+              );
+              context.pop();
+            }
+          }
+          return data != null;
+        },
       ),
-    ).then((success) {
-      if (mounted && success == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Appointment created successfully!'),
-            backgroundColor: CustomColors.purple,
-          ),
-        );
-        context.pop();
-      }
-    });
+    );
   }
 }
 

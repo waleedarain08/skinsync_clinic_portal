@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../models/chat_appointment_model.dart';
 import '../models/chat_treatment_request_model.dart';
+import '../models/requests/create_appointment_request.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../services/media_service.dart';
@@ -67,8 +67,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ref
             .read(chatProvider.notifier)
             .selectChat(Chat(id: widget.treatmentRequestData?.chatId));
-        ref.read(chatProvider.notifier).loadMessages();
       }
+      ref.read(chatProvider.notifier).loadMessages();
     });
   }
 
@@ -164,7 +164,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     String? documentName,
     String? documentUrl,
     ChatTreatmentRequestModel? sharedRequestData,
-    ChatAppointmentData? appointmentData,
+    CreateAppointmentRequest? appointmentData,
   }) async {
     final text = customText ?? _messageController.text.trim();
     if (text.isEmpty &&
@@ -901,19 +901,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                 );
               } else if (value == 'appointment') {
-                _sendMessage(
-                  customText: 'Attached appointment confirmation details.',
-                  messageType: MessageType.appointment,
-                  appointmentData: ChatAppointmentData(
-                    appointmentId: 408,
-                    patientName: 'Jane Cooper',
-                    serviceName: 'Dermal Fillers Follow-up',
-                    date: 'Sep 12, 2026',
-                    time: '11:30 AM',
-                    practitionerName: 'Dr. Sarah Johnson',
-                    status: 'Confirmed',
-                  ),
-                );
+                // _sendMessage(
+                //   customText: 'Attached appointment confirmation details.',
+                //   messageType: MessageType.appointment,
+                //   appointmentData: ChatAppointmentData(
+                //     appointmentId: 408,
+                //     patientName: 'Jane Cooper',
+                //     serviceName: 'Dermal Fillers Follow-up',
+                //     date: 'Sep 12, 2026',
+                //     time: '11:30 AM',
+                //     practitionerName: 'Dr. Sarah Johnson',
+                //     status: 'Confirmed',
+                //   ),
+                // );
               }
             },
             itemBuilder: (context) => [

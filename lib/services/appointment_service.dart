@@ -95,7 +95,7 @@ class AppointmentService extends AppointmentRepository {
   }
 
   @override
-  Future<BaseResponse> createAppointment({
+  Future<BaseResponse<AppointmentDetailData>> createAppointment({
     required CreateAppointmentRequest request,
   }) async {
     final response = await locator<ApiBaseService>().httpRequest(
@@ -103,7 +103,7 @@ class AppointmentService extends AppointmentRepository {
       requestType: RequestType.post,
       requestBody: request,
     );
-    final model = BaseResponse.fromJson(response, (json) => json);
+    final model = BaseResponse<AppointmentDetailData>.fromJson(response, (json) => AppointmentDetailData.fromJson(json as Map<String, dynamic>));
     if (!model.success) {
       throw Exception(model.message);
     }

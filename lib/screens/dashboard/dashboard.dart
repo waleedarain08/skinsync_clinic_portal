@@ -39,7 +39,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
       _wsInstance.connect(
         onEvent: (event) {
           try {
-            print('[Dashboard WS Event]: type=${event.type}, data=${event.data}');
+            log('[Dashboard WS Event]: type=${event.type}, data=${event.data}');
             log('NEW MESSAGE RECIEVED OF TYPE: ${event.type}');
             log('DATA: ${event.data}');
             switch (event.type) {
@@ -49,19 +49,21 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   ref.read(chatProvider.notifier).addMessage(message);
                 }
                 break;
-              case .appointment:
+              case EventType.appointment:
                 log('New check-in appointment received');
                 final checkIn = TodaysCheckinModel.fromJson(event.data);
                 ref.read(authViewModelProvider.notifier).addNewCheckIn(checkIn);
                 break;
-              case .newAppointment:
+              case EventType.newAppointment:
+                break;
+              case EventType.error:
+                log('WebSocket error event received: ${event.data}');
                 break;
               case EventType.subscription:
                 break;
             }
           } catch (e, s) {
-            print('[Dashboard WS Event Parse Error]: $e');
-            log('Error parsing WS event: $e', stackTrace: s);
+            log('[Dashboard WS Event Parse Error]: $e', stackTrace: s);
           }
         },
       );

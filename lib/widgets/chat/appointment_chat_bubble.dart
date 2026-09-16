@@ -1,8 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../models/responses/appointment_detail_response.dart';
 import '../../models/responses/messages_response.dart';
+import '../../models/treatment_detail_model.dart';
+import '../../screens/dashboard/appointment_detail_screen.dart';
+import '../../utils/date_time_utills.dart';
 import '../../utils/theme.dart';
+import '../../view_models/appointment_view_model.dart';
+import '../borderd_container_widget.dart';
 
 class AppointmentChatBubble extends StatelessWidget {
   final Message message;
@@ -12,10 +21,10 @@ class AppointmentChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMe = message.isMe;
-    // final data = message.appointmentData;
+    final appointment = message.appointmentData;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: context.w(500)),
+      constraints: BoxConstraints(maxWidth: context.w(560)),
       padding: context.appEdgeInsets(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: CustomColors.white,
@@ -26,7 +35,7 @@ class AppointmentChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
         ),
         border: Border.all(
-          color: CustomColors.blue.withValues(alpha: 0.4),
+          color: CustomColors.purple.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
@@ -47,104 +56,505 @@ class AppointmentChatBubble extends StatelessWidget {
                 children: [
                   Container(
                     padding: context.appEdgeInsets(all: 6),
-                    decoration: const BoxDecoration(
-                      color: CustomColors.softGrey,
+                    decoration: BoxDecoration(
+                      color: CustomColors.purple.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Iconsax.calendar,
+                      Iconsax.calendar_tick,
                       size: context.sp(16),
-                      color: CustomColors.blue,
+                      color: CustomColors.purple,
                     ),
                   ),
                   context.horizontalSpace(8),
-                  Text('Appointment Details', style: context.fonts.black13w600),
+                  Text(
+                    'Appointment Receipt & Summary',
+                    style: context.fonts.black14w600,
+                  ),
                 ],
               ),
-              // if (data != null)
-              //   Container(
-              //     padding: context.appEdgeInsets(horizontal: 8, vertical: 2),
-              //     decoration: BoxDecoration(
-              //       color: CustomColors.green.withValues(alpha: 0.1),
-              //       borderRadius: BorderRadius.circular(context.r(12)),
-              //     ),
-              //     child: Text(data.status, style: context.fonts.green11w600),
-              //   ),
+              if (appointment != null &&
+                  appointment.status != null &&
+                  appointment.status!.isNotEmpty)
+                Container(
+                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    borderRadius: context.appBorderRadius(all: 12),
+                  ),
+                  child: Text(
+                    appointment.status!.toUpperCase(),
+                    style: context.fonts.purple11w600,
+                  ),
+                ),
             ],
           ),
-          context.verticalSpace(10),
-          if (message.content?.isNotEmpty ?? false) ...[
+          context.verticalSpace(14),
+          if (appointment != null) ...[
+            // Patient Header
+            _buildPatientHeader(context, appointment),
+            context.verticalSpace(16),
+
+            // Practitioners Section
+            if (appointment.doctor != null) ...[
+              _buildPractitionersSection(context, appointment.doctor!),
+              context.verticalSpace(16),
+            ],
+
+            // Treatments Section
+            if (appointment.treatments != null &&
+                appointment.treatments!.isNotEmpty) ...[
+              _buildTreatmentsSection(context, appointment.treatments!),
+              context.verticalSpace(16),
+            ],
+
+            // Financial Breakdown Section
+            _buildFinancialSection(context, appointment),
+
+            // Simulations Section
+            if (appointment.simulations != null) ...[
+              context.verticalSpace(16),
+              _buildSimulationsSection(context, appointment.simulations!),
+            ],
+
+            context.verticalSpace(16),
+            SizedBox(
+              width: double.infinity,
+              child: Consumer(
+                builder: (_, ref, _) {
+                  return ElevatedButton.icon(
+                    onPressed: () {
+                      if (appointment.id != null) {
+                        ref
+                            .read(appointmentProvider.notifier)
+                            .getAppointmentsDetail(id: appointment.id!);
+                      }
+                      context.push(AppointmentDetailScreen.routeName);
+                    },
+                    icon: Icon(
+                      Iconsax.calendar_1,
+                      size: context.sp(16),
+                      color: CustomColors.white,
+                    ),
+                    label: const Text('View Appointment Details'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: CustomColors.purple,
+                      foregroundColor: CustomColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: context.appBorderRadius(all: 8),
+                      ),
+                      padding: context.appEdgeInsets(vertical: 12),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ] else if (message.content?.isNotEmpty ?? false) ...[
             Text(message.content!, style: context.fonts.black14w400),
-            context.verticalSpace(10),
           ],
-          // if (data != null) ...[
-          //   Container(
-          //     padding: context.appEdgeInsets(all: 12),
-          //     decoration: BoxDecoration(
-          //       color: CustomColors.softGrey,
-          //       borderRadius: BorderRadius.circular(context.r(10)),
-          //       border: Border.all(color: CustomColors.border),
-          //     ),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         _buildDetailRow(context, 'Service:', data.serviceName),
-          //         context.verticalSpace(4),
-          //         _buildDetailRow(
-          //           context,
-          //           'Date & Time:',
-          //           '${data.date} at ${data.time}',
-          //         ),
-          //         context.verticalSpace(4),
-          //         _buildDetailRow(context, 'Provider:', data.practitionerName),
-          //       ],
-          //     ),
-          //   ),
-          //   context.verticalSpace(12),
-          //   SizedBox(
-          //     width: double.infinity,
-          //     child: ElevatedButton.icon(
-          //       onPressed: () {
-          //         context.pushNamed(AppointmentScreen.routeName);
-          //       },
-          //       icon: Icon(
-          //         Iconsax.calendar_1,
-          //         size: context.sp(16),
-          //         color: CustomColors.white,
-          //       ),
-          //       label: const Text('View Appointment'),
-          //       style: ElevatedButton.styleFrom(
-          //         backgroundColor: CustomColors.purple,
-          //         foregroundColor: CustomColors.white,
-          //         shape: RoundedRectangleBorder(
-          //           borderRadius: BorderRadius.circular(context.r(8)),
-          //         ),
-          //         padding: context.appEdgeInsets(vertical: 10),
-          //       ),
-          //     ),
-          //   ),
-          // ],
         ],
       ),
     );
   }
 
-  // Widget _buildDetailRow(BuildContext context, String label, String value) {
-  //   return Row(
-  //     children: [
-  //       SizedBox(
-  //         width: context.w(80),
-  //         child: Text(label, style: context.fonts.grey12w600),
-  //       ),
-  //       Expanded(
-  //         child: Text(
-  //           value,
-  //           style: context.fonts.black12w600,
-  //           maxLines: 1,
-  //           overflow: TextOverflow.ellipsis,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+  Widget _buildPatientHeader(BuildContext context, AppointmentDetailData appt) {
+    final patient = appt.patient;
+    final patientName = patient?.name ?? 'Patient';
+    final patientEmail = patient?.email ?? '';
+    final patientPhone = patient?.phoneNumber ?? '';
+    final bookingMethod = appt.bookingType?.toUpperCase() ?? '';
+    final appointmentType = appt.appointmentType?.title ?? '';
+
+    final tagText = [
+      if (bookingMethod.isNotEmpty) bookingMethod,
+      if (appointmentType.isNotEmpty) appointmentType,
+    ].join(' | ');
+
+    final dateStr =
+        appt.date != null ? DateTimeUtils.formatTimestamp(appt.date!) : '';
+    final timeSlot = appt.startTime != null && appt.endTime != null
+        ? '${DateTimeUtils.formatTimestampToTime(appt.startTime!)} - ${DateTimeUtils.formatTimestampToTime(appt.endTime!)}'
+        : appt.startTime != null
+            ? DateTimeUtils.formatTimestampToTime(appt.startTime!)
+            : '';
+
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 16),
+      backgroundColor: CustomColors.whiteGrey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                patientName,
+                style: context.fonts.black16w600,
+              ),
+              if (tagText.isNotEmpty)
+                Container(
+                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    borderRadius: context.appBorderRadius(all: 12),
+                  ),
+                  child: Text(
+                    tagText,
+                    style: context.fonts.purple11w600,
+                  ),
+                ),
+            ],
+          ),
+          if (patientEmail.isNotEmpty || patientPhone.isNotEmpty) ...[
+            context.verticalSpace(8),
+            Row(
+              children: [
+                if (patientEmail.isNotEmpty) ...[
+                  const Icon(Icons.email_outlined,
+                      size: 14, color: CustomColors.grey),
+                  context.horizontalSpace(4),
+                  Text(patientEmail, style: context.fonts.grey12w400),
+                  context.horizontalSpace(16),
+                ],
+                if (patientPhone.isNotEmpty) ...[
+                  const Icon(Icons.phone_outlined,
+                      size: 14, color: CustomColors.grey),
+                  context.horizontalSpace(4),
+                  Text(patientPhone, style: context.fonts.grey12w400),
+                ],
+              ],
+            ),
+          ],
+          const Divider(height: 20, color: CustomColors.border),
+          Row(
+            children: [
+              const Icon(Icons.calendar_month_outlined,
+                  size: 16, color: CustomColors.purple),
+              context.horizontalSpace(6),
+              Text(
+                'Date: $dateStr',
+                style: context.fonts.black13w600,
+              ),
+              context.horizontalSpace(20),
+              const Icon(Icons.access_time_rounded,
+                  size: 16, color: CustomColors.purple),
+              context.horizontalSpace(6),
+              Text(
+                'Slot: $timeSlot',
+                style: context.fonts.black13w600,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPractitionersSection(BuildContext context, Doctor doctor) {
+    final docName = doctor.name ?? 'Doctor';
+    final roleOrSpec =
+        doctor.specialization ?? doctor.title ?? 'Practitioner';
+
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Assigned Practitioners', style: context.fonts.black14w600),
+          context.verticalSpace(8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              Container(
+                padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: CustomColors.purple.withValues(alpha: 0.08),
+                  borderRadius: context.appBorderRadius(all: 8),
+                  border: Border.all(
+                    color: CustomColors.purple.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.person,
+                        size: 14, color: CustomColors.purple),
+                    context.horizontalSpace(6),
+                    Text(
+                      '$docName ($roleOrSpec)',
+                      style: context.fonts.black12w600,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTreatmentsSection(
+      BuildContext context, List<TreatmentDetail> treatments) {
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Treatments & Services', style: context.fonts.black14w600),
+          context.verticalSpace(10),
+          ...treatments.map((t) {
+            final treatmentName = t.treatmentName ?? 'Treatment';
+            final areaName = t.areaName;
+            final cost = t.treatmentCost ?? 0.0;
+            final materialName = t.material?.materialName ?? t.material?.unitType;
+            final materialQty = t.material?.selectedQuantity;
+            final sessionName = t.sessionName;
+
+            final details = [
+              if (sessionName != null && sessionName.isNotEmpty)
+                'Session: $sessionName',
+              if (materialName != null && materialName.isNotEmpty)
+                'Material: $materialName${materialQty != null ? ' [Qty: $materialQty]' : ''}'
+              else if (materialQty != null)
+                'Material Qty: $materialQty',
+            ].join(' | ');
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          treatmentName +
+                              (areaName != null && areaName.isNotEmpty
+                                  ? ' - $areaName'
+                                  : ''),
+                          style: context.fonts.black13w600,
+                        ),
+                        if (details.isNotEmpty) ...[
+                          context.verticalSpace(2),
+                          Text(
+                            details,
+                            style: context.fonts.grey12w400,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '\$${cost.toStringAsFixed(2)}',
+                    style: context.fonts.black13w600,
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinancialSection(
+      BuildContext context, AppointmentDetailData appt) {
+    final total = appt.treatmentTotal ?? 0.0;
+    final discountType = (appt.discountType ?? 'FIXED').toUpperCase();
+    final discountValue = appt.discount ?? 0.0;
+    final discountAmount = appt.discountType?.toLowerCase() == 'percentage'
+        ? total * (discountValue / 100)
+        : discountValue;
+    const amountPaid = 0.0;
+    final remainingPayable =
+        (total - discountAmount - amountPaid).clamp(0.0, double.infinity);
+
+    final payment = appt.paymentType;
+    final paymentTypeStr = payment?.type?.toUpperCase() ?? 'N/A';
+    final paymentStatusStr = payment?.status?.toUpperCase() ?? 'N/A';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: CustomColors.whiteGrey,
+        borderRadius: context.appBorderRadius(all: 12),
+        border: Border.all(color: CustomColors.border),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: context.appEdgeInsets(all: 16),
+            child: Column(
+              children: [
+                _summaryRow(
+                  context,
+                  'Treatment Total',
+                  '\$${total.toStringAsFixed(2)}',
+                ),
+                context.verticalSpace(8),
+                _summaryRow(
+                  context,
+                  'Discount ($discountType)',
+                  '-\$${discountAmount.toStringAsFixed(2)}',
+                ),
+                context.verticalSpace(8),
+                _summaryRow(
+                  context,
+                  'Amount Paid',
+                  '\$${amountPaid.toStringAsFixed(2)}',
+                ),
+                context.verticalSpace(8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Payment Details', style: context.fonts.grey12w400),
+                    Text(
+                      '$paymentTypeStr | $paymentStatusStr',
+                      style: context.fonts.black12w600,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: CustomColors.purple,
+              borderRadius: context.appBorderRadius(
+                bottomLeft: 12,
+                bottomRight: 12,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Remaining Payable',
+                  style: context.fonts.white14w600,
+                ),
+                Text(
+                  '\$${remainingPayable.toStringAsFixed(2)}',
+                  style: context.fonts.white14w600,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimulationsSection(BuildContext context, Simulations sims) {
+    final simulationsMap = <String, String>{
+      'Front Before': sims.frontImageBefore ?? '',
+      'Front After': sims.frontImageAfter ?? '',
+      'Right Before': sims.rightImageBefore ?? '',
+      'Right After': sims.rightImageAfter ?? '',
+      'Left Before': sims.leftImageBefore ?? '',
+      'Left After': sims.leftImageAfter ?? '',
+    }..removeWhere((k, v) => v.trim().isEmpty);
+
+    if (simulationsMap.isEmpty) return const SizedBox.shrink();
+
+    return BorderdContainerWidget(
+      padding: context.appEdgeInsets(all: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Attached Simulations', style: context.fonts.black14w600),
+          context.verticalSpace(10),
+          Wrap(
+            spacing: 12.w,
+            runSpacing: 12.h,
+            children: simulationsMap.entries.map((entry) {
+              final label = entry.key;
+              final url = entry.value.trim();
+
+              return Container(
+                width: context.w(110),
+                padding: context.appEdgeInsets(all: 6),
+                decoration: BoxDecoration(
+                  color: CustomColors.white,
+                  borderRadius: context.appBorderRadius(all: 8),
+                  border: Border.all(color: CustomColors.border),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: context.appBorderRadius(all: 6),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: context.h(80),
+                        child: url.startsWith('http')
+                            ? CachedNetworkImage(
+                                imageUrl: url,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: CustomColors.softGrey,
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: CustomColors.palePurple,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 22,
+                                    color: CustomColors.grey,
+                                  ),
+                                ),
+                              )
+                            : Image.asset(
+                                url,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  color: CustomColors.palePurple,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 22,
+                                    color: CustomColors.grey,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    context.verticalSpace(6),
+                    Text(
+                      label,
+                      style: context.fonts.purple11w600,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: context.fonts.grey13w500),
+        Text(value, style: context.fonts.black13w600),
+      ],
+    );
+  }
 }

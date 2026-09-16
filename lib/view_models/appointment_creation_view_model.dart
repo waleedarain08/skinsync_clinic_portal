@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/patient_model.dart';
 import '../models/requests/create_appointment_request.dart';
 import '../models/requests/register_patient_request.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../models/responses/booking_methods_response.dart';
 import '../models/responses/register_patient_response.dart';
 import '../repositories/appointment_repository.dart';
@@ -193,18 +194,15 @@ class AppointmentCreationViewModel
     return methods;
   }
 
-  Future<bool> createAppointment({
+  Future<AppointmentDetailData?> createAppointment({
     required CreateAppointmentRequest request,
   }) async {
-    final result = await runSafely(() async {
+    return await runSafely(() async {
       state = state.copyWith(isLoading: true);
       final repository = locator<AppointmentRepository>();
       final response = await repository.createAppointment(request: request);
       state = state.copyWith(isLoading: false);
-      return response.success;
+      return response.data;
     });
-
-    state = state.copyWith(isLoading: false);
-    return result ?? false;
   }
 }

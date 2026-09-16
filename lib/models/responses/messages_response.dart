@@ -1,54 +1,9 @@
-// import '../utils/enums.dart';
-// import 'chat_appointment_model.dart';
-// import 'chat_treatment_request_model.dart';
-//
-// class ChatMessageModel {
-//   final String id;
-//   final String senderName;
-//   final String time;
-//   final bool isMe;
-//   final bool isRead;
-//   final ChatMessageType messageType;
-//   final String text;
-//
-//   // Media attachment fields
-//   final String? mediaUrl;
-//   final String? mediaCaption;
-//
-//   // Document attachment fields
-//   final String? documentName;
-//   final String? documentSize;
-//   final String? documentUrl;
-//
-//   // Shared Treatment Request Data (using ChatTreatmentRequestModel)
-//   final ChatTreatmentRequestModel? sharedRequestData;
-//
-//   // Appointment fields
-//   final ChatAppointmentModel? appointmentData;
-//
-//   ChatMessageModel({
-//     required this.id,
-//     required this.senderName,
-//     required this.time,
-//     required this.isMe,
-//     this.isRead = false,
-//     this.messageType = ChatMessageType.normal,
-//     this.text = '',
-//     this.mediaUrl,
-//     this.mediaCaption,
-//     this.documentName,
-//     this.documentSize,
-//     this.documentUrl,
-//     this.sharedRequestData,
-//     this.appointmentData,
-//   });
-// }
-
 import 'dart:convert';
 import 'dart:developer';
 
 import '../../utils/enums.dart';
 import '../chat_treatment_request_model.dart';
+import 'appointment_detail_response.dart';
 import 'base_response_model.dart';
 
 class MessagesResponse extends BaseResponse<MessagesData> {
@@ -115,6 +70,7 @@ class MessagesData {
 
 class Message {
   final int? id;
+  final int? chatId;
   final MessageType? type;
   final String? senderType;
   final int? senderId;
@@ -129,6 +85,7 @@ class Message {
 
   Message({
     this.id,
+    this.chatId,
     this.type,
     this.senderType,
     this.senderId,
@@ -144,6 +101,7 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
     id: json["id"],
+    chatId: json['chat_id'],
     type: MessageType.fromValue(json["type"]),
     senderType: json["sender_type"],
     senderId: json["sender_id"],
@@ -162,6 +120,7 @@ class Message {
 
   Message copyWith({
     int? id,
+    int? chatId,
     MessageType? type,
     String? senderType,
     int? senderId,
@@ -176,6 +135,7 @@ class Message {
   }) {
     return Message(
       id: id ?? this.id,
+      chatId: chatId ?? this.chatId,
       type: type ?? this.type,
       senderType: senderType ?? this.senderType,
       senderId: senderId ?? this.senderId,
@@ -205,6 +165,21 @@ class Message {
       return ChatTreatmentRequestModel.fromJson(jsonDecode(content!));
     } catch (e, s) {
       log('Error: $e', stackTrace: s);
+      return null;
+    }
+  }
+
+  AppointmentDetailData? get appointmentData {
+    try {
+      if (type != MessageType.appointment) {
+        return null;
+      }
+      if (content == null) {
+        return null;
+      }
+      return AppointmentDetailData.fromJson(jsonDecode(content!));
+    } catch (e, s) {
+      log('Error parsing ChatAppointmentModel: $e', stackTrace: s);
       return null;
     }
   }

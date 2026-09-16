@@ -7,6 +7,7 @@ import 'package:web_socket_client/web_socket_client.dart';
 
 import '../exceptions/app_exception.dart';
 import '../models/chat_treatment_request_model.dart';
+import '../models/responses/appointment_detail_response.dart';
 import '../services/api_base_helper.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
@@ -29,6 +30,7 @@ class WebSocketService {
   StreamSubscription<dynamic>? _msgSub;
   StreamSubscription<dynamic>? _connSub;
   ValueSetter<WsEvent>? _onEventCallback;
+  bool _isRefreshingAndReconnecting = false;
 
   bool get isConnected => _socket != null;
 
@@ -38,6 +40,13 @@ class WebSocketService {
       print('[WebSocket Already Connected]');
       log('WebSocket already connected');
       return;
+    }
+
+    // Check & Refresh token before connecting if needed
+    try {
+      await locator<ApiBaseService>().refreshToken();
+    } catch (e) {
+      log('WebSocket pre-connect token check error: $e');
     }
 
     final token = await locator<SecureStorageService>().getToken();
@@ -57,7 +66,7 @@ class WebSocketService {
       );
 
       _msgSub = _socket!.messages.listen(
-        (event) {
+        (event) async {
           final String rawText =
               event is List<int> ? utf8.decode(event) : event.toString();
           print('[WebSocket RX Raw]: $rawText');
@@ -69,6 +78,19 @@ class WebSocketService {
             final typeStr = payload['event_type'] as String?;
             final eventType = EventType.fromValue(typeStr);
             final data = payload['data'] as Map<String, dynamic>? ?? payload;
+
+            // Intercept token expiry / unauthorized error events
+            if (eventType == EventType.error) {
+              final errorMsg = (data['error'] as String? ?? '').toLowerCase();
+              if (errorMsg.contains('unauthorized') ||
+                  errorMsg.contains('expired') ||
+                  errorMsg.contains('token')) {
+                log('WebSocket received token expiry event: $errorMsg');
+                await _refreshAndReconnect();
+                return;
+              }
+            }
+
             _onEventCallback?.call(WsEvent(type: eventType, data: data));
           } catch (e, s) {
             print('[WebSocket Parse Error]: $e');
@@ -80,10 +102,18 @@ class WebSocketService {
           log('[WebSocket Disconnected / Done]');
           _cleanupSocket();
         },
-        onError: (error) {
+        onError: (error) async {
           print('[WebSocket Error]: $error');
           log('[WebSocket Error]: $error');
-          _cleanupSocket();
+          final errorStr = error.toString().toLowerCase();
+          if (errorStr.contains('401') ||
+              errorStr.contains('unauthorized') ||
+              errorStr.contains('expired') ||
+              errorStr.contains('token')) {
+            await _refreshAndReconnect();
+          } else {
+            _cleanupSocket();
+          }
         },
       );
 
@@ -101,6 +131,25 @@ class WebSocketService {
     }
   }
 
+  Future<void> _refreshAndReconnect() async {
+    if (_isRefreshingAndReconnecting) return;
+    _isRefreshingAndReconnecting = true;
+    log('WebSocket token expired. Running refresh token and reconnecting...');
+
+    try {
+      await _cleanupSocket();
+      await locator<ApiBaseService>().refreshToken();
+      final onEvent = _onEventCallback;
+      if (onEvent != null) {
+        await connect(onEvent: onEvent);
+      }
+    } catch (e) {
+      log('WebSocket refresh & reconnect failed: $e');
+    } finally {
+      _isRefreshingAndReconnecting = false;
+    }
+  }
+
   Future<void> sendMessage({
     required int chatId,
     required MessageType type,
@@ -108,6 +157,7 @@ class WebSocketService {
     String? mediaUrl,
     String? documentUrl,
     ChatTreatmentRequestModel? treatmentRequest,
+    AppointmentDetailData? appointment,
   }) async {
     if (_socket == null) {
       throw Exception('Websocket not connected');
@@ -120,6 +170,14 @@ class WebSocketService {
         text = content;
       } else {
         throw const ApiHttpException(message: 'TreatmentRequest is required!');
+      }
+    } else if (type == MessageType.appointment) {
+      if (appointment != null) {
+        text = jsonEncode(appointment.toJson());
+      } else if (content.trim().isNotEmpty) {
+        text = content;
+      } else {
+        throw const ApiHttpException(message: 'Appointment data is required!');
       }
     } else {
       text = content;
