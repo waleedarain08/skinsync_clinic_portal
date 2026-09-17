@@ -1679,7 +1679,7 @@ void _fetchAvailabilitySlots() {
         runSpacing: context.h(12),
         children: creationState.slot.map((slot) {
           final isSelected = _selectedSlot?.startTime == slot.startTime;
-          final label = DateFormat('HH:mm').format(
+          final label = DateFormat('HH:mm a').format(
             DateTime.fromMillisecondsSinceEpoch(slot.startTime * 1000),
           );
 

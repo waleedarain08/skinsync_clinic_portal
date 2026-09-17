@@ -9,6 +9,7 @@ import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../screens/chat_screen.dart';
 import '../utils/assets.dart';
+import '../utils/date_time_utills.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/chat_view_model.dart';
@@ -325,7 +326,7 @@ class _SimulationTreatmentRequestCardState
                   ),
                   context.horizontalSpace(8),
                   Text(
-                    '${slot.date ?? ''} ${slot.time != null ? 'at ${slot.time}' : ''}'
+                    '${slot.date?.formattedDate ?? ''} ${slot.time != null ? 'at ${slot.time!.formattedTime}' : ''}'
                         .trim(),
                     style: context.fonts.black13w600,
                   ),
