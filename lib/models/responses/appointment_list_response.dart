@@ -102,6 +102,11 @@ class AppointmentData extends Event {
 
   factory AppointmentData.fromJson(Map<String, dynamic> json) {
     final slot = json["slot"] as Map<String, dynamic>?;
+    final start = _parseTimestamp(slot?["start_time"] ?? json["start_time"]);
+    final parsedStart = start ?? DateTime.now();
+    final parsedEnd =
+        _parseTimestamp(slot?["end_time"] ?? json["end_time"]) ?? parsedStart;
+
     return AppointmentData(
       id: json["id"],
       appointmentKey: json["appointment_key"],
@@ -117,18 +122,19 @@ class AppointmentData extends Event {
       date: json["date"] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000)
           : null,
-      start: slot != null && slot["start_time"] != null
-          ? DateTime.fromMillisecondsSinceEpoch((slot["start_time"] as int) * 1000)
-          : (json["start_time"] != null
-              ? DateTime.fromMillisecondsSinceEpoch((json["start_time"] as int) * 1000)
-              : DateTime.now()),
-      end: slot != null && slot["end_time"] != null
-          ? DateTime.fromMillisecondsSinceEpoch((slot["end_time"] as int) * 1000)
-          : (json["end_time"] != null
-              ? DateTime.fromMillisecondsSinceEpoch((json["end_time"] as int) * 1000)
-              : DateTime.now()),
+        start: parsedStart,
+        end: parsedEnd.isBefore(parsedStart) ? parsedStart : parsedEnd,
     );
   }
+
+      static DateTime? _parseTimestamp(dynamic value) {
+      if (value == null) return null;
+
+      final timestamp = value is num ? value.toInt() : int.tryParse('$value');
+      if (timestamp == null) return null;
+
+      return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+      }
 
   Map<String, dynamic> toJson() => {
         "id": id,

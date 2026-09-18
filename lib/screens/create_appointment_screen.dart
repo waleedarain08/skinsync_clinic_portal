@@ -2769,10 +2769,10 @@ void _fetchAvailabilitySlots() {
     );
   }
 
-  void _submitForm(
+  Future<void> _submitForm(
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
-  ) {
+  ) async {
 
     if (_selectedSlot == null) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -2970,7 +2970,7 @@ void _fetchAvailabilitySlots() {
       'Left After': _leftImageAfterController.text.trim(),
     };
 
-    showDialog<bool>(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AppointmentReceiptDialog(
         patientName: patientName,
@@ -3041,13 +3041,16 @@ void _fetchAvailabilitySlots() {
                   backgroundColor: CustomColors.purple,
                 ),
               );
-              context.pop();
             }
           }
           return data != null;
         },
       ),
     );
+
+    if (confirmed == true && mounted) {
+      context.pop();
+    }
   }
 }
 
