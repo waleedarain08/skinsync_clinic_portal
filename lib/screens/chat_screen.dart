@@ -23,7 +23,6 @@ import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/custom_primary_button.dart';
 import '../widgets/dialog_box/add_practitioner_dialog.dart';
-import '../widgets/dialog_box/create_appointment_from_chat_dialog.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import 'dashboard/dashboard.dart';
 import '../widgets/gradient_scaffold.dart';
@@ -385,7 +384,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(displayName, style: context.fonts.black18w600),
+                      Flexible(
+                        child: Text(
+                          displayName,
+                          style: context.fonts.black18w600,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
                       context.horizontalSpace(8),
                       Container(
                         padding: context.appEdgeInsets(
@@ -414,104 +420,114 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       context.horizontalSpace(8),
                       Text('•', style: context.fonts.grey12w400),
                       context.horizontalSpace(8),
-                      Text(
-                        req != null
-                            ? 'Option: ${req.name}'
-                            : 'Botox & Facial Treatment',
-                        style: context.fonts.grey12w400,
+                      Flexible(
+                        child: Text(
+                          req != null
+                              ? 'Option: ${req.name}'
+                              : 'Botox & Facial Treatment',
+                          style: context.fonts.grey12w400,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            // Header Quick Actions: Create Appointment & Toggle Patient Details
-            ElevatedButton.icon(
-              onPressed: () async {
-                final selectedStaff = await showDialog<StaffModel>(
-                  context: context,
-                  builder: (context) => const AddPractitionerDialog(),
-                );
-                if (selectedStaff != null) {
-                  await ref
-                      .read(chatProvider.notifier)
-                      .addPractitioner(practitionerId: selectedStaff.id);
-                }
-              },
-              icon: Icon(
-                Iconsax.user_add,
-                color: CustomColors.white,
-                size: context.sp(16),
-              ),
-              label: Text(
-                'Add Practitioner',
-                style: context.fonts.white12w700,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: CustomColors.purple,
-                foregroundColor: CustomColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                ),
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-              ),
-            ),
             context.horizontalSpace(8),
-            ElevatedButton.icon(
-              onPressed: () {
-                final isWideScreen = MediaQuery.of(context).size.width > 800;
-                if (isWideScreen || widget.treatmentRequestData != null) {
-                  setState(() {
-                    _isCreateAppointmentOpen = !_isCreateAppointmentOpen;
-                  });
-                } else {
-                  context.push(
-                    CreateAppointmentScreen.routeName,
-                    extra: widget.treatmentRequestData,
-                  );
-                }
-              },
-              icon: Icon(
-                _isCreateAppointmentOpen
-                    ? Iconsax.close_circle
-                    : Iconsax.calendar_add,
-                color: CustomColors.white,
-                size: context.sp(16),
-              ),
-              label: Text(
-                _isCreateAppointmentOpen
-                    ? 'Close Form'
-                    : 'Create Appointment',
-                style: context.fonts.white12w700,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: CustomColors.purple,
-                foregroundColor: CustomColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(8)),
+            // Header Quick Actions: Add Practitioner, Create Appointment & Toggle Patient Details
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final selectedStaff = await showDialog<StaffModel>(
+                      context: context,
+                      builder: (context) => const AddPractitionerDialog(),
+                    );
+                    if (selectedStaff != null) {
+                      await ref
+                          .read(chatProvider.notifier)
+                          .addPractitioner(practitionerId: selectedStaff.id);
+                    }
+                  },
+                  icon: Icon(
+                    Iconsax.user_add,
+                    color: CustomColors.white,
+                    size: context.sp(16),
+                  ),
+                  label: Text(
+                    'Add Practitioner',
+                    style: context.fonts.white12w700,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.purple,
+                    foregroundColor: CustomColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                    ),
+                    padding: context.appEdgeInsets(horizontal: 10, vertical: 8),
+                  ),
                 ),
-                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
-              ),
-            ),
-            context.horizontalSpace(8),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  _showPatientInfo = !_showPatientInfo;
-                });
-              },
-              tooltip: 'Toggle Patient Details',
-              icon: Icon(
-                _showPatientInfo ? Iconsax.info_circle5 : Iconsax.info_circle,
-                color: CustomColors.purple,
-                size: context.sp(22),
-              ),
-              style: IconButton.styleFrom(
-                backgroundColor: CustomColors.lightPurple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: context.appBorderRadius(all: 8),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    final isWideScreen = MediaQuery.of(context).size.width > 800;
+                    if (isWideScreen || widget.treatmentRequestData != null) {
+                      setState(() {
+                        _isCreateAppointmentOpen = !_isCreateAppointmentOpen;
+                      });
+                    } else {
+                      context.push(
+                        CreateAppointmentScreen.routeName,
+                        extra: widget.treatmentRequestData,
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    _isCreateAppointmentOpen
+                        ? Iconsax.close_circle
+                        : Iconsax.calendar_add,
+                    color: CustomColors.white,
+                    size: context.sp(16),
+                  ),
+                  label: Text(
+                    _isCreateAppointmentOpen
+                        ? 'Close Form'
+                        : 'Create Appointment',
+                    style: context.fonts.white12w700,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.purple,
+                    foregroundColor: CustomColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(context.r(8)),
+                    ),
+                    padding: context.appEdgeInsets(horizontal: 10, vertical: 8),
+                  ),
                 ),
-              ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _showPatientInfo = !_showPatientInfo;
+                    });
+                  },
+                  tooltip: 'Toggle Patient Details',
+                  icon: Icon(
+                    _showPatientInfo ? Iconsax.info_circle5 : Iconsax.info_circle,
+                    color: CustomColors.purple,
+                    size: context.sp(22),
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: CustomColors.lightPurple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: context.appBorderRadius(all: 8),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );

@@ -40,9 +40,7 @@ import '../widgets/custom_primary_button.dart';
 import '../widgets/gradient_scaffold.dart';
 import '../widgets/number_paginator.dart';
 import '../widgets/phone_widget.dart';
-import '../widgets/treatment_container.dart';
 import '../widgets/dialog_box/quantity_slider_dialog.dart';
-import '../models/responses/login_response_model.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
 
@@ -1004,7 +1002,7 @@ void _fetchAvailabilitySlots() {
           Text('No treatments available.', style: context.fonts.grey14w400)
         else
           SizedBox(
-            height: context.h(160),
+            height: context.h(95),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: treatments.length,
@@ -1015,109 +1013,149 @@ void _fetchAvailabilitySlots() {
                 final bool isSelected = _selectedTreatments.any(
                   (t) => t.id == treatment.id,
                 );
+                final skuText = treatment.globalSku?.isNotEmpty == true
+                    ? 'SKU: ${treatment.globalSku}'
+                    : '';
 
-                final dashboardTreatment = DashboardTreatmentModel(
-                  id: treatment.id,
-                  name: treatment.name,
-                  shortDescription:
-                      treatment.shortDescription ?? treatment.description ?? '',
-                  image: treatment.image,
-                  icon: treatment.icon,
-                  sku: treatment.globalSku,
-                );
+                return InkWell(
+                  onTap: () async {
+                    final existingIndex = _selectedTreatments.indexWhere(
+                      (t) => t.id == treatment.id,
+                    );
+                    final bool isSelected = existingIndex != -1;
+                    final existingTx =
+                        isSelected ? _selectedTreatments[existingIndex] : null;
+                    final bool hasSelectedAreas =
+                        existingTx?.sideAreas?.isNotEmpty == true;
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(context.r(20)),
-                    border: Border.all(
-                      color: isSelected
-                          ? CustomColors.purple
-                          : Colors.transparent,
-                      width: 3,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: CustomColors.purple.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: TreatmentContainer(
-                    onTap: () async {
-                      final existingIndex = _selectedTreatments.indexWhere(
-                        (t) => t.id == treatment.id,
-                      );
-                      final bool isSelected = existingIndex != -1;
-                      final existingTx =
-                          isSelected ? _selectedTreatments[existingIndex] : null;
-                      final bool hasSelectedAreas =
-                          existingTx?.sideAreas?.isNotEmpty == true;
+                    bool fetchAreasNeeded = false;
 
-                      bool fetchAreasNeeded = false;
-
-                      setState(() {
-                        if (isSelected) {
-                          if (hasSelectedAreas) {
-                            // Do NOT deselect if areas are selected; focus this treatment
-                            _selectedDropdownTreatment = existingTx;
-                          } else {
-                            // Deselect if no area is selected
-                            _selectedTreatments.removeWhere(
-                              (t) => t.id == treatment.id,
-                            );
-                            if (_selectedDropdownTreatment?.id == treatment.id) {
-                              _selectedDropdownTreatment =
-                                  _selectedTreatments.isNotEmpty
-                                      ? _selectedTreatments.last
-                                      : null;
-                            }
-                          }
+                    setState(() {
+                      if (isSelected) {
+                        if (hasSelectedAreas) {
+                          // Do NOT deselect if areas are selected; focus this treatment
+                          _selectedDropdownTreatment = existingTx;
                         } else {
-                          final newTx = treatment.copyWith(sideAreas: []);
-                          _selectedTreatments.add(newTx);
-                          _selectedDropdownTreatment = newTx;
-                          fetchAreasNeeded = true;
+                          // Deselect if no area is selected
+                          _selectedTreatments.removeWhere(
+                            (t) => t.id == treatment.id,
+                          );
+                          if (_selectedDropdownTreatment?.id == treatment.id) {
+                            _selectedDropdownTreatment =
+                                _selectedTreatments.isNotEmpty
+                                    ? _selectedTreatments.last
+                                    : null;
+                          }
                         }
-                        _updateTotalAmount();
-                        _fetchFilteredPractitioners();
-                      });
+                      } else {
+                        final newTx = treatment.copyWith(sideAreas: []);
+                        _selectedTreatments.add(newTx);
+                        _selectedDropdownTreatment = newTx;
+                        fetchAreasNeeded = true;
+                      }
+                      _updateTotalAmount();
+                      _fetchFilteredPractitioners();
+                    });
 
-                      if ((fetchAreasNeeded || hasSelectedAreas) &&
-                          treatment.id != null) {
-                        if (!_fetchedAreasMap.containsKey(treatment.id)) {
-                          setState(() {
-                            _isFetchingAreas = true;
-                          });
-                          try {
-                            final fetchedAreas = await ref
-                                .read(areaViewModelProvider.notifier)
-                                .fetchClinicAreas(
-                                  treatmentId: treatment.id!,
-                                  showLoading: false,
-                                );
-                            if (mounted) {
-                              setState(() {
-                                _fetchedAreasMap[treatment.id!] = fetchedAreas;
-                                _isFetchingAreas = false;
-                              });
-                            }
-                          } catch (_) {
-                            if (mounted) {
-                              setState(() {
-                                _isFetchingAreas = false;
-                              });
-                            }
+                    if ((fetchAreasNeeded || hasSelectedAreas) &&
+                        treatment.id != null) {
+                      if (!_fetchedAreasMap.containsKey(treatment.id)) {
+                        setState(() {
+                          _isFetchingAreas = true;
+                        });
+                        try {
+                          final fetchedAreas = await ref
+                              .read(areaViewModelProvider.notifier)
+                              .fetchClinicAreas(
+                                treatmentId: treatment.id!,
+                                showLoading: false,
+                              );
+                          if (mounted) {
+                            setState(() {
+                              _fetchedAreasMap[treatment.id!] = fetchedAreas;
+                              _isFetchingAreas = false;
+                            });
+                          }
+                        } catch (_) {
+                          if (mounted) {
+                            setState(() {
+                              _isFetchingAreas = false;
+                            });
                           }
                         }
                       }
-                    },
-                    treatment: dashboardTreatment,
-                    width: context.w(250),
-                    imageHeight: context.h(160),
+                    }
+                  },
+                  borderRadius: context.appBorderRadius(all: 12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: context.w(210),
+                    padding:
+                        context.appEdgeInsets(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? CustomColors.purple.withValues(alpha: 0.08)
+                          : CustomColors.whiteGrey,
+                      borderRadius: context.appBorderRadius(all: 12),
+                      border: Border.all(
+                        color: isSelected
+                            ? CustomColors.purple
+                            : CustomColors.border,
+                        width: isSelected ? 2 : 1,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color:
+                                    CustomColors.purple.withValues(alpha: 0.15),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                treatment.name ?? 'Treatment',
+                                style: isSelected
+                                    ? context.fonts.purple14w700
+                                    : context.fonts.black14w600,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isSelected) ...[
+                              context.horizontalSpace(6),
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                color: CustomColors.purple,
+                                size: 18,
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (skuText.isNotEmpty) ...[
+                          context.verticalSpace(4),
+                          Text(
+                            skuText,
+                            style: context.fonts.grey12w400.copyWith(
+                              color: isSelected
+                                  ? CustomColors.purple
+                                  : CustomColors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -1542,7 +1580,8 @@ void _fetchAvailabilitySlots() {
                         setState(() => _selectedRoleFilter = val);
                         _fetchFilteredPractitioners(roleOverride: val);
                       },
-                      builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                      builder: (val) =>
+                          Text(val.name ?? 'Role ${val.id}', style: context.fonts.black14w400),
                     ),
                   ),
                 ],
@@ -1581,7 +1620,8 @@ void _fetchAvailabilitySlots() {
                             setState(() => _selectedRoleFilter = val);
                             _fetchFilteredPractitioners(roleOverride: val);
                           },
-                          builder: (val) => Text(val.name ?? 'Role ${val.id}'),
+                          builder: (val) =>
+                              Text(val.name ?? 'Role ${val.id}', style: context.fonts.black14w400),
                         ),
                       ),
                     ],
@@ -2084,7 +2124,8 @@ void _fetchAvailabilitySlots() {
                     setState(() => _selectedAppointmentTypeFilter = val);
                   }
                 },
-                builder: (val) => Text(val.name ?? 'Type ${val.id}'),
+                builder: (val) =>
+                    Text(val.name ?? 'Type ${val.id}', style: context.fonts.black14w400),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -2099,7 +2140,8 @@ void _fetchAvailabilitySlots() {
                     setState(() => _paymentType = val);
                   }
                 },
-                builder: (val) => Text(val.capitalize),
+                builder: (val) =>
+                    Text(val.capitalize, style: context.fonts.black14w400),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -2114,7 +2156,8 @@ void _fetchAvailabilitySlots() {
                     setState(() => _paymentStatus = val);
                   }
                 },
-                builder: (val) => Text(val.capitalize),
+                builder: (val) =>
+                    Text(val.capitalize, style: context.fonts.black14w400),
               ),
             ),
             SizedBox(width: context.w(16)),
@@ -2129,7 +2172,8 @@ void _fetchAvailabilitySlots() {
                     setState(() => _discountType = val);
                   }
                 },
-                builder: (val) => Text(val.capitalize),
+                builder: (val) =>
+                    Text(val.capitalize, style: context.fonts.black14w400),
               ),
             ),
           ],
@@ -2270,7 +2314,9 @@ void _fetchAvailabilitySlots() {
           )
         else ...[
          
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 if (_frontImageBeforeController.text != '')
                   _buildSimulationThumbnail(
@@ -2278,46 +2324,36 @@ void _fetchAvailabilitySlots() {
                     'Front Before',
                     _frontImageBeforeController.text,
                   ),
-                if (_frontImageAfterController.text != '') ...[
-                  context.horizontalSpace(8),
+                if (_frontImageAfterController.text != '')
                   _buildSimulationThumbnail(
                     context,
                     'Front After',
                     _frontImageAfterController.text,
                   ),
-                ],
-                if (_rightImageBeforeController.text != '') ...[
-                  context.horizontalSpace(8),
+                if (_rightImageBeforeController.text != '')
                   _buildSimulationThumbnail(
                     context,
                     'Right Before',
                     _rightImageBeforeController.text,
                   ),
-                ],
-                if (_rightImageAfterController.text != '') ...[
-                  context.horizontalSpace(8),
+                if (_rightImageAfterController.text != '')
                   _buildSimulationThumbnail(
                     context,
                     'Right After',
                     _rightImageAfterController.text,
                   ),
-                ],
-                if (_leftImageBeforeController.text != '') ...[
-                  context.horizontalSpace(8),
+                if (_leftImageBeforeController.text != '')
                   _buildSimulationThumbnail(
                     context,
                     'Left Before',
                     _leftImageBeforeController.text,
                   ),
-                ],
-                if (_leftImageAfterController.text != '') ...[
-                  context.horizontalSpace(8),
+                if (_leftImageAfterController.text != '')
                   _buildSimulationThumbnail(
                     context,
                     'Left After',
                     _leftImageAfterController.text,
                   ),
-                ],
               ],
             ),
          
@@ -2474,6 +2510,7 @@ void _fetchAvailabilitySlots() {
               ),
             ),
             value: validValue,
+            style: context.fonts.black14w400,
             onMenuStateChange: (isOpen) {
               if (isOpen && onTap != null) {
                 onTap();
@@ -2483,7 +2520,14 @@ void _fetchAvailabilitySlots() {
                 .map(
                   (item) => DropdownMenuItem<T>(
                     value: item,
-                    child: builder?.call(item) ?? Text(item.toString()),
+                    child: DefaultTextStyle(
+                      style: context.fonts.black14w400,
+                      child: builder?.call(item) ??
+                          Text(
+                            item.toString(),
+                            style: context.fonts.black14w400,
+                          ),
+                    ),
                   ),
                 )
                 .toList(),
