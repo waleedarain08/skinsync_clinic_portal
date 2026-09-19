@@ -180,7 +180,10 @@ class WebSocketService {
       }
     } else if (type == MessageType.appointment) {
       if (appointment != null) {
-        text = jsonEncode(appointment.toJson());
+        final apptWithMsg = content.trim().isNotEmpty
+            ? appointment.copyWith(customMessage: content)
+            : appointment;
+        text = jsonEncode(apptWithMsg.toJson());
       } else if (content.trim().isNotEmpty) {
         text = content;
       } else {

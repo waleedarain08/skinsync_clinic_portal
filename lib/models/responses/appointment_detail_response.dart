@@ -44,6 +44,7 @@ class AppointmentDetailData {
   final double? discount;
   final String? bookingType;
   final String? status;
+  final String? customMessage;
   final DateTime? createdAt;
 
   AppointmentDetailData({
@@ -65,6 +66,7 @@ class AppointmentDetailData {
     this.discount,
     this.bookingType,
     this.status,
+    this.customMessage,
     this.createdAt,
   });
 
@@ -117,6 +119,7 @@ class AppointmentDetailData {
         discount: json["discount"]?.toDouble(),
         bookingType: json["booking_type"],
         status: json["status"],
+        customMessage: json["custom_message"],
         createdAt: json["created_at"] == null
             ? null
             : DateTime.tryParse(json["created_at"].toString()),
@@ -143,6 +146,7 @@ class AppointmentDetailData {
         "discount": discount,
         "booking_type": bookingType,
         "status": status,
+        "custom_message": customMessage,
         "created_at": createdAt?.toIso8601String(),
       };
 
@@ -164,6 +168,7 @@ class AppointmentDetailData {
     double? discount,
     String? bookingType,
     String? status,
+    String? customMessage,
     DateTime? createdAt,
   }) {
     return AppointmentDetailData(
@@ -184,6 +189,7 @@ class AppointmentDetailData {
       discount: discount ?? this.discount,
       bookingType: bookingType ?? this.bookingType,
       status: status ?? this.status,
+      customMessage: customMessage ?? this.customMessage,
       createdAt: createdAt ?? this.createdAt,
     );
   }

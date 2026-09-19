@@ -3259,8 +3259,16 @@ void _fetchAvailabilitySlots() {
                 );
               }).toList();
 
+              final refNumber = data?.appointmentKey?.isNotEmpty == true
+                  ? data!.appointmentKey!
+                  : (data?.id != null ? '#${data!.id}' : '');
+
+              final messageText =
+                  'Your appointment $refNumber has been set. Kindly go to My Care -> My Appointments to complete the payment and confirm your appointment.';
+
               final appointmentToSend =
                   (data ?? AppointmentDetailData()).copyWith(
+                customMessage: messageText,
                 treatments:
                     (data?.treatments != null && data!.treatments!.isNotEmpty)
                         ? data.treatments
@@ -3270,7 +3278,7 @@ void _fetchAvailabilitySlots() {
               try {
                 await ref.read(chatProvider.notifier).sendChatMessage(
                   type: MessageType.appointment,
-                  content: '',
+                  content: messageText,
                   appointment: appointmentToSend,
                   chatIdOverride: chatId,
                 );

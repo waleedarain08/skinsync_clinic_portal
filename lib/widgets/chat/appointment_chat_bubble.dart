@@ -22,6 +22,7 @@ class AppointmentChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMe = message.isMe;
     final appointment = message.appointmentData;
+    final customNote = appointment?.customMessage;
 
     return Container(
       constraints: BoxConstraints(maxWidth: context.w(560)),
@@ -90,6 +91,33 @@ class AppointmentChatBubble extends StatelessWidget {
             ],
           ),
           context.verticalSpace(14),
+          if (customNote != null && customNote.trim().isNotEmpty) ...[
+            BorderdContainerWidget(
+              padding: context.appEdgeInsets(all: 12),
+              backgroundColor: CustomColors.purple.withValues(alpha: 0.08),
+              borderColor: CustomColors.purple.withValues(alpha: 0.3),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: CustomColors.purple,
+                  ),
+                  context.horizontalSpace(8),
+                  Expanded(
+                    child: Text(
+                      customNote,
+                      style: context.fonts.purple12w700.copyWith(
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            context.verticalSpace(14),
+          ],
           if (appointment != null) ...[
             // Patient Header
             _buildPatientHeader(context, appointment),
