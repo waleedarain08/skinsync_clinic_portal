@@ -22,9 +22,12 @@ import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/custom_primary_button.dart';
+import '../widgets/dialog_box/add_practitioner_dialog.dart';
+import '../widgets/dialog_box/create_appointment_from_chat_dialog.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
 import 'dashboard/dashboard.dart';
 import '../widgets/gradient_scaffold.dart';
+import '../models/responses/staff__list_response.dart';
 import 'create_appointment_screen.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -423,6 +426,37 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
             // Header Quick Actions: Create Appointment & Toggle Patient Details
+            ElevatedButton.icon(
+              onPressed: () async {
+                final selectedStaff = await showDialog<StaffModel>(
+                  context: context,
+                  builder: (context) => const AddPractitionerDialog(),
+                );
+                if (selectedStaff != null) {
+                  await ref
+                      .read(chatProvider.notifier)
+                      .addPractitioner(practitionerId: selectedStaff.id);
+                }
+              },
+              icon: Icon(
+                Iconsax.user_add,
+                color: CustomColors.white,
+                size: context.sp(16),
+              ),
+              label: Text(
+                'Add Practitioner',
+                style: context.fonts.white12w700,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CustomColors.purple,
+                foregroundColor: CustomColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(context.r(8)),
+                ),
+                padding: context.appEdgeInsets(horizontal: 12, vertical: 8),
+              ),
+            ),
+            context.horizontalSpace(8),
             ElevatedButton.icon(
               onPressed: () {
                 final isWideScreen = MediaQuery.of(context).size.width > 800;

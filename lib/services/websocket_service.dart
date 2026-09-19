@@ -67,8 +67,9 @@ class WebSocketService {
 
       _msgSub = _socket!.messages.listen(
         (event) async {
-          final String rawText =
-              event is List<int> ? utf8.decode(event) : event.toString();
+          final String rawText = event is List<int>
+              ? utf8.decode(event)
+              : event.toString();
           print('[WebSocket RX Raw]: $rawText');
           log('[WebSocket RX Message]: $rawText');
           try {
@@ -117,11 +118,17 @@ class WebSocketService {
         },
       );
 
-      _connSub = _socket!.connection.listen((connection) {
+      _connSub = _socket!.connection.listen((connection) async {
         print('[WebSocket Connection State]: ${connection.runtimeType}');
         log('WebSocket connection state: ${connection.runtimeType}');
         if (connection is Disconnecting) {
           _cleanupSocket();
+          // Check & Refresh token before connecting if needed
+          try {
+            await locator<ApiBaseService>().refreshToken();
+          } catch (e) {
+            log('WebSocket pre-connect token check error: $e');
+          }
         }
       });
     } catch (e, s) {

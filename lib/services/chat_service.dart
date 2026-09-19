@@ -2,6 +2,7 @@
 
 import '../exceptions/app_exception.dart';
 import '../models/dummy/chat_dummy_model.dart';
+import '../models/requests/add_chat_practitioner_request.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/messages_response.dart';
 import '../repositories/chat_repository.dart';
@@ -69,5 +70,20 @@ class ChatService extends ChatRepository {
       );
     }
     throw ApiHttpException(message: model.message);
+  }
+
+  @override
+  Future<bool> addPractitioner({
+    required int chatId,
+    required int practitionerId,
+  }) async {
+    final apiService = api ?? locator<ApiBaseService>();
+    final response = await apiService.httpRequest(
+      endPoint: Endpoint.addPractitioner,
+      requestType: RequestType.post,
+      requestBody: AddChatPractitionerRequest(chatId: chatId, practitionerId: practitionerId),
+    );
+
+    return response['is_success'] ?? false;
   }
 }
