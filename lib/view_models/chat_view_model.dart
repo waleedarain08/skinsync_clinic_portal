@@ -101,6 +101,26 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     }, showLoading: false);
   }
 
+  Future<bool?> addPractitioner({required int practitionerId}) async {
+    return await runSafely(() async {
+      final chatId = state.selectedChat?.id;
+      if (chatId == null) {
+        throw const UnknownException('No chat selected');
+      }
+      EasyLoading.show(status: 'Adding practitioner...');
+      final success = await _repo.addPractitioner(
+        chatId: chatId,
+        practitionerId: practitionerId,
+      );
+      if (success) {
+        EasyLoading.showSuccess('Practitioner added successfully');
+      } else {
+        EasyLoading.showError('Failed to add practitioner');
+      }
+      return success;
+    });
+  }
+
   void selectChat(Chat? chat) {
     state = state.copyWith(selectedChat: chat);
   }

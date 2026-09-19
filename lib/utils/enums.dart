@@ -91,6 +91,7 @@ enum Endpoint {
   clinicDetail('clinic/detail'),
   chats('clinic/chats'),
   messages('clinic/chats/messages'),
+  addPractitioner('clinic/chat/practitioners'),
   protocolFields('clinic/protocol_fields'),
   staffRole('clinic/staff-roles'),
   createStaff('clinic/register-staff'),
@@ -119,7 +120,7 @@ enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
   apiQa('https://api-dev.skinsyncai.com/api/');
 
- // apiQa('http://localhost:8084/api/');
+  // apiQa('https://gecko-pure-gator.ngrok-free.app/api/');
 
   final String url;
 

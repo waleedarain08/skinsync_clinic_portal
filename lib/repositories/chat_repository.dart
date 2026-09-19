@@ -11,4 +11,6 @@ abstract class ChatRepository {
     int limit = 1,
     String? search,
   });
+
+  Future<bool> addPractitioner({required int chatId, required int practitionerId});
 }
