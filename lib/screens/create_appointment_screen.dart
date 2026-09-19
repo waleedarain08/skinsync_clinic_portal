@@ -5,6 +5,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
 import '../models/patient_model.dart';
@@ -16,7 +17,6 @@ import '../models/responses/filters_response.dart';
 import '../models/responses/practitioner_list_response.dart';
 import '../models/treatment_model.dart';
 import '../utils/enums.dart';
-import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/appointment_creation_view_model.dart';
@@ -47,11 +47,20 @@ import '../models/responses/patient_treatment_request_response.dart';
 import '../widgets/dialog_box/appointment_receipt_dialog.dart';
 
 class CreateAppointmentScreen extends ConsumerStatefulWidget {
-  const CreateAppointmentScreen({super.key, this.treatmentRequestData});
+  const CreateAppointmentScreen({
+    super.key,
+    this.treatmentRequestData,
+    this.isEmbedded = false,
+    this.onClose,
+    this.onSuccess,
+  });
 
   static const String routeName = '/create-appointment';
 
   final PatientTreatmentRequestData? treatmentRequestData;
+  final bool isEmbedded;
+  final VoidCallback? onClose;
+  final VoidCallback? onSuccess;
 
   @override
   ConsumerState<CreateAppointmentScreen> createState() =>
@@ -167,7 +176,11 @@ void _fetchAvailabilitySlots() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeChatPatient();
+      if (widget.treatmentRequestData != null) {
+        _initializeChatPatient();
+      } else {
+        _resetFormAndSelection();
+      }
       ref.read(appointmentProvider.notifier).getAppointmentsTypes();
       ref
           .read(treatmentViewModelProvider.notifier)
@@ -175,6 +188,58 @@ void _fetchAvailabilitySlots() {
       ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
       ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
+  }
+
+  void _resetFormAndSelection() {
+    _patientNameController.clear();
+    _patientEmailController.clear();
+    _patientPhoneController.clear();
+    _selectedCountryCode = '+1';
+
+    _selectedAppointmentTypeFilter = null;
+    _selectedRoleFilter = _allRoleFilter;
+    _selectedDropdownTreatment = null;
+
+    _selectedTreatments.clear();
+    _fetchedAreasMap.clear();
+    _isFetchingAreas = false;
+
+    _sessionMaterialsMap.clear();
+    _fetchingSessionMaterialsMap.clear();
+    _selectedSessionMap.clear();
+    _selectedMaterialMap.clear();
+    _selectedMaterialQtyMap.clear();
+
+    _treatmentCostMap.clear();
+    _fetchingTreatmentCostMap.clear();
+
+    _practitionerSearchController.clear();
+    _selectedPractitionerItem = null;
+    _assignedPractitioners.clear();
+
+    _dateController.clear();
+    _selectedSlot = null;
+
+    _bookingMethod = 'online';
+    _notesController.clear();
+    _paymentType = 'cash';
+    _paymentStatus = 'pending';
+    _discountType = 'flat';
+    _discountController.clear();
+    _amountPaidController.clear();
+    _amountController.clear();
+
+    _showSimulationsSection = false;
+    _frontImageBeforeController.clear();
+    _frontImageAfterController.clear();
+    _rightImageBeforeController.clear();
+    _rightImageAfterController.clear();
+    _leftImageBeforeController.clear();
+    _leftImageAfterController.clear();
+
+    _hasInitializedRequestPrefill = false;
+
+    ref.read(appointmentCreationProvider.notifier).resetState();
   }
 
   Future<void> _initializeChatPatient() async {
@@ -411,10 +476,141 @@ void _fetchAvailabilitySlots() {
     super.dispose();
   }
 
+  Widget _buildFormBody(
+    AppointmentCreationState state,
+    AppointmentCreationViewModel viewModel,
+  ) {
+    return Column(
+      children: [
+        _buildHeaderPanel(state, viewModel),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: context.appEdgeInsets(horizontal: 20, vertical: 16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildPatientSection(state, viewModel),
+                  SizedBox(height: context.h(24)),
+                  _buildTreatmentSection(),
+                  SizedBox(height: context.h(24)),
+                  _buildPractitionerScheduleSection(),
+                  SizedBox(height: context.h(24)),
+                  _buildNotesFinancialsSection(),
+                  SizedBox(height: context.h(24)),
+                  _buildPaymentSection(),
+                  if (_hasInitializedRequestPrefill)
+                    SizedBox(height: context.h(24)),
+                  if (_hasInitializedRequestPrefill)
+                    _buildSimulationsSection(),
+                  SizedBox(height: context.h(32)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CustomOutlinedButton(
+                        onTap: () {
+                          if (widget.isEmbedded) {
+                            if (widget.onClose != null) widget.onClose!();
+                          } else {
+                            context.pop();
+                          }
+                        },
+                        label: 'Cancel',
+                        height: context.h(42),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      ),
+                      context.horizontalSpace(16),
+                      CustomPrimaryButton(
+                        onTap: () => _submitForm(state, viewModel),
+                        label: 'Save Appointment',
+                        height: context.h(42),
+                        width: context.w(200),
+                        icon: Icons.check_circle_outline,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: context.h(32)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appointmentCreationProvider);
     final viewModel = ref.read(appointmentCreationProvider.notifier);
+
+    if (widget.isEmbedded) {
+      return Container(
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: context.appBorderRadius(all: 16),
+          border: Border.all(color: CustomColors.purple.withValues(alpha: 0.25)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: CustomColors.lightPurple.withValues(alpha: 0.4),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                border: const Border(
+                  bottom: BorderSide(color: CustomColors.border),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: context.appEdgeInsets(all: 6),
+                        decoration: BoxDecoration(
+                          color: CustomColors.purple.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Iconsax.calendar_add,
+                          size: context.sp(16),
+                          color: CustomColors.purple,
+                        ),
+                      ),
+                      context.horizontalSpace(8),
+                      Text(
+                        'Create Appointment',
+                        style: context.fonts.black16w600,
+                      ),
+                    ],
+                  ),
+                  if (widget.onClose != null)
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20, color: CustomColors.grey),
+                      onPressed: widget.onClose,
+                      tooltip: 'Close Panel',
+                    ),
+                ],
+              ),
+            ),
+            Expanded(child: _buildFormBody(state, viewModel)),
+          ],
+        ),
+      );
+    }
 
     return GradientScaffold(
       appBar: AppBar(
@@ -426,59 +622,7 @@ void _fetchAvailabilitySlots() {
           onPressed: () => context.pop(),
         ),
       ),
-      body: Column(
-        children: [
-          _buildHeaderPanel(state, viewModel),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPatientSection(state, viewModel),
-                    SizedBox(height: context.h(24)),
-                    _buildTreatmentSection(),
-                    SizedBox(height: context.h(24)),
-                    _buildPractitionerScheduleSection(),
-                    SizedBox(height: context.h(24)),
-                    _buildNotesFinancialsSection(),
-                    SizedBox(height: context.h(24)),
-                    _buildPaymentSection(),
-                    if (_hasInitializedRequestPrefill)
-                    SizedBox(height: context.h(24)),
-                      if (_hasInitializedRequestPrefill)
-                    _buildSimulationsSection(),
-                    
-                    SizedBox(height: context.h(32)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomOutlinedButton(
-                          onTap: () => context.pop(),
-                          label: 'Cancel',
-                          height: context.h(42),
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                        ),
-                        context.horizontalSpace(16),
-                        CustomPrimaryButton(
-                          onTap: () => _submitForm(state, viewModel),
-                          label: 'Save Appointment',
-                          height: context.h(42),
-                          width: context.w(200),
-                          icon: Icons.check_circle_outline,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: context.h(40)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: _buildFormBody(state, viewModel),
     );
   }
 
@@ -486,71 +630,71 @@ void _fetchAvailabilitySlots() {
     AppointmentCreationState state,
     AppointmentCreationViewModel viewModel,
   ) {
+    if (widget.isEmbedded) return const SizedBox.shrink();
+
     return Padding(
       padding: context.appEdgeInsets(horizontal: 24, vertical: 16),
       child: BorderdContainerWidget(
         padding: context.appEdgeInsets(all: 16),
         backgroundColor: CustomColors.white,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return AdaptiveLayoutRowColumn(
-              expandedWidget: false,
-              alignment: MainAxisAlignment.spaceBetween,
-              crossAlignment: CrossAxisAlignment.center,
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 16,
+          runSpacing: 12,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: CustomColors.purple.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.calendar_month_outlined,
-                        color: CustomColors.purple,
-                      ),
-                    ),
-                    context.horizontalSpace(12),
-                    SizedBox(
-                      width: constraints.maxWidth * 0.55,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Appointment Creation',
-                            style: context.fonts.black16w600,
-                          ),
-                          Text(
-                            'Configure appointment patient details, selected treatments, practitioner, schedule, & payment details.',
-                            style: context.fonts.grey12w400,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.calendar_month_outlined,
+                    color: CustomColors.purple,
+                  ),
                 ),
-                Row(
-                  children: [
-                    CustomOutlinedButton(
-                      onTap: () => context.pop(),
-                      label: 'Cancel',
-                      height: context.h(40),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    context.horizontalSpace(12),
-                    CustomPrimaryButton(
-                      onTap: () => _submitForm(state, viewModel),
-                      label: 'Save Appointment',
-                      height: context.h(40),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      icon: Icons.check_circle_outline,
-                    ),
-                  ],
+                context.horizontalSpace(12),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Appointment Creation',
+                        style: context.fonts.black16w600,
+                      ),
+                      Text(
+                        'Configure appointment patient details, selected treatments, practitioner, schedule, & payment details.',
+                        style: context.fonts.grey12w400,
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            );
-          },
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomOutlinedButton(
+                  onTap: () => context.pop(),
+                  label: 'Cancel',
+                  height: context.h(40),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                context.horizontalSpace(12),
+                CustomPrimaryButton(
+                  onTap: () => _submitForm(state, viewModel),
+                  label: 'Save Appointment',
+                  height: context.h(40),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  icon: Icons.check_circle_outline,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -567,12 +711,17 @@ void _fetchAvailabilitySlots() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AdaptiveLayoutRowColumn(
-            expandedWidget: false,
-            alignment: MainAxisAlignment.spaceBetween,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(title, style: context.fonts.black18w600),
-              trailing ?? const SizedBox.shrink(),
+              Expanded(
+                child: Text(title, style: context.fonts.black18w600),
+              ),
+              if (trailing != null) ...[
+                context.horizontalSpace(12),
+                trailing,
+              ],
             ],
           ),
           const Divider(color: CustomColors.border, height: 32),
@@ -757,23 +906,48 @@ void _fetchAvailabilitySlots() {
                       style: context.fonts.black14w600,
                     ),
                     context.verticalSpace(2),
-                    Row(
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
                       children: [
-                        Icon(
-                          Icons.email_outlined,
-                          size: context.sp(14),
-                          color: CustomColors.grey,
-                        ),
-                        context.horizontalSpace(4),
-                        Text(patient.email, style: context.fonts.grey12w400),
-                        context.horizontalSpace(14),
-                        Icon(
-                          Icons.phone_outlined,
-                          size: context.sp(14),
-                          color: CustomColors.grey,
-                        ),
-                        context.horizontalSpace(4),
-                        Text(patient.phone, style: context.fonts.grey12w400),
+                        if (patient.email.isNotEmpty)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.email_outlined,
+                                size: context.sp(14),
+                                color: CustomColors.grey,
+                              ),
+                              context.horizontalSpace(4),
+                              Flexible(
+                                child: Text(
+                                  patient.email,
+                                  style: context.fonts.grey12w400,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        if (patient.phone.isNotEmpty)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.phone_outlined,
+                                size: context.sp(14),
+                                color: CustomColors.grey,
+                              ),
+                              context.horizontalSpace(4),
+                              Flexible(
+                                child: Text(
+                                  patient.phone,
+                                  style: context.fonts.grey12w400,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ],
@@ -830,12 +1004,12 @@ void _fetchAvailabilitySlots() {
           Text('No treatments available.', style: context.fonts.grey14w400)
         else
           SizedBox(
-            height: context.h(220),
+            height: context.h(160),
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: treatments.length,
               separatorBuilder: (context, index) =>
-                  SizedBox(width: context.w(16)),
+                  SizedBox(width: context.w(12)),
               itemBuilder: (context, index) {
                 final treatment = treatments[index];
                 final bool isSelected = _selectedTreatments.any(
@@ -942,8 +1116,8 @@ void _fetchAvailabilitySlots() {
                       }
                     },
                     treatment: dashboardTreatment,
-                    width: context.w(280),
-                    imageHeight: context.h(220),
+                    width: context.w(250),
+                    imageHeight: context.h(160),
                   ),
                 );
               },
@@ -3041,6 +3215,7 @@ void _fetchAvailabilitySlots() {
                   backgroundColor: CustomColors.purple,
                 ),
               );
+              _resetFormAndSelection();
             }
           }
           return data != null;
@@ -3049,7 +3224,13 @@ void _fetchAvailabilitySlots() {
     );
 
     if (confirmed == true && mounted) {
-      context.pop();
+      if (widget.onSuccess != null) {
+        widget.onSuccess!();
+      } else if (!widget.isEmbedded) {
+        context.pop();
+      } else if (widget.onClose != null) {
+        widget.onClose!();
+      }
     }
   }
 }

@@ -22,8 +22,8 @@ import '../view_models/chat_view_model.dart';
 import '../widgets/borderd_container_widget.dart';
 import '../widgets/chat/chat_message_bubble.dart';
 import '../widgets/custom_primary_button.dart';
-import '../widgets/dialog_box/create_appointment_from_chat_dialog.dart';
 import '../widgets/dialog_box/share_treatment_request_dialog.dart';
+import 'dashboard/dashboard.dart';
 import '../widgets/gradient_scaffold.dart';
 import 'create_appointment_screen.dart';
 
@@ -48,6 +48,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool _showPatientInfo = false;
+  bool _isCreateAppointmentOpen = false;
 
   final List<String> _quickTemplates = [
     'Schedule Next Visit',
@@ -60,9 +61,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     if (widget.treatmentRequestData != null) {
-      _showPatientInfo = true;
+      _isCreateAppointmentOpen = true;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.treatmentRequestData != null) {
+        ref.read(sidebarControllerProvider)?.setExtended(false);
+      }
       if (widget.treatmentRequestData?.chatId != null) {
         ref
             .read(chatProvider.notifier)
@@ -216,6 +220,70 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isWideScreen = screenWidth > 800;
+    final bool showSplitView = _isCreateAppointmentOpen &&
+        (isWideScreen || widget.treatmentRequestData != null);
+
+    final Widget chatSection = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(context),
+        context.verticalSpace(16),
+        if (_showPatientInfo) ...[
+          _buildPatientInfoBanner(context),
+          context.verticalSpace(16),
+        ],
+        Expanded(
+          child: BorderdContainerWidget(
+            padding: EdgeInsets.zero,
+            borderRadius: context.r(16),
+            child: Column(
+              children: [
+                _buildDateDivider(context),
+                Expanded(child: _buildMessages()),
+                const Divider(color: CustomColors.border, height: 1),
+                _buildQuickPresetsRow(context),
+                const Divider(color: CustomColors.border, height: 1),
+                _buildInputArea(context),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final Widget mainBody = showSplitView
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 5,
+                child: chatSection,
+              ),
+              context.horizontalSpace(16),
+              Expanded(
+                flex: 5,
+                child: CreateAppointmentScreen(
+                  treatmentRequestData: widget.treatmentRequestData,
+                  isEmbedded: true,
+                  onClose: () {
+                    setState(() {
+                      _isCreateAppointmentOpen = false;
+                    });
+                  },
+                  onSuccess: () {
+                    setState(() {
+                      _isCreateAppointmentOpen = false;
+                    });
+                    ref.read(chatProvider.notifier).loadMessages();
+                  },
+                ),
+              ),
+            ],
+          )
+        : chatSection;
+
     return PopScope(
       onPopInvokedWithResult: (_, _) {
         ref.read(chatProvider.notifier).clearSelectedChatAndMessages();
@@ -223,38 +291,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       child: GradientScaffold(
         body: Padding(
           padding: context.appEdgeInsets(horizontal: 24, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              context.verticalSpace(16),
-
-              if (_showPatientInfo) ...[
-                _buildPatientInfoBanner(context),
-                context.verticalSpace(16),
-              ],
-
-              Expanded(
-                child: BorderdContainerWidget(
-                  padding: EdgeInsets.zero,
-                  borderRadius: context.r(16),
-                  child: Column(
-                    children: [
-                      // Date Divider Header
-                      _buildDateDivider(context),
-                      Expanded(child: _buildMessages()),
-                      const Divider(color: CustomColors.border, height: 1),
-                      // Quick Action Presets Row
-                      _buildQuickPresetsRow(context),
-                      const Divider(color: CustomColors.border, height: 1),
-                      // Bottom Input Bar
-                      _buildInputArea(context),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: mainBody,
         ),
       ),
     );
@@ -388,24 +425,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             // Header Quick Actions: Create Appointment & Toggle Patient Details
             ElevatedButton.icon(
               onPressed: () {
-                context.push(
-                  CreateAppointmentScreen.routeName,
-                  extra: widget.treatmentRequestData,
-                );
-                // showDialog(
-                //   context: context,
-                //   builder: (context) => CreateAppointmentFromChatDialog(
-                //     treatmentRequestData: widget.treatmentRequestData,
-                //   ),
-                // );
+                final isWideScreen = MediaQuery.of(context).size.width > 800;
+                if (isWideScreen || widget.treatmentRequestData != null) {
+                  setState(() {
+                    _isCreateAppointmentOpen = !_isCreateAppointmentOpen;
+                  });
+                } else {
+                  context.push(
+                    CreateAppointmentScreen.routeName,
+                    extra: widget.treatmentRequestData,
+                  );
+                }
               },
               icon: Icon(
-                Iconsax.calendar_add,
+                _isCreateAppointmentOpen
+                    ? Iconsax.close_circle
+                    : Iconsax.calendar_add,
                 color: CustomColors.white,
                 size: context.sp(16),
               ),
               label: Text(
-                'Create Appointment',
+                _isCreateAppointmentOpen
+                    ? 'Close Form'
+                    : 'Create Appointment',
                 style: context.fonts.white12w700,
               ),
               style: ElevatedButton.styleFrom(
@@ -745,6 +787,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   messageType: MessageType.sharedRequest,
                   sharedRequestData: model,
                 );
+                setState(() {
+                  _showPatientInfo = false;
+                });
               },
               label: 'Use This Request',
               icon: Icons.send_rounded,
@@ -894,12 +939,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               } else if (value == 'shared_request') {
                 _pickTreatmentRequest();
               } else if (value == 'create_appointment') {
-                showDialog(
-                  context: context,
-                  builder: (context) => CreateAppointmentFromChatDialog(
-                    treatmentRequestData: widget.treatmentRequestData,
-                  ),
-                );
+                final isWideScreen = MediaQuery.of(context).size.width > 800;
+                if (isWideScreen || widget.treatmentRequestData != null) {
+                  setState(() {
+                    _isCreateAppointmentOpen = !_isCreateAppointmentOpen;
+                  });
+                } else {
+                  context.push(
+                    CreateAppointmentScreen.routeName,
+                    extra: widget.treatmentRequestData,
+                  );
+                }
               } else if (value == 'appointment') {
                 // _sendMessage(
                 //   customText: 'Attached appointment confirmation details.',

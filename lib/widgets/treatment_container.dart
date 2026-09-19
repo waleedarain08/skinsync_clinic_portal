@@ -12,6 +12,8 @@ class TreatmentContainer extends StatelessWidget {
   final double? width;
   final DashboardTreatmentModel? treatment;
   final VoidCallback? onTap;
+  final bool showArrow;
+  final bool showIcon;
 
   const TreatmentContainer({
     super.key,
@@ -19,6 +21,8 @@ class TreatmentContainer extends StatelessWidget {
     this.imageHeight,
     this.width,
     this.onTap,
+    this.showArrow = false,
+    this.showIcon = false,
   });
 
   Widget? _buildLeftIcon(BuildContext context, String? iconKey) {
@@ -55,27 +59,20 @@ class TreatmentContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleText = treatment?.name ?? '';
-
     final subtitleText = treatment?.shortDescription ?? '';
-
     final bgImage = treatment?.image ?? '';
-
     final iconKey = treatment?.icon;
 
-    final iconWidget = _buildLeftIcon(
-      context,
-      iconKey,
-    );
-
+    final iconWidget = showIcon ? _buildLeftIcon(context, iconKey) : null;
     final globalSku = treatment?.sku ?? '';
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: imageHeight ?? context.h(300),
-        width: width ?? context.w(400),
+        height: imageHeight ?? context.h(160),
+        width: width ?? context.w(300),
         margin: EdgeInsets.only(
-          bottom: context.h(16),
+          bottom: context.h(10),
         ),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -138,96 +135,88 @@ class TreatmentContainer extends StatelessWidget {
               Positioned.fill(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
-                    context.w(22),
-                    context.h(12),
-                    context.w(22),
-                    context.h(16),
+                    context.w(14),
+                    context.h(8),
+                    context.w(14),
+                    context.h(10),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          mainAxisAlignment:
-                              MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
                               titleText,
-                              style: CustomFonts.black22w600,
+                              style: CustomFonts.black16w600,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-
                             if (subtitleText.isNotEmpty) ...[
                               SizedBox(
-                                height: context.h(6),
+                                height: context.h(2),
                               ),
                               Text(
                                 subtitleText,
                                 style: CustomFonts.grey12w400,
-                                maxLines: 2,
-                                overflow:
-                                    TextOverflow.ellipsis,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
-
                             if (globalSku.isNotEmpty) ...[
                               SizedBox(
-                                height: context.h(6),
+                                height: context.h(4),
                               ),
                               Text(
                                 "SKU: $globalSku",
-                                style:
-                                    CustomFonts.grey12w400.copyWith(
+                                style: CustomFonts.grey12w400.copyWith(
                                   fontSize: context.sp(10),
                                   fontWeight: FontWeight.w600,
                                   color: Colors.grey.shade600,
                                 ),
                                 maxLines: 1,
-                                overflow:
-                                    TextOverflow.ellipsis,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ],
                         ),
                       ),
-
-                      SizedBox(
-                        width: context.w(10),
-                      ),
-
-                      // Arrow
-                      Container(
-                        padding: EdgeInsets.all(
-                          context.w(10),
+                      if (showArrow) ...[
+                        SizedBox(
+                          width: context.w(10),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(
-                            alpha: 0.05,
+                        Container(
+                          padding: EdgeInsets.all(
+                            context.w(10),
                           ),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.black12,
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(
-                                alpha: 0.02,
-                              ),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(
+                              alpha: 0.05,
                             ),
-                          ],
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black12,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: 0.02,
+                                ),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.black87,
+                            size: context.sp(22),
+                          ),
                         ),
-                        child: Icon(
-                          Icons.chevron_right_rounded,
-                          color: Colors.black87,
-                          size: context.sp(22),
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -249,17 +238,7 @@ class TreatmentContainer extends StatelessWidget {
                     top: context.h(12),
                     right: context.w(12),
                     child: GestureDetector(
-                      onTap: () {
-                        // Handle info button tap.
-                        //
-                        // Example:
-                        //
-                        // Navigator.pushNamed(
-                        //   context,
-                        //   TreatmentDetailScreen.routeName,
-                        //   arguments: treatment,
-                        // );
-                      },
+                      onTap: () {},
                       behavior: HitTestBehavior.opaque,
                       child: Container(
                         padding: EdgeInsets.all(

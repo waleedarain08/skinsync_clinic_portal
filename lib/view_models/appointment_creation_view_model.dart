@@ -191,6 +191,12 @@ class AppointmentCreationViewModel
     state = state.copyWith(selectedPatient: null);
   }
 
+  void resetState() {
+    state = AppointmentCreationState(
+      bookingMethods: state.bookingMethods,
+    );
+  }
+
   Future<List<BookingMethodItem>> fetchBookingMethods() async {
     List<BookingMethodItem> methods = [];
     await runSafely(showLoading: false, () async {

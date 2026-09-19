@@ -8,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import '../models/responses/chats_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../screens/chat_screen.dart';
+import '../screens/dashboard/dashboard.dart';
 import '../utils/assets.dart';
 import '../utils/date_time_utills.dart';
 import '../utils/string_utils.dart';
@@ -187,28 +188,49 @@ class _SimulationTreatmentRequestCardState
             children: [
               Consumer(
                 builder: (_, ref, _) {
-                  return IconButton(
-                    icon: Icon(
-                      Iconsax.message,
-                      color: CustomColors.purple,
-                      size: context.r(24),
+                  return Tooltip(
+                    message: 'Open Chat',
+                    child: Material(
+                      color: Colors.transparent,
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          ref.read(sidebarControllerProvider)?.setExtended(false);
+                          ref
+                              .read(chatProvider.notifier)
+                              .selectChat(Chat(id: request.chatId));
+                          context.pushNamed(
+                            ChatScreen.routeName,
+                            queryParameters: {'showBackButton': 'true'},
+                            extra: request,
+                          );
+                        },
+                        child: Container(
+                          padding: context.appEdgeInsets(all: 10),
+                          decoration: BoxDecoration(
+                            color: CustomColors.purple,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: CustomColors.purple.withValues(alpha: 0.35),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Iconsax.message,
+                            color: CustomColors.white,
+                            size: context.sp(16),
+                          ),
+                        ),
+                      ),
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      ref
-                          .read(chatProvider.notifier)
-                          .selectChat(Chat(id: request.chatId));
-                      context.pushNamed(
-                        ChatScreen.routeName,
-                        queryParameters: {'showBackButton': 'true'},
-                        extra: request,
-                      );
-                    },
                   );
                 },
               ),
-              context.horizontalSpace(8),
+              context.horizontalSpace(10),
               AnimatedRotation(
                 turns: _isExpanded ? 0.5 : 0.0,
                 duration: const Duration(milliseconds: 200),

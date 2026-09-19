@@ -17,6 +17,20 @@ import '../../widgets/app_sidebar.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/gradient_scaffold.dart';
 
+class SidebarControllerNotifier extends Notifier<SidebarXController?> {
+  @override
+  SidebarXController? build() => null;
+
+  void setController(SidebarXController? controller) {
+    state = controller;
+  }
+}
+
+final sidebarControllerProvider =
+    NotifierProvider<SidebarControllerNotifier, SidebarXController?>(
+      SidebarControllerNotifier.new,
+    );
+
 class Dashboard extends ConsumerStatefulWidget {
   static const String routeName = '/dashboard';
   final Widget child;
@@ -37,6 +51,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
     super.initState();
     _controller = SidebarXController(selectedIndex: 0, extended: true);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(sidebarControllerProvider.notifier).setController(_controller);
       ref.read(subscriptionViewModelProvider.notifier).fetchCurrentPlan();
       _wsInstance.connect(
         onEvent: (event) {
