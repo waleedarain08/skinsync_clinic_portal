@@ -174,18 +174,29 @@ void _fetchAvailabilitySlots() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(appointmentProvider.notifier).getAppointmentsTypes();
+      ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
+      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
+
       if (widget.treatmentRequestData != null) {
         _initializeChatPatient();
       } else {
         _resetFormAndSelection();
       }
-      ref.read(appointmentProvider.notifier).getAppointmentsTypes();
-      ref
-          .read(treatmentViewModelProvider.notifier)
-          .getTreatments(isRefresh: true);
-      ref.read(appointmentCreationProvider.notifier).fetchBookingMethods();
-      ref.read(providerRoleViewModelProvider.notifier).fetchProviderRoles();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant CreateAppointmentScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.treatmentRequestData != oldWidget.treatmentRequestData) {
+      _hasInitializedRequestPrefill = false;
+      if (widget.treatmentRequestData != null) {
+        _initializeChatPatient();
+      } else {
+        _resetFormAndSelection();
+      }
+    }
   }
 
   void _resetFormAndSelection() {
@@ -250,7 +261,7 @@ void _fetchAvailabilitySlots() {
       id: request.userId,
       name: request.patientName?.trim().isNotEmpty == true
           ? request.patientName!.trim()
-          : request.name,
+          : (request.name.isNotEmpty ? request.name : 'Patient'),
       email: request.patientEmail?.trim() ?? '',
       phone: '',
     );
@@ -258,6 +269,7 @@ void _fetchAvailabilitySlots() {
     ref.read(appointmentCreationProvider.notifier).selectPatient(patient);
     _patientNameController.text = patient.name;
     _patientEmailController.text = patient.email;
+
     _frontImageBeforeController.text = request.frontImageBefore ?? '';
     _frontImageAfterController.text = request.frontImageAfter ?? '';
     _rightImageBeforeController.text = request.rightImageBefore ?? '';
@@ -265,12 +277,12 @@ void _fetchAvailabilitySlots() {
     _leftImageBeforeController.text = request.leftImageBefore ?? '';
     _leftImageAfterController.text = request.leftImageAfter ?? '';
 
-    if (request.frontImageBefore?.isNotEmpty == true ||
-        request.frontImageAfter?.isNotEmpty == true ||
-        request.rightImageBefore?.isNotEmpty == true ||
-        request.rightImageAfter?.isNotEmpty == true ||
-        request.leftImageBefore?.isNotEmpty == true ||
-        request.leftImageAfter?.isNotEmpty == true) {
+    if ((request.frontImageBefore?.isNotEmpty ?? false) ||
+        (request.frontImageAfter?.isNotEmpty ?? false) ||
+        (request.rightImageBefore?.isNotEmpty ?? false) ||
+        (request.rightImageAfter?.isNotEmpty ?? false) ||
+        (request.leftImageBefore?.isNotEmpty ?? false) ||
+        (request.leftImageAfter?.isNotEmpty ?? false)) {
       setState(() {
         _showSimulationsSection = true;
       });
@@ -318,7 +330,10 @@ void _fetchAvailabilitySlots() {
       final matchedTreatment = availableTreatments.firstWhere(
         (t) =>
             t.id == requestTreatment.treatmentId ||
-            t.name == requestTreatment.treatmentName,
+            (t.name != null &&
+                requestTreatment.treatmentName.isNotEmpty &&
+                t.name!.toLowerCase() ==
+                    requestTreatment.treatmentName.toLowerCase()),
         orElse: () => TreatmentModel(
           id: requestTreatment.treatmentId,
           name: requestTreatment.treatmentName,
@@ -330,6 +345,10 @@ void _fetchAvailabilitySlots() {
         ),
       );
 
+      final requestAreaModels = requestTreatment.areas
+          .map((a) => SideAreaModel(id: a.areaId, name: a.areaName))
+          .toList();
+
       final treatment = matchedTreatment.copyWith(
         id: matchedTreatment.id ?? requestTreatment.treatmentId,
         name: matchedTreatment.name ?? requestTreatment.treatmentName,
@@ -339,7 +358,7 @@ void _fetchAvailabilitySlots() {
             matchedTreatment.shortDescription ?? requestTreatment.description,
         image: matchedTreatment.image ?? requestTreatment.image,
         icon: matchedTreatment.icon ?? requestTreatment.icon,
-        sideAreas: const [],
+        sideAreas: requestAreaModels,
       );
 
       prefilledTreatments.add(treatment);
@@ -369,6 +388,9 @@ void _fetchAvailabilitySlots() {
 
       _updateTotalAmount();
       _fetchFilteredPractitioners();
+      if (_dateController.text.isNotEmpty) {
+        _fetchAvailabilitySlots();
+      }
     }
   }
 
@@ -390,9 +412,13 @@ void _fetchAvailabilitySlots() {
       );
     }).toList();
 
-    final selectedAreaModels = matchedAreas
-        .map((area) => SideAreaModel(id: area.id, name: area.name))
-        .toList();
+    final selectedAreaModels = matchedAreas.isNotEmpty
+        ? matchedAreas
+            .map((area) => SideAreaModel(id: area.id, name: area.name))
+            .toList()
+        : requestTreatment.areas
+            .map((a) => SideAreaModel(id: a.areaId, name: a.areaName))
+            .toList();
 
     setState(() {
       _fetchedAreasMap[treatment.id!] = fetchedAreas;
@@ -414,41 +440,42 @@ void _fetchAvailabilitySlots() {
           orElse: () => requestTreatment.areas.first,
         );
 
-        if (requestArea.areaId == area.id) {
-          await _fetchSessionMaterials(treatment.id!, area.id!);
-          final key = '${treatment.id}-${area.id}';
-          final matchedSession = _sessionMaterialsMap[key]?.firstWhere(
+        await _fetchSessionMaterials(treatment.id!, area.id!);
+        final key = '${treatment.id}-${area.id}';
+        final sessionsList = _sessionMaterialsMap[key];
+
+        if (sessionsList != null && sessionsList.isNotEmpty) {
+          final matchedSession = sessionsList.firstWhere(
             (session) => session.sessionId == requestArea.sessionId,
-            orElse: () =>
-                _sessionMaterialsMap[key]?.first ??
-                SessionMaterialData(
-                  sessionId: requestArea.sessionId,
-                  sessionName: '',
-                  material: const [],
-                ),
+            orElse: () => sessionsList.first,
           );
-          if (matchedSession != null) {
-            setState(() {
-              _selectedSessionMap[key] = matchedSession;
-              if (matchedSession.material.isNotEmpty) {
-                final matchedMaterial = matchedSession.material.firstWhere(
-                  (material) => requestArea.materials.any(
-                    (item) => item.id == material.id,
-                  ),
-                  orElse: () => matchedSession.material.first,
-                );
-                _selectedMaterialMap[key] = matchedMaterial;
-                final selectedQty = requestArea.materials
-                    .firstWhere(
-                      (item) => item.id == matchedMaterial.id,
-                      orElse: () => requestArea.materials.first,
-                    )
-                    .selectedQuantity;
-                _selectedMaterialQtyMap[key] = selectedQty;
-              }
-            });
-            await _calculateTreatmentCost(treatment.id!, area.id!);
-          }
+
+          setState(() {
+            _selectedSessionMap[key] = matchedSession;
+            if (matchedSession.material.isNotEmpty) {
+              final matchedMaterial = matchedSession.material.firstWhere(
+                (material) => requestArea.materials.any(
+                  (item) => item.id == material.id,
+                ),
+                orElse: () => matchedSession.material.first,
+              );
+              _selectedMaterialMap[key] = matchedMaterial;
+              final requestMat = requestArea.materials.firstWhere(
+                (item) => item.id == matchedMaterial.id,
+                orElse: () => requestArea.materials.isNotEmpty
+                    ? requestArea.materials.first
+                    : PatientTreatmentMaterialData(
+                        id: matchedMaterial.id,
+                        name: matchedMaterial.unitType,
+                        selectedQuantity: matchedMaterial.maxQty,
+                      ),
+              );
+              _selectedMaterialQtyMap[key] = requestMat.selectedQuantity > 0
+                  ? requestMat.selectedQuantity
+                  : matchedMaterial.maxQty;
+            }
+          });
+          await _calculateTreatmentCost(treatment.id!, area.id!);
         }
       }
     }
