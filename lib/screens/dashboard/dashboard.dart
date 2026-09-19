@@ -50,8 +50,13 @@ class _DashboardState extends ConsumerState<Dashboard> {
   void initState() {
     super.initState();
     _controller = SidebarXController(selectedIndex: 0, extended: true);
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(sidebarControllerProvider.notifier).setController(_controller);
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(sidebarControllerProvider.notifier).setController(_controller);
       ref.read(subscriptionViewModelProvider.notifier).fetchCurrentPlan();
       _wsInstance.connect(
         onEvent: (event) {
@@ -92,10 +97,11 @@ class _DashboardState extends ConsumerState<Dashboard> {
     super.didChangeDependencies();
     // Update controller state only when crossing desktop/tablet threshold
     final isDesktop = context.isDesktop;
-    if (_wasDesktop != isDesktop) {
+    if (_wasDesktop != null && _wasDesktop != isDesktop) {
       _wasDesktop = isDesktop;
       _controller.setExtended(isDesktop);
     }
+    _wasDesktop ??= isDesktop;
   }
 
   @override

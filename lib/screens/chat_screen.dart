@@ -66,8 +66,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _isCreateAppointmentOpen = true;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.treatmentRequestData != null) {
-        ref.read(sidebarControllerProvider)?.setExtended(false);
+      final sidebarController = ref.read(sidebarControllerProvider);
+      if (sidebarController != null && sidebarController.extended) {
+        sidebarController.setExtended(false);
       }
       if (widget.treatmentRequestData?.chatId != null) {
         ref
@@ -160,6 +161,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    Future.microtask(() {
+      ref.read(sidebarControllerProvider)?.setExtended(true);
+    });
     super.dispose();
   }
 
