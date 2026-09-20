@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/requests/status_request.dart';
 import '../../utils/responsive.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 import '../../view_models/practitioner_view_model.dart';
 import '../../models/responses/practitioner_list_response.dart';
@@ -300,7 +301,7 @@ class _ManagePractitionerScreenState
           Expanded(
             flex: 25,
             child: _tableTextCell(
-              d.role ?? '',
+              d.role?.capitalize ?? '',
               style: context.fonts.black14w600,
             ),
           ),
@@ -340,7 +341,7 @@ class _ManagePractitionerScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${d.title} ${d.name}',
+                  '${d.title} ${d.name.capitalize}',
                   style: context.fonts.black14w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

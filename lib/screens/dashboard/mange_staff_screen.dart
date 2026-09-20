@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../main.dart';
 import '../../models/responses/staff__list_response.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 import '../../view_models/staff_view_model.dart';
 import '../../widgets/app_loader.dart';
@@ -248,7 +249,10 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
                 ),
                 children: [
                   _staffNameCell(s),
-                  _tableTextCell(s.role, style: context.fonts.black14w600),
+                  _tableTextCell(
+                    s.role.capitalize,
+                    style: context.fonts.black14w600,
+                  ),
                   _tableTextCell(
                     s.cc.isNotEmpty ? '${s.cc} ${s.phone}' : s.phone,
                     style: context.fonts.black14w600,
@@ -293,7 +297,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  s.name,
+                  s.name.capitalize,
                   style: context.fonts.black14w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -340,10 +344,7 @@ class _ManageStaffScreenState extends ConsumerState<ManageStaffScreen> {
               size: 20,
             ),
             onPressed: () {
-              context.push(
-                AdministrationStaffDetailScreen.routeName,
-               
-              );
+              context.push(AdministrationStaffDetailScreen.routeName);
             },
           ),
         ],
