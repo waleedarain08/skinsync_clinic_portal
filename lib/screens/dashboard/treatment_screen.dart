@@ -5,6 +5,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../../main.dart';
 import '../../utils/responsive.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 import '../../view_models/treatment_view_model.dart';
 import '../../models/treatment_model.dart';
@@ -461,7 +462,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  treatment.name ?? 'N/A',
+                  treatment.name?.capitalize ?? 'N/A',
                   style: context.fonts.black14w600,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

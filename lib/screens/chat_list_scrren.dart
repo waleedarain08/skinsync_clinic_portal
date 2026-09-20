@@ -263,7 +263,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              item.patientName ?? 'Patient',
+                              item.patientName?.capitalize ?? 'Patient',
                               style: context.fonts.black16w600,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -279,9 +279,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       ),
                       context.verticalSpace(4),
                       Text(
-                            item.patientEmail ?? 'N/A',
-                            style: context.fonts.grey12w400,
-                          ),
+                        item.patientEmail ?? 'N/A',
+                        style: context.fonts.grey12w400,
+                      ),
+
                       // if (item.lastMessage != null)
                       //   Row(
                       //     children: [
@@ -314,7 +315,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       //       ],
                       //     ],
                       //   ),
-                  
                     ],
                   ),
                 ),

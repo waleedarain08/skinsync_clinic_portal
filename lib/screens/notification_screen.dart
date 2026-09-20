@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../models/responses/notification_response.dart';
+import '../utils/string_utils.dart';
 import '../utils/theme.dart';
 import '../view_models/notification_view_model.dart';
 import '../widgets/app_loader.dart';
@@ -15,14 +16,10 @@ class NotificationScreen extends ConsumerStatefulWidget {
 
   final bool showBackButton;
 
-  const NotificationScreen({
-    super.key,
-    this.showBackButton = false,
-  });
+  const NotificationScreen({super.key, this.showBackButton = false});
 
   @override
-  ConsumerState<NotificationScreen> createState() =>
-      _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
 class _NotificationScreenState extends ConsumerState<NotificationScreen> {
@@ -76,10 +73,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Notifications',
-                style: context.fonts.level1Heading,
-              ),
+              Text('Notifications', style: context.fonts.level1Heading),
               context.verticalSpace(6),
               Text(
                 'Stay updated with real-time clinic alerts, appointments, and activity logs.',
@@ -144,10 +138,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ),
               ),
               context.verticalSpace(16),
-              Text(
-                'No notifications yet',
-                style: context.fonts.black18w600,
-              ),
+              Text('No notifications yet', style: context.fonts.black18w600),
               context.verticalSpace(6),
               Text(
                 'When you get new notifications, they will appear here.',
@@ -228,7 +219,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        notification.title ?? 'Notification',
+                        notification.title?.capitalize ?? 'Notification',
                         style: context.fonts.black16w600,
                       ),
                     ),
@@ -244,10 +235,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 if (notification.body != null &&
                     notification.body!.isNotEmpty) ...[
                   context.verticalSpace(6),
-                  Text(
-                    notification.body!,
-                    style: context.fonts.grey14w400,
-                  ),
+                  Text(notification.body!, style: context.fonts.grey14w400),
                 ],
               ],
             ),

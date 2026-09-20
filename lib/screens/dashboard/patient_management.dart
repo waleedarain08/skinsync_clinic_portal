@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/responses/patient_list_response.dart';
 import '../../utils/responsive.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
 import '../../widgets/borderd_container_widget.dart';
@@ -309,7 +310,7 @@ class _PatientManagementContent extends ConsumerWidget {
 
           Expanded(
             child: Text(
-              patient.patientName ?? 'N/A',
+              patient.patientName?.capitalize ?? 'N/A',
               style: context.fonts.black14w600,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -371,7 +372,7 @@ class _PatientManagementContent extends ConsumerWidget {
                 children: [
                   IconButton(
                     tooltip: 'View Patient Details',
-                    
+
                     constraints: const BoxConstraints(),
                     icon: const Icon(
                       Icons.visibility_outlined,
@@ -393,10 +394,10 @@ class _PatientManagementContent extends ConsumerWidget {
                       }
                     },
                   ),
-                 
+
                   IconButton(
                     tooltip: 'View Patient Request',
-                   
+
                     constraints: const BoxConstraints(),
                     icon: const Icon(
                       Icons.assignment_outlined,
