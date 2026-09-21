@@ -154,7 +154,7 @@ void _fetchAvailabilitySlots() {
   String _paymentType = 'cash';
   final List<String> _paymentTypes = ['cash', 'card', 'stripe'];
   String _paymentStatus = 'pending';
-  final List<String> _paymentStatuses = ['pending', 'completed'];
+  final List<String> _paymentStatuses = ['unpaid', 'paid','half_payment'];
   String _discountType = 'flat';
   final List<String> _discountTypes = ['flat', 'percentage'];
   final _discountController = TextEditingController(text: '0');
