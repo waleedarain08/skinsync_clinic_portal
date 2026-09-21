@@ -29,13 +29,11 @@ class WebSocketService {
   WebSocket? _socket;
   StreamSubscription<dynamic>? _msgSub;
   StreamSubscription<dynamic>? _connSub;
-  ValueSetter<WsEvent>? _onEventCallback;
   bool _isRefreshingAndReconnecting = false;
 
   bool get isConnected => _socket != null;
 
   Future<void> connect({required ValueSetter<WsEvent> onEvent}) async {
-    _onEventCallback = onEvent;
     if (_socket != null) {
       print('[WebSocket Already Connected]');
       log('WebSocket already connected');
@@ -87,12 +85,14 @@ class WebSocketService {
                   errorMsg.contains('expired') ||
                   errorMsg.contains('token')) {
                 log('WebSocket received token expiry event: $errorMsg');
-                await _refreshAndReconnect();
+                await _refreshAndReconnect(
+                  onEvent: onEvent,
+                );
                 return;
               }
             }
 
-            _onEventCallback?.call(WsEvent(type: eventType, data: data));
+            onEvent.call(WsEvent(type: eventType, data: data));
           } catch (e, s) {
             print('[WebSocket Parse Error]: $e');
             log('WebSocket parse error: $e', stackTrace: s);
@@ -111,7 +111,9 @@ class WebSocketService {
               errorStr.contains('unauthorized') ||
               errorStr.contains('expired') ||
               errorStr.contains('token')) {
-            await _refreshAndReconnect();
+            await _refreshAndReconnect(
+              onEvent: onEvent,
+            );
           } else {
             _cleanupSocket();
           }
@@ -138,7 +140,7 @@ class WebSocketService {
     }
   }
 
-  Future<void> _refreshAndReconnect() async {
+  Future<void> _refreshAndReconnect({required ValueSetter<WsEvent> onEvent}) async {
     if (_isRefreshingAndReconnecting) return;
     _isRefreshingAndReconnecting = true;
     log('WebSocket token expired. Running refresh token and reconnecting...');
@@ -146,10 +148,7 @@ class WebSocketService {
     try {
       await _cleanupSocket();
       await locator<ApiBaseService>().refreshToken();
-      final onEvent = _onEventCallback;
-      if (onEvent != null) {
         await connect(onEvent: onEvent);
-      }
     } catch (e) {
       log('WebSocket refresh & reconnect failed: $e');
     } finally {

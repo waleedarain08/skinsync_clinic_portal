@@ -52,12 +52,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   bool _showPatientInfo = false;
   bool _isCreateAppointmentOpen = false;
 
-  final List<String> _quickTemplates = [
-    'Schedule Next Visit',
-    'Send Pre-Treatment Instructions',
-    'Request Follow-up Photos',
-    'Share Consent Form',
-  ];
+  // final List<String> _quickTemplates = [
+  //   'Schedule Next Visit',
+  //   'Send Pre-Treatment Instructions',
+  //   'Request Follow-up Photos',
+  //   'Share Consent Form',
+  // ];
 
   @override
   void initState() {
@@ -228,7 +228,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isWideScreen = screenWidth > 800;
-    final bool showSplitView = _isCreateAppointmentOpen &&
+    final bool showSplitView =
+        _isCreateAppointmentOpen &&
         (isWideScreen || widget.treatmentRequestData != null);
 
     final Widget chatSection = Column(
@@ -248,8 +249,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               children: [
                 _buildDateDivider(context),
                 Expanded(child: _buildMessages()),
-                const Divider(color: CustomColors.border, height: 1),
-                _buildQuickPresetsRow(context),
+                // const Divider(color: CustomColors.border, height: 1),
+                // _buildQuickPresetsRow(context),
                 const Divider(color: CustomColors.border, height: 1),
                 _buildInputArea(context),
               ],
@@ -263,10 +264,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 5,
-                child: chatSection,
-              ),
+              Expanded(flex: 5, child: chatSection),
               context.horizontalSpace(16),
               Expanded(
                 flex: 5,
@@ -396,21 +394,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           maxLines: 1,
                         ),
                       ),
-                      context.horizontalSpace(8),
-                      Container(
-                        padding: context.appEdgeInsets(
-                          horizontal: 8,
-                          vertical: 2,
+                      if (req == null) ...{
+                        context.horizontalSpace(8),
+                        Container(
+                          padding: context.appEdgeInsets(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: CustomColors.softGrey,
+                            borderRadius: BorderRadius.circular(context.r(12)),
+                            border: Border.all(color: CustomColors.border),
+                          ),
+                          child: Text(displayId, style: context.fonts.grey11w600),
                         ),
-                        decoration: BoxDecoration(
-                          color: CustomColors.softGrey,
-                          borderRadius: BorderRadius.circular(context.r(12)),
-                          border: Border.all(color: CustomColors.border),
-                        ),
-                        child: Text(displayId, style: context.fonts.grey11w600),
-                      ),
+                      },
                     ],
                   ),
+                  if (req != null) ...{
+                    context.verticalSpace(2),
+                    Container(
+                      padding: context.appEdgeInsets(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: CustomColors.softGrey,
+                        borderRadius: BorderRadius.circular(context.r(12)),
+                        border: Border.all(color: CustomColors.border),
+                      ),
+                      child: Text(displayId, style: context.fonts.grey11w600),
+                    ),
+                  },
                   context.verticalSpace(2),
                   Row(
                     children: [
@@ -478,7 +491,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    final isWideScreen = MediaQuery.of(context).size.width > 800;
+                    final isWideScreen =
+                        MediaQuery.of(context).size.width > 800;
                     if (isWideScreen || widget.treatmentRequestData != null) {
                       setState(() {
                         _isCreateAppointmentOpen = !_isCreateAppointmentOpen;
@@ -520,7 +534,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   },
                   tooltip: 'Toggle Patient Details',
                   icon: Icon(
-                    _showPatientInfo ? Iconsax.info_circle5 : Iconsax.info_circle,
+                    _showPatientInfo
+                        ? Iconsax.info_circle5
+                        : Iconsax.info_circle,
                     color: CustomColors.purple,
                     size: context.sp(22),
                   ),
@@ -804,7 +820,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     req.rightImageAfter!,
                   ),
                 ],
-                 if (req.leftImageBefore != null) ...[
+                if (req.leftImageBefore != null) ...[
                   context.horizontalSpace(8),
                   _buildSimulationThumbnail(
                     context,
@@ -820,7 +836,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     req.rightImageAfter!,
                   ),
                 ],
-             
               ],
             ),
           ],
@@ -834,7 +849,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             child: CustomPrimaryButton(
               onTap: () {
                 final model =
-                    ChatTreatmentRequestModel.fromPatientTreatmentRequestData(req);
+                    ChatTreatmentRequestModel.fromPatientTreatmentRequestData(
+                      req,
+                    );
                 final jsonStr = jsonEncode(model.toJson());
                 _sendMessage(
                   customText: jsonStr,
@@ -931,46 +948,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildQuickPresetsRow(BuildContext context) {
-    return Container(
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 10),
-      color: CustomColors.whiteGrey,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            Icon(
-              Iconsax.flash_1,
-              size: context.sp(16),
-              color: CustomColors.purple,
-            ),
-            context.horizontalSpace(8),
-            Text('Quick Responses:', style: context.fonts.grey11w600),
-            context.horizontalSpace(12),
-            ..._quickTemplates.map(
-              (template) => Padding(
-                padding: EdgeInsets.only(right: context.w(8)),
-                child: ActionChip(
-                  label: Text(template),
-                  labelStyle: context.fonts.purple12w700,
-                  backgroundColor: CustomColors.lightPurple,
-                  side: BorderSide(
-                    color: CustomColors.purple.withValues(alpha: 0.2),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(context.r(20)),
-                  ),
-                  onPressed: () {
-                    _messageController.text = template;
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildQuickPresetsRow(BuildContext context) {
+  //   return Container(
+  //     padding: context.appEdgeInsets(horizontal: 16, vertical: 10),
+  //     color: CustomColors.whiteGrey,
+  //     child: SingleChildScrollView(
+  //       scrollDirection: Axis.horizontal,
+  //       child: Row(
+  //         children: [
+  //           Icon(
+  //             Iconsax.flash_1,
+  //             size: context.sp(16),
+  //             color: CustomColors.purple,
+  //           ),
+  //           context.horizontalSpace(8),
+  //           Text('Quick Responses:', style: context.fonts.grey11w600),
+  //           context.horizontalSpace(12),
+  //           ..._quickTemplates.map(
+  //             (template) => Padding(
+  //               padding: EdgeInsets.only(right: context.w(8)),
+  //               child: ActionChip(
+  //                 label: Text(template),
+  //                 labelStyle: context.fonts.purple12w700,
+  //                 backgroundColor: CustomColors.lightPurple,
+  //                 side: BorderSide(
+  //                   color: CustomColors.purple.withValues(alpha: 0.2),
+  //                 ),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(context.r(20)),
+  //                 ),
+  //                 onPressed: () {
+  //                   _messageController.text = template;
+  //                 },
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildInputArea(BuildContext context) {
     return Container(

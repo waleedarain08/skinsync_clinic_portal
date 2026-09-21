@@ -23,7 +23,6 @@ final chatProvider = NotifierProvider.autoDispose<ChatViewModel, ChatState>(() {
 
 class ChatViewModel extends BaseViewModel<ChatState> {
   final ChatRepository _repo;
-  StreamSubscription<WsEvent>? _wsSubscription;
 
   ChatViewModel({required this._repo});
 
@@ -126,15 +125,7 @@ class ChatViewModel extends BaseViewModel<ChatState> {
   }
 
   Future<void> clearSelectedChatAndMessages() async {
-    await _wsSubscription?.cancel();
-    _wsSubscription = null;
     state = state.copyWithNull(selectedChat: true, messagesData: true);
-  }
-
-  @override
-  void dispose() {
-    _wsSubscription?.cancel();
-    super.dispose();
   }
 }
 

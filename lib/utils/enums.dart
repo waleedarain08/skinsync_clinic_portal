@@ -118,9 +118,9 @@ enum Endpoint {
 
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
-  apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('https://api-dev.skinsyncai.com/api/');
 
-  // apiQa('https://gecko-pure-gator.ngrok-free.app/api/');
+  apiQa('http://localhost:8084/api/');
 
   final String url;
 
