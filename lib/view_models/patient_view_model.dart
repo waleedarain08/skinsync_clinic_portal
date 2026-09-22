@@ -160,6 +160,19 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     });
   }
 
+  void addSharedTreatmentRequest(PatientTreatmentRequestData data) {
+    if (state.treatmentRequests.any((s) => s.id == data.id)) {
+      return;
+    }
+
+    state = state.copyWith(
+      treatmentRequests: [
+        data,
+        ...state.treatmentRequests,
+      ],
+    );
+  }
+
   @override
   @mustCallSuper
   void onError(String message) {

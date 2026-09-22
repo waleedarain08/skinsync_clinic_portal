@@ -280,6 +280,8 @@ class AuthViewModel extends BaseViewModel<AuthState> {
       ),
     );
   }
+
+  void addSharedRequest() {}
 }
 
 class AuthState {

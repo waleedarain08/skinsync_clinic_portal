@@ -6,12 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../../models/responses/login_response_model.dart';
-import '../../models/responses/messages_response.dart';
 import '../../services/websocket_service.dart';
 import '../../utils/enums.dart';
 import '../../utils/responsive.dart';
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/chat_view_model.dart';
+import '../../view_models/patient_view_model.dart';
 import '../../view_models/subscription_view_model.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -65,10 +65,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
             log('NEW MESSAGE RECIEVED OF TYPE: ${event.type}');
             log('DATA: ${event.data}');
             switch (event.type) {
-              case EventType.chat:
-                final message = Message.fromJson(event.data);
+              case EventType.message:
                 if (ref.exists(chatProvider)) {
-                  ref.read(chatProvider.notifier).addMessage(message);
+                  ref.read(chatProvider.notifier).addMessage(.fromJson(event.data));
                 }
                 break;
               case EventType.appointment:
@@ -82,6 +81,16 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 log('WebSocket error event received: ${event.data}');
                 break;
               case EventType.subscription:
+                break;
+              case .requestShared:
+                if (ref.exists(patientProvider)) {
+                  ref.read(patientProvider.notifier).addSharedTreatmentRequest(.fromJson(event.data));
+                }
+                break;
+              case .newChat:
+                if (ref.exists(chatProvider)) {
+                  ref.read(chatProvider.notifier).addChat(.fromJson(event.data));
+                }
                 break;
             }
           } catch (e, s) {

@@ -73,6 +73,21 @@ class ChatViewModel extends BaseViewModel<ChatState> {
     log('New message added: ${message.content}');
   }
 
+  void addChat(Chat chat) {
+    final exists = state.chatsData?.items?.any((c) => c.id == chat.id);
+    if (exists ?? false) {
+      return;
+    }
+    state = state.copyWith(
+      chatsData: state.chatsData?.copyWith(
+        items: [
+          chat,
+          ...state.chatsData!.items!,
+        ],
+      ),
+    );
+  }
+
   Future<void> sendChatMessage({
     required MessageType type,
     required String content,

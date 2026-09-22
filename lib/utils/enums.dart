@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../exceptions/app_exception.dart';
+
 enum SharedPreferencesKeys {
   themeModeKey("theme-mode"),
   accessTokenKey("access-token"),
@@ -120,7 +122,7 @@ enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
    apiQa('https://api-dev.skinsyncai.com/api/');
 
-  //apiQa('http://localhost:8084/api/');
+  // apiQa('http://localhost:8084/api/');
 
   final String url;
 
@@ -374,22 +376,25 @@ enum AiChatMessageType {
 }
 
 enum EventType {
-  chat('chat'),
+  message('message'),
   appointment('appointment'),
   newAppointment('new_appointment'),
   error('error'),
-  subscription('subscription');
+  subscription('subscription'),
+  requestShared('request_shared'),
+  newChat('new_chat');
 
   final String value;
 
   const EventType(this.value);
 
   static EventType fromValue(String? value) {
-    if (value == null) return EventType.chat;
+    if (value == null) {
+      throw const UnknownException(message: 'Invalid event type value');
+    }
     final val = value.toLowerCase();
     return EventType.values.firstWhere(
       (e) => e.value.toLowerCase() == val,
-      orElse: () => EventType.chat,
     );
   }
 }

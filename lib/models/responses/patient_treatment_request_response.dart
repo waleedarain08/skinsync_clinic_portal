@@ -346,7 +346,7 @@ class PatientTreatmentAreaData {
   factory PatientTreatmentAreaData.fromJson(Map<String, dynamic> json) {
     return PatientTreatmentAreaData(
       areaId: json['area_id'] ?? 0,
-      sessionId: json['session_id'],
+      sessionId: json['session_id'] ?? 0,
       areaName: json['area_name'] ?? '',
       image: json['area_image'],
       icon: json['area_icon'],
