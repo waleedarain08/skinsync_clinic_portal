@@ -7,41 +7,23 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          cache: 'npm'
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.2'
           channel: stable
           cache: true
 
-      - name: Verify Flutter version
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Enable web
-        run: flutter config --enable-web
-
-      - name: Clean Flutter
-        run: flutter clean
-
-      - name: Get dependencies
+      - name: Install dependencies
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons --wasm
+        run: flutter build web --release --no-tree-shake-icons
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
