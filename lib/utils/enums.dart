@@ -249,6 +249,28 @@ enum AppointmentStatus {
   }
 }
 
+enum ProtocolType {
+  checkbox('checkbox'),
+  textField('textField'),
+  text('text');
+
+  final String value;
+  const ProtocolType(this.value);
+
+  bool get isTextField =>
+      this == ProtocolType.textField || this == ProtocolType.text;
+  bool get isCheckbox => this == ProtocolType.checkbox;
+
+  static ProtocolType fromString(String? type) {
+    final lower = type?.toString().toLowerCase() ?? '';
+    if (lower == 'textfield' || lower == 'text') {
+      return ProtocolType.textField;
+    }
+    return ProtocolType.checkbox;
+  }
+}
+
+
 enum LotItemStatus {
   available('available', 'Available'),
   allocated('allocated', 'Allocated'),
