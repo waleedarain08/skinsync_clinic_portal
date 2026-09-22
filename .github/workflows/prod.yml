@@ -5,50 +5,31 @@ on:
     branches:
       - main
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_20: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.2'
           channel: stable
           cache: true
 
-      - name: Verify Flutter version
-        run: |
-          flutter --version
-          dart --version
-
-      - name: Enable web
-        run: flutter config --enable-web
-
-      - name: Clean Flutter
-        run: flutter clean
-
-      - name: Get dependencies
+      - name: Install dependencies
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --no-tree-shake-icons --wasm
+        run: flutter build web --release --no-tree-shake-icons
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
 
       - name: Deploy to Vercel
+
         run: vercel deploy build/web --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
