@@ -152,7 +152,7 @@ void _fetchAvailabilitySlots() {
   // Section 5: Financials & Payment Details
   final _amountController = TextEditingController(text: '0.00');
   String _paymentType = 'cash';
-  final List<String> _paymentTypes = ['cash', 'card', 'stripe'];
+  final List<String> _paymentTypes = ['cash', 'card'];
   String _paymentStatus = 'pending';
   final List<String> _paymentStatuses = ['unpaid', 'paid','half_payment'];
   String _discountType = 'flat';
