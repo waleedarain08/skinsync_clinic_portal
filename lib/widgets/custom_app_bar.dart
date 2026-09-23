@@ -7,6 +7,7 @@ import '../screens/notification_screen.dart';
 import '../screens/sign_in_screen.dart';
 import '../services/locator.dart';
 import '../services/storage_service.dart';
+import '../utils/enums.dart';
 import '../utils/responsive.dart';
 import '../utils/string_utils.dart';
 import '../utils/theme.dart';
@@ -59,6 +60,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             initialMessage:"Hi! I just clicked 'Start Onboarding using AI'. Please guide me step-by-step through setting up my clinic profile, adding treatments, and configuring provider accounts.",
             buttonText: 'Start Onboarding using AI',
             isBorder: true,
+            endpoint: AiEndpoint.onboardingMessage,
           ),
           _TopBarAction(
             icon: Icons.notifications_none_rounded,

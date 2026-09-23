@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../screens/ai_onboarding_chat_screen.dart';
+import '../utils/enums.dart';
 import '../utils/theme.dart';
 import 'custom_primary_button.dart';
 
@@ -10,12 +11,14 @@ class AiOnboardingButton extends StatefulWidget {
   final String initialMessage;
   final String buttonText;
   final bool isBorder;
+  final  AiEndpoint endpoint;
 
   const AiOnboardingButton({
     super.key,
     required this.initialMessage,
     required this.buttonText,
     this.isBorder = false,
+    required this.endpoint
   });
 
   @override
@@ -43,6 +46,7 @@ class AiOnboardingButtonState extends State<AiOnboardingButton> {
               queryParameters: {
                 'showBackButton': 'true',
                 'initialMessage': widget.initialMessage,
+                'endpoint': widget.endpoint,
               },
               extra: widget.initialMessage,
             );

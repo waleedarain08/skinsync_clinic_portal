@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../utils/enums.dart';
 import '../utils/theme.dart';
 import '../view_models/ai_onboarding_chat_view_model.dart';
 import '../widgets/ai_chat/ai_chat_header_widget.dart';
@@ -13,11 +14,12 @@ class AiOnboardingChatScreen extends ConsumerStatefulWidget {
 
   final bool showBackButton;
   final String? initialMessage;
-
+  final AiEndpoint endpoint;
   const AiOnboardingChatScreen({
     super.key,
     this.showBackButton = true,
     this.initialMessage,
+     required this.endpoint 
   });
 
   @override
@@ -45,6 +47,7 @@ class _AiOnboardingChatScreenState
         _sendMessage(
           showLoading: false,
           customText: widget.initialMessage,
+          endpoint: widget.endpoint
         );
       });
     }
@@ -64,6 +67,7 @@ class _AiOnboardingChatScreenState
   void _sendMessage({
     bool showLoading = true,
     String? customText,
+    required AiEndpoint endpoint
   }) {
     final text =
         (customText ?? _messageController.text).trim();
@@ -75,6 +79,7 @@ class _AiOnboardingChatScreenState
         .sendMessage(
           text,
           showLoading: showLoading,
+          endpoint: endpoint
         );
 
     // Clear text only when user typed manually.
@@ -162,6 +167,7 @@ class _AiOnboardingChatScreenState
                                     _sendMessage(
                                       customText: option,
                                       showLoading: false,
+                                      endpoint: widget.endpoint
                                     );
                                   },
                                 );
@@ -243,7 +249,9 @@ Widget _buildInputBar(BuildContext context) {
               hint: 'Enter your answer...',
             ),
             onSubmitted: (_) {
-              _sendMessage();
+              _sendMessage(
+                 endpoint: widget.endpoint
+              );
             },
           ),
         ),
@@ -273,7 +281,9 @@ Widget _buildInputBar(BuildContext context) {
               hint: 'Enter number...',
             ),
             onSubmitted: (_) {
-              _sendMessage();
+              _sendMessage(
+                 endpoint: widget.endpoint
+              );
             },
           ),
         ),
@@ -300,7 +310,9 @@ Widget _buildInputBar(BuildContext context) {
           context.r(12),
         ),
         onTap: () {
-          _sendMessage();
+          _sendMessage(
+             endpoint: widget.endpoint
+          );
         },
         child: Padding(
           padding: context.appEdgeInsets(all: 12),
@@ -386,6 +398,7 @@ Widget _buildInputBar(BuildContext context) {
                 _sendMessage(
                   customText: value,
                   showLoading: false,
+                   endpoint: widget.endpoint
                 );
               }
             : null,
@@ -432,6 +445,7 @@ Widget _buildInputBar(BuildContext context) {
             _sendMessage(
               customText: formatted,
               showLoading: false,
+               endpoint: widget.endpoint
             );
           },
           child: Padding(
@@ -495,6 +509,7 @@ Widget _buildInputBar(BuildContext context) {
             _sendMessage(
               customText: formatted,
               showLoading: false,
+               endpoint: widget.endpoint
             );
           },
           child: Padding(

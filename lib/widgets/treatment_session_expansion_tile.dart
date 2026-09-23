@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../screens/ai_onboarding_chat_screen.dart';
+import '../utils/enums.dart';
 import '../utils/string_utils.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/session_model.dart';
@@ -338,10 +340,11 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
                 onTap: () {
                   context.pushNamed(
                     AiOnboardingChatScreen.routeName,
-                    queryParameters: {
-                      'showBackButton': 'true',
+                    queryParameters: {'showBackButton': 'true'},
+                    extra: {
+                      'initialMessage': "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.",
+                      'endpoint': AiEndpoint.treatmentMessage,
                     },
-                    extra: "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.",
                   );
                 },
                 borderRadius: BorderRadius.circular(20),

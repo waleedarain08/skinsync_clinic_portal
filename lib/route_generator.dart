@@ -53,6 +53,7 @@ import 'screens/splash_screen.dart';
 import 'screens/update_treatment_screen.dart';
 import 'services/locator.dart';
 import 'services/storage_service.dart';
+import 'utils/enums.dart';
 
 class RouteGenerator {
   static final List<String> _authRoutes = [
@@ -187,23 +188,31 @@ class RouteGenerator {
               return ChatListScreen(showBackButton: showBackButton);
             },
           ),
-          GoRoute(
-            name: AiOnboardingChatScreen.routeName,
-            path: AiOnboardingChatScreen.routeName,
-            builder: (context, state) {
-              final showBackButton =
-                  state.uri.queryParameters['showBackButton'] == 'true';
-              final initialMessageFromQuery =
-                  state.uri.queryParameters['initialMessage'];
-              final initialMessageFromExtra = state.extra as String?;
+         GoRoute(
+  name: AiOnboardingChatScreen.routeName,
+  path: AiOnboardingChatScreen.routeName,
+  builder: (context, state) {
+    final showBackButton =
+        state.uri.queryParameters['showBackButton'] == 'true';
 
-              return AiOnboardingChatScreen(
-                showBackButton: showBackButton,
-                initialMessage:
-                    initialMessageFromExtra ?? initialMessageFromQuery,
-              );
-            },
-          ),
+    final initialMessageFromQuery =
+        state.uri.queryParameters['initialMessage'];
+
+    final initialMessageFromExtra = state.extra as String?;
+
+    final endpointName =
+        state.uri.queryParameters['endpoint'] ?? 'onboardingMessage';
+
+    final endpoint = AiEndpoint.values.byName(endpointName);
+
+    return AiOnboardingChatScreen(
+      showBackButton: showBackButton,
+      initialMessage:
+          initialMessageFromExtra ?? initialMessageFromQuery,
+      endpoint: endpoint,
+    );
+  },
+),
           GoRoute(
             name: AppointmentDetailScreen.routeName,
             path: AppointmentDetailScreen.routeName,

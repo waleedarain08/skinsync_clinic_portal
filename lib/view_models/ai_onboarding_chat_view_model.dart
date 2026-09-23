@@ -128,7 +128,7 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
     }
   }
 
-  Future<void> sendMessage(String text, {bool showLoading = false}) async {
+  Future<void> sendMessage(String text, {bool showLoading = false,required AiEndpoint endpoint}) async {
     final message = text.trim();
 
     if (message.isEmpty) return;
@@ -140,7 +140,7 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
         "${now.minute.toString().padLeft(2, '0')}";
 
     try {
-      final aiReply = await sendAIMessage(message, showLoading: showLoading);
+      final aiReply = await sendAIMessage(message, showLoading: showLoading,endpoint: endpoint);
 
       if (aiReply == null) {
         return;
@@ -192,15 +192,18 @@ class AiOnboardingChatViewModel extends BaseViewModel<AiOnboardingChatState> {
   Future<AiOnboardingChatMessageResponse?> sendAIMessage(
     String message, {
     bool showLoading = true,
+    required AiEndpoint endpoint
   }) async {
     final user = await locator<SecureStorageService>().getUser();
     final clinicToken = await locator<SecureStorageService>().getToken();
     return await runSafely(showLoading: showLoading, () async {
       final response = await _repository.sendMessage(
+        endpoint: endpoint,
         request: SendAiMessageRequest(
           threadId: user?.clinicId.toString(),
           message: message,
           clinicToken: clinicToken,
+          
         ),
       );
 
