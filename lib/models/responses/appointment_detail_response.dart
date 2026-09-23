@@ -17,16 +17,11 @@ class AppointmentDetailResponse
             ? null
             : AppointmentDetailData.fromJson(json["data"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "is_success": success,
-        "message": message,
-        "data": data?.toJson(),
-      };
 }
 
 class AppointmentDetailData {
   final int? id;
+  final int? chatId;
   final String? appointmentKey;
   // final Clinic? clinic;
   final Doctor? doctor;
@@ -49,6 +44,7 @@ class AppointmentDetailData {
 
   AppointmentDetailData({
     this.id,
+    this.chatId,
     this.appointmentKey,
     //  this.clinic,
     this.doctor,
@@ -73,6 +69,7 @@ class AppointmentDetailData {
   factory AppointmentDetailData.fromJson(Map<String, dynamic> json) =>
       AppointmentDetailData(
         id: json["id"],
+        chatId: json["chat_id"],
         appointmentKey: json["appointment_key"],
         doctor: json["doctor"] == null
             ? (json["practitioners"] != null &&
@@ -125,33 +122,9 @@ class AppointmentDetailData {
             : DateTime.tryParse(json["created_at"].toString()),
       );
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "appointment_key": appointmentKey,
-        // "clinic": clinic?.toJson(),
-        "doctor": doctor?.toJson(),
-        "patient": patient?.toJson(),
-        "appointment_type": appointmentType?.toJson(),
-        "date": date,
-        "start_time": startTime,
-        "end_time": endTime,
-        "is_invite_clinic": isInviteClinic,
-        "simulations": simulations?.toJson(),
-        "treatments": treatments == null
-            ? []
-            : List<dynamic>.from(treatments!.map((x) => x.toJson())),
-        "treatment_total": treatmentTotal,
-        "payment_type": paymentType?.toJson(),
-        "discount_type": discountType,
-        "discount": discount,
-        "booking_type": bookingType,
-        "status": status,
-        "custom_message": customMessage,
-        "created_at": createdAt?.toIso8601String(),
-      };
-
   AppointmentDetailData copyWith({
     int? id,
+    int? chatId,
     String? appointmentKey,
     Doctor? doctor,
     Patient? patient,
@@ -173,6 +146,7 @@ class AppointmentDetailData {
   }) {
     return AppointmentDetailData(
       id: id ?? this.id,
+      chatId: chatId ?? this.chatId,
       appointmentKey: appointmentKey ?? this.appointmentKey,
       doctor: doctor ?? this.doctor,
       patient: patient ?? this.patient,
