@@ -120,7 +120,7 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
     log('[log] BODY: ${jsonEncode(body)}');
     try {
       final uri = Uri.parse(
-        'http://18.116.65.70:8003/api/v1/onboarding/message',
+        AiBaseUrls.live.url,
       );
 
       final response = await http.post(

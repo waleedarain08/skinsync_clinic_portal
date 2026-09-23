@@ -129,6 +129,18 @@ enum BaseUrls {
   const BaseUrls(this.url);
 }
 
+enum AiBaseUrls {
+  live( 'http://18.116.65.70:8003/api/v1/onboarding/message'),
+   ngrok('https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message');
+
+  // apiQa('http://localhost:8084/api/');
+
+  final String url;
+
+  const AiBaseUrls(this.url);
+}
+
+
 enum AuthScreen { login, forgetPassword, verifyOtp, createNewPassword }
 
 enum ProductStatus {
