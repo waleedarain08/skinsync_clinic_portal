@@ -120,14 +120,14 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
     log('[log] BODY: ${jsonEncode(body)}');
     try {
       final uri = Uri.parse(
-        AiBaseUrls.live.url,
+        AiBaseUrls.ngrok.url,
       );
 
       final response = await http.post(
         uri,
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Content-Type':'application/json',
+          'Accept':'application/json',
         },
         body: jsonEncode(request.toJson()),
       );
