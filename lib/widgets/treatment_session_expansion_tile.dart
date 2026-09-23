@@ -338,13 +338,16 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
               // AI Action Button
               InkWell(
                 onTap: () {
+                  const initialMsg =
+                      "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.";
                   context.pushNamed(
                     AiOnboardingChatScreen.routeName,
-                    queryParameters: {'showBackButton': 'true'},
-                    extra: {
-                      'initialMessage': "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.",
-                      'endpoint': AiEndpoint.treatmentMessage,
+                    queryParameters: {
+                      'showBackButton': 'true',
+                      'initialMessage': initialMsg,
+                      'endpoint': AiEndpoint.treatmentMessage.name,
                     },
+                    extra: initialMsg,
                   );
                 },
                 borderRadius: BorderRadius.circular(20),

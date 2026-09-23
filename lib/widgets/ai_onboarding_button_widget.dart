@@ -46,7 +46,7 @@ class AiOnboardingButtonState extends State<AiOnboardingButton> {
               queryParameters: {
                 'showBackButton': 'true',
                 'initialMessage': widget.initialMessage,
-                'endpoint': widget.endpoint,
+                'endpoint': widget.endpoint.name,
               },
               extra: widget.initialMessage,
             );

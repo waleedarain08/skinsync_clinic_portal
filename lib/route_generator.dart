@@ -188,31 +188,38 @@ class RouteGenerator {
               return ChatListScreen(showBackButton: showBackButton);
             },
           ),
-         GoRoute(
-  name: AiOnboardingChatScreen.routeName,
-  path: AiOnboardingChatScreen.routeName,
-  builder: (context, state) {
-    final showBackButton =
-        state.uri.queryParameters['showBackButton'] == 'true';
+          GoRoute(
+            name: AiOnboardingChatScreen.routeName,
+            path: AiOnboardingChatScreen.routeName,
+            builder: (context, state) {
+              final showBackButton =
+                  state.uri.queryParameters['showBackButton'] == 'true';
 
-    final initialMessageFromQuery =
-        state.uri.queryParameters['initialMessage'];
+              final initialMessageFromQuery =
+                  state.uri.queryParameters['initialMessage'];
 
-    final initialMessageFromExtra = state.extra as String?;
+              final initialMessageFromExtra = state.extra is String
+                  ? state.extra as String?
+                  : (state.extra is Map
+                      ? (state.extra as Map)['initialMessage'] as String?
+                      : null);
 
-    final endpointName =
-        state.uri.queryParameters['endpoint'] ?? 'onboardingMessage';
+              final endpointName = state.uri.queryParameters['endpoint'] ??
+                  (state.extra is Map
+                      ? ((state.extra as Map)['endpoint'] as AiEndpoint?)?.name
+                      : null) ??
+                  'onboardingMessage';
 
-    final endpoint = AiEndpoint.values.byName(endpointName);
+              final endpoint = AiEndpoint.values.byName(endpointName);
 
-    return AiOnboardingChatScreen(
-      showBackButton: showBackButton,
-      initialMessage:
-          initialMessageFromExtra ?? initialMessageFromQuery,
-      endpoint: endpoint,
-    );
-  },
-),
+              return AiOnboardingChatScreen(
+                showBackButton: showBackButton,
+                initialMessage:
+                    initialMessageFromExtra ?? initialMessageFromQuery,
+                endpoint: endpoint,
+              );
+            },
+          ),
           GoRoute(
             name: AppointmentDetailScreen.routeName,
             path: AppointmentDetailScreen.routeName,
