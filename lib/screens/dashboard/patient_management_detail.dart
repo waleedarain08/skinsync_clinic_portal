@@ -92,7 +92,7 @@ class _PatientManagementDetailScreenState
                 controller: _tabController,
                 tabs: const [
                   Tab(text: 'Treatment Progress'),
-                  Tab(text: 'Clinical Journey'),
+                  Tab(text: 'Treatment Journey'),
                 ],
               ),
             ),

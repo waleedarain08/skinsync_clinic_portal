@@ -27,7 +27,7 @@ class PatientClinicalJourneyWidget extends ConsumerWidget {
                 size: 22,
               ),
               context.horizontalSpace(10),
-              Text('Clinical Journey', style: context.fonts.subHeading),
+              Text('Treatment Journey', style: context.fonts.subHeading),
             ],
           ),
           const Divider(color: CustomColors.border, height: 32),
