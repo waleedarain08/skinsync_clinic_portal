@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import '../../models/responses/messages_response.dart';
-import '../../utils/theme.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 
 class DocumentChatBubble extends StatelessWidget {
   final Message message;
@@ -13,8 +15,11 @@ class DocumentChatBubble extends StatelessWidget {
     final isMe = message.isMe;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: context.w(480)),
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+      constraints: BoxConstraints(maxWidth: context.w(320)),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(16),
+        vertical: context.h(12),
+      ),
       decoration: BoxDecoration(
         color: isMe ? CustomColors.purple : CustomColors.white,
         borderRadius: BorderRadius.only(
@@ -24,11 +29,11 @@ class DocumentChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
         ),
         border: Border.all(
-          color: isMe ? CustomColors.purple : CustomColors.border,
+          color: isMe ? CustomColors.purple : CustomColors.grey,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -40,25 +45,24 @@ class DocumentChatBubble extends StatelessWidget {
           if (message.content?.isNotEmpty ?? false) ...[
             Text(
               message.content!,
-              style: isMe
-                  ? context.fonts.white14w600.copyWith(
-                      fontWeight: FontWeight.w400,
-                    )
-                  : context.fonts.black14w400,
+              style: isMe ? CustomFonts.white14w600 : CustomFonts.black14w400,
             ),
-            context.verticalSpace(10),
+            SizedBox(height: context.h(10)),
           ],
           Container(
-            padding: context.appEdgeInsets(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: context.w(12),
+              vertical: context.h(10),
+            ),
             decoration: BoxDecoration(
               color: isMe
-                  ? CustomColors.white.withValues(alpha: 0.15)
-                  : CustomColors.softGrey,
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : CustomColors.grey,
               borderRadius: BorderRadius.circular(context.r(10)),
               border: Border.all(
                 color: isMe
-                    ? CustomColors.white.withValues(alpha: 0.3)
-                    : CustomColors.border,
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : CustomColors.grey,
               ),
             ),
             child: Row(
@@ -66,36 +70,40 @@ class DocumentChatBubble extends StatelessWidget {
                 Icon(
                   Icons.picture_as_pdf_rounded,
                   size: context.sp(26),
-                  color: isMe ? CustomColors.white : CustomColors.purple,
+                  color: isMe
+                      ? CustomColors.white
+                      : CustomColors.purple,
                 ),
-                context.horizontalSpace(12),
-                // Expanded(
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text(
-                //         message.documentName ?? 'Document.pdf',
-                //         style: isMe
-                //             ? context.fonts.white12w700
-                //             : context.fonts.black12w600,
-                //         maxLines: 1,
-                //         overflow: TextOverflow.ellipsis,
-                //       ),
-                //       if (message.documentSize != null)
-                //         Text(
-                //           message.documentSize!,
-                //           style: isMe
-                //               ? context.fonts.white10w600
-                //               : context.fonts.grey10w400,
-                //         ),
-                //     ],
-                //   ),
-                // ),
-                context.horizontalSpace(8),
+                SizedBox(width: context.w(12)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Document.pdf',
+                        style: isMe
+                            ? CustomFonts.white12w700
+                            : CustomFonts.black12w600,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // if (message.documentSize != null)
+                      //   Text(
+                      //     message.documentSize!,
+                      //     style: isMe
+                      //         ? CustomFonts.white10w600
+                      //         : CustomFonts.grey12w400,
+                      //   ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: context.w(8)),
                 Icon(
                   Icons.download_rounded,
                   size: context.sp(20),
-                  color: isMe ? CustomColors.white : CustomColors.purple,
+                  color: isMe
+                      ? CustomColors.white
+                      : CustomColors.purple,
                 ),
               ],
             ),

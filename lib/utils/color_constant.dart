@@ -54,4 +54,10 @@ class CustomColors {
     end: Alignment.bottomRight,
     colors: [whiteGrey, softGrey],
   );
+
+  static const LinearGradient purpleBlueGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xff88E3FB), Color(0xffE7C6E8)],
+  );
 }

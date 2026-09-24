@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-import '../../models/dummy/chat_dummy_model.dart';
-import '../../utils/theme.dart';
+import '../../models/responses/messages_response.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 
 class NormalChatBubble extends StatelessWidget {
   final Message message;
@@ -13,8 +15,11 @@ class NormalChatBubble extends StatelessWidget {
     final isMe = message.isMe;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: context.w(480)),
-      padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
+      constraints: BoxConstraints(maxWidth: context.w(320)),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(16),
+        vertical: context.h(12),
+      ),
       decoration: BoxDecoration(
         color: isMe ? CustomColors.purple : CustomColors.white,
         borderRadius: BorderRadius.only(
@@ -24,11 +29,11 @@ class NormalChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
         ),
         border: Border.all(
-          color: isMe ? CustomColors.purple : CustomColors.border,
+          color: isMe ? CustomColors.purple : CustomColors.grey,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -36,9 +41,7 @@ class NormalChatBubble extends StatelessWidget {
       ),
       child: Text(
         message.content ?? '',
-        style: isMe
-            ? context.fonts.white14w600.copyWith(fontWeight: FontWeight.w400)
-            : context.fonts.black14w400,
+        style: isMe ? CustomFonts.white14w600 : CustomFonts.black14w400,
       ),
     );
   }

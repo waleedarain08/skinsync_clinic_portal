@@ -1,12 +1,13 @@
+import 'dart:io';
+
 import 'package:before_after/before_after.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-import '../../models/chat_treatment_request_model.dart';
 import '../../models/responses/messages_response.dart';
-import '../../utils/theme.dart';
-import '../dialog_box/chat_treatment_request_detail_dialog.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 
 class SharedRequestChatBubble extends StatefulWidget {
   final Message message;
@@ -19,371 +20,383 @@ class SharedRequestChatBubble extends StatefulWidget {
 }
 
 class _SharedRequestChatBubbleState extends State<SharedRequestChatBubble> {
+  String _selectedPose = 'front';
   double _sliderValue = 0.5;
-  String _selectedView = 'Front';
 
   @override
   Widget build(BuildContext context) {
     final isMe = widget.message.isMe;
-    final ChatTreatmentRequestModel? request =
-        widget.message.sharedRequestData;
+    final request = widget.message.sharedRequestData;
 
     if (request == null) {
       return Container(
-        constraints: BoxConstraints(maxWidth: context.w(520)),
-        padding: context.appEdgeInsets(all: 16),
+        constraints: BoxConstraints(maxWidth: context.w(340)),
+        padding: EdgeInsets.all(context.r(16)),
         decoration: BoxDecoration(
-          color: isMe ? CustomColors.purple : CustomColors.white,
+          color: CustomColors.white,
           borderRadius: BorderRadius.circular(context.r(16)),
-          border: Border.all(
-            color: isMe ? CustomColors.purple : CustomColors.border,
-          ),
+          border: Border.all(color: CustomColors.grey),
         ),
         child: Text(
-          widget.message.content ?? 'Shared Treatment Request Data Unavailable',
-          style: isMe
-              ? context.fonts.white14w600.copyWith(fontWeight: FontWeight.w400)
-              : context.fonts.black14w400,
+          (widget.message.content?.isNotEmpty ?? false)
+              ? widget.message.content!
+              : 'Shared Treatment Request Data Unavailable',
+          style: CustomFonts.black14w400,
         ),
       );
     }
 
-    final refId = '#${request.id}';
-    final patientName = request.patientName?.isNotEmpty == true
-        ? request.patientName!
-        : 'Patient';
-    final patientEmail = request.patientEmail?.isNotEmpty == true
-        ? request.patientEmail!
-        : '';
+    // Determine available image poses
+    final hasFront = (request.frontImageBefore?.isNotEmpty ?? false) ||
+        (request.frontImageAfter?.isNotEmpty ?? false);
+    final hasLeft = (request.leftImageBefore?.isNotEmpty ?? false) ||
+        (request.leftImageAfter?.isNotEmpty ?? false);
+    final hasRight = (request.rightImageBefore?.isNotEmpty ?? false) ||
+        (request.rightImageAfter?.isNotEmpty ?? false);
 
-    final hasSimulations = (request.frontImageBefore?.isNotEmpty == true ||
-        request.frontImageAfter?.isNotEmpty == true ||
-        request.rightImageBefore?.isNotEmpty == true ||
-        request.rightImageAfter?.isNotEmpty == true ||
-        request.leftImageBefore?.isNotEmpty == true ||
-        request.leftImageAfter?.isNotEmpty == true);
+    final hasAnyImage = hasFront || hasLeft || hasRight;
 
-    return Container(
-      constraints: BoxConstraints(maxWidth: context.w(540)),
-      padding: context.appEdgeInsets(all: 16),
-      decoration: BoxDecoration(
-        color: CustomColors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(context.r(16)),
-          topRight: Radius.circular(context.r(16)),
-          bottomLeft: Radius.circular(isMe ? context.r(16) : context.r(2)),
-          bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
-        ),
-        border: Border.all(
-          color: CustomColors.purple.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    // Active pose images
+    String? beforeUrl;
+    String? afterUrl;
+
+    if (_selectedPose == 'left' && hasLeft) {
+      beforeUrl = request.leftImageBefore;
+      afterUrl = request.leftImageAfter;
+    } else if (_selectedPose == 'right' && hasRight) {
+      beforeUrl = request.rightImageBefore;
+      afterUrl = request.rightImageAfter;
+    } else {
+      beforeUrl = request.frontImageBefore;
+      afterUrl = request.frontImageAfter;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        // Navigator.pushNamed(
+        //   context,
+        //   TreatmentRequestDetailsScreen.routeName,
+        //   arguments: request.toSimulationData(),
+        // );
+      },
+      child: Container(
+        constraints: BoxConstraints(maxWidth: context.w(340)),
+        padding: EdgeInsets.all(context.r(16)),
+        decoration: BoxDecoration(
+          color: CustomColors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(context.r(16)),
+            topRight: Radius.circular(context.r(16)),
+            bottomLeft: Radius.circular(isMe ? context.r(16) : context.r(2)),
+            bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: context.appEdgeInsets(all: 6),
-                      decoration: const BoxDecoration(
-                        color: CustomColors.lightPurple,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Iconsax.profile_2user,
-                        size: context.sp(16),
-                        color: CustomColors.purple,
-                      ),
-                    ),
-                    context.horizontalSpace(8),
-                    Expanded(
-                      child: Text(
-                        'Option: ${request.name}',
-                        style: context.fonts.purple13w700,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: context.appEdgeInsets(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: CustomColors.purple,
-                  borderRadius: BorderRadius.circular(context.r(12)),
-                ),
-                child: Text('Ref: $refId', style: context.fonts.white10w700),
-              ),
-            ],
+          border: Border.all(
+            color: CustomColors.purple.withValues(alpha: 0.4),
+            width: 1.5,
           ),
-          context.verticalSpace(12),
-
-          // Patient Summary Card
-          Container(
-            padding: context.appEdgeInsets(all: 12),
-            decoration: BoxDecoration(
-              color: CustomColors.softGrey,
-              borderRadius: BorderRadius.circular(context.r(12)),
-              border: Border.all(color: CustomColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
-            child: Row(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatar(
-                  radius: context.r(20),
-                  backgroundColor: CustomColors.lightPurple,
-                  backgroundImage:
-                      (request.patientImage != null &&
-                          request.patientImage!.startsWith('http'))
-                      ? CachedNetworkImageProvider(request.patientImage!)
-                      : null,
-                  child:
-                      (request.patientImage == null ||
-                          !request.patientImage!.startsWith('http'))
-                      ? Text(
-                          patientName[0].toUpperCase(),
-                          style: context.fonts.purple14w700,
-                        )
-                      : null,
-                ),
-                context.horizontalSpace(12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(patientName, style: context.fonts.black14w600),
-                      if (patientEmail.isNotEmpty) ...[
-                        context.verticalSpace(2),
-                        Text(patientEmail, style: context.fonts.grey12w400),
-                      ],
+                      Container(
+                        padding: EdgeInsets.all(context.r(6)),
+                        decoration: const BoxDecoration(
+                          color: CustomColors.lightPurple,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.assignment_outlined,
+                          size: context.sp(16),
+                          color: CustomColors.purple,
+                        ),
+                      ),
+                      SizedBox(width: context.w(8)),
+                      Expanded(
+                        child: Text(
+                          request.name.isNotEmpty
+                              ? request.name
+                              : 'Shared Treatment Request',
+                          style: CustomFonts.purple12w600,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-          context.verticalSpace(12),
+            SizedBox(height: context.h(12)),
 
-          // Simulation Before & After Preview Slider (If Images Exist)
-          if (hasSimulations) ...[
-            Text(
-              'Simulation Before / After:',
-              style: context.fonts.black13w600,
-            ),
-            context.verticalSpace(8),
-            _buildSimulationViewer(context, request),
-            context.verticalSpace(12),
-          ],
+            // Optional text/content (display only if human text, not raw JSON)
+            if (request.text.isNotEmpty &&
+                !request.text.trim().startsWith('{') &&
+                !request.text.trim().startsWith('[')) ...[
+              Text(request.text, style: CustomFonts.black14w400),
+              SizedBox(height: context.h(12)),
+            ] else if (widget.message.content != null &&
+                widget.message.content!.isNotEmpty &&
+                !widget.message.content!.trim().startsWith('{') &&
+                !widget.message.content!.trim().startsWith('[')) ...[
+              Text(widget.message.content!, style: CustomFonts.black14w400),
+              SizedBox(height: context.h(12)),
+            ],
 
-          // Requested Treatments & Areas
-          if (request.treatments.isNotEmpty) ...[
-            Text(
-              'Requested Treatments & Areas:',
-              style: context.fonts.black13w600,
-            ),
-            context.verticalSpace(8),
-            ...request.treatments.map((treatment) {
-              return Container(
-                margin: EdgeInsets.only(bottom: context.h(8)),
-                padding: context.appEdgeInsets(all: 10),
-                decoration: BoxDecoration(
-                  color: CustomColors.white,
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                  border: Border.all(color: CustomColors.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      treatment.treatmentName,
-                      style: context.fonts.purple13w700,
-                    ),
-                    if (treatment.description != null &&
-                        treatment.description!.isNotEmpty) ...[
-                      context.verticalSpace(2),
-                      Text(
-                        treatment.description!,
-                        style: context.fonts.grey12w400,
+            // Patient Info Box
+            Container(
+              padding: EdgeInsets.all(context.r(12)),
+              decoration: BoxDecoration(
+                color: CustomColors.grey,
+                borderRadius: BorderRadius.circular(context.r(12)),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: context.r(20),
+                    backgroundColor: CustomColors.lightPurple,
+                    child: Text(
+                      request.patientName != null &&
+                          request.patientName!.isNotEmpty
+                          ? request.patientName![0].toUpperCase()
+                          : 'P',
+                      style: TextStyle(
+                        fontSize: context.sp(14),
+                        fontWeight: FontWeight.bold,
+                        color: CustomColors.purple,
+                        fontFamily: 'Degular',
                       ),
-                    ],
-                    if (treatment.areas.isNotEmpty) ...[
-                      context.verticalSpace(8),
-                      Wrap(
-                        spacing: context.w(6),
-                        runSpacing: context.h(6),
-                        children: treatment.areas.map((area) {
-                          final priceText = area.price != null
-                              ? ' (\$${area.price!.toStringAsFixed(0)})'
-                              : '';
-                          final materialText = area.materials.isNotEmpty
-                              ? ' [${area.materials.map((m) => '${m.name} x${m.selectedQuantity}').join(', ')}]'
-                              : '';
+                    ),
+                  ),
+                  SizedBox(width: context.w(12)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          request.patientName ?? 'Jane Cooper',
+                          style: CustomFonts.black14w600,
+                        ),
+                        if (request.patientEmail != null) ...[
+                          SizedBox(height: context.h(2)),
+                          Text(
+                            request.patientEmail!,
+                            style: CustomFonts.grey12w400,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                          return Container(
-                            padding: context.appEdgeInsets(
-                              horizontal: 8,
-                              vertical: 4,
+            // --- BEFORE / AFTER IMAGE SLIDER VIEW SECTION ---
+            if (hasAnyImage) ...[
+              SizedBox(height: context.h(12)),
+              // Pose Selection Chips
+              Row(
+                children: [
+                  if (hasFront) _buildPoseChip('Front', 'front'),
+                  if (hasLeft) _buildPoseChip('Left', 'left'),
+                  if (hasRight) _buildPoseChip('Right', 'right'),
+                ],
+              ),
+              SizedBox(height: context.h(8)),
+
+              // Image Slider Card
+              ClipRRect(
+                borderRadius: BorderRadius.circular(context.r(12)),
+                child: Container(
+                  height: context.h(200),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(context.r(12)),
+                    border: Border.all(color: CustomColors.grey),
+                  ),
+                  child: Stack(
+                    children: [
+                      if (beforeUrl != null && afterUrl != null)
+                        BeforeAfter(
+                          value: _sliderValue,
+                          onValueChanged: (v) => setState(() => _sliderValue = v),
+                          before: _buildImageWidget(afterUrl),
+                          after: _buildImageWidget(beforeUrl),
+                          trackColor: Colors.white,
+                          trackWidth: 2,
+                        )
+                      else if (beforeUrl != null)
+                        _buildImageWidget(beforeUrl)
+                      else if (afterUrl != null)
+                          _buildImageWidget(afterUrl)
+                        else
+                          const Center(
+                            child: Text(
+                              'Image not available',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+
+                      // BEFORE Badge
+                      if (beforeUrl != null)
+                        Positioned(
+                          top: context.h(8),
+                          left: context.w(8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.w(8),
+                              vertical: context.h(3),
                             ),
                             decoration: BoxDecoration(
-                              color: CustomColors.lightPurple,
-                              borderRadius: BorderRadius.circular(context.r(6)),
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(context.r(4)),
                             ),
                             child: Text(
-                              '${area.areaName}$priceText$materialText',
-                              style: context.fonts.purple11w600,
+                              'BEFORE',
+                              style: CustomFonts.white10w600,
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ],
-                ),
-              );
-            }),
-            context.verticalSpace(12),
-          ],
+                          ),
+                        ),
 
-          // View Full Request Action Button
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => ChatTreatmentRequestDetailDialog(
-                    request: request,
+                      // AFTER Badge
+                      if (afterUrl != null)
+                        Positioned(
+                          top: context.h(8),
+                          right: context.w(8),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.w(8),
+                              vertical: context.h(3),
+                            ),
+                            decoration: BoxDecoration(
+                              color: CustomColors.purple.withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(context.r(4)),
+                            ),
+                            child: Text(
+                              'AFTER',
+                              style: CustomFonts.white10w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            // Requested Treatments List
+            if (request.treatments.isNotEmpty) ...[
+              SizedBox(height: context.h(12)),
+              Text('Requested Treatments:', style: CustomFonts.black13w600),
+              SizedBox(height: context.h(8)),
+              ...request.treatments.map((treatment) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: context.h(8)),
+                  padding: EdgeInsets.all(context.r(10)),
+                  decoration: BoxDecoration(
+                    color: CustomColors.white,
+                    borderRadius: BorderRadius.circular(context.r(8)),
+                    border: Border.all(color: CustomColors.grey),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        treatment.treatmentName,
+                        style: TextStyle(
+                          fontSize: context.sp(13),
+                          fontWeight: FontWeight.bold,
+                          color: CustomColors.purple,
+                          fontFamily: 'Degular',
+                        ),
+                      ),
+                      if (treatment.description != null &&
+                          treatment.description!.isNotEmpty) ...[
+                        SizedBox(height: context.h(2)),
+                        Text(
+                          treatment.description!,
+                          style: CustomFonts.grey12w400,
+                        ),
+                      ],
+                    ],
                   ),
                 );
-              },
-              icon: Icon(
-                Icons.arrow_forward_rounded,
-                size: context.sp(16),
-                color: CustomColors.purple,
-              ),
-              label: Text(
-                'View Full Request Details',
-                style: context.fonts.purple13w700,
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: CustomColors.purple),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(context.r(8)),
-                ),
-                padding: context.appEdgeInsets(vertical: 10),
-              ),
-            ),
-          ),
-        ],
+              }),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSimulationViewer(
-    BuildContext context,
-    ChatTreatmentRequestModel request,
-  ) {
-    String? beforeUrl = request.frontImageBefore;
-    String? afterUrl = request.frontImageAfter;
-
-    if (_selectedView == 'Right') {
-      beforeUrl = request.rightImageBefore;
-      afterUrl = request.rightImageAfter;
-    } else if (_selectedView == 'Left') {
-      beforeUrl = request.leftImageBefore;
-      afterUrl = request.leftImageAfter;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // View Selector Chips (Front, Left, Right)
-        Row(
-          children: ['Front', 'Right', 'Left'].map((view) {
-            final isSelected = _selectedView == view;
-            return Padding(
-              padding: EdgeInsets.only(right: context.w(6)),
-              child: ChoiceChip(
-                label: Text('$view View'),
-                selected: isSelected,
-                onSelected: (val) {
-                  if (val) setState(() => _selectedView = view);
-                },
-                selectedColor: CustomColors.purple,
-                labelStyle: isSelected
-                    ? context.fonts.white10w700
-                    : context.fonts.black10w600,
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-              ),
-            );
-          }).toList(),
+  Widget _buildPoseChip(String label, String value) {
+    final isSelected = _selectedPose == value;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedPose = value),
+      child: Container(
+        margin: EdgeInsets.only(right: context.w(6)),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.w(12),
+          vertical: context.h(4),
         ),
-        context.verticalSpace(8),
-
-        if (beforeUrl != null &&
-            beforeUrl.isNotEmpty &&
-            afterUrl != null &&
-            afterUrl.isNotEmpty)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(context.r(12)),
-            child: SizedBox(
-              height: context.h(180),
-              width: double.infinity,
-              child: BeforeAfter(
-                value: _sliderValue,
-                onValueChanged: (val) => setState(() => _sliderValue = val),
-                before: CachedNetworkImage(
-                  imageUrl: beforeUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: context.h(180),
-                  placeholder: (context, url) =>
-                      Container(color: CustomColors.softGrey),
-                  errorWidget: (context, url, error) =>
-                      Container(color: CustomColors.softGrey),
-                ),
-                after: CachedNetworkImage(
-                  imageUrl: afterUrl,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: context.h(180),
-                  placeholder: (context, url) =>
-                      Container(color: CustomColors.softGrey),
-                  errorWidget: (context, url, error) =>
-                      Container(color: CustomColors.softGrey),
-                ),
-              ),
-            ),
-          )
-        else
-          Container(
-            height: context.h(120),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: CustomColors.softGrey,
-              borderRadius: BorderRadius.circular(context.r(12)),
-            ),
-            child: Center(
-              child: Text(
-                'No $_selectedView view image available',
-                style: context.fonts.grey12w400,
-              ),
-            ),
+        decoration: BoxDecoration(
+          color: isSelected ? CustomColors.purple : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(context.r(16)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: context.sp(11),
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.black87,
+            fontFamily: 'Degular',
           ),
-      ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildImageWidget(String pathOrUrl) {
+    if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+      return CachedNetworkImage(
+        imageUrl: pathOrUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        placeholder: (context, url) => const Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) => const Center(
+          child: Icon(Icons.broken_image, color: Colors.grey),
+        ),
+      );
+    } else {
+      return Image.file(
+        File(pathOrUrl),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => const Center(
+          child: Icon(Icons.broken_image, color: Colors.grey),
+        ),
+      );
+    }
   }
 }

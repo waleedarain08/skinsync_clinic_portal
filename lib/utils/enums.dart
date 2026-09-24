@@ -202,80 +202,92 @@ enum CreateTreatmentSteps {
 enum Status { active, inactive }
 
 enum AppointmentStatus {
-  allStatus,
-  noShow,
-  delayed,
-  completed,
-  arrived,
-  rescheduled,
-  ongoing;
+  inReview('in_review', 'In Review'),
+  changesRequested('changes_requested', 'Changes Requested'),
+  awaitingPatient('awaiting_patient', 'Awaiting Patient'),
+  confirmed('confirmed', 'Confirmed'),
+  pending('pending', 'Pending'),
+  scheduled('scheduled', 'Scheduled'),
+  rescheduled('rescheduled', 'Rescheduled'),
+  checked_in('checked_in', 'Checked In'),
+  in_progress('in_progress', 'In Progress'),
+  no_show('no_show', 'No Show'),
+  completed('completed', 'Completed'),
+  cancelled('cancelled', 'Cancelled');
 
-  String get label {
-    switch (this) {
-      case AppointmentStatus.allStatus:
-        return 'All Status';
-      case AppointmentStatus.noShow:
-        return 'No Show';
-      case AppointmentStatus.delayed:
-        return 'Delayed';
-      case AppointmentStatus.completed:
-        return 'Completed';
-      case AppointmentStatus.arrived:
-        return 'Arrived';
-      case AppointmentStatus.ongoing:
-        return 'Ongoing';
-      case AppointmentStatus.rescheduled:
-        return 'Rescheduled';
-    }
-  }
+  final String value;
+  final String label;
+
+  const AppointmentStatus(this.value, this.label);
 
   Color get color {
     switch (this) {
-      case AppointmentStatus.allStatus:
-        return Colors.grey;
-      case AppointmentStatus.noShow:
-        return const Color(0xFF939393);
-      case AppointmentStatus.delayed:
-        return const Color(0xFFFB2C36);
-      case AppointmentStatus.completed:
-        return Colors.black;
-      case AppointmentStatus.arrived:
-        return const Color(0xFF155DFC);
-      case AppointmentStatus.ongoing:
-        return const Color(0xFFF2C54A);
+    // Intake / review stage: cool neutrals and purples
+      case AppointmentStatus.inReview:
+        return const Color(0xFF7C3AED); // violet
+      case AppointmentStatus.changesRequested:
+        return const Color(0xFFEA580C); // deep orange (needs action)
+      case AppointmentStatus.awaitingPatient:
+        return const Color(0xFF0891B2); // cyan (waiting on patient)
+
+    // Booked stage: blues and greens
+      case AppointmentStatus.pending:
+        return const Color(0xFF6B7280); // gray (not yet decided)
+      case AppointmentStatus.scheduled:
+        return const Color(0xFF2563EB); // blue
+      case AppointmentStatus.confirmed:
+        return const Color(0xFF16A34A); // green
       case AppointmentStatus.rescheduled:
-        return const Color(0xFFFFA500);
+        return const Color(0xFFFFA500); // orange (existing)
+
+    // Day-of stage
+      case AppointmentStatus.checked_in:
+        return const Color(0xFF155DFC); // strong blue (existing "arrived")
+      case AppointmentStatus.in_progress:
+        return const Color(0xFFF2C54A); // amber (existing "ongoing")
+
+    // Terminal stage
+      case AppointmentStatus.completed:
+        return Colors.black; // existing
+      case AppointmentStatus.no_show:
+        return const Color(0xFF939393); // gray (existing)
+      case AppointmentStatus.cancelled:
+        return const Color(0xFFFB2C36); // red (existing "delayed" red)
     }
   }
 
-  static AppointmentStatus fromLabel(String label) {
-    return AppointmentStatus.values.firstWhere(
-      (e) => e.label == label,
-      orElse: () => AppointmentStatus.allStatus,
-    );
-  }
+  bool get isInReview =>
+      this == AppointmentStatus.inReview || this == AppointmentStatus.pending;
+  bool get isChangesRequested => this == AppointmentStatus.changesRequested;
+  bool get isAwaitingPatient => this == AppointmentStatus.awaitingPatient;
+  bool get isConfirmed => this == AppointmentStatus.confirmed;
+  bool get isPending => this == AppointmentStatus.pending;
+  bool get isCompleted => this == AppointmentStatus.completed;
+  bool get isCancelled => this == AppointmentStatus.cancelled;
 
-  static AppointmentStatus fromApi(String? value) {
-    switch (value?.toLowerCase()) {
-      case 'no_show':
-        return AppointmentStatus.noShow;
-      case 'delayed':
-        return AppointmentStatus.delayed;
+  static List<String> get valuesList =>
+      AppointmentStatus.values.map((e) => e.value).toList();
 
+  static AppointmentStatus fromValue(String? value) {
+    if (value == null) return AppointmentStatus.pending;
+    final val = value.toLowerCase().trim().replaceAll('-', '_');
+    switch (val) {
+      case 'in_review':
+        return AppointmentStatus.inReview;
+      case 'changes_requested':
+        return AppointmentStatus.changesRequested;
+      case 'awaiting_patient':
+        return AppointmentStatus.awaitingPatient;
+      case 'confirmed':
+        return AppointmentStatus.confirmed;
       case 'completed':
         return AppointmentStatus.completed;
-
-      case 'arrived':
-        return AppointmentStatus.arrived;
-
-      case 'ongoing':
-        return AppointmentStatus.ongoing;
-
-      case 'rescheduled':
-        return AppointmentStatus.rescheduled;
-
+      case 'cancelled':
+      case 'canceled':
+        return AppointmentStatus.cancelled;
+      case 'pending':
       default:
-        return AppointmentStatus.allStatus;
+        return AppointmentStatus.pending;
     }
   }
 }
@@ -363,10 +375,15 @@ enum RequestType {
 
 enum MessageType {
   text('text', 'Text'),
+  normal('normal', 'Normal'),
   media('media', 'Media'),
   document('document', 'Document'),
   sharedRequest('request', 'Shared Request'),
-  appointment('appointment', 'Appointment');
+  appointment('appointment', 'Appointment'),
+  planApproval('plan_approval', 'Plan Approval'),
+  treatmentInstructions('treatment_instructions', 'Treatment Instructions'),
+  sessionCompleted('session_completed', 'Session Completed'),
+  consentForm('consent_form', 'Consent Form');
 
   final String value;
   final String label;
@@ -377,7 +394,7 @@ enum MessageType {
     if (value == null) return MessageType.text;
     final val = value.toLowerCase();
     return MessageType.values.firstWhere(
-      (e) => e.value.toLowerCase() == val,
+          (e) => e.value.toLowerCase() == val,
       orElse: () => MessageType.text,
     );
   }

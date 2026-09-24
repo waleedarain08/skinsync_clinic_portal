@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import '../../models/responses/messages_response.dart';
-import '../../utils/theme.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 
 class MediaChatBubble extends StatelessWidget {
   final Message message;
@@ -13,8 +15,11 @@ class MediaChatBubble extends StatelessWidget {
     final isMe = message.isMe;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: context.w(480)),
-      padding: context.appEdgeInsets(horizontal: 12, vertical: 12),
+      constraints: BoxConstraints(maxWidth: context.w(320)),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.w(12),
+        vertical: context.h(12),
+      ),
       decoration: BoxDecoration(
         color: isMe ? CustomColors.purple : CustomColors.white,
         borderRadius: BorderRadius.only(
@@ -24,11 +29,11 @@ class MediaChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
         ),
         border: Border.all(
-          color: isMe ? CustomColors.purple : CustomColors.border,
+          color: isMe ? CustomColors.purple : CustomColors.grey,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -39,14 +44,14 @@ class MediaChatBubble extends StatelessWidget {
         children: [
           if (message.content?.isNotEmpty ?? false) ...[
             Padding(
-              padding: context.appEdgeInsets(horizontal: 4, bottom: 8),
+              padding: EdgeInsets.only(
+                left: context.w(4),
+                right: context.w(4),
+                bottom: context.h(8),
+              ),
               child: Text(
                 message.content!,
-                style: isMe
-                    ? context.fonts.white14w600.copyWith(
-                        fontWeight: FontWeight.w400,
-                      )
-                    : context.fonts.black14w400,
+                style: isMe ? CustomFonts.white14w600 : CustomFonts.black14w400,
               ),
             ),
           ],
@@ -56,7 +61,7 @@ class MediaChatBubble extends StatelessWidget {
                 ? Image.network(
                     message.mediaUrl!,
                     width: double.infinity,
-                    height: context.h(220),
+                    height: context.h(200),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         _buildPlaceholderImage(context),
@@ -65,14 +70,14 @@ class MediaChatBubble extends StatelessWidget {
           ),
           // if (message.mediaCaption != null &&
           //     message.mediaCaption!.isNotEmpty) ...[
-          //   context.verticalSpace(8),
+          //   SizedBox(height: context.h(8)),
           //   Padding(
-          //     padding: context.appEdgeInsets(horizontal: 4),
+          //     padding: EdgeInsets.symmetric(horizontal: context.w(4)),
           //     child: Text(
           //       message.mediaCaption!,
           //       style: isMe
-          //           ? context.fonts.white12w400
-          //           : context.fonts.grey12w400,
+          //           ? CustomFonts.white12w400
+          //           : CustomFonts.grey12w400,
           //     ),
           //   ),
           // ],
@@ -85,17 +90,17 @@ class MediaChatBubble extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: context.h(180),
-      color: CustomColors.softGrey,
+      color: CustomColors.grey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.image_outlined,
             size: context.sp(40),
-            color: CustomColors.grey,
+            color: CustomColors.slateBlue,
           ),
-          context.verticalSpace(8),
-          Text('Media Preview', style: context.fonts.grey12w400),
+          SizedBox(height: context.h(8)),
+          Text('Media Preview', style: CustomFonts.grey12w400),
         ],
       ),
     );

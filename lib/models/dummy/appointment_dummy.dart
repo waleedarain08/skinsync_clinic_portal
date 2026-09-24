@@ -33,7 +33,7 @@ final List<AppointmentModel> dummyAppointments = [
     time: '10:00 AM',
     doctor: 'Dr. Sarah Smith',
     amount: 350,
-    status: AppointmentStatus.arrived,
+    status: AppointmentStatus.confirmed,
     isToday: true,
   ),
   const AppointmentModel(
@@ -44,7 +44,7 @@ final List<AppointmentModel> dummyAppointments = [
     time: '11:00 AM',
     doctor: 'Dr. Michael Lee',
     amount: 450,
-    status: AppointmentStatus.ongoing,
+    status: AppointmentStatus.pending,
     isToday: true,
   ),
   const AppointmentModel(
@@ -55,7 +55,7 @@ final List<AppointmentModel> dummyAppointments = [
     time: '09:00 AM',
     doctor: 'Dr. Sarah Smith',
     amount: 600,
-    status: AppointmentStatus.delayed,
+    status: AppointmentStatus.rescheduled,
     isToday: true,
   ),
   const AppointmentModel(
@@ -66,7 +66,7 @@ final List<AppointmentModel> dummyAppointments = [
     time: '02:00 PM',
     doctor: 'Dr. Adams',
     amount: 250,
-    status: AppointmentStatus.noShow,
+    status: AppointmentStatus.no_show,
     isToday: true,
   ),
   const AppointmentModel(
@@ -88,7 +88,7 @@ final List<AppointmentModel> dummyAppointments = [
     time: '01:00 PM',
     doctor: 'Dr. Adams',
     amount: 200,
-    status: AppointmentStatus.ongoing,
+    status: AppointmentStatus.pending,
     isToday: false,
   ),
 ];

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import '../../models/responses/messages_response.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 import '../../utils/date_time_utills.dart';
-import '../../utils/enums.dart';
-import '../../utils/theme.dart';
 import 'appointment_chat_bubble.dart';
+import 'consent_form_chat_bubble.dart';
 import 'document_chat_bubble.dart';
+import 'instructions_chat_bubble.dart';
 import 'media_chat_bubble.dart';
 import 'normal_chat_bubble.dart';
+import 'plan_approval_chat_bubble.dart';
+import 'session_completed_chat_bubble.dart';
 import 'shared_request_chat_bubble.dart';
 
 class ChatMessageBubble extends StatelessWidget {
@@ -31,13 +36,13 @@ class ChatMessageBubble extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: context.h(4)),
               child: Text(
-                '${message.senderName}, ${message.createdAt?.formattedDateTime}',
-                style: context.fonts.grey11w400,
+                '${message.senderName}, ${message.createdAt?.formattedDateTime ?? ''}',
+                style: CustomFonts.grey12w400,
               ),
             ),
             _buildTypedBubble(context),
             if (isMe) ...[
-              context.verticalSpace(4),
+              SizedBox(height: context.h(4)),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -48,10 +53,15 @@ class ChatMessageBubble extends StatelessWidget {
                     size: context.sp(14),
                     color: CustomColors.purple,
                   ),
-                  context.horizontalSpace(4),
+                  SizedBox(width: context.w(4)),
                   Text(
                     message.isRead ? 'Read' : 'Sent',
-                    style: context.fonts.purple11w600,
+                    style: TextStyle(
+                      fontSize: context.sp(11),
+                      fontWeight: FontWeight.w600,
+                      color: CustomColors.purple,
+                      fontFamily: 'Degular',
+                    ),
                   ),
                 ],
               ),
@@ -63,13 +73,19 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildTypedBubble(BuildContext context) {
+
     return switch (message.type) {
-      null => const SizedBox.shrink(),
-      MessageType.text => NormalChatBubble(message: message),
-      MessageType.media => MediaChatBubble(message: message),
-      MessageType.document => DocumentChatBubble(message: message),
-      MessageType.sharedRequest => SharedRequestChatBubble(message: message),
-      MessageType.appointment => AppointmentChatBubble(message: message),
+      .media => MediaChatBubble(message: message),
+      .document => DocumentChatBubble(message: message),
+      .sharedRequest => SharedRequestChatBubble(message: message),
+      .appointment => AppointmentChatBubble(message: message),
+      .normal => NormalChatBubble(message: message),
+      .text => NormalChatBubble(message: message),
+      .planApproval => PlanApprovalChatBubble(message: message),
+      .treatmentInstructions => InstructionsChatBubble(message: message),
+      .sessionCompleted => SessionCompletedChatBubble(message: message),
+      .consentForm => ConsentFormChatBubble(message: message),
+      null => throw UnimplementedError(),
     };
   }
 }

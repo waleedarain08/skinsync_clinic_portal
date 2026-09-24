@@ -1021,7 +1021,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     extra: widget.treatmentRequestData,
                   );
                 }
-              } else if (value == 'appointment') {
+              }
+              // else if (value == 'appointment') {
                 // _sendMessage(
                 //   customText: 'Attached appointment confirmation details.',
                 //   messageType: MessageType.appointment,
@@ -1035,7 +1036,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 //     status: 'Confirmed',
                 //   ),
                 // );
-              }
+              // }
             },
             itemBuilder: (context) => [
               PopupMenuItem(

@@ -177,7 +177,7 @@ class _AppointmentScreenState extends ConsumerState<AppointmentScreen> {
                           onChanged: (value) {
                             final selected = filters.firstWhere(
                               (f) => f.name == value,
-                              orElse: () => Filters(),
+                              orElse: () => const Filters(),
                             );
                             ref
                                 .read(appointmentProvider.notifier)

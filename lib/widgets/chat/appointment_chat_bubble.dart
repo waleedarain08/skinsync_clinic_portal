@@ -1,17 +1,94 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../models/responses/appointment_detail_response.dart';
 import '../../models/responses/messages_response.dart';
 import '../../models/treatment_detail_model.dart';
 import '../../screens/dashboard/appointment_detail_screen.dart';
+import '../../utils/color_constant.dart';
+import '../../utils/custom_fonts.dart';
 import '../../utils/date_time_utills.dart';
-import '../../utils/theme.dart';
+import '../../utils/enums.dart';
 import '../../view_models/appointment_view_model.dart';
 import '../borderd_container_widget.dart';
+import '../custom_button.dart';
+
+// ---------------------------------------------------------------------------
+// Custom Colors & Extensions for UI/UX alignment
+// ---------------------------------------------------------------------------
+
+class AppColors {
+  static const Color white = CustomColors.white;
+  static const Color purple = CustomColors.purple;
+  static const Color whiteGrey = Color(0xFFF7F7F8);
+  static const Color grey = CustomColors.lightGrey;
+  static const Color border = CustomColors.softGrey;
+  static const Color softGrey = Color(0xFFEEEEEE);
+  static const Color palePurple = CustomColors.lightPurple;
+}
+
+extension AppointmentBubbleContextExt on BuildContext {
+  EdgeInsets appEdgeInsets({
+    double? all,
+    double? horizontal,
+    double? vertical,
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+  }) {
+    if (all != null) return EdgeInsets.all(r(all));
+    return EdgeInsets.only(
+      left: w(left ?? horizontal ?? 0),
+      right: w(right ?? horizontal ?? 0),
+      top: h(top ?? vertical ?? 0),
+      bottom: h(bottom ?? vertical ?? 0),
+    );
+  }
+
+  BorderRadius appBorderRadius({
+    double? all,
+    double? topLeft,
+    double? topRight,
+    double? bottomLeft,
+    double? bottomRight,
+  }) {
+    if (all != null) return BorderRadius.circular(r(all));
+    return BorderRadius.only(
+      topLeft: Radius.circular(r(topLeft ?? 0)),
+      topRight: Radius.circular(r(topRight ?? 0)),
+      bottomLeft: Radius.circular(r(bottomLeft ?? 0)),
+      bottomRight: Radius.circular(r(bottomRight ?? 0)),
+    );
+  }
+
+  AppFontsExt get fonts => const AppFontsExt();
+
+  void push(String routeName, {Object? extra}) {
+    Navigator.pushNamed(this, routeName, arguments: extra);
+  }
+}
+
+class AppFontsExt {
+  const AppFontsExt();
+
+  TextStyle get black14w600 => CustomFonts.black14w600;
+  TextStyle get black16w600 => CustomFonts.black16w600;
+  TextStyle get black13w600 => CustomFonts.black13w600;
+  TextStyle get black12w600 => CustomFonts.black12w600;
+  TextStyle get black14w400 => CustomFonts.black14w400;
+  TextStyle get purple11w600 => CustomFonts.purple11w600.copyWith(fontSize: 11.sp);
+  TextStyle get grey12w400 => CustomFonts.grey12w400;
+  TextStyle get grey13w500 => CustomFonts.grey13w500;
+  TextStyle get white14w600 => CustomFonts.white14w600;
+}
+
+// ---------------------------------------------------------------------------
+// AppointmentChatBubble Widget
+// ---------------------------------------------------------------------------
 
 class AppointmentChatBubble extends StatelessWidget {
   final Message message;
@@ -22,13 +99,20 @@ class AppointmentChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMe = message.isMe;
     final appointment = message.appointmentData;
-    final customNote = appointment?.customMessage;
+    final apptStatus = AppointmentStatus.fromValue(appointment?.status);
+    final isInReview = apptStatus.isInReview ||
+        apptStatus.isChangesRequested ||
+        apptStatus.isAwaitingPatient;
+    final headerTitle =
+    isInReview ? 'Treatment Plan' : 'Appointment Receipt & Summary';
+    final buttonText =
+    isInReview ? 'View / Modify Treatment Plan' : 'View Appointment Details';
 
     return Container(
-      constraints: BoxConstraints(maxWidth: context.w(560)),
+      constraints: BoxConstraints(maxWidth: context.w(340)),
       padding: context.appEdgeInsets(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: CustomColors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(context.r(16)),
           topRight: Radius.circular(context.r(16)),
@@ -36,7 +120,7 @@ class AppointmentChatBubble extends StatelessWidget {
           bottomRight: Radius.circular(isMe ? context.r(2) : context.r(16)),
         ),
         border: Border.all(
-          color: CustomColors.purple.withValues(alpha: 0.3),
+          color: AppColors.purple.withValues(alpha: 0.3),
           width: 1.5,
         ),
         boxShadow: [
@@ -53,71 +137,52 @@ class AppointmentChatBubble extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: context.appEdgeInsets(all: 6),
-                    decoration: BoxDecoration(
-                      color: CustomColors.purple.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: context.appEdgeInsets(all: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.purple.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Iconsax.calendar_tick,
+                        size: context.sp(16),
+                        color: AppColors.purple,
+                      ),
                     ),
-                    child: Icon(
-                      Iconsax.calendar_tick,
-                      size: context.sp(16),
-                      color: CustomColors.purple,
+                    context.horizontalSpace(8),
+                    Expanded(
+                      child: Text(
+                        headerTitle,
+                        style: AppointmentBubbleContextExt(context).fonts.black14w600,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  context.horizontalSpace(8),
-                  Text(
-                    'Appointment Receipt & Summary',
-                    style: context.fonts.black14w600,
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (appointment != null &&
                   appointment.status != null &&
-                  appointment.status!.isNotEmpty)
+                  appointment.status!.isNotEmpty) ...[
+                context.horizontalSpace(6),
                 Container(
-                  padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
+                  padding: context.appEdgeInsets(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    color: AppColors.purple.withValues(alpha: 0.1),
                     borderRadius: context.appBorderRadius(all: 12),
                   ),
                   child: Text(
                     appointment.status!.toUpperCase(),
-                    style: context.fonts.purple11w600,
+                    style: AppointmentBubbleContextExt(context).fonts.purple11w600,
                   ),
                 ),
+              ],
             ],
           ),
           context.verticalSpace(14),
-          if (customNote != null && customNote.trim().isNotEmpty) ...[
-            BorderdContainerWidget(
-              padding: context.appEdgeInsets(all: 12),
-              backgroundColor: CustomColors.purple.withValues(alpha: 0.08),
-              borderColor: CustomColors.purple.withValues(alpha: 0.3),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: CustomColors.purple,
-                  ),
-                  context.horizontalSpace(8),
-                  Expanded(
-                    child: Text(
-                      customNote,
-                      style: context.fonts.purple12w700.copyWith(
-                        height: 1.35,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            context.verticalSpace(14),
-          ],
           if (appointment != null) ...[
             // Patient Header
             _buildPatientHeader(context, appointment),
@@ -146,39 +211,32 @@ class AppointmentChatBubble extends StatelessWidget {
             ],
 
             context.verticalSpace(16),
-            SizedBox(
-              width: double.infinity,
-              child: Consumer(
-                builder: (_, ref, _) {
-                  return ElevatedButton.icon(
-                    onPressed: () {
-                      if (appointment.id != null) {
-                        ref
-                            .read(appointmentProvider.notifier)
-                            .getAppointmentsDetail(id: appointment.id!);
-                      }
-                      context.push(AppointmentDetailScreen.routeName);
-                    },
-                    icon: Icon(
-                      Iconsax.calendar_1,
-                      size: context.sp(16),
-                      color: CustomColors.white,
-                    ),
-                    label: const Text('View Appointment Details'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: CustomColors.purple,
-                      foregroundColor: CustomColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: context.appBorderRadius(all: 8),
-                      ),
-                      padding: context.appEdgeInsets(vertical: 12),
-                    ),
-                  );
-                },
-              ),
+            Consumer(
+              builder: (_, ref, _) {
+                return CustomButton(
+                  text: buttonText,
+                  height: context.h(48),
+                  borderRadius: context.r(12),
+                  onPressed: () {
+                    if (appointment.id != null) {
+                      ref
+                          .read(appointmentProvider.notifier)
+                          .getAppointmentsDetail(id: appointment.id!);
+                      context.push(
+                        AppointmentDetailScreen.routeName,
+                        // extra: AppointmentItem(
+                        //   appointmentId: appointment.id,
+                        //   appointmentKey: appointment.appointmentKey,
+                        //   status: appointment.status,
+                        // ),
+                      );
+                    }
+                  },
+                );
+              },
             ),
           ] else if (message.content?.isNotEmpty ?? false) ...[
-            Text(message.content!, style: context.fonts.black14w400),
+            Text(message.content!, style: AppointmentBubbleContextExt(context).fonts.black14w400),
           ],
         ],
       ),
@@ -199,38 +257,44 @@ class AppointmentChatBubble extends StatelessWidget {
     ].join(' | ');
 
     final dateStr =
-        appt.date != null ? DateTimeUtils.formatTimestamp(appt.date!) : '';
+    appt.date != null ? DateTimeUtils.formatTimestamp(appt.date!) : '';
     final timeSlot = appt.startTime != null && appt.endTime != null
         ? '${DateTimeUtils.formatTimestampToTime(appt.startTime!)} - ${DateTimeUtils.formatTimestampToTime(appt.endTime!)}'
         : appt.startTime != null
-            ? DateTimeUtils.formatTimestampToTime(appt.startTime!)
-            : '';
+        ? DateTimeUtils.formatTimestampToTime(appt.startTime!)
+        : '';
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 16),
-      backgroundColor: CustomColors.whiteGrey,
+      backgroundColor: AppColors.whiteGrey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                patientName,
-                style: context.fonts.black16w600,
+              Expanded(
+                child: Text(
+                  patientName,
+                  style: AppointmentBubbleContextExt(context).fonts.black16w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              if (tagText.isNotEmpty)
+              if (tagText.isNotEmpty) ...[
+                context.horizontalSpace(6),
                 Container(
                   padding: context.appEdgeInsets(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: CustomColors.purple.withValues(alpha: 0.1),
+                    color: AppColors.purple.withValues(alpha: 0.1),
                     borderRadius: context.appBorderRadius(all: 12),
                   ),
                   child: Text(
                     tagText,
-                    style: context.fonts.purple11w600,
+                    style: AppointmentBubbleContextExt(context).fonts.purple11w600,
                   ),
                 ),
+              ],
             ],
           ),
           if (patientEmail.isNotEmpty || patientPhone.isNotEmpty) ...[
@@ -239,37 +303,51 @@ class AppointmentChatBubble extends StatelessWidget {
               children: [
                 if (patientEmail.isNotEmpty) ...[
                   const Icon(Icons.email_outlined,
-                      size: 14, color: CustomColors.grey),
+                      size: 14, color: AppColors.grey),
                   context.horizontalSpace(4),
-                  Text(patientEmail, style: context.fonts.grey12w400),
-                  context.horizontalSpace(16),
+                  Expanded(
+                    child: Text(
+                      patientEmail,
+                      style: AppointmentBubbleContextExt(context).fonts.grey12w400,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  context.horizontalSpace(8),
                 ],
                 if (patientPhone.isNotEmpty) ...[
                   const Icon(Icons.phone_outlined,
-                      size: 14, color: CustomColors.grey),
+                      size: 14, color: AppColors.grey),
                   context.horizontalSpace(4),
-                  Text(patientPhone, style: context.fonts.grey12w400),
+                  Text(patientPhone, style: AppointmentBubbleContextExt(context).fonts.grey12w400),
                 ],
               ],
             ),
           ],
-          const Divider(height: 20, color: CustomColors.border),
+          const Divider(height: 20, color: AppColors.border),
           Row(
             children: [
               const Icon(Icons.calendar_month_outlined,
-                  size: 16, color: CustomColors.purple),
+                  size: 16, color: AppColors.purple),
               context.horizontalSpace(6),
-              Text(
-                'Date: $dateStr',
-                style: context.fonts.black13w600,
+              Flexible(
+                child: Text(
+                  'Date: $dateStr',
+                  style: AppointmentBubbleContextExt(context).fonts.black13w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              context.horizontalSpace(20),
+              context.horizontalSpace(12),
               const Icon(Icons.access_time_rounded,
-                  size: 16, color: CustomColors.purple),
+                  size: 16, color: AppColors.purple),
               context.horizontalSpace(6),
-              Text(
-                'Slot: $timeSlot',
-                style: context.fonts.black13w600,
+              Flexible(
+                child: Text(
+                  'Slot: $timeSlot',
+                  style: AppointmentBubbleContextExt(context).fonts.black13w600,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -279,16 +357,16 @@ class AppointmentChatBubble extends StatelessWidget {
   }
 
   Widget _buildPractitionersSection(BuildContext context, Doctor doctor) {
-    final docName = doctor.name ?? 'Doctor';
+    final docName = doctor.name;
     final roleOrSpec =
-        doctor.specialization ?? doctor.title ?? 'Practitioner';
+        doctor.specialization;
 
     return BorderdContainerWidget(
       padding: context.appEdgeInsets(all: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Assigned Practitioners', style: context.fonts.black14w600),
+          Text('Assigned Practitioners', style: AppointmentBubbleContextExt(context).fonts.black14w600),
           context.verticalSpace(8),
           Wrap(
             spacing: 8,
@@ -297,21 +375,21 @@ class AppointmentChatBubble extends StatelessWidget {
               Container(
                 padding: context.appEdgeInsets(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: CustomColors.purple.withValues(alpha: 0.08),
+                  color: AppColors.purple.withValues(alpha: 0.08),
                   borderRadius: context.appBorderRadius(all: 8),
                   border: Border.all(
-                    color: CustomColors.purple.withValues(alpha: 0.3),
+                    color: AppColors.purple.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.person,
-                        size: 14, color: CustomColors.purple),
+                        size: 14, color: AppColors.purple),
                     context.horizontalSpace(6),
                     Text(
                       '$docName ($roleOrSpec)',
-                      style: context.fonts.black12w600,
+                      style: AppointmentBubbleContextExt(context).fonts.black12w600,
                     ),
                   ],
                 ),
@@ -330,13 +408,13 @@ class AppointmentChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Treatments & Services', style: context.fonts.black14w600),
+          Text('Treatments & Services', style: AppointmentBubbleContextExt(context).fonts.black14w600),
           context.verticalSpace(10),
           ...treatments.map((t) {
             final treatmentName = t.treatmentName ?? 'Treatment';
             final areaName = t.areaName;
             final cost = t.treatmentCost ?? 0.0;
-            final materialName = t.material?.materialName ?? t.material?.unitType;
+            final materialName = t.material?.materialName;
             final materialQty = t.material?.selectedQuantity;
             final sessionName = t.sessionName;
 
@@ -363,13 +441,13 @@ class AppointmentChatBubble extends StatelessWidget {
                               (areaName != null && areaName.isNotEmpty
                                   ? ' - $areaName'
                                   : ''),
-                          style: context.fonts.black13w600,
+                          style: AppointmentBubbleContextExt(context).fonts.black13w600,
                         ),
                         if (details.isNotEmpty) ...[
                           context.verticalSpace(2),
                           Text(
                             details,
-                            style: context.fonts.grey12w400,
+                            style: AppointmentBubbleContextExt(context).fonts.grey12w400,
                           ),
                         ],
                       ],
@@ -377,7 +455,7 @@ class AppointmentChatBubble extends StatelessWidget {
                   ),
                   Text(
                     '\$${cost.toStringAsFixed(2)}',
-                    style: context.fonts.black13w600,
+                    style: AppointmentBubbleContextExt(context).fonts.black13w600,
                   ),
                 ],
               ),
@@ -398,7 +476,7 @@ class AppointmentChatBubble extends StatelessWidget {
         : discountValue;
     const amountPaid = 0.0;
     final remainingPayable =
-        (total - discountAmount - amountPaid).clamp(0.0, double.infinity);
+    (total - discountAmount - amountPaid).clamp(0.0, double.infinity);
 
     final payment = appt.paymentType;
     final paymentTypeStr = payment?.type?.toUpperCase() ?? 'N/A';
@@ -406,9 +484,9 @@ class AppointmentChatBubble extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: CustomColors.whiteGrey,
+        color: AppColors.whiteGrey,
         borderRadius: context.appBorderRadius(all: 12),
-        border: Border.all(color: CustomColors.border),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
@@ -437,10 +515,10 @@ class AppointmentChatBubble extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Payment Details', style: context.fonts.grey12w400),
+                    Text('Payment Details', style: AppointmentBubbleContextExt(context).fonts.grey12w400),
                     Text(
                       '$paymentTypeStr | $paymentStatusStr',
-                      style: context.fonts.black12w600,
+                      style: AppointmentBubbleContextExt(context).fonts.black12w600,
                     ),
                   ],
                 ),
@@ -450,7 +528,7 @@ class AppointmentChatBubble extends StatelessWidget {
           Container(
             padding: context.appEdgeInsets(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: CustomColors.purple,
+              color: AppColors.purple,
               borderRadius: context.appBorderRadius(
                 bottomLeft: 12,
                 bottomRight: 12,
@@ -461,11 +539,11 @@ class AppointmentChatBubble extends StatelessWidget {
               children: [
                 Text(
                   'Remaining Payable',
-                  style: context.fonts.white14w600,
+                  style: AppointmentBubbleContextExt(context).fonts.white14w600,
                 ),
                 Text(
                   '\$${remainingPayable.toStringAsFixed(2)}',
-                  style: context.fonts.white14w600,
+                  style: AppointmentBubbleContextExt(context).fonts.white14w600,
                 ),
               ],
             ),
@@ -476,14 +554,14 @@ class AppointmentChatBubble extends StatelessWidget {
   }
 
   Widget _buildSimulationsSection(BuildContext context, Simulations sims) {
-    final simulationsMap = <String, String>{
-      'Front Before': sims.frontImageBefore ?? '',
-      'Front After': sims.frontImageAfter ?? '',
-      'Right Before': sims.rightImageBefore ?? '',
-      'Right After': sims.rightImageAfter ?? '',
-      'Left Before': sims.leftImageBefore ?? '',
-      'Left After': sims.leftImageAfter ?? '',
-    }..removeWhere((k, v) => v.trim().isEmpty);
+    final simulationsMap = <String, String?>{
+      'Front Before': sims.frontImageBefore,
+      'Front After': sims.frontImageAfter,
+      'Right Before': sims.rightImageBefore,
+      'Right After': sims.rightImageAfter,
+      'Left Before': sims.leftImageBefore,
+      'Left After': sims.leftImageAfter,
+    }..removeWhere((k, v) => v?.trim().isEmpty ?? false);
 
     if (simulationsMap.isEmpty) return const SizedBox.shrink();
 
@@ -492,22 +570,22 @@ class AppointmentChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Attached Simulations', style: context.fonts.black14w600),
+          Text('Attached Simulations', style: AppointmentBubbleContextExt(context).fonts.black14w600),
           context.verticalSpace(10),
           Wrap(
             spacing: 12.w,
             runSpacing: 12.h,
             children: simulationsMap.entries.map((entry) {
               final label = entry.key;
-              final url = entry.value.trim();
+              final url = entry.value?.trim() ?? '';
 
               return Container(
                 width: context.w(110),
                 padding: context.appEdgeInsets(all: 6),
                 decoration: BoxDecoration(
-                  color: CustomColors.white,
+                  color: AppColors.white,
                   borderRadius: context.appBorderRadius(all: 8),
-                  border: Border.all(color: CustomColors.border),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -520,48 +598,48 @@ class AppointmentChatBubble extends StatelessWidget {
                         height: context.h(80),
                         child: url.startsWith('http')
                             ? CachedNetworkImage(
-                                imageUrl: url,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  color: CustomColors.softGrey,
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  color: CustomColors.palePurple,
-                                  child: const Icon(
-                                    Icons.broken_image_outlined,
-                                    size: 22,
-                                    color: CustomColors.grey,
-                                  ),
-                                ),
-                              )
-                            : Image.asset(
-                                url,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                  color: CustomColors.palePurple,
-                                  child: const Icon(
-                                    Icons.broken_image_outlined,
-                                    size: 22,
-                                    color: CustomColors.grey,
-                                  ),
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: AppColors.softGrey,
+                            child: const Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
                               ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: AppColors.palePurple,
+                            child: const Icon(
+                              Icons.broken_image_outlined,
+                              size: 22,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        )
+                            : Image.asset(
+                          url,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: AppColors.palePurple,
+                                child: const Icon(
+                                  Icons.broken_image_outlined,
+                                  size: 22,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                        ),
                       ),
                     ),
                     context.verticalSpace(6),
                     Text(
                       label,
-                      style: context.fonts.purple11w600,
+                      style: AppointmentBubbleContextExt(context).fonts.purple11w600,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -580,8 +658,8 @@ class AppointmentChatBubble extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: context.fonts.grey13w500),
-        Text(value, style: context.fonts.black13w600),
+        Text(label, style: AppointmentBubbleContextExt(context).fonts.grey13w500),
+        Text(value, style: AppointmentBubbleContextExt(context).fonts.black13w600),
       ],
     );
   }
