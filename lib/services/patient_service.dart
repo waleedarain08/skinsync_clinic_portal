@@ -1,6 +1,8 @@
 import '../models/requests/register_patient_request.dart';
+import '../models/responses/patient_clinical_journey_response.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
+import '../models/responses/patient_treatment_progress_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../models/responses/register_patient_response.dart';
 import '../repositories/patient_repository.dart';
@@ -91,6 +93,48 @@ class PatientService extends PatientRepository {
     );
 
     final model = RegisterPatientResponse.fromJson(response);
+
+    if (!model.success) {
+      throw Exception(model.message);
+    }
+
+    return model;
+  }
+
+  @override
+  Future<PatientTreatmentProgressResponse> getPatientTreatmentProgress({
+    required int patientId,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.treatmentProgress,
+      requestType: RequestType.get,
+      queryParams: {
+        'patient_id': patientId.toString(),
+      },
+    );
+
+    final model = PatientTreatmentProgressResponse.fromJson(response);
+
+    if (!model.success) {
+      throw Exception(model.message);
+    }
+
+    return model;
+  }
+
+  @override
+  Future<PatientClinicalJourneyResponse> getPatientClinicalJourney({
+    required int patientId,
+  }) async {
+    final response = await locator<ApiBaseService>().httpRequest(
+      endPoint: Endpoint.clinicalJourney,
+      requestType: RequestType.get,
+      queryParams: {
+        'patient_id': patientId.toString(),
+      },
+    );
+
+    final model = PatientClinicalJourneyResponse.fromJson(response);
 
     if (!model.success) {
       throw Exception(model.message);

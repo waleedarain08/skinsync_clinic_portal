@@ -102,7 +102,9 @@ enum Endpoint {
   appointmentsAvailability('clinic/appointments/availability'),
   aiOnboardingChat('clinic/ai-onboarding/chat'),
   clinicCurrentPlan('clinic/clinic-current-plan'),
-  subscribe('clinic/subscribe');
+  subscribe('clinic/subscribe'),
+  clinicalJourney('clinic/clinical-journey'),
+  treatmentProgress('clinic/treatment-progress');
 
 
   final String path;
