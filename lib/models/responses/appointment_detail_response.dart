@@ -122,6 +122,32 @@ class AppointmentDetailData {
             : DateTime.tryParse(json["created_at"].toString()),
       );
 
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    'chat_id': chatId,
+    "appointment_key": appointmentKey,
+    // "clinic": clinic?.toJson(),
+    "doctor": doctor?.toJson(),
+    "patient": patient?.toJson(),
+    "appointment_type": appointmentType?.toJson(),
+    "date": date,
+    "start_time": startTime,
+    "end_time": endTime,
+    "is_invite_clinic": isInviteClinic,
+    "simulations": simulations?.toJson(),
+    "treatments": treatments == null
+        ? []
+        : List<dynamic>.from(treatments!.map((x) => x.toJson())),
+    "treatment_total": treatmentTotal,
+    "payment_type": paymentType?.toJson(),
+    "discount_type": discountType,
+    "discount": discount,
+    "booking_type": bookingType,
+    "status": status,
+    "custom_message": customMessage,
+    "created_at": createdAt?.toIso8601String(),
+  };
+
   AppointmentDetailData copyWith({
     int? id,
     int? chatId,

@@ -77,7 +77,7 @@ class _CreateAppointmentScreenState
 
   // Section 2: Treatment & Services
   Filters? _selectedAppointmentTypeFilter;
-  static final Filters _allRoleFilter = Filters(id: 0, name: 'All');
+  static const Filters _allRoleFilter = Filters(id: 0, name: 'All');
   Filters? _selectedRoleFilter = _allRoleFilter;
   TreatmentModel? _selectedDropdownTreatment;
 
@@ -548,7 +548,7 @@ void _fetchAvailabilitySlots() {
                       context.horizontalSpace(16),
                       CustomPrimaryButton(
                         onTap: () => _submitForm(state, viewModel),
-                        label: 'Save Appointment',
+                        label: 'Save Plan',
                         height: context.h(42),
                         width: context.w(200),
                         icon: Icons.check_circle_outline,
@@ -617,7 +617,7 @@ void _fetchAvailabilitySlots() {
                       ),
                       context.horizontalSpace(8),
                       Text(
-                        'Create Appointment',
+                        'Create Treatment Plan',
                         style: context.fonts.black16w600,
                       ),
                     ],
@@ -640,7 +640,7 @@ void _fetchAvailabilitySlots() {
     return GradientScaffold(
       appBar: AppBar(
         flexibleSpace: AppDecorations.appBarGradient,
-        title: Text('New Appointment', style: context.fonts.black18w600),
+        title: Text('New Treatment Plan', style: context.fonts.black18w600),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: CustomColors.black),
@@ -688,7 +688,7 @@ void _fetchAvailabilitySlots() {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Appointment Creation',
+                        'Treatment Plan Creation',
                         style: context.fonts.black16w600,
                       ),
                       Text(
@@ -712,7 +712,7 @@ void _fetchAvailabilitySlots() {
                 context.horizontalSpace(12),
                 CustomPrimaryButton(
                   onTap: () => _submitForm(state, viewModel),
-                  label: 'Save Appointment',
+                  label: 'Save Treatment Plan',
                   height: context.h(40),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   icon: Icons.check_circle_outline,
@@ -1645,10 +1645,12 @@ void _fetchAvailabilitySlots() {
                           },
                           onChanged: (val) {
                             setState(() => _selectedRoleFilter = val);
+                            log('VAL: ${val?.name} ${_selectedRoleFilter?.name}');
                             _fetchFilteredPractitioners(roleOverride: val);
                           },
-                          builder: (val) =>
-                              Text(val.name ?? 'Role ${val.id}', style: context.fonts.black14w400),
+                          builder: (val) {
+                            return Text(val.name ?? 'Role ${val.id}', style: context.fonts.black14w400);
+                          },
                         ),
                       ),
                     ],
@@ -1993,13 +1995,13 @@ void _fetchAvailabilitySlots() {
               return _buildBookingMethodCard(method: method);
             }).toList(),
           ),
-        SizedBox(height: context.h(20)),
-        BuildTextField(
-          controller: _notesController,
-          label: 'Special Clinical Notes & Instructions',
-          hintText: 'Enter patient instructions, contraindications, or preparation notes...',
-          maxLines: 3,
-        ),
+        // SizedBox(height: context.h(20)),
+        // BuildTextField(
+        //   controller: _notesController,
+        //   label: 'Special Clinical Notes & Instructions',
+        //   hintText: 'Enter patient instructions, contraindications, or preparation notes...',
+        //   maxLines: 3,
+        // ),
       ],
     );
   }
@@ -2521,7 +2523,6 @@ void _fetchAvailabilitySlots() {
         validValue = null;
       }
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3290,7 +3291,7 @@ void _fetchAvailabilitySlots() {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Appointment created successfully!'),
+                  content: Text('Treatment Plan created successfully!'),
                   backgroundColor: CustomColors.purple,
                 ),
               );

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 
+import 'package:equatable/equatable.dart';
+
 import 'base_response_model.dart';
 
 class FiltersResponse extends BaseApiResponseModel<List<Filters>> {
@@ -30,11 +32,11 @@ class FiltersResponse extends BaseApiResponseModel<List<Filters>> {
   };
 }
 
-class Filters {
+class Filters extends Equatable {
   final int? id;
   final String? name;
 
-  Filters({this.id, this.name});
+  const Filters({this.id, this.name});
 
   factory Filters.fromRawJson(String str) =>
       Filters.fromJson(json.decode(str));
@@ -45,4 +47,7 @@ class Filters {
       Filters(id: json["id"], name: json["name"]);
 
   Map<String, dynamic> toJson() => {"id": id, "name": name};
+
+  @override
+  List<Object?> get props => [id, name];
 }

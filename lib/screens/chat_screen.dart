@@ -514,7 +514,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   label: Text(
                     _isCreateAppointmentOpen
                         ? 'Close Form'
-                        : 'Create Appointment',
+                        : 'Create Treatment Plan',
                     style: context.fonts.white12w700,
                   ),
                   style: ElevatedButton.styleFrom(
@@ -1117,7 +1117,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                     context.horizontalSpace(12),
                     Text(
-                      'Share Appointment Card',
+                      'Share Plan Card',
                       style: context.fonts.black14w400,
                     ),
                   ],
