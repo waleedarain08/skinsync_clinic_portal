@@ -114,20 +114,21 @@ class AiOnboardingChatService extends AiOnboardingChatRepository {
   @override
   Future<AiOnboardingChatMessageResponse> sendMessage({
     required SendAiMessageRequest request,
+    required AiEndpoint endpoint
   }) async {
     final body = request.toJson();
 
     log('[log] BODY: ${jsonEncode(body)}');
     try {
       final uri = Uri.parse(
-        AiBaseUrls.live.url,
+       '${AiBaseUrls.ngrok.url}${endpoint.path}',
       );
 
       final response = await http.post(
         uri,
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Content-Type':'application/json',
+          'Accept':'application/json',
         },
         body: jsonEncode(request.toJson()),
       );

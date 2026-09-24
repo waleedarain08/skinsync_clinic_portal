@@ -102,7 +102,9 @@ enum Endpoint {
   appointmentsAvailability('clinic/appointments/availability'),
   aiOnboardingChat('clinic/ai-onboarding/chat'),
   clinicCurrentPlan('clinic/clinic-current-plan'),
-  subscribe('clinic/subscribe');
+  subscribe('clinic/subscribe'),
+  clinicalJourney('clinic/clinical-journey'),
+  treatmentProgress('clinic/treatment-progress');
 
 
   final String path;
@@ -118,6 +120,21 @@ enum Endpoint {
   }
 }
 
+enum AiEndpoint {
+  onboardingMessage('onboarding/message'),
+  treatmentMessage('treatment/message');
+ final String path;
+
+  const AiEndpoint(this.path);
+
+  String withParams(Map<String, String> params) {
+    var updatedPath = path;
+    params.forEach((key, value) {
+      updatedPath = updatedPath.replaceAll('{$key}', value);
+    });
+    return updatedPath;
+  }
+}
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
    apiQa('https://api-dev.skinsyncai.com/api/');
@@ -130,8 +147,8 @@ enum BaseUrls {
 }
 
 enum AiBaseUrls {
-  live( 'http://18.116.65.70:8003/api/v1/onboarding/message'),
-   ngrok('https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/onboarding/message');
+  live( 'http://18.116.65.70:8003/api/v1/'),
+   ngrok('https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/');
 
   // apiQa('http://localhost:8084/api/');
 

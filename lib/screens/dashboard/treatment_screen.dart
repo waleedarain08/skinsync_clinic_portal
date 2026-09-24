@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../../main.dart';
+import '../../utils/enums.dart';
 import '../../utils/responsive.dart';
 import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
@@ -163,6 +164,7 @@ class _TreatmentScreenState extends ConsumerState<TreatmentScreen> {
           initialMessage: "Hi! I want to add a new treatment to my catalog. Please help me create the details, description, and settings for it.",
           buttonText: 'Add Treatment with AI',
           isBorder: true,
+          endpoint: AiEndpoint.treatmentMessage,
         ),
         if (!isDeploymentMode)
           CustomPrimaryButton(

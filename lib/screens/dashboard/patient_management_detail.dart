@@ -3,16 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../utils/string_utils.dart';
 import '../../models/responses/patient_detail_response.dart';
+import '../../utils/string_utils.dart';
 import '../../utils/theme.dart';
 import '../../view_models/patient_view_model.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/borderd_container_widget.dart';
 import '../../widgets/gradient_scaffold.dart';
-import '../../widgets/patient_simulations_widget.dart';
-import '../../widgets/patient_treatment_history_widget.dart';
-
+import '../../widgets/patient_clinical_journey_widget.dart';
+import '../../widgets/patient_treatment_progress_widget.dart';
 import 'patient_management.dart';
 
 class PatientManagementDetailScreen extends ConsumerStatefulWidget {
@@ -83,6 +82,8 @@ class _PatientManagementDetailScreenState
             context.verticalSpace(24),
             _buildInfoSection(context, patient),
             context.verticalSpace(24),
+
+            // Tabs for Treatment Progress and Clinical Journey
             BorderdContainerWidget(
               padding: EdgeInsets.zero,
               backgroundColor: CustomColors.white,
@@ -90,15 +91,16 @@ class _PatientManagementDetailScreenState
               child: TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'Treatment History'),
-                  Tab(text: 'Simulations'),
+                  Tab(text: 'Treatment Progress'),
+                  Tab(text: 'Treatment Journey'),
                 ],
               ),
             ),
             context.verticalSpace(20),
+
             _currentIndex == 0
-                ? const PatientTreatmentHistoryWidget()
-                : const PatientSimulationsWidget(),
+                ? const PatientTreatmentProgressWidget()
+                : const PatientClinicalJourneyWidget(),
           ],
         ),
       ),

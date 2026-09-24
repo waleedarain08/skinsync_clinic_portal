@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../screens/ai_onboarding_chat_screen.dart';
+import '../utils/enums.dart';
 import '../utils/string_utils.dart';
 import '../models/requests/session_status_request.dart';
 import '../models/responses/session_model.dart';
@@ -336,12 +338,16 @@ class TreatmentSessionExpansionTile extends ConsumerWidget {
               // AI Action Button
               InkWell(
                 onTap: () {
+                  const initialMsg =
+                      "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.";
                   context.pushNamed(
                     AiOnboardingChatScreen.routeName,
                     queryParameters: {
                       'showBackButton': 'true',
+                      'initialMessage': initialMsg,
+                      'endpoint': AiEndpoint.treatmentMessage.name,
                     },
-                    extra: "Hi! I want to update and edit Session 1 details for this treatment area. Please help me modify the session blueprint settings, dosage, or instructions.",
+                    extra: initialMsg,
                   );
                 },
                 borderRadius: BorderRadius.circular(20),

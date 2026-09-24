@@ -53,6 +53,7 @@ import 'screens/splash_screen.dart';
 import 'screens/update_treatment_screen.dart';
 import 'services/locator.dart';
 import 'services/storage_service.dart';
+import 'utils/enums.dart';
 
 class RouteGenerator {
   static final List<String> _authRoutes = [
@@ -193,14 +194,29 @@ class RouteGenerator {
             builder: (context, state) {
               final showBackButton =
                   state.uri.queryParameters['showBackButton'] == 'true';
+
               final initialMessageFromQuery =
                   state.uri.queryParameters['initialMessage'];
-              final initialMessageFromExtra = state.extra as String?;
+
+              final initialMessageFromExtra = state.extra is String
+                  ? state.extra as String?
+                  : (state.extra is Map
+                      ? (state.extra as Map)['initialMessage'] as String?
+                      : null);
+
+              final endpointName = state.uri.queryParameters['endpoint'] ??
+                  (state.extra is Map
+                      ? ((state.extra as Map)['endpoint'] as AiEndpoint?)?.name
+                      : null) ??
+                  'onboardingMessage';
+
+              final endpoint = AiEndpoint.values.byName(endpointName);
 
               return AiOnboardingChatScreen(
                 showBackButton: showBackButton,
                 initialMessage:
                     initialMessageFromExtra ?? initialMessageFromQuery,
+                endpoint: endpoint,
               );
             },
           ),

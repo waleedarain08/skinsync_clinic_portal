@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/responses/patient_clinical_journey_response.dart';
 import '../models/responses/patient_detail_response.dart';
 import '../models/responses/patient_list_response.dart';
+import '../models/responses/patient_treatment_progress_response.dart';
 import '../models/responses/patient_treatment_request_response.dart';
 import '../repositories/patient_repository.dart';
 import '../services/locator.dart';
@@ -94,18 +96,26 @@ class PatientViewModel extends BaseViewModel<PatientState> {
 
       if (response.success) {
         state = state.copyWith(patientDetail: response.data);
-
         success = true;
       }
     });
 
     state = state.copyWith(detailLoading: false);
 
+    // Also fetch Treatment Progress and Clinical Journey for this patient
+    getPatientTreatmentProgress(patientId: patientId);
+    getPatientClinicalJourney(patientId: patientId);
+
     return success;
   }
 
-  void setPatientDetail(PatientDetailData patient){
+  void setPatientDetail(PatientDetailData patient) {
     state = state.copyWith(patientDetail: patient);
+    final id = patient.id;
+    if (id != null) {
+      getPatientTreatmentProgress(patientId: id);
+      getPatientClinicalJourney(patientId: id);
+    }
   }
 
   void clearPatientDetail() {
@@ -160,6 +170,46 @@ class PatientViewModel extends BaseViewModel<PatientState> {
     });
   }
 
+  Future<void> getPatientTreatmentProgress({required int patientId}) async {
+    await runSafely(showLoading: false, () async {
+      state = state.copyWith(progressLoading: true);
+      try {
+        final response =
+            await _repository.getPatientTreatmentProgress(patientId: patientId);
+        if (response.success) {
+          state = state.copyWith(
+            progressLoading: false,
+            treatmentProgressList: response.data ?? [],
+          );
+        } else {
+          state = state.copyWith(progressLoading: false);
+        }
+      } catch (_) {
+        state = state.copyWith(progressLoading: false);
+      }
+    });
+  }
+
+  Future<void> getPatientClinicalJourney({required int patientId}) async {
+    await runSafely(showLoading: false, () async {
+      state = state.copyWith(journeyLoading: true);
+      try {
+        final response =
+            await _repository.getPatientClinicalJourney(patientId: patientId);
+        if (response.success) {
+          state = state.copyWith(
+            journeyLoading: false,
+            clinicalJourneyData: response.data,
+          );
+        } else {
+          state = state.copyWith(journeyLoading: false);
+        }
+      } catch (_) {
+        state = state.copyWith(journeyLoading: false);
+      }
+    });
+  }
+
   void addSharedTreatmentRequest(PatientTreatmentRequestData data) {
     if (state.treatmentRequests.any((s) => s.id == data.id)) {
       return;
@@ -199,6 +249,10 @@ class PatientState {
   final int? treatmentTotalPage;
   final int? treatmentTotalResults;
   final List<PatientTreatmentRequestData> treatmentRequests;
+  final bool progressLoading;
+  final List<PatientTreatmentProgressData> treatmentProgressList;
+  final bool journeyLoading;
+  final PatientClinicalJourneyData? clinicalJourneyData;
 
   const PatientState({
     this.loading = false,
@@ -217,6 +271,10 @@ class PatientState {
     this.treatmentTotalPage,
     this.treatmentTotalResults,
     this.treatmentRequests = const [],
+    this.progressLoading = false,
+    this.treatmentProgressList = const [],
+    this.journeyLoading = false,
+    this.clinicalJourneyData,
   });
 
   PatientState copyWith({
@@ -237,6 +295,10 @@ class PatientState {
     List<PatientTreatmentRequestData>? treatmentRequests,
     int? totalRequest,
     int? totalPatients,
+    bool? progressLoading,
+    List<PatientTreatmentProgressData>? treatmentProgressList,
+    bool? journeyLoading,
+    PatientClinicalJourneyData? clinicalJourneyData,
   }) {
     return PatientState(
       loading: loading ?? this.loading,
@@ -258,6 +320,11 @@ class PatientState {
       treatmentRequests: treatmentRequests ?? this.treatmentRequests,
       totalPatients: totalPatients ?? this.totalPatients,
       totalRequest: totalRequest ?? this.totalRequest,
+      progressLoading: progressLoading ?? this.progressLoading,
+      treatmentProgressList:
+          treatmentProgressList ?? this.treatmentProgressList,
+      journeyLoading: journeyLoading ?? this.journeyLoading,
+      clinicalJourneyData: clinicalJourneyData ?? this.clinicalJourneyData,
     );
   }
 }

@@ -151,9 +151,9 @@ void _fetchAvailabilitySlots() {
 
   // Section 5: Financials & Payment Details
   final _amountController = TextEditingController(text: '0.00');
-  String _paymentType = 'cash';
-  final List<String> _paymentTypes = ['cash', 'card'];
-  String _paymentStatus = 'pending';
+  String _paymentType = 'card';
+  final List<String> _paymentTypes = ['card','cash'];
+  String _paymentStatus = 'unpaid';
   final List<String> _paymentStatuses = ['unpaid', 'paid','half_payment'];
   String _discountType = 'flat';
   final List<String> _discountTypes = ['flat', 'percentage'];
@@ -232,7 +232,7 @@ void _fetchAvailabilitySlots() {
     _bookingMethod = 'online';
     _notesController.clear();
     _paymentType = 'cash';
-    _paymentStatus = 'pending';
+    _paymentStatus = 'unpaid';
     _discountType = 'flat';
     _discountController.clear();
     _amountPaidController.clear();
@@ -2173,7 +2173,11 @@ void _fetchAvailabilitySlots() {
                     Text(val.capitalize, style: context.fonts.black14w400),
               ),
             ),
-            SizedBox(width: context.w(16)),
+          ],
+        ),
+        SizedBox(height: context.h(16)),
+        Row(
+          children: [
             Expanded(
               child: _buildDropdownField<String>(
                 label: 'Payment Status',
