@@ -42,7 +42,7 @@ class PatientClinicalJourneyWidget extends ConsumerWidget {
               padding: context.appEdgeInsets(vertical: 32),
               child: Center(
                 child: Text(
-                  'No clinical journey found for this patient.',
+                  'No treatment journey found for this patient.',
                   style: context.fonts.grey14w400,
                 ),
               ),
@@ -238,7 +238,7 @@ class PatientClinicalJourneyWidget extends ConsumerWidget {
                     ),
                     context.verticalSpace(12),
                     Text(
-                      'Clinical Journey (${journeyData.status ?? "Active"})',
+                      'Treatment Journey (${journeyData.status ?? "Active"})',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
