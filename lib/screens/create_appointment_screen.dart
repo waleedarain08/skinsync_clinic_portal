@@ -692,7 +692,7 @@ void _fetchAvailabilitySlots() {
                         style: context.fonts.black16w600,
                       ),
                       Text(
-                        'Configure appointment patient details, selected treatments, practitioner, schedule, & payment details.',
+                        'Configure appointment patient details, selected treatments, provider, schedule, & payment details.',
                         style: context.fonts.grey12w400,
                       ),
                     ],
@@ -1568,7 +1568,7 @@ void _fetchAvailabilitySlots() {
     final doctors = uniqueDoctorsMap.values.toList();
 
     return _buildSection(
-      title: 'Practitioners & Clinical Schedule',
+      title: 'Provider & Clinical Schedule',
       children: [
         // Top controls: Search Practitioner, Select Date, Select Role
         LayoutBuilder(
@@ -1581,7 +1581,7 @@ void _fetchAvailabilitySlots() {
                   Expanded(
                     child: BuildTextField(
                       controller: _practitionerSearchController,
-                      label: 'Search Practitioner',
+                      label: 'Search Provider',
                       hintText: 'Search by name or email...',
                       prefixIcon: const Icon(Icons.search, size: 18),
                       onChanged: (val) {
@@ -1619,7 +1619,7 @@ void _fetchAvailabilitySlots() {
                 children: [
                   BuildTextField(
                     controller: _practitionerSearchController,
-                    label: 'Search Practitioner',
+                    label: 'Search Provider',
                     hintText: 'Search by name or email...',
                     prefixIcon: const Icon(Icons.search, size: 18),
                     onChanged: (val) {
@@ -1664,7 +1664,7 @@ void _fetchAvailabilitySlots() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Select Practitioner', style: context.fonts.black14w600),
+            Text('Select Provider', style: context.fonts.black14w600),
             if (practitionerState.totalPages > 0)
               NumberPaginator(
                 totalPages: practitionerState.totalPages,
@@ -1685,7 +1685,7 @@ void _fetchAvailabilitySlots() {
           const Center(child: AppLoader())
         else if (doctors.isEmpty)
           Text(
-            'No practitioners available. Search, select a date or role to view practitioners.',
+            'No Provider available. Search, select a date or role to view Providers.',
             style: context.fonts.grey14w400,
           )
         else ...[
@@ -1812,7 +1812,7 @@ void _fetchAvailabilitySlots() {
                               Text(
                                 doctor.name.isNotEmpty
                                     ? doctor.name
-                                    : 'Practitioner ID: ${doctor.id}',
+                                    : 'Provider ID: ${doctor.id}',
                                 style: context.fonts.black14w600,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -3055,7 +3055,7 @@ void _fetchAvailabilitySlots() {
 
     if (_assignedPractitioners.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a practitioner.')),
+        const SnackBar(content: Text('Please select a provider.')),
       );
       return;
     }
