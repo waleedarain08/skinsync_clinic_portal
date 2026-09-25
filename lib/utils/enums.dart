@@ -428,8 +428,8 @@ enum EventType {
   error('error'),
   subscription('subscription'),
   requestShared('request_shared'),
-  newChat('new_chat');
-
+  newChat('new_chat'),
+  rescheduleAppointment('reschedule_appointment');
   final String value;
 
   const EventType(this.value);

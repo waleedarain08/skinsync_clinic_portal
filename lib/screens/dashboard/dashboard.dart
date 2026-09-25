@@ -77,6 +77,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 break;
               case EventType.newAppointment:
                 break;
+                case EventType.rescheduleAppointment:
+                break;
               case EventType.error:
                 log('WebSocket error event received: ${event.data}');
                 break;
@@ -87,6 +89,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   ref.read(patientProvider.notifier).addSharedTreatmentRequest(.fromJson(event.data));
                 }
                 break;
+                 
               case .newChat:
                 if (ref.exists(chatProvider)) {
                   ref.read(chatProvider.notifier).addChat(.fromJson(event.data));
