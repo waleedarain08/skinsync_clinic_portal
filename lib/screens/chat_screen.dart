@@ -453,7 +453,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
             context.horizontalSpace(8),
-            // Header Quick Actions: Add Practitioner, Create Appointment & Toggle Patient Details
             Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 8,
@@ -477,7 +476,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     size: context.sp(16),
                   ),
                   label: Text(
-                    'Add Practitioner',
+                    'Add Provider',
                     style: context.fonts.white12w700,
                   ),
                   style: ElevatedButton.styleFrom(
