@@ -67,7 +67,9 @@ class _DashboardState extends ConsumerState<Dashboard> {
             switch (event.type) {
               case EventType.message:
                 if (ref.exists(chatProvider)) {
-                  ref.read(chatProvider.notifier).addMessage(.fromJson(event.data));
+                  ref
+                      .read(chatProvider.notifier)
+                      .addMessage(.fromJson(event.data));
                 }
                 break;
               case EventType.appointment:
@@ -77,7 +79,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 break;
               case EventType.newAppointment:
                 break;
-                case EventType.rescheduleAppointment:
+              case EventType.rescheduleAppointment:
                 break;
               case EventType.error:
                 log('WebSocket error event received: ${event.data}');
@@ -86,13 +88,17 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 break;
               case .requestShared:
                 if (ref.exists(patientProvider)) {
-                  ref.read(patientProvider.notifier).addSharedTreatmentRequest(.fromJson(event.data));
+                  ref
+                      .read(patientProvider.notifier)
+                      .addSharedTreatmentRequest(.fromJson(event.data));
                 }
                 break;
-                 
+
               case .newChat:
                 if (ref.exists(chatProvider)) {
-                  ref.read(chatProvider.notifier).addChat(.fromJson(event.data));
+                  ref
+                      .read(chatProvider.notifier)
+                      .addChat(.fromJson(event.data));
                 }
                 break;
             }

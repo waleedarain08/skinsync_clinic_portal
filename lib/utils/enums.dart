@@ -106,7 +106,6 @@ enum Endpoint {
   clinicalJourney('clinic/clinical-journey'),
   treatmentProgress('clinic/treatment-progress');
 
-
   final String path;
 
   const Endpoint(this.path);
@@ -123,7 +122,8 @@ enum Endpoint {
 enum AiEndpoint {
   onboardingMessage('onboarding/message'),
   treatmentMessage('treatment/message');
- final String path;
+
+  final String path;
 
   const AiEndpoint(this.path);
 
@@ -135,11 +135,12 @@ enum AiEndpoint {
     return updatedPath;
   }
 }
+
 enum BaseUrls {
   api('https://api.skinsyncai.com/api/'),
-   apiQa('https://api-dev.skinsyncai.com/api/');
+  // apiQa('https://api-dev.skinsyncai.com/api/');
 
-  // apiQa('http://localhost:8084/api/');
+  apiQa('http://localhost:8084/api/');
 
   final String url;
 
@@ -147,8 +148,8 @@ enum BaseUrls {
 }
 
 enum AiBaseUrls {
-  live( 'http://18.116.65.70:8003/api/v1/'),
-   ngrok('https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/');
+  live('http://18.116.65.70:8003/api/v1/'),
+  ngrok('https://parchment-repressed-outskirts.ngrok-free.dev/api/v1/');
 
   // apiQa('http://localhost:8084/api/');
 
@@ -156,7 +157,6 @@ enum AiBaseUrls {
 
   const AiBaseUrls(this.url);
 }
-
 
 enum AuthScreen { login, forgetPassword, verifyOtp, createNewPassword }
 
@@ -222,7 +222,7 @@ enum AppointmentStatus {
 
   Color get color {
     switch (this) {
-    // Intake / review stage: cool neutrals and purples
+      // Intake / review stage: cool neutrals and purples
       case AppointmentStatus.inReview:
         return const Color(0xFF7C3AED); // violet
       case AppointmentStatus.changesRequested:
@@ -230,7 +230,7 @@ enum AppointmentStatus {
       case AppointmentStatus.awaitingPatient:
         return const Color(0xFF0891B2); // cyan (waiting on patient)
 
-    // Booked stage: blues and greens
+      // Booked stage: blues and greens
       case AppointmentStatus.pending:
         return const Color(0xFF6B7280); // gray (not yet decided)
       case AppointmentStatus.scheduled:
@@ -240,13 +240,13 @@ enum AppointmentStatus {
       case AppointmentStatus.rescheduled:
         return const Color(0xFFFFA500); // orange (existing)
 
-    // Day-of stage
+      // Day-of stage
       case AppointmentStatus.checked_in:
         return const Color(0xFF155DFC); // strong blue (existing "arrived")
       case AppointmentStatus.in_progress:
         return const Color(0xFFF2C54A); // amber (existing "ongoing")
 
-    // Terminal stage
+      // Terminal stage
       case AppointmentStatus.completed:
         return Colors.black; // existing
       case AppointmentStatus.no_show:
@@ -312,7 +312,6 @@ enum ProtocolType {
     return ProtocolType.checkbox;
   }
 }
-
 
 enum LotItemStatus {
   available('available', 'Available'),
@@ -394,7 +393,7 @@ enum MessageType {
     if (value == null) return MessageType.text;
     final val = value.toLowerCase();
     return MessageType.values.firstWhere(
-          (e) => e.value.toLowerCase() == val,
+      (e) => e.value.toLowerCase() == val,
       orElse: () => MessageType.text,
     );
   }
@@ -430,6 +429,7 @@ enum EventType {
   requestShared('request_shared'),
   newChat('new_chat'),
   rescheduleAppointment('reschedule_appointment');
+
   final String value;
 
   const EventType(this.value);
@@ -439,8 +439,6 @@ enum EventType {
       throw const UnknownException(message: 'Invalid event type value');
     }
     final val = value.toLowerCase();
-    return EventType.values.firstWhere(
-      (e) => e.value.toLowerCase() == val,
-    );
+    return EventType.values.firstWhere((e) => e.value.toLowerCase() == val);
   }
 }
