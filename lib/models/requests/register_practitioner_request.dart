@@ -10,6 +10,8 @@ class RegisterPractitionerRequest extends BaseRequest {
   final ClinicAccess clinicAccess;
   final AvailabilityInfo availabilityInfo;
   final FinancialInfo financialInfo;
+  final String? timezone;
+  final String? utcOffset;
 
   RegisterPractitionerRequest({
     // required this.basicInfo,
@@ -20,6 +22,8 @@ class RegisterPractitionerRequest extends BaseRequest {
     required this.clinicAccess,
     required this.availabilityInfo,
     required this.financialInfo,
+    this.timezone,
+    this.utcOffset,
   });
 
   @override
@@ -33,6 +37,8 @@ class RegisterPractitionerRequest extends BaseRequest {
       'clinic_access': clinicAccess.toJson(),
       'availability_info': availabilityInfo.toJson(),
       'financial_info': financialInfo.toJson(),
+      if (timezone != null) 'timezone': timezone,
+      if (utcOffset != null) 'utc_offset': utcOffset,
     };
   }
 }

@@ -23,6 +23,7 @@ import '../services/firebase_notification_service.dart';
 import '../services/locator.dart';
 import '../services/media_service.dart';
 import '../services/storage_service.dart';
+import '../utils/timezone_utils.dart';
 import 'base_view_model.dart';
 
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(
@@ -112,10 +113,13 @@ class AuthViewModel extends BaseViewModel<AuthState> {
 
   Future<bool> login({required String email, required String password}) async {
     String? fcmToken = await _getFcmToken();
+    final timezoneInfo = await TimezoneUtils.getTimezoneInfo();
     final request = LoginRequestModel(
       email: email,
       password: password,
       fcmToken: fcmToken ?? '',
+      timezone: timezoneInfo['timezone'],
+      utcOffset: timezoneInfo['utc_offset'],
     );
     return await runSafely<bool?>(showLoading: true, () async {
           final response = await _authRepository.login(req: request);
