@@ -127,9 +127,9 @@ class ChatViewModel extends BaseViewModel<ChatState> {
         practitionerId: practitionerId,
       );
       if (success) {
-        EasyLoading.showSuccess('Practitioner added successfully');
+        EasyLoading.showSuccess('provider added successfully');
       } else {
-        EasyLoading.showError('Failed to add practitioner');
+        EasyLoading.showError('Failed to add provider');
       }
       return success;
     });
